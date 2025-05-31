@@ -1,23 +1,20 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { Database } from '@/lib/database.types'
+
+type Event = Database['public']['Tables']['events']['Row']
+type Record = Database['public']['Tables']['records']['Row']
 
 export default function EventDetailPage() {
   const params = useParams()
   const eventId = typeof params.id === 'string' ? params.id : params.id?.[0]
-  const [event, setEvent] = useState<any>(null)
-  const [records, setRecords] = useState<any[]>([])
+  const [event, setEvent] = useState<Event | null>(null)
+  const [records, setRecords] = useState<Record[]>([])
 
-  useEffect(() => {
-    if (eventId) {
-      fetchEvent()
-      fetchRecords()
-    }
-  }, [eventId])
-
-  const fetchEvent = async () => {
+  const fetchEvent = useCallback(async () => {
     const { data, error } = await supabase
       .from('events')
       .select('*')
@@ -29,9 +26,9 @@ export default function EventDetailPage() {
     } else {
       console.error('이벤트 정보 오류:', error)
     }
-  }
+  }, [eventId])
 
-  const fetchRecords = async () => {
+  const fetchRecords = useCallback(async () => {
     const { data, error } = await supabase
       .from('records')
       .select('*')
@@ -43,7 +40,14 @@ export default function EventDetailPage() {
     } else {
       console.error('기록 정보 오류:', error)
     }
-  }
+  }, [eventId])
+
+  useEffect(() => {
+    if (eventId) {
+      fetchEvent()
+      fetchRecords()
+    }
+  }, [eventId, fetchEvent, fetchRecords])
 
   if (!event) return <div className="p-4">이벤트 정보를 불러오는 중...</div>
 
@@ -73,7 +77,7 @@ export default function EventDetailPage() {
               <tr key={r.id}>
                 <td className="border px-3 py-2 text-center">{i + 1}</td>
                 <td className="border px-3 py-2">{r.nickname}</td>
-                <td className="border px-3 py-2 text-center">{parseFloat(r.lap_time).toFixed(3)}</td>
+                <td className="border px-3 py-2 text-center">{parseFloat(r.lap_time.toString()).toFixed(3)}</td>
                 <td className="border px-3 py-2 text-center">
                   <a href={r.proof_link} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">보기</a>
                 </td>

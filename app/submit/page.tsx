@@ -11,7 +11,7 @@ export default function SubmitRecordPage() {
   const [message, setMessage] = useState('')
 
   const checkDuplicate = async () => {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('records')
       .select('id')
       .eq('event_id', eventId)
