@@ -41,10 +41,10 @@ export default function HomePage() {
               <Link href={`/events/${event.id}`} className="text-xl font-semibold text-white-600 hover:underline">
                 {event.title}
               </Link>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-white-600">
                 {new Date(event.start_date).toLocaleDateString()} ~ {new Date(event.end_date).toLocaleDateString()}
               </p>
-              <p className="mt-2 text-gray-700">{event.description}</p>
+              <p className="mt-2 text-white-700">{event.description}</p>
             </li>
           ))}
         </ul>
