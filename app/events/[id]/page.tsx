@@ -4,37 +4,70 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
+type Event = {
+  id: string
+  title: string
+  description: string
+  start_date: string
+  end_date: string
+  created_at: string
+}
+
+type Record = {
+  id: string
+  event_id: string
+  nickname: string
+  lap_time: number
+  proof_link: string
+  submitted_at: string
+}
+
 export default function EventDetailPage() {
   const params = useParams()
   const eventId = typeof params.id === 'string' ? params.id : params.id?.[0]
-  const [event, setEvent] = useState<any>(null)
-  const [records, setRecords] = useState<any[]>([])
+  const [event, setEvent] = useState<Event | null>(null)
+  const [records, setRecords] = useState<Record[]>([])
 
   useEffect(() => {
-    if (eventId) {
-      fetchEvent()
-      fetchRecords()
+    const loadData = async () => {
+      if (eventId) {
+        const eventData = await fetchEvent()
+        const recordData = await fetchRecords()
+        if (eventData) setEvent(eventData)
+        if (recordData) setRecords(recordData)
+      }
     }
+    loadData()
   }, [eventId])
 
-  const fetchEvent = async () => {
+  const fetchEvent = async (): Promise<Event | null> => {
     const { data, error } = await supabase
       .from('events')
       .select('*')
       .eq('id', eventId)
       .single()
 
-    if (!error && data) setEvent(data)
+    if (error) {
+      console.error('Error fetching event:', error)
+      return null
+    }
+
+    return data
   }
 
-  const fetchRecords = async () => {
+  const fetchRecords = async (): Promise<Record[]> => {
     const { data, error } = await supabase
       .from('records')
       .select('*')
       .eq('event_id', eventId)
       .order('lap_time', { ascending: true })
 
-    if (!error && data) setRecords(data)
+    if (error) {
+      console.error('Error fetching records:', error)
+      return []
+    }
+
+    return data ?? []
   }
 
   if (!event) return <div className="p-4">이벤트 정보를 불러오는 중...</div>
@@ -67,7 +100,7 @@ export default function EventDetailPage() {
                 <td className="border px-3 py-2">{r.nickname}</td>
                 <td className="border px-3 py-2 text-center">{r.lap_time.toFixed(3)}</td>
                 <td className="border px-3 py-2 text-center">
-                  <a href={r.proof_link} target="_blank" className="text-blue-600 underline">보기</a>
+                  <a href={r.proof_link} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">보기</a>
                 </td>
               </tr>
             ))}

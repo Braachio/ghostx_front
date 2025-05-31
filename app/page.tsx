@@ -4,24 +4,36 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 
+type Event = {
+  id: string
+  title: string
+  description: string
+  start_date: string
+  end_date: string
+  status: string
+  created_at: string
+}
+
 export default function HomePage() {
-  const [events, setEvents] = useState<any[]>([])
+  const [events, setEvents] = useState<Event[]>([])
 
   useEffect(() => {
-    fetchEvents()
-  }, [])
+    const loadEvents = async () => {
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .eq('status', 'open')
+        .order('start_date', { ascending: false })
 
-  const fetchEvents = async () => {
-    const { data, error } = await supabase
-      .from('events')
-      .select('*')
-      .eq('status', 'open')
-      .order('start_date', { ascending: false })
-
-    if (!error && data) {
-      setEvents(data)
+      if (!error && data) {
+        setEvents(data)
+      } else if (error) {
+        console.error('Error fetching events:', error)
+      }
     }
-  }
+
+    loadEvents()
+  }, [])
 
   return (
     <div className="max-w-3xl mx-auto p-6">
