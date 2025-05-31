@@ -38,7 +38,7 @@ export default function HomePage() {
         <ul className="space-y-4">
           {events.map((event) => (
             <li key={event.id} className="border p-4 rounded hover:shadow">
-              <Link href={`/events/${event.id}`} className="text-xl font-semibold text-blue-600 hover:underline">
+              <Link href={`/events/${event.id}`} className="text-xl font-semibold text-white-600 hover:underline">
                 {event.title}
               </Link>
               <p className="text-sm text-gray-600">
