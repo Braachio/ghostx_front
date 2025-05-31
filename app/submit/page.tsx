@@ -10,11 +10,29 @@ export default function SubmitRecordPage() {
   const [eventId, setEventId] = useState('')
   const [message, setMessage] = useState('')
 
+  const checkDuplicate = async () => {
+    const { data, error } = await supabase
+      .from('records')
+      .select('id')
+      .eq('event_id', eventId)
+      .eq('nickname', nickname)
+
+    return data && data.length > 0
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    setMessage('') // 메시지 초기화
+
     if (!nickname || !lapTime || !proofLink || !eventId) {
-      setMessage('모든 필드를 입력해주세요.')
+      setMessage('⚠️ 모든 필드를 입력해주세요.')
+      return
+    }
+
+    const isDuplicate = await checkDuplicate()
+    if (isDuplicate) {
+      setMessage('🚫 이미 이 이벤트에 기록을 제출하셨습니다.')
       return
     }
 
@@ -28,9 +46,9 @@ export default function SubmitRecordPage() {
     ])
 
     if (error) {
-      setMessage(`에러: ${error.message}`)
+      setMessage(`❌ 제출 실패: ${error.message}`)
     } else {
-      setMessage('기록이 성공적으로 제출되었습니다!')
+      setMessage('✅ 기록이 성공적으로 제출되었습니다!')
       setNickname('')
       setLapTime('')
       setProofLink('')
@@ -74,7 +92,7 @@ export default function SubmitRecordPage() {
           제출하기
         </button>
       </form>
-      {message && <p className="mt-4">{message}</p>}
+      {message && <p className="mt-4 text-sm text-gray-800">{message}</p>}
     </div>
   )
 }

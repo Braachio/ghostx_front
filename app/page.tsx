@@ -4,36 +4,26 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 
-type Event = {
-  id: string
-  title: string
-  description: string
-  start_date: string
-  end_date: string
-  status: string
-  created_at: string
-}
-
 export default function HomePage() {
-  const [events, setEvents] = useState<Event[]>([])
+  const [events, setEvents] = useState<any[]>([])
 
   useEffect(() => {
-    const loadEvents = async () => {
-      const { data, error } = await supabase
-        .from('events')
-        .select('*')
-        .eq('status', 'open')
-        .order('start_date', { ascending: false })
-
-      if (!error && data) {
-        setEvents(data)
-      } else if (error) {
-        console.error('Error fetching events:', error)
-      }
-    }
-
-    loadEvents()
+    fetchEvents()
   }, [])
+
+  const fetchEvents = async () => {
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .eq('status', 'open')
+      .order('start_date', { ascending: false })
+
+    if (!error && data) {
+      setEvents(data)
+    } else {
+      console.error('이벤트 불러오기 오류:', error)
+    }
+  }
 
   return (
     <div className="max-w-3xl mx-auto p-6">
@@ -48,7 +38,9 @@ export default function HomePage() {
               <Link href={`/events/${event.id}`} className="text-xl font-semibold text-blue-600 hover:underline">
                 {event.title}
               </Link>
-              <p className="text-sm text-gray-600">{event.start_date} ~ {event.end_date}</p>
+              <p className="text-sm text-gray-600">
+                {new Date(event.start_date).toLocaleDateString()} ~ {new Date(event.end_date).toLocaleDateString()}
+              </p>
               <p className="mt-2 text-gray-700">{event.description}</p>
             </li>
           ))}
