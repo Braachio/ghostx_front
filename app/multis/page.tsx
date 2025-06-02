@@ -16,23 +16,22 @@ interface Multi {
 }
 
 export default function MultiListPage() {
-  const [multis, setMultis] = useState<Multi[]>([])
   const [grouped, setGrouped] = useState<Record<string, Multi[]>>({})
 
   useEffect(() => {
     const fetchMultis = async () => {
       const res = await fetch('/api/multis')
-      const data = await res.json()
-      setMultis(data)
+      const data: Multi[] = await res.json()
 
       // 게임별로 그룹핑
       const groupedByGame: Record<string, Multi[]> = {}
-      data.forEach((multi: Multi) => {
+      data.forEach((multi) => {
         if (!groupedByGame[multi.game]) {
           groupedByGame[multi.game] = []
         }
         groupedByGame[multi.game].push(multi)
       })
+
       setGrouped(groupedByGame)
     }
 
@@ -58,9 +57,14 @@ export default function MultiListPage() {
             <h2 className="text-xl font-semibold mb-4 border-b pb-1">{game}</h2>
             <ul className="space-y-4">
               {notices.map((multi) => (
-                <li key={multi.id} className="border rounded-lg p-4 shadow-sm hover:shadow-md transition">
+                <li
+                  key={multi.id}
+                  className="border rounded-lg p-4 shadow-sm hover:shadow-md transition"
+                >
                   <h3 className="text-lg font-bold">{multi.title}</h3>
-                  <p className="text-sm text-gray-500 mb-2">{new Date(multi.created_at).toLocaleString()}</p>
+                  <p className="text-sm text-gray-500 mb-2">
+                    {new Date(multi.created_at).toLocaleString()}
+                  </p>
                   <p>🧭 <strong>멀티명:</strong> {multi.multi_name}</p>
                   <p>📅 <strong>요일:</strong> {multi.multi_day?.join(', ')}</p>
                   <p>🕒 <strong>시간:</strong> {multi.multi_time}</p>
