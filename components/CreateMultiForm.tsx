@@ -62,7 +62,7 @@ export default function CreateMultiForm() {
       </select>
       
       <input type="text" placeholder="공지 제목" value={title} onChange={e => setTitle(e.target.value)} required />
-      <input type="text" placeholder="멀티명 (예: GT3, 포뮬러e 등)" value={multiName} onChange={e => setMultiName(e.target.value)} required />
+      <input type="text" placeholder="클래스 (예: GT3, 포뮬러e 등)" value={multiName} onChange={e => setMultiName(e.target.value)} required />
       <input type="text" placeholder="트랙" value={gameCategory} onChange={e => setGameCategory(e.target.value)} required />
 
       <fieldset>
