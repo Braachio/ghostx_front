@@ -102,6 +102,59 @@ export interface Database {
           }
         ]
       }
+
+      multis: {
+        Row: {
+          id: string
+          title: string
+          game_category: string
+          game: string
+          multi_name: string
+          multi_day: string[]
+          multi_time: string | null
+          is_open: boolean
+          description: string | null
+          author_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          game_category: string
+          game: string
+          multi_name: string
+          multi_day: string[]
+          multi_time?: string | null
+          is_open?: boolean
+          description?: string | null
+          author_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          game_category?: string
+          game?: string
+          multi_name?: string
+          multi_day?: string[]
+          multi_time?: string | null
+          is_open?: boolean
+          description?: string | null
+          author_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "multis_author_id_fkey",
+            columns: ["author_id"],
+            referencedRelation: "users",
+            referencedColumns: ["id"]
+          }
+        ]
+      }      
     }
   }
 }
