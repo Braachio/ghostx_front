@@ -60,12 +60,12 @@ export default function CreateMultiForm() {
       </select>
       
       <input type="text" placeholder="공지 제목" value={title} onChange={e => setTitle(e.target.value)} required />
-      <input type="text" placeholder="게임 카테고리" value={gameCategory} onChange={e => setGameCategory(e.target.value)} required />
-      <input type="text" placeholder="멀티명" value={multiName} onChange={e => setMultiName(e.target.value)} required />
+      <input type="text" placeholder="트랙" value={gameCategory} onChange={e => setGameCategory(e.target.value)} required />
+      <input type="text" placeholder="멀티명 (예: GT3, 포뮬러e 등)" value={multiName} onChange={e => setMultiName(e.target.value)} required />
 
       <fieldset>
         <legend>요일</legend>
-        {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
+        {['월', '화', '수', '목', '금', '토', '일'].map(day => (
           <label key={day} className="mr-2">
             <input type="checkbox" checked={multiDay.includes(day)} onChange={() => handleDayChange(day)} /> {day}
           </label>

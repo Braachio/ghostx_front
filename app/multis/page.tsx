@@ -66,7 +66,7 @@ export default function MultiListPage() {
                     {new Date(multi.created_at).toLocaleString()}
                   </p>
                   <p>🧭 <strong>멀티명:</strong> {multi.multi_name}</p>
-                  <p>📅 <strong>요일:</strong> {multi.multi_day?.join(', ')}</p>
+                  <p>📅 <strong>오픈 요일:</strong> {multi.multi_day?.join(', ')}</p>
                   <p>🕒 <strong>오픈 시간:</strong> {multi.multi_time}</p>
                   <p>🔓 <strong>오픈 여부:</strong> {multi.is_open ? '✅ ON' : '❌ OFF'}</p>
                   <p className="mt-2 text-gray-700 whitespace-pre-line">{multi.description}</p>
