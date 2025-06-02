@@ -54,14 +54,16 @@ export default function CreateMultiForm() {
       <select value={game} onChange={e => setGame(e.target.value)} required>
         <option value="">게임을 선택하세요</option>
         <option value="컴페티치오네">컴페티치오네</option>
-        <option value="아이레이싱">아이레이싱</option>
         <option value="아세토코르사">아세토코르사</option>
+        <option value="그란투리스모7">그란투리스모7</option>
         <option value="르망얼티밋">르망얼티밋</option>
+        <option value="아이레이싱">아이레이싱</option>
+        <option value="알펙터2">알펙터2</option>
       </select>
       
       <input type="text" placeholder="공지 제목" value={title} onChange={e => setTitle(e.target.value)} required />
-      <input type="text" placeholder="트랙" value={gameCategory} onChange={e => setGameCategory(e.target.value)} required />
       <input type="text" placeholder="멀티명 (예: GT3, 포뮬러e 등)" value={multiName} onChange={e => setMultiName(e.target.value)} required />
+      <input type="text" placeholder="트랙" value={gameCategory} onChange={e => setGameCategory(e.target.value)} required />
 
       <fieldset>
         <legend>요일</legend>
