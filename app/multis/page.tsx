@@ -69,7 +69,7 @@ export default function MultiListPage() {
                   <p>📅 <strong>오픈 요일:</strong> {multi.multi_day?.join(', ')}</p>
                   <p>🕒 <strong>오픈 시간:</strong> {multi.multi_time}</p>
                   <p>🔓 <strong>오픈 여부:</strong> {multi.is_open ? '✅ ON' : '❌ OFF'}</p>
-                  <p className="mt-2 text-gray-350 whitespace-pre-line">{multi.description}</p>
+                  <p className="mt-2 text-gray-600 whitespace-pre-line">{multi.description}</p>
                 </li>
               ))}
             </ul>
