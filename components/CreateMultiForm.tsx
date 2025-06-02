@@ -68,6 +68,14 @@ export default function CreateMultiForm() {
       <label>
         <input type="checkbox" checked={isOpen} onChange={e => setIsOpen(e.target.checked)} /> 오픈 여부
       </label>
+      
+      <select value={game} onChange={e => setGame(e.target.value)} required>
+        <option value="">게임을 선택하세요</option>
+        <option value="컴페티치오네">컴페티치오네</option>
+        <option value="아이레이싱">아이레이싱</option>
+        <option value="아세토코르사">아세토코르사</option>
+        <option value="르망얼티밋">르망얼티밋</option>
+      </select>
 
       <textarea placeholder="상세 내용" value={description} onChange={e => setDescription(e.target.value)} />
 
