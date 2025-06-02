@@ -1,8 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
-export default function CreateMultiForm() {
+export default function EditMultiForm({ id }: { id: string }) {
+  const router = useRouter()
+
   const [title, setTitle] = useState('')
   const [gameCategory, setGameCategory] = useState('')
   const [game, setGame] = useState('')
@@ -11,6 +14,24 @@ export default function CreateMultiForm() {
   const [multiTime, setMultiTime] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const [description, setDescription] = useState('')
+
+  useEffect(() => {
+    const fetchNotice = async () => {
+      const res = await fetch(`/api/multis/${id}`)
+      const data = await res.json()
+
+      setTitle(data.title)
+      setGameCategory(data.game_category)
+      setGame(data.game)
+      setMultiName(data.multi_name)
+      setMultiDay(data.multi_day || [])
+      setMultiTime(data.multi_time)
+      setIsOpen(data.is_open)
+      setDescription(data.description)
+    }
+
+    fetchNotice()
+  }, [id])
 
   const handleDayChange = (day: string) => {
     if (multiDay.includes(day)) {
@@ -33,17 +54,17 @@ export default function CreateMultiForm() {
       description,
     }
 
-    const res = await fetch('/api/multis', {
-      method: 'POST',
+    const res = await fetch(`/api/multis/${id}`, {
+      method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     })
 
     if (res.ok) {
-      alert('멀티 공지 등록 완료!')
-      // 초기화 또는 리다이렉트 추가 가능
+      alert('수정 완료!')
+      router.push('/multis')
     } else {
-      alert('등록 실패')
+      alert('수정 실패')
     }
   }
 
@@ -59,9 +80,9 @@ export default function CreateMultiForm() {
         <option value="알펙터2">알펙터2</option>
       </select>
 
-      <input type="text" placeholder="공지 제목" value={title} onChange={e => setTitle(e.target.value)} required />
-      <input type="text" placeholder="클래스 (예: GT3)" value={multiName} onChange={e => setMultiName(e.target.value)} required />
-      <input type="text" placeholder="트랙" value={gameCategory} onChange={e => setGameCategory(e.target.value)} required />
+      <input type="text" value={title} onChange={e => setTitle(e.target.value)} required />
+      <input type="text" value={multiName} onChange={e => setMultiName(e.target.value)} required />
+      <input type="text" value={gameCategory} onChange={e => setGameCategory(e.target.value)} required />
 
       <fieldset>
         <legend>요일</legend>
@@ -72,14 +93,14 @@ export default function CreateMultiForm() {
         ))}
       </fieldset>
 
-      <input type="text" placeholder="오픈 시간 (예: 20:30)" value={multiTime} onChange={e => setMultiTime(e.target.value)} />
+      <input type="text" value={multiTime} onChange={e => setMultiTime(e.target.value)} />
       <label>
         <input type="checkbox" checked={isOpen} onChange={e => setIsOpen(e.target.checked)} /> 오픈 여부
       </label>
 
-      <textarea placeholder="상세 내용" value={description} onChange={e => setDescription(e.target.value)} />
+      <textarea value={description} onChange={e => setDescription(e.target.value)} />
 
-      <button type="submit" className="bg-blue-600 text-white py-2 rounded">등록</button>
+      <button type="submit" className="bg-green-600 text-white py-2 rounded">수정하기</button>
     </form>
   )
 }
