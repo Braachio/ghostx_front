@@ -10,7 +10,7 @@ type Event = Database['public']['Tables']['events']['Row']
 
 export default function HomePage() {
   const [events, setEvents] = useState<Event[]>([])
-  const [user, setUser] = useState<User | null>(null) // 🔧 타입 명시
+  const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
     fetchEvents()
@@ -25,19 +25,22 @@ export default function HomePage() {
       .eq('status', 'open')
       .order('start_date', { ascending: false })
 
-    if (!error && data) {
-      setEvents(data)
-    } else {
+    if (error) {
       console.error('이벤트 불러오기 오류:', error)
+    } else {
+      setEvents(data ?? [])
     }
   }
 
   // 로그인한 사용자 확인
   const checkUser = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    setUser(user)
+    const { data, error } = await supabase.auth.getUser()
+    if (error) {
+      console.error('사용자 확인 오류:', error.message)
+      setUser(null)
+    } else {
+      setUser(data.user ?? null)
+    }
   }
 
   return (
