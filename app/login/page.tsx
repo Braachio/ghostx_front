@@ -1,34 +1,50 @@
 'use client'
 
 import { useState } from 'react'
-import { supabase } from 'lib/supabaseClient'
 import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
   const handleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOtp({ email })
-    if (error) {
-      setError(error.message)
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    })
+
+    if (res.ok) {
+      router.push('/')
     } else {
-      router.push('/') // 로그인 성공 시 홈으로 이동
+      const { error } = await res.json()
+      setError(error)
     }
   }
 
   return (
     <div className="max-w-md mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">로그인</h1>
+
       <input
-        type="email"
-        placeholder="이메일을 입력하세요"
+        type="text"
+        placeholder="아이디"
         className="border p-2 w-full mb-4"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
       />
-      {error && <p className="text-red-600">{error}</p>}
+      <input
+        type="password"
+        placeholder="비밀번호"
+        className="border p-2 w-full mb-4"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+
+      {error && <p className="text-red-600 mb-2">{error}</p>}
+
       <button
         onClick={handleLogin}
         className="w-full bg-blue-600 text-white py-2 rounded"
