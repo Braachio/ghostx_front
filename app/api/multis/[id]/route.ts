@@ -2,13 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseServer } from '@/lib/supabaseServerClient'
 import { getMultiById, updateMulti, deleteMulti } from '@/lib/multiService'
 
-// 타입 명시: Next.js가 context.params를 제대로 인식하도록
-type RouteContext = {
-  params: {
-    id: string
-  }
-}
-
+// 사용자 역할 확인
 async function getUserRole(access_token: string | null) {
   if (!access_token) return null
 
@@ -25,10 +19,10 @@ async function getUserRole(access_token: string | null) {
   return profile.role
 }
 
-export async function GET(_req: NextRequest, context: RouteContext) {
+// 단일 조회 (GET)
+export async function GET(request: NextRequest, context: { params: { id: string } }) {
   try {
-    const id = Number(context.params.id)
-    const multi = await getMultiById(id)
+    const multi = await getMultiById(Number(context.params.id))
     if (!multi) {
       return NextResponse.json({ error: '찾을 수 없습니다' }, { status: 404 })
     }
@@ -41,16 +35,17 @@ export async function GET(_req: NextRequest, context: RouteContext) {
   }
 }
 
-export async function PATCH(req: NextRequest, context: RouteContext) {
+// 수정 (PATCH)
+export async function PATCH(request: NextRequest, context: { params: { id: string } }) {
   try {
-    const access_token = req.headers.get('authorization')?.replace('Bearer ', '') || null
+    const access_token = request.headers.get('authorization')?.replace('Bearer ', '') || null
     const role = await getUserRole(access_token)
 
     if (role !== 'admin') {
       return NextResponse.json({ error: '권한이 없습니다' }, { status: 403 })
     }
 
-    const body = await req.json()
+    const body = await request.json()
     const updated = await updateMulti(Number(context.params.id), body)
     return NextResponse.json(updated)
   } catch (error) {
@@ -61,9 +56,10 @@ export async function PATCH(req: NextRequest, context: RouteContext) {
   }
 }
 
-export async function DELETE(req: NextRequest, context: RouteContext) {
+// 삭제 (DELETE)
+export async function DELETE(request: NextRequest, context: { params: { id: string } }) {
   try {
-    const access_token = req.headers.get('authorization')?.replace('Bearer ', '') || null
+    const access_token = request.headers.get('authorization')?.replace('Bearer ', '') || null
     const role = await getUserRole(access_token)
 
     if (role !== 'admin') {
