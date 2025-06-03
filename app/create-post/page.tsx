@@ -3,7 +3,7 @@
 'use client'
 
 import { useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { supabase } from 'lib/supabaseClient'
 import { TIME_TRIAL_EVENT_TEMPLATE } from '@/lib/constants'
 import { useRouter } from 'next/navigation'
 

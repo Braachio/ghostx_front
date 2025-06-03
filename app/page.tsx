@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { supabase } from 'lib/supabaseClient'
 import { Database } from '@/lib/database.types'
 
 type Event = Database['public']['Tables']['events']['Row']
