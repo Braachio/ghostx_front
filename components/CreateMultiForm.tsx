@@ -1,3 +1,4 @@
+// components/CreateMultiForm.tsx
 'use client'
 
 import { useState } from 'react'
@@ -22,6 +23,13 @@ export default function CreateMultiForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    const accessToken = localStorage.getItem('access_token')
+    if (!accessToken) {
+      alert('로그인이 필요합니다.')
+      return
+    }
+
     const body = {
       title,
       game_category: gameCategory,
@@ -35,14 +43,18 @@ export default function CreateMultiForm() {
 
     const res = await fetch('/api/multis', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
       body: JSON.stringify(body),
     })
 
     if (res.ok) {
       alert('멀티 공지 등록 완료!')
     } else {
-      alert('등록 실패')
+      const { error } = await res.json()
+      alert(`등록 실패: ${error}`)
     }
   }
 
@@ -75,7 +87,7 @@ export default function CreateMultiForm() {
         </fieldset>
 
         <input type="text" placeholder="오픈 시간 (예: 20:30)" value={multiTime} onChange={(e) => setMultiTime(e.target.value)} className="border p-2 rounded" />
-        
+
         <label className="text-sm">
           <input type="checkbox" checked={isOpen} onChange={(e) => setIsOpen(e.target.checked)} className="mr-2" />
           오픈 여부
