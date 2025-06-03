@@ -1,30 +1,57 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { supabaseServer } from '@/lib/supabaseServerClient'
 import { getMultiById, updateMulti, deleteMulti } from '@/lib/multiService'
 
-export async function GET(
-  req: Request,
-  context: { params: Promise<{ id: string }> }
-) {
+// 타입 명시: Next.js가 context.params를 제대로 인식하도록
+type RouteContext = {
+  params: {
+    id: string
+  }
+}
+
+async function getUserRole(access_token: string | null) {
+  if (!access_token) return null
+
+  const { data, error } = await supabaseServer.auth.getUser(access_token)
+  if (error || !data.user) return null
+
+  const { data: profile, error: profileError } = await supabaseServer
+    .from('profiles')
+    .select('role')
+    .eq('id', data.user.id)
+    .single()
+
+  if (profileError || !profile) return null
+  return profile.role
+}
+
+export async function GET(_req: NextRequest, context: RouteContext) {
   try {
-    const { id } = await context.params
-    const data = await getMultiById(Number(id))
-    return NextResponse.json(data)
+    const id = Number(context.params.id)
+    const multi = await getMultiById(id)
+    if (!multi) {
+      return NextResponse.json({ error: '찾을 수 없습니다' }, { status: 404 })
+    }
+    return NextResponse.json(multi)
   } catch (error) {
     return NextResponse.json(
-      { error: '공지 조회 중 오류 발생', details: (error as Error).message },
+      { error: '조회 중 오류 발생', details: (error as Error).message },
       { status: 500 }
     )
   }
 }
 
-export async function PATCH(
-  req: Request,
-  context: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(req: NextRequest, context: RouteContext) {
   try {
-    const { id } = await context.params
+    const access_token = req.headers.get('authorization')?.replace('Bearer ', '') || null
+    const role = await getUserRole(access_token)
+
+    if (role !== 'admin') {
+      return NextResponse.json({ error: '권한이 없습니다' }, { status: 403 })
+    }
+
     const body = await req.json()
-    const updated = await updateMulti(Number(id), body)
+    const updated = await updateMulti(Number(context.params.id), body)
     return NextResponse.json(updated)
   } catch (error) {
     return NextResponse.json(
@@ -34,17 +61,20 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  req: Request,
-  context: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, context: RouteContext) {
   try {
-    const { id } = await context.params
-    await deleteMulti(Number(id))
-    return new Response(null, { status: 204 })
+    const access_token = req.headers.get('authorization')?.replace('Bearer ', '') || null
+    const role = await getUserRole(access_token)
+
+    if (role !== 'admin') {
+      return NextResponse.json({ error: '권한이 없습니다' }, { status: 403 })
+    }
+
+    await deleteMulti(Number(context.params.id))
+    return NextResponse.json({ success: true })
   } catch (error) {
     return NextResponse.json(
-      { error: '공지 삭제 중 오류 발생', details: (error as Error).message },
+      { error: '삭제 중 오류 발생', details: (error as Error).message },
       { status: 500 }
     )
   }

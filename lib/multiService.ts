@@ -1,3 +1,4 @@
+// lib/multiService.ts
 import { supabase } from './supabaseClient'
 
 export type Multi = {
@@ -57,4 +58,18 @@ export async function deleteMulti(id: string | number): Promise<void> {
     console.error('deleteMulti 오류:', error.message)
     throw new Error('공지 삭제 실패')
   }
+}
+
+export async function getAllMultis(): Promise<Multi[]> {
+  const { data, error } = await supabase
+    .from('multis')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('getAllMultis 오류:', error.message)
+    throw new Error('공지 목록 조회 실패')
+  }
+
+  return data
 }
