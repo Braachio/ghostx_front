@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
     // 2. 토큰 디코딩 (검증)
     const decoded = jwt.verify(token, JWT_SECRET)
     return NextResponse.json({ user: decoded }, { status: 200 })
-  } catch (err) {
-    return NextResponse.json({ error: '유효하지 않은 토큰' }, { status: 401 })
+  } catch {
+    return NextResponse.json({ user: null }, { status: 401 })
   }
 }

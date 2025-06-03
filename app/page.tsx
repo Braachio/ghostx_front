@@ -11,7 +11,6 @@ interface MeResponse {
 
 export default function HomePage() {
   const [user, setUser] = useState<MeResponse | null>(null)
-  const router = useRouter()
 
   useEffect(() => {
     const checkLogin = async () => {
