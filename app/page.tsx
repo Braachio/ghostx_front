@@ -18,6 +18,7 @@ export default function HomePage() {
     checkUser()
   }, [])
 
+  // 진행 중인 이벤트 불러오기
   const fetchEvents = async () => {
     const { data, error } = await supabase
       .from('events')
@@ -32,6 +33,7 @@ export default function HomePage() {
     }
   }
 
+  // 로그인한 사용자 및 관리자 여부 확인
   const checkUser = async () => {
     const { data, error } = await supabase.auth.getUser()
     if (error || !data.user) {
@@ -43,24 +45,20 @@ export default function HomePage() {
 
     setUser(data.user)
 
-    // 사용자 역할 확인
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', data.user.id)
       .single()
 
-    if (profile && profile.role === 'admin') {
-      setIsAdmin(true)
-    } else {
-      setIsAdmin(false)
-    }
+    setIsAdmin(profile?.role === 'admin')
   }
 
   return (
     <div className="max-w-3xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">🏁 심레이싱 이벤트</h1>
 
+      {/* 로그인 상태 및 관리자 권한에 따른 버튼 */}
       {user ? (
         isAdmin && (
           <Link
@@ -79,6 +77,7 @@ export default function HomePage() {
         </Link>
       )}
 
+      {/* 진행 중인 이벤트 리스트 */}
       {events.length === 0 ? (
         <p>진행 중인 이벤트가 없습니다.</p>
       ) : (
