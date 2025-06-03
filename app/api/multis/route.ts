@@ -4,6 +4,9 @@ import { cookies } from 'next/headers'
 import type { Database } from '@/lib/database.types'
 import { supabaseAdmin } from '@/lib/supabaseAdminClient'
 
+/**
+ * 관리자 권한 확인
+ */
 async function checkAdmin(access_token: string | null): Promise<{ isAdmin: boolean; userId?: string }> {
   if (!access_token) return { isAdmin: false }
 
@@ -21,6 +24,9 @@ async function checkAdmin(access_token: string | null): Promise<{ isAdmin: boole
   return { isAdmin: profile.role === 'admin', userId: user.id }
 }
 
+/**
+ * GET /api/multis
+ */
 export async function GET() {
   const supabase = createRouteHandlerClient<Database>({ cookies })
 
@@ -32,18 +38,25 @@ export async function GET() {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
+
   return NextResponse.json(data)
 }
 
+/**
+ * POST /api/multis
+ */
 export async function POST(req: Request) {
-  const supabase = createRouteHandlerClient<Database>({ cookies })
-  const access_token = req.headers.get('authorization')?.replace('Bearer ', '') || null
+  const cookieStore = cookies()
+  const cookieToken = cookieStore.get('access_token')?.value ?? null
+  const headerToken = req.headers.get('authorization')?.replace('Bearer ', '') ?? null
+  const access_token = headerToken || cookieToken
 
   const { isAdmin, userId } = await checkAdmin(access_token)
   if (!isAdmin || !userId) {
     return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 })
   }
 
+  const supabase = createRouteHandlerClient<Database>({ cookies })
   const body = await req.json()
 
   const { error } = await supabase.from('multis').insert({
