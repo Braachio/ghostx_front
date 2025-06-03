@@ -32,20 +32,12 @@ export default function HomePage() {
 
   return (
     <div className="max-w-5xl mx-auto p-6">
-      {/* 상단 사용자 정보 및 버튼 */}
+      {/* 상단 사용자 정보 */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-sm text-gray-600">
           {user ? `👤 ${user.username}님 환영합니다` : '🕵 로그인되지 않음'}
         </h2>
-
-        {user ? (
-          <Link
-            href="/multis/new"
-            className="px-4 py-2 bg-blue-600 text-white rounded"
-          >
-            공지 등록
-          </Link>
-        ) : (
+        {!user && (
           <Link
             href="/login"
             className="px-4 py-2 bg-gray-600 text-white rounded"
