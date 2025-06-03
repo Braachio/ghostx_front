@@ -12,7 +12,7 @@ export default function MultisPage() {
           <button className="px-4 py-2 bg-gray-500 text-white rounded">홈으로</button>
         </Link>
       </div>
-      <MultiListPage />
+      <MultiListPage simplified />
     </div>
   )
 }
