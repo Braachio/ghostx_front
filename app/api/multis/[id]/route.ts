@@ -1,9 +1,9 @@
 // app/api/multis/[id]/route.ts
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { supabaseServer } from '@/lib/supabaseServerClient'
 import { getMultiById, updateMulti, deleteMulti } from '@/lib/multiService'
 
-async function getUserRole(access_token: string | null) {
+async function getUserRole(access_token: string | null): Promise<string | null> {
   if (!access_token) return null
 
   const { data, error } = await supabaseServer.auth.getUser(access_token)
@@ -19,13 +19,15 @@ async function getUserRole(access_token: string | null) {
   return profile.role
 }
 
-// GET: 공지 조회
-export async function GET(
-  _request: Request,
-  { params }: { params: { id: string } }
-) {
+// ───── GET 핸들러 ────────────────────────────────────────────────
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function GET(request: NextRequest, context: any) {
   try {
-    const id = Number(params.id)
+    const id = Number(context.params.id)
+    if (isNaN(id)) {
+      return NextResponse.json({ error: '유효하지 않은 ID입니다' }, { status: 400 })
+    }
+
     const multi = await getMultiById(id)
     if (!multi) {
       return NextResponse.json({ error: '찾을 수 없습니다' }, { status: 404 })
@@ -39,21 +41,25 @@ export async function GET(
   }
 }
 
-// PATCH: 공지 수정 (admin 권한 필요)
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+// ───── PATCH 핸들러 ──────────────────────────────────────────────
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function PATCH(request: NextRequest, context: any) {
   try {
-    const access_token = request.headers.get('authorization')?.replace('Bearer ', '') || null
+    const authHeader = request.headers.get('authorization')
+    const access_token = authHeader ? authHeader.replace('Bearer ', '') : null
     const role = await getUserRole(access_token)
 
     if (role !== 'admin') {
       return NextResponse.json({ error: '권한이 없습니다' }, { status: 403 })
     }
 
+    const id = Number(context.params.id)
+    if (isNaN(id)) {
+      return NextResponse.json({ error: '유효하지 않은 ID입니다' }, { status: 400 })
+    }
+
     const body = await request.json()
-    const updated = await updateMulti(Number(params.id), body)
+    const updated = await updateMulti(id, body)
     return NextResponse.json(updated)
   } catch (error) {
     return NextResponse.json(
@@ -63,20 +69,24 @@ export async function PATCH(
   }
 }
 
-// DELETE: 공지 삭제 (admin 권한 필요)
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+// ───── DELETE 핸들러 ────────────────────────────────────────────
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function DELETE(request: NextRequest, context: any) {
   try {
-    const access_token = request.headers.get('authorization')?.replace('Bearer ', '') || null
+    const authHeader = request.headers.get('authorization')
+    const access_token = authHeader ? authHeader.replace('Bearer ', '') : null
     const role = await getUserRole(access_token)
 
     if (role !== 'admin') {
       return NextResponse.json({ error: '권한이 없습니다' }, { status: 403 })
     }
 
-    await deleteMulti(Number(params.id))
+    const id = Number(context.params.id)
+    if (isNaN(id)) {
+      return NextResponse.json({ error: '유효하지 않은 ID입니다' }, { status: 400 })
+    }
+
+    await deleteMulti(id)
     return NextResponse.json({ success: true })
   } catch (error) {
     return NextResponse.json(
