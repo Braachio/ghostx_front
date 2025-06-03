@@ -1,97 +1,92 @@
-// app/api/multis/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseServer } from '@/lib/supabaseServerClient'
-import { getMultiById, updateMulti, deleteMulti } from '@/lib/multiService'
+import { supabase } from '@/lib/supabaseClient'
+import { supabaseAdmin } from '@/lib/supabaseAdminClient'
 
-async function getUserRole(access_token: string | null): Promise<string | null> {
-  if (!access_token) return null
+type Multi = {
+  id: string
+  title: string
+  game_category: string
+  game: string
+  multi_name: string
+  multi_day: string[]
+  multi_time: string | null
+  is_open: boolean
+  description: string | null
+  author_id: string | null
+  created_at: string
+  updated_at: string
+}
 
-  const { data, error } = await supabaseServer.auth.getUser(access_token)
-  if (error || !data.user) return null
+type Data = { error?: string; success?: boolean; data?: Multi }
 
-  const { data: profile, error: profileError } = await supabaseServer
+async function checkAdmin(access_token: string | null): Promise<boolean> {
+  if (!access_token) return false
+
+  const { data: { user }, error } = await supabaseAdmin.auth.getUser(access_token)
+  if (error || !user) return false
+
+  const { data: profile, error: profileError } = await supabaseAdmin
     .from('profiles')
     .select('role')
-    .eq('id', data.user.id)
+    .eq('id', user.id)
     .single()
 
-  if (profileError || !profile) return null
-  return profile.role
+  if (profileError || !profile) return false
+  return profile.role === 'admin'
 }
 
-// ───── GET 핸들러 ────────────────────────────────────────────────
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function GET(request: NextRequest, context: any) {
-  try {
-    const id = Number(context.params.id)
-    if (isNaN(id)) {
-      return NextResponse.json({ error: '유효하지 않은 ID입니다' }, { status: 400 })
-    }
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse<Data>> {
+  const { id } = await params
 
-    const multi = await getMultiById(id)
-    if (!multi) {
-      return NextResponse.json({ error: '찾을 수 없습니다' }, { status: 404 })
-    }
-    return NextResponse.json(multi)
-  } catch (error) {
-    return NextResponse.json(
-      { error: '조회 중 오류 발생', details: (error as Error).message },
-      { status: 500 }
-    )
-  }
+  const { data, error } = await supabase
+    .from('multis')
+    .select('*')
+    .eq('id', id)
+    .single()
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (!data) return NextResponse.json({ error: '찾을 수 없습니다.' }, { status: 404 })
+
+  return NextResponse.json({ data }, { status: 200 })
 }
 
-// ───── PATCH 핸들러 ──────────────────────────────────────────────
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function PATCH(request: NextRequest, context: any) {
-  try {
-    const authHeader = request.headers.get('authorization')
-    const access_token = authHeader ? authHeader.replace('Bearer ', '') : null
-    const role = await getUserRole(access_token)
-
-    if (role !== 'admin') {
-      return NextResponse.json({ error: '권한이 없습니다' }, { status: 403 })
-    }
-
-    const id = Number(context.params.id)
-    if (isNaN(id)) {
-      return NextResponse.json({ error: '유효하지 않은 ID입니다' }, { status: 400 })
-    }
-
-    const body = await request.json()
-    const updated = await updateMulti(id, body)
-    return NextResponse.json(updated)
-  } catch (error) {
-    return NextResponse.json(
-      { error: '공지 수정 중 오류 발생', details: (error as Error).message },
-      { status: 500 }
-    )
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse<Data>> {
+  const { id } = await params
+  const access_token = req.headers.get('authorization')?.replace('Bearer ', '') ?? null
+  if (!(await checkAdmin(access_token))) {
+    return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 })
   }
+
+  const body = await req.json()
+  const { data, error } = await supabase
+    .from('multis')
+    .update({ ...body, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ data }, { status: 200 })
 }
 
-// ───── DELETE 핸들러 ────────────────────────────────────────────
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function DELETE(request: NextRequest, context: any) {
-  try {
-    const authHeader = request.headers.get('authorization')
-    const access_token = authHeader ? authHeader.replace('Bearer ', '') : null
-    const role = await getUserRole(access_token)
-
-    if (role !== 'admin') {
-      return NextResponse.json({ error: '권한이 없습니다' }, { status: 403 })
-    }
-
-    const id = Number(context.params.id)
-    if (isNaN(id)) {
-      return NextResponse.json({ error: '유효하지 않은 ID입니다' }, { status: 400 })
-    }
-
-    await deleteMulti(id)
-    return NextResponse.json({ success: true })
-  } catch (error) {
-    return NextResponse.json(
-      { error: '삭제 중 오류 발생', details: (error as Error).message },
-      { status: 500 }
-    )
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse<{ success?: boolean; error?: string }>> {
+  const { id } = await params
+  const access_token = req.headers.get('authorization')?.replace('Bearer ', '') ?? null
+  if (!(await checkAdmin(access_token))) {
+    return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 })
   }
+
+  const { error } = await supabase.from('multis').delete().eq('id', id)
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ success: true }, { status: 200 })
 }
