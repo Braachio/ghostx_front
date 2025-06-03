@@ -3,7 +3,10 @@ import { supabase } from '@/lib/supabaseClient'
 
 async function createMulti(newMulti: { title: string; content: string }) {
   // 현재 로그인 세션에서 access_token 가져오기
-  const { data: { session }, error } = await supabase.auth.getSession()
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession()
   if (error || !session) {
     alert('로그인 후 이용해주세요')
     return
@@ -15,7 +18,7 @@ async function createMulti(newMulti: { title: string; content: string }) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${access_token}`,  // 토큰 헤더에 넣기
+      Authorization: `Bearer ${access_token}`, // 토큰 헤더에 넣기
     },
     body: JSON.stringify(newMulti),
   })
@@ -28,3 +31,6 @@ async function createMulti(newMulti: { title: string; content: string }) {
   alert('등록 성공!')
   return result
 }
+
+// ⚠️ 사용 예정이므로 export는 나중에 붙이세요
+// export { createMulti }
