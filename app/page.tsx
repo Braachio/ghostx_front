@@ -4,12 +4,13 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { supabase } from 'lib/supabaseClient'
 import { Database } from '@/lib/database.types'
+import type { User } from '@supabase/supabase-js'
 
 type Event = Database['public']['Tables']['events']['Row']
 
 export default function HomePage() {
   const [events, setEvents] = useState<Event[]>([])
-  const [user, setUser] = useState<any>(null) // 로그인한 사용자 상태
+  const [user, setUser] = useState<User | null>(null) // 🔧 타입 명시
 
   useEffect(() => {
     fetchEvents()
@@ -33,7 +34,9 @@ export default function HomePage() {
 
   // 로그인한 사용자 확인
   const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
     setUser(user)
   }
 
@@ -43,11 +46,17 @@ export default function HomePage() {
 
       {/* 로그인 상태에 따른 버튼 표시 */}
       {user ? (
-        <Link href="/multis/new" className="inline-block mb-6 px-4 py-2 bg-blue-600 text-white rounded">
+        <Link
+          href="/multis/new"
+          className="inline-block mb-6 px-4 py-2 bg-blue-600 text-white rounded"
+        >
           공지 등록
         </Link>
       ) : (
-        <Link href="/login" className="inline-block mb-6 px-4 py-2 bg-gray-600 text-white rounded">
+        <Link
+          href="/login"
+          className="inline-block mb-6 px-4 py-2 bg-gray-600 text-white rounded"
+        >
           로그인
         </Link>
       )}
@@ -59,11 +68,15 @@ export default function HomePage() {
         <ul className="space-y-4">
           {events.map((event) => (
             <li key={event.id} className="border p-4 rounded hover:shadow">
-              <Link href={`/events/${event.id}`} className="text-xl font-semibold text-white-600 hover:underline">
+              <Link
+                href={`/events/${event.id}`}
+                className="text-xl font-semibold text-white-600 hover:underline"
+              >
                 {event.title}
               </Link>
               <p className="text-sm text-white-600">
-                {new Date(event.start_date).toLocaleDateString()} ~ {new Date(event.end_date).toLocaleDateString()}
+                {new Date(event.start_date).toLocaleDateString()} ~{' '}
+                {new Date(event.end_date).toLocaleDateString()}
               </p>
               <p className="mt-2 text-white-700">{event.description}</p>
             </li>
