@@ -52,7 +52,7 @@ export default function MultiListPage({ simplified = false }: { simplified?: boo
                   className="border rounded-lg p-4 shadow-sm hover:shadow-md transition"
                 >
                   <Link href={`/multis/${multi.id}`}>
-                    <h3 className="text-lg font-bold text-blue-700 hover:underline">
+                    <h3 className="text-lg font-bold text-white-700 hover:underline">
                       {multi.title}
                     </h3>
                   </Link>
