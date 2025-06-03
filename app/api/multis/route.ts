@@ -2,29 +2,22 @@ import { NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import type { Database } from '@/lib/database.types'
-import { supabaseAdmin } from '@/lib/supabaseAdminClient'
+import jwt from 'jsonwebtoken'
+
+const SECRET_KEY = process.env.JWT_SECRET_KEY || 'your-secret-key' // 환경변수 사용 권장
 
 /**
- * 관리자 권한 확인
+ * JWT 기반 관리자 권한 확인
  */
 async function checkAdmin(access_token: string | null): Promise<{ isAdmin: boolean; userId?: string }> {
   if (!access_token) return { isAdmin: false }
 
-  const { data: { user }, error } = await supabaseAdmin.auth.getUser(access_token)
-
-  console.log('🔐 Supabase User:', user) // 디버깅용
-
-  if (error || !user) return { isAdmin: false }
-
-  const { data: profile, error: profileError } = await supabaseAdmin
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  if (profileError || !profile) return { isAdmin: false }
-
-  return { isAdmin: profile.role === 'admin', userId: user.id }
+  try {
+    const decoded = jwt.verify(access_token, SECRET_KEY) as { sub: string; role: string }
+    return { isAdmin: decoded.role === 'admin', userId: decoded.sub }
+  } catch {
+    return { isAdmin: false }
+  }
 }
 
 /**
@@ -41,7 +34,6 @@ export async function GET() {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
-
   return NextResponse.json(data)
 }
 
@@ -51,9 +43,8 @@ export async function GET() {
 export async function POST(req: Request) {
   const supabase = createRouteHandlerClient<Database>({ cookies })
 
-  // ✅ 비동기 cookies() 처리
-  const cookieStore = await cookies()
-  const cookieToken = cookieStore.get('access_token')?.value ?? null
+  const cookieStore = cookies()
+  const cookieToken = (await cookieStore).get('access_token')?.value ?? null
   const headerToken = req.headers.get('authorization')?.replace('Bearer ', '') ?? null
   const access_token = headerToken || cookieToken
 
