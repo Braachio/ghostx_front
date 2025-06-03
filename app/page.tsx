@@ -11,13 +11,13 @@ type Event = Database['public']['Tables']['events']['Row']
 export default function HomePage() {
   const [events, setEvents] = useState<Event[]>([])
   const [user, setUser] = useState<User | null>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
     fetchEvents()
     checkUser()
   }, [])
 
-  // 이벤트 불러오기
   const fetchEvents = async () => {
     const { data, error } = await supabase
       .from('events')
@@ -32,14 +32,28 @@ export default function HomePage() {
     }
   }
 
-  // 로그인한 사용자 확인
   const checkUser = async () => {
     const { data, error } = await supabase.auth.getUser()
-    if (error) {
-      console.error('사용자 확인 오류:', error.message)
+    if (error || !data.user) {
+      console.error('사용자 확인 오류:', error?.message)
       setUser(null)
+      setIsAdmin(false)
+      return
+    }
+
+    setUser(data.user)
+
+    // 사용자 역할 확인
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', data.user.id)
+      .single()
+
+    if (profile && profile.role === 'admin') {
+      setIsAdmin(true)
     } else {
-      setUser(data.user ?? null)
+      setIsAdmin(false)
     }
   }
 
@@ -47,14 +61,15 @@ export default function HomePage() {
     <div className="max-w-3xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">🏁 심레이싱 이벤트</h1>
 
-      {/* 로그인 상태에 따른 버튼 표시 */}
       {user ? (
-        <Link
-          href="/multis/new"
-          className="inline-block mb-6 px-4 py-2 bg-blue-600 text-white rounded"
-        >
-          공지 등록
-        </Link>
+        isAdmin && (
+          <Link
+            href="/multis/new"
+            className="inline-block mb-6 px-4 py-2 bg-blue-600 text-white rounded"
+          >
+            공지 등록
+          </Link>
+        )
       ) : (
         <Link
           href="/login"
@@ -64,7 +79,6 @@ export default function HomePage() {
         </Link>
       )}
 
-      {/* 진행 중인 이벤트 표시 */}
       {events.length === 0 ? (
         <p>진행 중인 이벤트가 없습니다.</p>
       ) : (

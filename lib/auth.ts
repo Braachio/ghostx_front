@@ -1,3 +1,4 @@
+// lib/auth.ts
 import { supabaseAdmin } from './supabaseAdminClient'
 
 export async function checkAdminAuth(authHeader: string | null): Promise<boolean> {
@@ -13,7 +14,7 @@ export async function checkAdminAuth(authHeader: string | null): Promise<boolean
     .eq('id', user.id)
     .single()
 
-  if (profileError || !profile) return false
+  if (profileError || !profile || !profile.role) return false
 
   return profile.role === 'admin'
 }
