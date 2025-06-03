@@ -11,14 +11,12 @@ type Event = Database['public']['Tables']['events']['Row']
 export default function HomePage() {
   const [events, setEvents] = useState<Event[]>([])
   const [user, setUser] = useState<User | null>(null)
-  const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
     fetchEvents()
     checkUser()
   }, [])
 
-  // 진행 중인 이벤트 불러오기
   const fetchEvents = async () => {
     const { data, error } = await supabase
       .from('events')
@@ -33,71 +31,40 @@ export default function HomePage() {
     }
   }
 
-  // 로그인한 사용자 및 관리자 여부 확인
   const checkUser = async () => {
     const { data, error } = await supabase.auth.getUser()
-    if (error || !data.user) {
-      console.error('사용자 확인 오류:', error?.message)
+    if (error) {
+      console.error('사용자 확인 오류:', error.message)
       setUser(null)
-      setIsAdmin(false)
-      return
+    } else {
+      setUser(data.user ?? null)
     }
-
-    setUser(data.user)
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', data.user.id)
-      .single()
-
-    setIsAdmin(profile?.role === 'admin')
   }
 
   return (
     <div className="max-w-3xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">🏁 심레이싱 이벤트</h1>
+      <h1 className="text-3xl font-bold mb-6">🏁 심레이싱 메인</h1>
 
-      {/* 로그인 상태 및 관리자 권한에 따른 버튼 */}
+      <div className="space-x-4 mb-6">
+        <Link href="/events">
+          <button className="px-4 py-2 bg-green-600 text-white rounded">이벤트 보기</button>
+        </Link>
+        <Link href="/multis">
+          <button className="px-4 py-2 bg-blue-600 text-white rounded">공지 모음</button>
+        </Link>
+        <Link href="/community">
+          <button className="px-4 py-2 bg-purple-600 text-white rounded">커뮤니티</button>
+        </Link>
+      </div>
+
       {user ? (
-        isAdmin && (
-          <Link
-            href="/multis/new"
-            className="inline-block mb-6 px-4 py-2 bg-blue-600 text-white rounded"
-          >
-            공지 등록
-          </Link>
-        )
+        <Link href="/multis/new" className="inline-block mb-6 px-4 py-2 bg-blue-600 text-white rounded">
+          공지 등록
+        </Link>
       ) : (
-        <Link
-          href="/login"
-          className="inline-block mb-6 px-4 py-2 bg-gray-600 text-white rounded"
-        >
+        <Link href="/login" className="inline-block mb-6 px-4 py-2 bg-gray-600 text-white rounded">
           로그인
         </Link>
-      )}
-
-      {/* 진행 중인 이벤트 리스트 */}
-      {events.length === 0 ? (
-        <p>진행 중인 이벤트가 없습니다.</p>
-      ) : (
-        <ul className="space-y-4">
-          {events.map((event) => (
-            <li key={event.id} className="border p-4 rounded hover:shadow">
-              <Link
-                href={`/events/${event.id}`}
-                className="text-xl font-semibold text-white-600 hover:underline"
-              >
-                {event.title}
-              </Link>
-              <p className="text-sm text-white-600">
-                {new Date(event.start_date).toLocaleDateString()} ~{' '}
-                {new Date(event.end_date).toLocaleDateString()}
-              </p>
-              <p className="mt-2 text-white-700">{event.description}</p>
-            </li>
-          ))}
-        </ul>
       )}
     </div>
   )

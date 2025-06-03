@@ -1,4 +1,3 @@
-// app/community/page.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -25,7 +24,7 @@ export default function PostListPage() {
       if (error) {
         console.error('게시글 불러오기 실패:', error.message)
       } else {
-        setPosts(data)
+        setPosts(data || [])
       }
       setLoading(false)
     }
@@ -34,8 +33,14 @@ export default function PostListPage() {
   }, [])
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">📢 커뮤니티</h1>
+    <div className="max-w-3xl mx-auto p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">💬 커뮤니티</h1>
+        <Link href="/">
+          <button className="px-4 py-2 bg-gray-500 text-white rounded">홈으로</button>
+        </Link>
+      </div>
+
       {loading ? (
         <p>로딩 중...</p>
       ) : posts.length === 0 ? (
