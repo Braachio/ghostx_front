@@ -18,11 +18,6 @@ interface Multi {
   updated_at: string
 }
 
-interface MeResponse {
-  id: string
-  username: string
-}
-
 // 관리자 확인 함수
 async function checkAdmin(access_token: string | null): Promise<boolean> {
   if (!access_token) return false

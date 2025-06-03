@@ -49,8 +49,12 @@ export default function MultiDetailPage() {
           const meData = await meRes.json()
           setUser(meData.user)
         }
-      } catch (err: any) {
-        setError(err.message)
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message)
+        } else {
+          setError('알 수 없는 오류가 발생했습니다.')
+        }
       }
     }
 
@@ -58,8 +62,7 @@ export default function MultiDetailPage() {
   }, [id])
 
   const handleDelete = async () => {
-    const confirmed = confirm('정말 삭제하시겠습니까?')
-    if (!confirmed) return
+    if (!confirm('정말 삭제하시겠습니까?')) return
 
     const res = await fetch(`/api/multis/${id}`, {
       method: 'DELETE',
@@ -86,7 +89,9 @@ export default function MultiDetailPage() {
 
   return (
     <div className="max-w-3xl mx-auto p-6">
-      <button onClick={() => router.back()} className="mb-4 text-blue-600 underline">← 뒤로가기</button>
+      <button onClick={() => router.back()} className="mb-4 text-blue-600 underline">
+        ← 뒤로가기
+      </button>
 
       <h1 className="text-2xl font-bold mb-2">{multi.title}</h1>
       <p className="text-sm text-gray-500 mb-4">
@@ -98,7 +103,9 @@ export default function MultiDetailPage() {
       <p>📅 <strong>요일:</strong> {multi.multi_day?.length > 0 ? multi.multi_day.join(', ') : '없음'}</p>
       <p>🕒 <strong>시간:</strong> {multi.multi_time || '미입력'}</p>
       <p>🔓 <strong>오픈:</strong> {multi.is_open ? '✅ ON' : '❌ OFF'}</p>
-      <p className="mt-4 whitespace-pre-line">{multi.description || '설명이 없습니다.'}</p>
+      <p className="mt-4 whitespace-pre-line">
+        {multi.description || '설명이 없습니다.'}
+      </p>
 
       {isAuthor && (
         <div className="mt-6 flex space-x-4">
