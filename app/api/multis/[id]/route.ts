@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabaseClient'
 import { supabaseAdmin } from '@/lib/supabaseAdminClient'
 
-type Multi = {
+// 타입 정의
+interface Multi {
   id: string
   title: string
   game_category: string
@@ -17,8 +18,12 @@ type Multi = {
   updated_at: string
 }
 
-type Data = { error?: string; success?: boolean; data?: Multi }
+interface MeResponse {
+  id: string
+  username: string
+}
 
+// 관리자 확인 함수
 async function checkAdmin(access_token: string | null): Promise<boolean> {
   if (!access_token) return false
 
@@ -35,10 +40,11 @@ async function checkAdmin(access_token: string | null): Promise<boolean> {
   return profile.role === 'admin'
 }
 
+// 단일 공지 가져오기
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-): Promise<NextResponse<Data>> {
+): Promise<NextResponse<{ error?: string; data?: Multi }>> {
   const { id } = await params
 
   const { data, error } = await supabase
@@ -53,10 +59,11 @@ export async function GET(
   return NextResponse.json({ data }, { status: 200 })
 }
 
+// 공지 수정
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-): Promise<NextResponse<Data>> {
+): Promise<NextResponse<{ error?: string; data?: Multi }>> {
   const { id } = await params
   const access_token = req.headers.get('authorization')?.replace('Bearer ', '') ?? null
   if (!(await checkAdmin(access_token))) {
@@ -75,6 +82,7 @@ export async function PATCH(
   return NextResponse.json({ data }, { status: 200 })
 }
 
+// 공지 삭제
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -88,5 +96,28 @@ export async function DELETE(
   const { error } = await supabase.from('multis').delete().eq('id', id)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ success: true }, { status: 200 })
+}
+
+// 공지 생성
+export async function POST(req: NextRequest): Promise<NextResponse<{ success?: boolean; error?: string }>> {
+  const access_token = req.headers.get('authorization')?.replace('Bearer ', '') ?? null
+
+  if (!access_token) {
+    return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+  }
+
+  const { data: { user }, error } = await supabaseAdmin.auth.getUser(access_token)
+  if (error || !user) {
+    return NextResponse.json({ error: '사용자 인증 실패' }, { status: 401 })
+  }
+
+  const body = await req.json()
+
+  const { error: insertError } = await supabase
+    .from('multis')
+    .insert({ ...body, author_id: user.id, created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+
+  if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 })
   return NextResponse.json({ success: true }, { status: 200 })
 }

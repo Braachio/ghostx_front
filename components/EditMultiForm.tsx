@@ -18,7 +18,8 @@ export default function EditMultiForm({ id }: { id: string }) {
   useEffect(() => {
     const fetchNotice = async () => {
       const res = await fetch(`/api/multis/${id}`)
-      const data = await res.json()
+      const json = await res.json()
+      const data = json.data
 
       setTitle(data.title)
       setGameCategory(data.game_category)
@@ -43,6 +44,8 @@ export default function EditMultiForm({ id }: { id: string }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    const access_token = localStorage.getItem('access_token')
+
     const body = {
       title,
       game_category: gameCategory,
@@ -56,7 +59,10 @@ export default function EditMultiForm({ id }: { id: string }) {
 
     const res = await fetch(`/api/multis/${id}`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${access_token}`,
+      },
       body: JSON.stringify(body),
     })
 
