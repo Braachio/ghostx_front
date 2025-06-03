@@ -13,7 +13,7 @@ export default function LoginPage() {
     const res = await fetch('/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: 'admin', password: 'qwer' }),
+      body: JSON.stringify({ username, password}),
     })
 
     if (res.ok) {

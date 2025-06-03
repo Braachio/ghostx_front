@@ -9,6 +9,9 @@ const JWT_SECRET = process.env.JWT_SECRET!
 export async function POST(req: Request) {
   const { username, password } = await req.json()
 
+  console.log('입력 username:', username)
+  console.log('입력 password:', password)
+
   // 사용자 조회
   const { data: user, error } = await supabaseAdmin
     .from('profiles')
@@ -20,8 +23,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: '사용자를 찾을 수 없습니다.' }, { status: 401 })
   }
 
+  console.log('DB에서 찾은 유저:', user)
+  console.log('DB 저장된 해시:', user.password)
+
   // 비밀번호 비교
   const passwordMatch = await bcrypt.compare(password, user.password)
+  console.log('비밀번호 비교 결과:', passwordMatch)
+  
   if (!passwordMatch) {
     return NextResponse.json({ error: '비밀번호가 일치하지 않습니다.' }, { status: 401 })
   }
