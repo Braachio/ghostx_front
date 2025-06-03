@@ -21,13 +21,7 @@ export async function POST(req: Request) {
   }
 
   // 비밀번호 비교
-  console.log('입력한 비밀번호:', password)
-  console.log('DB에 저장된 해시:', user.password)
-
   const passwordMatch = await bcrypt.compare(password, user.password)
-
-  console.log('비밀번호 일치 여부:', passwordMatch)
-
   if (!passwordMatch) {
     return NextResponse.json({ error: '비밀번호가 일치하지 않습니다.' }, { status: 401 })
   }
