@@ -2,30 +2,44 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { supabase } from 'lib/supabaseClient'
-import type { User } from '@supabase/supabase-js'
+import { useRouter } from 'next/navigation'
+
+interface MeResponse {
+  id: string
+  username: string
+}
 
 export default function HomePage() {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<MeResponse | null>(null)
+  const router = useRouter()
 
   useEffect(() => {
-    checkUser()
-  }, [])
-
-  const checkUser = async () => {
-    const { data, error } = await supabase.auth.getUser()
-    if (error) {
-      console.error('사용자 확인 오류:', error.message)
-      setUser(null)
-    } else {
-      setUser(data.user ?? null)
+    const checkLogin = async () => {
+      try {
+        const res = await fetch('/api/me')
+        if (res.ok) {
+          const { user } = await res.json()
+          setUser(user)
+        } else {
+          setUser(null)
+        }
+      } catch (err) {
+        console.error('사용자 정보 확인 실패:', err)
+        setUser(null)
+      }
     }
-  }
+
+    checkLogin()
+  }, [])
 
   return (
     <div className="max-w-5xl mx-auto p-6">
-      {/* 상단 로그인 버튼 */}
-      <div className="flex justify-end mb-4">
+      {/* 상단 사용자 정보 및 버튼 */}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-sm text-gray-600">
+          {user ? `👤 ${user.username}님 환영합니다` : '🕵 로그인되지 않음'}
+        </h2>
+
         {user ? (
           <Link
             href="/multis/new"
