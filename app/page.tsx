@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { supabase } from 'lib/supabaseClient'
-import { Database } from '@/lib/database.types'
 import type { User } from '@supabase/supabase-js'
 
 export default function HomePage() {
@@ -13,7 +12,6 @@ export default function HomePage() {
     checkUser()
   }, [])
 
-  // 로그인한 사용자 확인
   const checkUser = async () => {
     const { data, error } = await supabase.auth.getUser()
     if (error) {
