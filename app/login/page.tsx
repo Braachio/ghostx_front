@@ -17,6 +17,8 @@ export default function LoginPage() {
     })
 
     if (res.ok) {
+      const { access_token } = await res.json()   // ✅ 토큰 추출
+      localStorage.setItem('access_token', access_token)  // ✅ 저장
       router.push('/')
     } else {
       const { error } = await res.json()
