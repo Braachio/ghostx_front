@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
+// app/api/multis/[id]/route.ts
+import { NextResponse } from 'next/server'
 import { supabaseServer } from '@/lib/supabaseServerClient'
 import { getMultiById, updateMulti, deleteMulti } from '@/lib/multiService'
 
-// 사용자 역할 확인
 async function getUserRole(access_token: string | null) {
   if (!access_token) return null
 
@@ -19,10 +19,14 @@ async function getUserRole(access_token: string | null) {
   return profile.role
 }
 
-// 단일 조회 (GET)
-export async function GET(request: NextRequest, context: { params: { id: string } }) {
+// GET: 공지 조회
+export async function GET(
+  _request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
-    const multi = await getMultiById(Number(context.params.id))
+    const id = Number(params.id)
+    const multi = await getMultiById(id)
     if (!multi) {
       return NextResponse.json({ error: '찾을 수 없습니다' }, { status: 404 })
     }
@@ -35,8 +39,11 @@ export async function GET(request: NextRequest, context: { params: { id: string 
   }
 }
 
-// 수정 (PATCH)
-export async function PATCH(request: NextRequest, context: { params: { id: string } }) {
+// PATCH: 공지 수정 (admin 권한 필요)
+export async function PATCH(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
     const access_token = request.headers.get('authorization')?.replace('Bearer ', '') || null
     const role = await getUserRole(access_token)
@@ -46,7 +53,7 @@ export async function PATCH(request: NextRequest, context: { params: { id: strin
     }
 
     const body = await request.json()
-    const updated = await updateMulti(Number(context.params.id), body)
+    const updated = await updateMulti(Number(params.id), body)
     return NextResponse.json(updated)
   } catch (error) {
     return NextResponse.json(
@@ -56,8 +63,11 @@ export async function PATCH(request: NextRequest, context: { params: { id: strin
   }
 }
 
-// 삭제 (DELETE)
-export async function DELETE(request: NextRequest, context: { params: { id: string } }) {
+// DELETE: 공지 삭제 (admin 권한 필요)
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
     const access_token = request.headers.get('authorization')?.replace('Bearer ', '') || null
     const role = await getUserRole(access_token)
@@ -66,7 +76,7 @@ export async function DELETE(request: NextRequest, context: { params: { id: stri
       return NextResponse.json({ error: '권한이 없습니다' }, { status: 403 })
     }
 
-    await deleteMulti(Number(context.params.id))
+    await deleteMulti(Number(params.id))
     return NextResponse.json({ success: true })
   } catch (error) {
     return NextResponse.json(
