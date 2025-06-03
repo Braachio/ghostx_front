@@ -1,9 +1,11 @@
-// components/CreateMultiForm.tsx
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function CreateMultiForm() {
+  const router = useRouter()
+
   const [title, setTitle] = useState('')
   const [gameCategory, setGameCategory] = useState('')
   const [game, setGame] = useState('')
@@ -14,11 +16,9 @@ export default function CreateMultiForm() {
   const [description, setDescription] = useState('')
 
   const handleDayChange = (day: string) => {
-    if (multiDay.includes(day)) {
-      setMultiDay(multiDay.filter((d) => d !== day))
-    } else {
-      setMultiDay([...multiDay, day])
-    }
+    setMultiDay(prev =>
+      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
+    )
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -52,6 +52,7 @@ export default function CreateMultiForm() {
 
     if (res.ok) {
       alert('멀티 공지 등록 완료!')
+      router.push('/multis')
     } else {
       const { error } = await res.json()
       alert(`등록 실패: ${error}`)
