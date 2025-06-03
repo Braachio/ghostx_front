@@ -3,10 +3,11 @@ import { getMultiById, updateMulti, deleteMulti } from '@/lib/multiService'
 
 export async function GET(
   req: Request,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const data = await getMultiById(Number(context.params.id))
+    const { id } = await context.params
+    const data = await getMultiById(Number(id))
     return NextResponse.json(data)
   } catch (error) {
     return NextResponse.json(
@@ -18,11 +19,12 @@ export async function GET(
 
 export async function PATCH(
   req: Request,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params
     const body = await req.json()
-    const updated = await updateMulti(Number(context.params.id), body)
+    const updated = await updateMulti(Number(id), body)
     return NextResponse.json(updated)
   } catch (error) {
     return NextResponse.json(
@@ -34,10 +36,11 @@ export async function PATCH(
 
 export async function DELETE(
   req: Request,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    await deleteMulti(Number(context.params.id))
+    const { id } = await context.params
+    await deleteMulti(Number(id))
     return new Response(null, { status: 204 })
   } catch (error) {
     return NextResponse.json(

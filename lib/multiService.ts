@@ -1,21 +1,26 @@
 import { supabase } from './supabaseClient'
 
-type Multi = {
+export type Multi = {
   id: number
   title: string
-  content: string
+  game_category: string
+  game: string
+  multi_name: string
+  multi_day: string[]
+  multi_time: string
+  is_open: boolean
+  description: string
   created_at: string
   updated_at: string
-  // 필요에 따라 다른 필드들도 추가하세요
 }
 
 type MultiUpdate = Partial<Omit<Multi, 'id' | 'created_at'>>
 
-export async function getMultiById(id: number): Promise<Multi | null> {
+export async function getMultiById(id: string | number): Promise<Multi | null> {
   const { data, error } = await supabase
     .from('multis')
     .select('*')
-    .eq('id', id)
+    .eq('id', Number(id))
     .single()
 
   if (error) {
@@ -26,11 +31,11 @@ export async function getMultiById(id: number): Promise<Multi | null> {
   return data
 }
 
-export async function updateMulti(id: number, updates: MultiUpdate): Promise<Multi> {
+export async function updateMulti(id: string | number, updates: MultiUpdate): Promise<Multi> {
   const { data, error } = await supabase
     .from('multis')
     .update({ ...updates, updated_at: new Date().toISOString() })
-    .eq('id', id)
+    .eq('id', Number(id))
     .select()
     .single()
 
@@ -42,11 +47,11 @@ export async function updateMulti(id: number, updates: MultiUpdate): Promise<Mul
   return data
 }
 
-export async function deleteMulti(id: number): Promise<void> {
+export async function deleteMulti(id: string | number): Promise<void> {
   const { error } = await supabase
     .from('multis')
     .delete()
-    .eq('id', id)
+    .eq('id', Number(id))
 
   if (error) {
     console.error('deleteMulti 오류:', error.message)

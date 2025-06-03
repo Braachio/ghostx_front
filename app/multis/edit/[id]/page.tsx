@@ -1,5 +1,10 @@
 import EditMultiForm from '@/components/EditMultiForm'
 
-export default function EditMultiPage({ params }: { params: { id: string } }) {
-  return <EditMultiForm id={params.id} />
+interface PageProps {
+  params: Promise<{ id: string }>
+}
+
+export default async function EditMultiPage({ params }: PageProps) {
+  const { id } = await params
+  return <EditMultiForm id={id} />
 }
