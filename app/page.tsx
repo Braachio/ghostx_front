@@ -6,31 +6,14 @@ import { supabase } from 'lib/supabaseClient'
 import { Database } from '@/lib/database.types'
 import type { User } from '@supabase/supabase-js'
 
-type Event = Database['public']['Tables']['events']['Row']
-
 export default function HomePage() {
-  const [events, setEvents] = useState<Event[]>([])
   const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
-    fetchEvents()
     checkUser()
   }, [])
 
-  const fetchEvents = async () => {
-    const { data, error } = await supabase
-      .from('events')
-      .select('*')
-      .eq('status', 'open')
-      .order('start_date', { ascending: false })
-
-    if (error) {
-      console.error('이벤트 불러오기 오류:', error)
-    } else {
-      setEvents(data ?? [])
-    }
-  }
-
+  // 로그인한 사용자 확인
   const checkUser = async () => {
     const { data, error } = await supabase.auth.getUser()
     if (error) {
@@ -58,11 +41,17 @@ export default function HomePage() {
       </div>
 
       {user ? (
-        <Link href="/multis/new" className="inline-block mb-6 px-4 py-2 bg-blue-600 text-white rounded">
+        <Link
+          href="/multis/new"
+          className="inline-block mb-6 px-4 py-2 bg-blue-600 text-white rounded"
+        >
           공지 등록
         </Link>
       ) : (
-        <Link href="/login" className="inline-block mb-6 px-4 py-2 bg-gray-600 text-white rounded">
+        <Link
+          href="/login"
+          className="inline-block mb-6 px-4 py-2 bg-gray-600 text-white rounded"
+        >
           로그인
         </Link>
       )}
