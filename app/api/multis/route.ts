@@ -11,6 +11,9 @@ async function checkAdmin(access_token: string | null): Promise<{ isAdmin: boole
   if (!access_token) return { isAdmin: false }
 
   const { data: { user }, error } = await supabaseAdmin.auth.getUser(access_token)
+
+  console.log('🔐 Supabase User:', user) // 디버깅용
+
   if (error || !user) return { isAdmin: false }
 
   const { data: profile, error: profileError } = await supabaseAdmin
@@ -25,7 +28,7 @@ async function checkAdmin(access_token: string | null): Promise<{ isAdmin: boole
 }
 
 /**
- * GET /api/multis
+ * GET /api/multis - 전체 목록 조회
  */
 export async function GET() {
   const supabase = createRouteHandlerClient<Database>({ cookies })
@@ -43,20 +46,23 @@ export async function GET() {
 }
 
 /**
- * POST /api/multis
+ * POST /api/multis - 관리자만 공지 등록
  */
 export async function POST(req: Request) {
-  const cookieStore = cookies()
+  const supabase = createRouteHandlerClient<Database>({ cookies })
+
+  // ✅ 비동기 cookies() 처리
+  const cookieStore = await cookies()
   const cookieToken = cookieStore.get('access_token')?.value ?? null
   const headerToken = req.headers.get('authorization')?.replace('Bearer ', '') ?? null
   const access_token = headerToken || cookieToken
 
   const { isAdmin, userId } = await checkAdmin(access_token)
+
   if (!isAdmin || !userId) {
     return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 })
   }
 
-  const supabase = createRouteHandlerClient<Database>({ cookies })
   const body = await req.json()
 
   const { error } = await supabase.from('multis').insert({
