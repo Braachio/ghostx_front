@@ -6,9 +6,6 @@ import jwt from 'jsonwebtoken'
 
 const SECRET_KEY = process.env.JWT_SECRET_KEY || 'your-secret-key'
 
-/**
- * JWT 기반 관리자 권한 확인
- */
 async function checkAdmin(access_token: string | null): Promise<{ isAdmin: boolean; userId?: string }> {
   if (!access_token) {
     console.warn('🚫 [WARN] access_token 없음')
@@ -29,12 +26,8 @@ async function checkAdmin(access_token: string | null): Promise<{ isAdmin: boole
   }
 }
 
-/**
- * GET /api/multis - 전체 목록 조회
- */
 export async function GET() {
   const supabase = createRouteHandlerClient<Database>({ cookies })
-
   const { data, error } = await supabase
     .from('multis')
     .select('*')
@@ -46,25 +39,19 @@ export async function GET() {
   return NextResponse.json(data)
 }
 
-/**
- * POST /api/multis - 관리자만 공지 등록
- */
 export async function POST(req: Request) {
   const supabase = createRouteHandlerClient<Database>({ cookies })
 
-  // ✅ 쿠키에서 JWT 토큰 추출
-  const cookieStore = await cookies()
-  const cookie = cookieStore.get('token')
+  // ✅ 동기 방식으로 쿠키 추출
+  const cookie = (await cookies()).get('token')
   const cookieToken = cookie?.value ?? null
 
-  // ✅ Authorization 헤더에서 토큰 추출 (빈 문자열 방지 포함)
   const headerRaw = req.headers.get('authorization')
   const headerToken =
     headerRaw && headerRaw.startsWith('Bearer ')
       ? headerRaw.slice(7).trim() || null
       : null
 
-  // ✅ 디버깅 로그
   console.log('🧪 [DEBUG] raw cookie:', cookie)
   console.log('🧪 [DEBUG] 쿠키 토큰 값:', cookieToken)
   console.log('🧪 [DEBUG] Authorization 헤더:', headerRaw)
@@ -73,7 +60,6 @@ export async function POST(req: Request) {
   const access_token = headerToken || cookieToken
   console.log('🪵 [DEBUG] 최종 access_token:', access_token)
 
-  // ✅ 관리자 권한 확인
   const { isAdmin, userId } = await checkAdmin(access_token)
 
   if (!isAdmin || !userId) {
@@ -81,11 +67,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 })
   }
 
-  // ✅ 요청 본문 처리
   const body = await req.json()
   console.log('🪵 [DEBUG] POST body:', body)
 
-  // ✅ Supabase에 공지 등록
   const { error } = await supabase.from('multis').insert({
     ...body,
     author_id: userId,
