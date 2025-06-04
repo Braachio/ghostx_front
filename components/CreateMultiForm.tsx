@@ -2,9 +2,12 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import type { Database } from '@/lib/database.types'
 
 export default function CreateMultiForm() {
   const router = useRouter()
+  const supabase = createClientComponentClient<Database>()
 
   const [title, setTitle] = useState('')
   const [gameCategory, setGameCategory] = useState('')
@@ -24,8 +27,16 @@ export default function CreateMultiForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // ✅ access_token 대신 쿠키 세션 사용 → 별도 확인 불필요
-    const body = {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      alert('로그인이 필요합니다.')
+      return
+    }
+
+    const { error } = await supabase.from('multis').insert({
       title,
       game_category: gameCategory,
       game,
@@ -34,23 +45,15 @@ export default function CreateMultiForm() {
       multi_time: multiTime,
       is_open: isOpen,
       description,
-    }
-
-    const res = await fetch('/api/multis', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-      credentials: 'include', // ✅ 세션 쿠키 포함 필수
+      author_id: user.id,
+      created_at: new Date().toISOString(),
     })
 
-    if (res.ok) {
+    if (error) {
+      alert(`등록 실패: ${error.message}`)
+    } else {
       alert('멀티 공지 등록 완료!')
       router.push('/multis')
-    } else {
-      const { error } = await res.json()
-      alert(`등록 실패: ${error}`)
     }
   }
 
