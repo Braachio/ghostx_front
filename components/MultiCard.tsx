@@ -66,20 +66,13 @@ export default function MultiCard({
               isOpen ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
             }`}
           >
-            {isOpen ? '✅ 서버 ON (클릭 시 OFF)' : '❌ 서버 OFF (클릭 시 ON)'}
+            {isOpen ? '✅ 서버 ON (클릭 시 비공개)' : '❌ 서버 OFF (클릭 시 공개)'}
           </button>
         ) : (
           <span className="text-sm text-gray-500">
             {isOpen ? '✅ 서버 ON' : '❌ 서버 OFF'}
           </span>
         )}
-
-      <p>🧭 <strong>멀티명:</strong> {multi.multi_name}</p>
-      <p>📅 <strong>요일:</strong> {multi.multi_day?.join(', ')}</p>
-      <p>🕒 <strong>시간:</strong> {multi.multi_time}</p>
-      <p className="my-2 whitespace-pre-line text-gray-700">{multi.description}</p>
-
-      
 
         {isAuthor && (
           <>
@@ -95,6 +88,10 @@ export default function MultiCard({
           </>
         )}
       </div>
+      <p>🧭 <strong>멀티명:</strong> {multi.multi_name}</p>
+      <p>📅 <strong>요일:</strong> {multi.multi_day?.join(', ')}</p>
+      <p>🕒 <strong>시간:</strong> {multi.multi_time}</p>
+      <p className="my-2 whitespace-pre-line text-gray-700">{multi.description}</p>
     </div>
   )
 }
