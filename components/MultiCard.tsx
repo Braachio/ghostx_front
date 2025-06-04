@@ -38,19 +38,6 @@ export default function MultiCard({
     setIsLoading(false)
   }
 
-  const handleDelete = async () => {
-    if (!isAuthor) return
-    if (!confirm('정말 삭제하시겠습니까?')) return
-
-    const { error } = await supabase.from('multis').delete().eq('id', multi.id)
-    if (error) {
-      alert('삭제 실패')
-    } else {
-      alert('삭제 완료')
-      onDeleted?.()
-    }
-  }
-
   return (
     <div className="border p-4 rounded shadow mb-3 bg-white">
       <Link href={`/multis/${multi.id}`}>
