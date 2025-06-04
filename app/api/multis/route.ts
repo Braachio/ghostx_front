@@ -1,12 +1,31 @@
 import { NextResponse } from 'next/server'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import type { Database } from '@/lib/database.types'
 
+/**
+ * GET /api/multis - 전체 공지 목록 조회
+ */
+export async function GET() {
+  const supabase = createRouteHandlerClient<Database>({ cookies })
+
+  const { data, error } = await supabase
+    .from('multis')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+  return NextResponse.json(data)
+}
+
+/**
+ * POST /api/multis - 로그인한 유저만 공지 등록 가능
+ */
 export async function POST(req: Request) {
   const supabase = createRouteHandlerClient<Database>({ cookies })
 
-  // ✅ 로그인 유저 확인
   const {
     data: { user },
     error: userError,
@@ -17,29 +36,29 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
   }
 
-  // ✅ 유저의 role 조회
-  const { data: profile, error: profileError } = await supabase
+  // 유저 권한 확인 (예: "admin" 역할만 등록 가능)
+  const { data: profile } = await supabase
     .from('profiles')
     .select('role')
     .eq('id', user.id)
     .single()
 
-  if (profileError || !profile || profile.role !== 'admin') {
-    console.warn('🚫 [WARN] 관리자 권한 아님')
-    return NextResponse.json({ error: '관리자 권한이 없습니다.' }, { status: 403 })
+  if (profile?.role !== 'admin') {
+    return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 })
   }
 
-  // ✅ 본문 파싱 및 등록
   const body = await req.json()
-  const { error: insertError } = await supabase.from('multis').insert({
+  console.log('📥 [DEBUG] POST body:', body)
+
+  const { error } = await supabase.from('multis').insert({
     ...body,
     author_id: user.id,
     created_at: new Date().toISOString(),
   })
 
-  if (insertError) {
-    console.error('❌ [ERROR] 공지 등록 실패:', insertError.message)
-    return NextResponse.json({ error: insertError.message }, { status: 500 })
+  if (error) {
+    console.error('❌ [ERROR] Insert 실패:', error.message)
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
   console.log('✅ [SUCCESS] 공지 등록 성공')

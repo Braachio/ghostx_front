@@ -24,12 +24,7 @@ export default function CreateMultiForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    const accessToken = localStorage.getItem('access_token')
-    if (!accessToken) {
-      alert('로그인이 필요합니다.')
-      return
-    }
-
+    // ✅ access_token 대신 쿠키 세션 사용 → 별도 확인 불필요
     const body = {
       title,
       game_category: gameCategory,
@@ -45,9 +40,9 @@ export default function CreateMultiForm() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify(body),
+      credentials: 'include', // ✅ 세션 쿠키 포함 필수
     })
 
     if (res.ok) {
