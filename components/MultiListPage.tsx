@@ -7,7 +7,6 @@ import type { Database } from '@/lib/database.types'
 type Multi = Database['public']['Tables']['multis']['Row']
 
 export default function MultiListPage({
-  simplified = false,
   currentUserId = null,
 }: {
   simplified?: boolean
