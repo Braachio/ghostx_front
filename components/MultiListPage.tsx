@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import MultiCard from './MultiCard'
 import type { Database } from '@/lib/database.types'
 
