@@ -1,13 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import type { Database } from '@/lib/database.types'
 
 export default function CreateMultiForm() {
-  const router = useRouter()
   const supabase = createClientComponentClient<Database>()
+  const router = useRouter()
+
+  const [userId, setUserId] = useState<string | null>(null)
 
   const [title, setTitle] = useState('')
   const [gameCategory, setGameCategory] = useState('')
@@ -18,6 +20,17 @@ export default function CreateMultiForm() {
   const [isOpen, setIsOpen] = useState(false)
   const [description, setDescription] = useState('')
 
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data, error }) => {
+      if (error || !data.user) {
+        alert('로그인이 필요합니다.')
+        router.push('/login')
+      } else {
+        setUserId(data.user.id)
+      }
+    })
+  }, [])
+
   const handleDayChange = (day: string) => {
     setMultiDay(prev =>
       prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
@@ -26,15 +39,7 @@ export default function CreateMultiForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      alert('로그인이 필요합니다.')
-      return
-    }
+    if (!userId) return
 
     const { error } = await supabase.from('multis').insert({
       title,
@@ -45,7 +50,7 @@ export default function CreateMultiForm() {
       multi_time: multiTime,
       is_open: isOpen,
       description,
-      author_id: user.id,
+      author_id: userId,
       created_at: new Date().toISOString(),
     })
 

@@ -1,58 +1,35 @@
+// app/login/page.tsx
 'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import type { Database } from '@/lib/database.types'
 
 export default function LoginPage() {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
+  const supabase = createClientComponentClient<Database>()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
 
-  const handleLogin = async () => {
-    const res = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    })
-
-    if (res.ok) {
-      const { access_token } = await res.json()   // ✅ 토큰 추출
-      localStorage.setItem('access_token', access_token)  // ✅ 저장
-      router.push('/')
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) {
+      alert('로그인 실패: ' + error.message)
     } else {
-      const { error } = await res.json()
-      setError(error)
+      router.push('/')
     }
   }
 
   return (
-    <div className="max-w-md mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">로그인</h1>
-
-      <input
-        type="text"
-        placeholder="아이디"
-        className="border p-2 w-full mb-4"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="비밀번호"
-        className="border p-2 w-full mb-4"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-
-      {error && <p className="text-red-600 mb-2">{error}</p>}
-
-      <button
-        onClick={handleLogin}
-        className="w-full bg-blue-600 text-white py-2 rounded"
-      >
-        로그인
-      </button>
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <form onSubmit={handleLogin} className="bg-white p-6 rounded shadow-md w-full max-w-sm">
+        <h2 className="text-xl font-bold mb-4">로그인</h2>
+        <input type="email" placeholder="이메일" value={email} onChange={e => setEmail(e.target.value)} required className="w-full mb-3 p-2 border rounded" />
+        <input type="password" placeholder="비밀번호" value={password} onChange={e => setPassword(e.target.value)} required className="w-full mb-3 p-2 border rounded" />
+        <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded">로그인</button>
+      </form>
     </div>
   )
 }
