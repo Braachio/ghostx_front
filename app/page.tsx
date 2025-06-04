@@ -54,12 +54,14 @@ export default function HomePage() {
         <Link href="/multis">
           <button className="px-4 py-2 bg-blue-600 text-white rounded">공지 모음</button>
         </Link>
+        {/*
         <Link href="/events">
           <button className="px-4 py-2 bg-green-600 text-white rounded">이벤트 보기</button>
         </Link>
         <Link href="/community">
           <button className="px-4 py-2 bg-purple-600 text-white rounded">커뮤니티</button>
         </Link>
+        */}
       </div>
     </div>
   )
