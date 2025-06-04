@@ -55,7 +55,7 @@ export async function POST(req: Request) {
   // 쿠키 정보 확인
   const cookieStore = cookies()
   const allCookies = await cookieStore
-  const cookieToken = allCookies.get('access_token')?.value ?? null
+  const cookieToken = allCookies.get('token')?.value ?? null
 
   // 헤더 정보 확인
   const headerRaw = req.headers.get('authorization')
