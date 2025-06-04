@@ -67,7 +67,16 @@ export default function CreateMultiForm() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-md w-full p-6 bg-white shadow-md rounded">
         <h2 className="text-xl font-bold mb-2 text-center">📢 새 공지 등록</h2>
 
-        <select value={game} onChange={(e) => setGame(e.target.value)} required className="border p-2 rounded">
+        <select
+          value={game}
+          onChange={(e) => {
+            const selectedGame = e.target.value
+            setGame(selectedGame)
+            setTitle(selectedGame) // 자동으로 제목에도 입력
+          }}
+          required
+          className="border p-2 rounded"
+        >
           <option value="">게임을 선택하세요</option>
           <option value="컴페티치오네">컴페티치오네</option>
           <option value="아세토코르사">아세토코르사</option>
@@ -77,29 +86,73 @@ export default function CreateMultiForm() {
           <option value="알펙터2">알펙터2</option>
         </select>
 
-        <input type="text" placeholder="공지 제목" value={title} onChange={(e) => setTitle(e.target.value)} required className="border p-2 rounded" />
-        <input type="text" placeholder="클래스 (예: GT3)" value={multiName} onChange={(e) => setMultiName(e.target.value)} required className="border p-2 rounded" />
-        <input type="text" placeholder="트랙" value={gameCategory} onChange={(e) => setGameCategory(e.target.value)} required className="border p-2 rounded" />
+        <input
+          type="text"
+          placeholder="게임명"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+          className="border p-2 rounded"
+        />
+        <input
+          type="text"
+          placeholder="클래스 (예: GT3)"
+          value={multiName}
+          onChange={(e) => setMultiName(e.target.value)}
+          required
+          className="border p-2 rounded"
+        />
+        <input
+          type="text"
+          placeholder="트랙"
+          value={gameCategory}
+          onChange={(e) => setGameCategory(e.target.value)}
+          required
+          className="border p-2 rounded"
+        />
 
         <fieldset className="flex flex-wrap gap-2">
           <legend className="text-sm font-medium">요일</legend>
           {['월', '화', '수', '목', '금', '토', '일'].map((day) => (
             <label key={day} className="text-sm">
-              <input type="checkbox" checked={multiDay.includes(day)} onChange={() => handleDayChange(day)} /> {day}
+              <input
+                type="checkbox"
+                checked={multiDay.includes(day)}
+                onChange={() => handleDayChange(day)}
+              />{' '}
+              {day}
             </label>
           ))}
         </fieldset>
 
-        <input type="text" placeholder="오픈 시간 (예: 20:30)" value={multiTime} onChange={(e) => setMultiTime(e.target.value)} className="border p-2 rounded" />
+        <input
+          type="text"
+          placeholder="오픈 시간 (예: 20:30)"
+          value={multiTime}
+          onChange={(e) => setMultiTime(e.target.value)}
+          className="border p-2 rounded"
+        />
 
         <label className="text-sm">
-          <input type="checkbox" checked={isOpen} onChange={(e) => setIsOpen(e.target.checked)} className="mr-2" />
+          <input
+            type="checkbox"
+            checked={isOpen}
+            onChange={(e) => setIsOpen(e.target.checked)}
+            className="mr-2"
+          />
           오픈 여부
         </label>
 
-        <textarea placeholder="상세 내용" value={description} onChange={(e) => setDescription(e.target.value)} className="border p-2 rounded h-32" />
+        <textarea
+          placeholder="상세 내용"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="border p-2 rounded h-32"
+        />
 
-        <button type="submit" className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700">등록</button>
+        <button type="submit" className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+          등록
+        </button>
       </form>
     </div>
   )

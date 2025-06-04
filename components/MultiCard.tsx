@@ -60,7 +60,7 @@ export default function MultiCard({
           </span>
         )}
       </div>
-      <p>🧭 <strong>멀티명:</strong> {multi.multi_name}</p>
+      <p>🧭 <strong>클래스스:</strong> {multi.multi_name}</p>
       <p>📅 <strong>요일:</strong> {multi.multi_day?.join(', ')}</p>
       <p>🕒 <strong>시간:</strong> {multi.multi_time}</p>
       <p className="my-2 whitespace-pre-line text-gray-700">{multi.description}</p>
