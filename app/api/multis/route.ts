@@ -19,8 +19,12 @@ async function checkAdmin(access_token: string | null): Promise<{ isAdmin: boole
     const decoded = jwt.verify(access_token, SECRET_KEY) as { sub: string; role: string }
     console.log('🪵 [DEBUG] decoded token:', decoded)
     return { isAdmin: decoded.role === 'admin', userId: decoded.sub }
-  } catch {
-    console.error('❌ [ERROR] JWT decoding 실패:', err)
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error('❌ [ERROR] JWT decoding 실패:', err.message)
+    } else {
+      console.error('❌ [ERROR] JWT decoding 실패: 알 수 없는 에러', err)
+    }
     return { isAdmin: false }
   }
 }
