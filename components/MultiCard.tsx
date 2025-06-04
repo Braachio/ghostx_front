@@ -10,7 +10,6 @@ type Multi = Database['public']['Tables']['multis']['Row']
 export default function MultiCard({
   multi,
   currentUserId,
-  onDeleted,
 }: {
   multi: Multi
   currentUserId: string | null
