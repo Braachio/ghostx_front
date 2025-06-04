@@ -1,4 +1,3 @@
-// app/multis/page.tsx
 'use client'
 
 import MultiListPage from '@/components/MultiListPage'
@@ -11,7 +10,7 @@ interface MeResponse {
 }
 
 export default function MultisPage() {
-  const [user, setUser] = useState<MeResponse | null>(null)
+  const [user, setUser] = useState<MeResponse | null | undefined>(undefined)
 
   useEffect(() => {
     const checkLogin = async () => {
@@ -32,8 +31,12 @@ export default function MultisPage() {
     checkLogin()
   }, [])
 
+  if (user === undefined) {
+    return <p className="p-6 text-gray-500">로딩 중...</p>
+  }
+
   return (
-    <div className="max-w-3xl mx-auto p-6">
+    <div className="max-w-5xl mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">📢 공지 모음</h1>
         <div className="space-x-2">
