@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 import type { Database } from '@/lib/database.types'
 import jwt from 'jsonwebtoken'
 
-const SECRET_KEY = process.env.JWT_SECRET_KEY || 'your-secret-key' // 실제 배포 시 환경변수 사용 필수
+const SECRET_KEY = process.env.JWT_SECRET_KEY || 'your-secret-key'
 
 /**
  * JWT 기반 관리자 권한 확인
@@ -52,25 +52,20 @@ export async function GET() {
 export async function POST(req: Request) {
   const supabase = createRouteHandlerClient<Database>({ cookies })
 
-  // 쿠키에서 token 추출
-  const cookieStore = cookies()
-  const cookie = await cookieStore.get('token') // ✅ token으로 수정
-  const cookieToken = cookie?.value ?? null
+  // ✅ 쿠키에서 JWT 토큰 추출
+  const cookieToken = (await cookies()).get('token')?.value ?? null
 
-  // Authorization 헤더에서 토큰 추출
+  // ✅ Authorization 헤더에서 토큰 추출
   const headerRaw = req.headers.get('authorization')
   const headerToken = headerRaw?.replace('Bearer ', '') ?? null
 
-  // 디버깅 로그
-  console.log('🧪 [DEBUG] 쿠키 token 객체:', cookie)
+  // ✅ 디버깅 로그
   console.log('🧪 [DEBUG] 쿠키 토큰 값:', cookieToken)
   console.log('🧪 [DEBUG] Authorization 헤더:', headerRaw)
 
-  // 최종 access_token 결정
   const access_token = headerToken || cookieToken
   console.log('🪵 [DEBUG] 최종 access_token:', access_token)
 
-  // 권한 확인
   const { isAdmin, userId } = await checkAdmin(access_token)
 
   if (!isAdmin || !userId) {
@@ -78,11 +73,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 })
   }
 
-  // 요청 본문 파싱
   const body = await req.json()
   console.log('🪵 [DEBUG] POST body:', body)
 
-  // 공지 등록
   const { error } = await supabase.from('multis').insert({
     ...body,
     author_id: userId,
