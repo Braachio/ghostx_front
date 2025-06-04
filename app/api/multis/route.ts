@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 import type { Database } from '@/lib/database.types'
 import jwt from 'jsonwebtoken'
 
-const SECRET_KEY = process.env.JWT_SECRET_KEY || 'your-secret-key'
+const SECRET_KEY = process.env.JWT_SECRET_KEY || 'c95gSMAyWu7O/JaSCErhOvJh4wf7ps+LmpJqcmOAjxckm322+Sqp/TYjlzeyYPAmVRfwpXHjhTDpdMoyA8nrGQ=='
 
 /**
  * JWT 기반 관리자 권한 확인
@@ -53,15 +53,19 @@ export async function POST(req: Request) {
   const supabase = createRouteHandlerClient<Database>({ cookies })
 
   // ✅ 쿠키에서 JWT 토큰 추출
-  const cookieToken = (await cookies()).get('token')?.value ?? null
+  const cookieStore = await cookies()
+  const cookie = cookieStore.get('token')
+  const cookieToken = cookie?.value ?? null
 
   // ✅ Authorization 헤더에서 토큰 추출
   const headerRaw = req.headers.get('authorization')
-  const headerToken = headerRaw?.replace('Bearer ', '') ?? null
+  const headerToken = headerRaw?.startsWith('Bearer ') ? headerRaw.replace('Bearer ', '') : null
 
   // ✅ 디버깅 로그
+  console.log('🧪 [DEBUG] raw cookie:', cookie)
   console.log('🧪 [DEBUG] 쿠키 토큰 값:', cookieToken)
   console.log('🧪 [DEBUG] Authorization 헤더:', headerRaw)
+  console.log('🧪 [DEBUG] headerToken:', headerToken)
 
   const access_token = headerToken || cookieToken
   console.log('🪵 [DEBUG] 최종 access_token:', access_token)
