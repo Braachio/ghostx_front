@@ -1,3 +1,4 @@
+// app/multis/page.tsx
 'use client'
 
 import MultiListPage from '@/components/MultiListPage'
@@ -46,7 +47,7 @@ export default function MultisPage() {
           </Link>
         </div>
       </div>
-      <MultiListPage simplified />
+      <MultiListPage currentUserId={user?.id ?? null} simplified={false} />
     </div>
   )
 }
