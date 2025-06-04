@@ -52,7 +52,7 @@ export default function MultiCard({
               isOpen ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
             }`}
           >
-            {isOpen ? '✅ 서버 ON (클릭 시 비공개)' : '❌ 서버 OFF (클릭 시 공개)'}
+            {isOpen ? '✅ 서버 ON (클릭 시 OFF)' : '❌ 서버 OFF (클릭 시 ON)'}
           </button>
         ) : (
           <span className="text-sm text-gray-500">
