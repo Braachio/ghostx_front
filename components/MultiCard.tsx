@@ -57,11 +57,6 @@ export default function MultiCard({
         <h2 className="text-lg font-semibold hover:underline">{multi.title}</h2>
       </Link>
       <p className="text-sm text-gray-600 mb-1">{new Date(multi.created_at).toLocaleString()}</p>
-      <p>🧭 <strong>멀티명:</strong> {multi.multi_name}</p>
-      <p>📅 <strong>요일:</strong> {multi.multi_day?.join(', ')}</p>
-      <p>🕒 <strong>시간:</strong> {multi.multi_time}</p>
-      <p className="my-2 whitespace-pre-line text-gray-700">{multi.description}</p>
-
       <div className="flex items-center gap-4">
         {isAuthor ? (
           <button
@@ -71,13 +66,19 @@ export default function MultiCard({
               isOpen ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
             }`}
           >
-            {isOpen ? '🔓 공개 중 (클릭 시 비공개)' : '🔒 비공개 (클릭 시 공개)'}
+            {isOpen ? '✅ 서버 ON (클릭 시 비공개)' : '❌ 서버 OFF (클릭 시 공개)'}
           </button>
         ) : (
           <span className="text-sm text-gray-500">
-            {isOpen ? '🔓 공개됨' : '🔒 비공개'}
+            {isOpen ? '✅ 서버 ON' : '❌ 서버 OFF'}
           </span>
         )}
+      <p>🧭 <strong>멀티명:</strong> {multi.multi_name}</p>
+      <p>📅 <strong>요일:</strong> {multi.multi_day?.join(', ')}</p>
+      <p>🕒 <strong>시간:</strong> {multi.multi_time}</p>
+      <p className="my-2 whitespace-pre-line text-gray-700">{multi.description}</p>
+
+      
 
         {isAuthor && (
           <>
