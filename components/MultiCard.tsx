@@ -73,20 +73,6 @@ export default function MultiCard({
             {isOpen ? '✅ 서버 ON' : '❌ 서버 OFF'}
           </span>
         )}
-
-        {isAuthor && (
-          <>
-            <Link href={`/multis/${multi.id}/edit`}>
-              <button className="bg-yellow-500 text-white px-3 py-1 rounded text-sm">수정</button>
-            </Link>
-            <button
-              onClick={handleDelete}
-              className="bg-red-600 text-white px-3 py-1 rounded text-sm"
-            >
-              삭제
-            </button>
-          </>
-        )}
       </div>
       <p>🧭 <strong>멀티명:</strong> {multi.multi_name}</p>
       <p>📅 <strong>요일:</strong> {multi.multi_day?.join(', ')}</p>
