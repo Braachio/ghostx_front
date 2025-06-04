@@ -1,22 +1,21 @@
 // app/api/me/route.ts
-import { NextRequest, NextResponse } from 'next/server'
-import jwt from 'jsonwebtoken'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
+import { NextResponse } from 'next/server'
+import type { Database } from '@/lib/database.types'
 
-const JWT_SECRET = process.env.JWT_SECRET!
+export async function GET() {
+  const supabase = createRouteHandlerClient<Database>({ cookies })
 
-export async function GET(req: NextRequest) {
-  // 1. 쿠키에서 토큰 꺼내기
-  const token = req.cookies.get('token')?.value
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
 
-  if (!token) {
-    return NextResponse.json({ error: '로그인 필요' }, { status: 401 })
+  if (error || !user) {
+    console.warn('🚫 [WARN] 로그인된 유저 없음')
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  try {
-    // 2. 토큰 디코딩 (검증)
-    const decoded = jwt.verify(token, JWT_SECRET)
-    return NextResponse.json({ user: decoded }, { status: 200 })
-  } catch {
-    return NextResponse.json({ user: null }, { status: 401 })
-  }
+  return NextResponse.json({ user })
 }
