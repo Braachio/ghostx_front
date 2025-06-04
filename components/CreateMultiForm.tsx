@@ -37,6 +37,11 @@ export default function CreateMultiForm() {
     )
   }
 
+  const handleGameChange = (selected: string) => {
+    setGame(selected)
+    setTitle(selected) // 💡 게임 선택 시 title도 자동 설정
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!userId) return
@@ -64,16 +69,15 @@ export default function CreateMultiForm() {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-md w-full p-6 bg-white shadow-md rounded">
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-4 max-w-md w-full p-6 bg-white shadow-md rounded"
+      >
         <h2 className="text-xl font-bold mb-2 text-center">📢 새 공지 등록</h2>
 
         <select
           value={game}
-          onChange={(e) => {
-            const selectedGame = e.target.value
-            setGame(selectedGame)
-            setTitle(selectedGame) // 자동으로 제목에도 입력
-          }}
+          onChange={(e) => handleGameChange(e.target.value)}
           required
           className="border p-2 rounded"
         >
@@ -86,14 +90,14 @@ export default function CreateMultiForm() {
           <option value="알펙터2">알펙터2</option>
         </select>
 
+        {/* 🔒 title 필드는 숨김 처리 */}
         <input
-          type="text"
-          placeholder="게임명"
+          type="hidden"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          readOnly
           required
-          className="border p-2 rounded"
         />
+
         <input
           type="text"
           placeholder="클래스 (예: GT3)"
@@ -102,6 +106,7 @@ export default function CreateMultiForm() {
           required
           className="border p-2 rounded"
         />
+
         <input
           type="text"
           placeholder="트랙"
@@ -150,7 +155,10 @@ export default function CreateMultiForm() {
           className="border p-2 rounded h-32"
         />
 
-        <button type="submit" className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+        <button
+          type="submit"
+          className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+        >
           등록
         </button>
       </form>
