@@ -43,13 +43,12 @@ export default function MultiListPage({
 
   const filtered = multis
     .filter((multi) => selectedGames.includes(multi.game))
-    .sort((a, b) =>
-      sortOrder === 'newest'
-        ? new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        : new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-    )
+    .sort((a, b) => {
+      const dateA = a.created_at ? new Date(a.created_at).getTime() : 0
+      const dateB = b.created_at ? new Date(b.created_at).getTime() : 0
+      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB
+    })
 
-  // 게임별로 그룹화
   const groupedByGame = filtered.reduce<Record<string, Multi[]>>((acc, multi) => {
     if (!acc[multi.game]) acc[multi.game] = []
     acc[multi.game].push(multi)
@@ -58,7 +57,7 @@ export default function MultiListPage({
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      {/* 🔍 게임 필터 체크박스 + 정렬 */}
+      {/* 🔍 게임 필터 및 정렬 */}
       <div className="mb-6 border p-4 rounded bg-white shadow-sm">
         <h2 className="font-semibold mb-2">🎮 게임 필터</h2>
         <div className="flex flex-wrap gap-3 mb-3">
@@ -81,7 +80,8 @@ export default function MultiListPage({
               value="newest"
               checked={sortOrder === 'newest'}
               onChange={() => setSortOrder('newest')}
-            /> 최신순
+            />{' '}
+            최신순
           </label>
           <label>
             <input
@@ -90,7 +90,8 @@ export default function MultiListPage({
               value="oldest"
               checked={sortOrder === 'oldest'}
               onChange={() => setSortOrder('oldest')}
-            /> 오래된순
+            />{' '}
+            오래된순
           </label>
         </div>
       </div>
