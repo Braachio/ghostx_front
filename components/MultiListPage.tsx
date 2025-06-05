@@ -60,7 +60,7 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
   }, {})
 
   return (
-    <div className="p-6 min-w-screen-2xl max-w-full mx-auto">
+    <div className="p-6 max-w-full mx-auto">
       {/* 필터 */}
       <div className="mb-6 border p-4 rounded bg-white shadow-sm">
         <h2 className="font-semibold mb-2">게임 필터</h2>

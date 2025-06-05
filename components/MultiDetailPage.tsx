@@ -1,14 +1,37 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { JSX, useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+
+// ✅ 링크 자동 변환 함수
+function linkify(text: string): JSX.Element[] {
+  const urlRegex = /(https?:\/\/[^\s]+)/g
+  const parts = text.split(urlRegex)
+
+  return parts.map((part, index) =>
+    urlRegex.test(part) ? (
+      <a
+        key={index}
+        href={part}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-blue-600 underline break-all"
+      >
+        {part}
+      </a>
+    ) : (
+      <span key={index}>{part}</span>
+    )
+  )
+}
 
 interface Multi {
   id: number
   title: string
   game: string
-  multi_name: string
+  multi_class?: string
+  multi_name?: string
   multi_day: string[]
   multi_time: string | null
   is_open: boolean
@@ -66,6 +89,9 @@ export default function MultiDetailPage() {
 
     const res = await fetch(`/api/multis/${id}`, {
       method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('access_token') || ''}`,
+      },
     })
 
     if (res.ok) {
@@ -96,13 +122,15 @@ export default function MultiDetailPage() {
       </p>
 
       <p>🎮 <strong>게임:</strong> {multi.game}</p>
-      <p>🧭 <strong>멀티명:</strong> {multi.multi_name}</p>
-      <p>📅 <strong>요일:</strong> {multi.multi_day?.join(', ') || '없음'}</p>
+      {multi.multi_class && <p>🧭 <strong>클래스:</strong> {multi.multi_class}</p>}
+      {multi.multi_name && <p>🧭 <strong>멀티명:</strong> {multi.multi_name}</p>}
+      <p>📅 <strong>요일:</strong> {multi.multi_day.length > 0 ? multi.multi_day.join(', ') : '없음'}</p>
       <p>🕒 <strong>시간:</strong> {multi.multi_time || '미입력'}</p>
       <p>🔓 <strong>오픈:</strong> {multi.is_open ? '✅ ON' : '❌ OFF'}</p>
-      <p className="mt-4 whitespace-pre-line">
-        {multi.description || '설명이 없습니다.'}
-      </p>
+
+      <div className="mt-4 whitespace-pre-wrap">
+        {multi.description ? linkify(multi.description) : '설명이 없습니다.'}
+      </div>
 
       {isAuthor && (
         <div className="mt-6 flex space-x-4">
