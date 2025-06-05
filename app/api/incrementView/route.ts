@@ -1,9 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
+// Supabase 클라이언트 초기화
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY! // 서비스 키 필요 (보안 주의)
+  process.env.SUPABASE_SERVICE_ROLE_KEY! // 서비스 키는 절대 노출되지 않도록 주의
 )
 
 export async function POST() {
@@ -16,12 +17,13 @@ export async function POST() {
     return NextResponse.json({ error: upsertError.message }, { status: 500 })
   }
 
-  // 🔹 조회수 증가 함수 호출
+  // 🔹 조회수 증가 함수 호출 (view_count 반환됨)
   const { data: result, error: rpcError } = await supabase.rpc('increment_home_views')
 
   if (rpcError) {
     return NextResponse.json({ error: rpcError.message }, { status: 500 })
   }
 
+  // 🔹 조회수 반환
   return NextResponse.json({ success: true, view_count: result })
 }

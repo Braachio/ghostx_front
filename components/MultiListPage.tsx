@@ -85,7 +85,7 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
             setYear={setYear}
             setWeek={setWeek}
             minWeek={currentWeek - 1}
-            maxWeek={currentWeek + 4}
+            maxWeek={currentWeek + 3}
           />
       </div>
           
