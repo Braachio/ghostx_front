@@ -95,7 +95,7 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
               const isToday = day === todayKoreanWeekday
               return (
                 <div key={day} className="min-w-[150px]">
-                  <div className={`text-center font-semibold pb-1 mb-2 ${isToday ? 'bg-green-50 text-black-600 rounded' : ''}`}>
+                  <div className={`text-center font-semibold border-b pb-1 mb-2 ${isToday ? 'border-none bg-green-50 text-black-600 rounded' : ''}`}>
                     {day}
                   </div>
                   <div className="space-y-3">
