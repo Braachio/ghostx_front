@@ -1,4 +1,4 @@
-// components/MultiCard.tsx
+// ✅ components/MultiCard.tsx (최종본)
 'use client'
 
 import { useState } from 'react'
@@ -38,7 +38,7 @@ export default function MultiCard({
   }
 
   return (
-    <div className="border p-4 rounded shadow bg-white h-[180px] overflow-hidden">
+    <div className={`border p-4 rounded shadow bg-white h-[180px] overflow-hidden ${isOpen ? 'border-green-400' : ''}`}>
       <div className="flex justify-between items-start">
         <Link href={`/multis/${multi.id}`}>
           <h2 className="text-lg font-semibold hover:underline mb-1">
@@ -51,13 +51,13 @@ export default function MultiCard({
               onClick={toggleOpen}
               disabled={isLoading}
               className={`px-2 py-1 rounded text-xs whitespace-nowrap ml-2 ${
-                isOpen ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+                isOpen ? 'bg-green-100 text-green-800 font-bold' : 'bg-gray-100 text-gray-600'
               }`}
             >
               {isOpen ? '✅ ON' : '❌ OFF'}
             </button>
           ) : (
-            <span className="text-xs text-gray-500 ml-2">
+            <span className={`text-xs ml-2 ${isOpen ? 'text-green-700 font-bold' : 'text-gray-500'}`}>
               {isOpen ? '✅ ON' : '❌ OFF'}
             </span>
           )}

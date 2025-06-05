@@ -1,3 +1,4 @@
+// ✅ components/MultiListPage.tsx (최종본)
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -22,6 +23,7 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
   const today = new Date()
   const oneJan = new Date(today.getFullYear(), 0, 1)
   const currentWeek = Math.ceil((((+today - +oneJan) / 86400000) + oneJan.getDay() + 1) / 7)
+  const todayKoreanWeekday = new Intl.DateTimeFormat('ko-KR', { weekday: 'short' }).format(today)
 
   const [year, setYear] = useState(today.getFullYear())
   const [week, setWeek] = useState(currentWeek)
@@ -89,16 +91,19 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
         <div key={game} className="mb-10">
           <h2 className="text-xl font-bold mb-3">{game}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 overflow-x-auto">
-            {daysOfWeek.map(day => (
-              <div key={day} className="min-w-[150px]">
-                <div className="text-center font-semibold border-b pb-1 mb-2">{day}</div>
-                <div className="space-y-3">
-                  {gameMultis.filter(m => m.multi_day.includes(day)).map(m => (
-                    <MultiCard key={m.id} multi={m} currentUserId={currentUserId} />
-                  ))}
+            {daysOfWeek.map(day => {
+              const isToday = day === todayKoreanWeekday
+              return (
+                <div key={day} className={`min-w-[150px] ${isToday ? 'bg-green-50 rounded' : ''}`}>
+                  <div className={`text-center font-semibold border-b pb-1 mb-2 ${isToday ? 'text-green-600' : ''}`}>{day}</div>
+                  <div className="space-y-3">
+                    {gameMultis.filter(m => m.multi_day.includes(day)).map(m => (
+                      <MultiCard key={m.id} multi={m} currentUserId={currentUserId} />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       ))}
