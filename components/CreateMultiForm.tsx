@@ -90,12 +90,13 @@ export default function CreateMultiForm() {
           <option value="알펙터2">알펙터2</option>
         </select>
 
-        {/* 🔒 title 필드는 숨김 처리 */}
         <input
-          type="hidden"
+          type="text"
+          placeholder="제목"
           value={title}
-          readOnly
+          onChange={(e) => setMultiName(e.target.value)}
           required
+          className="border p-2 rounded"
         />
 
         <input
