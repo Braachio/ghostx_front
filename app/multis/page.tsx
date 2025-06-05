@@ -50,7 +50,7 @@ export default function MultisPage() {
           </Link>
         </div>
       </div>
-      <MultiListPage currentUserId={user?.id ?? null} simplified={false} />
+      <MultiListPage currentUserId={user?.id ?? null} />
     </div>
   )
 }
