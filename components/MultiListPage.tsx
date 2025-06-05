@@ -1,3 +1,4 @@
+// components/MultiListPage.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -73,9 +74,9 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
           <h2 className="text-xl font-bold mb-3">{game}</h2>
           <div className="grid grid-cols-7 gap-4">
             {daysOfWeek.map(day => (
-              <div key={day}>
+              <div key={day} className="min-h-[220px]">
                 <div className="text-center font-semibold border-b pb-1 mb-2">{day}</div>
-                <div className="space-y-3">
+                <div className="space-y-3 overflow-y-auto max-h-[600px] pr-1">
                   {gameMultis
                     .filter(m => m.multi_day.includes(day))
                     .map(m => (
