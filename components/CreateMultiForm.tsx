@@ -31,7 +31,7 @@ export default function CreateMultiForm() {
         setUserId(data.user.id)
       }
     })
-  }, [])
+  }, [router, supabase.auth])
 
   const handleDayChange = (day: string) => {
     setMultiDay(prev =>

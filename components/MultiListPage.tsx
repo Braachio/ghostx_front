@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import MultiCard from './MultiCard'
 import type { Database } from '@/lib/database.types'
-import { getWeekRange, getCurrentWeekNumber } from '@/app/utils/dateUtils'
+import { getWeekRange } from '@/app/utils/dateUtils'
 import WeekFilter from './WeekFilter'
 
 const daysOfWeek = ['월', '화', '수', '목', '금', '토', '일']
