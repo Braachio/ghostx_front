@@ -99,7 +99,7 @@ export default function MultiDetailPage() {
       </p>
 
       <p>🎮 <strong>게임:</strong> {multi.game}</p>
-      <p>🧭 <strong>멀티명:</strong> {multi.multi_name}</p>
+      <p>🧭 <strong>클래스:</strong> {multi.multi_class}</p>
       <p>📅 <strong>요일:</strong> {multi.multi_day?.length > 0 ? multi.multi_day.join(', ') : '없음'}</p>
       <p>🕒 <strong>시간:</strong> {multi.multi_time || '미입력'}</p>
       <p>🔓 <strong>오픈:</strong> {multi.is_open ? '✅ ON' : '❌ OFF'}</p>
