@@ -60,7 +60,7 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
   }, {})
 
   return (
-    <div className="p-6 mix-w-screen-2xl max-w-full mx-auto">
+    <div className="p-6 min-w-screen-2xl max-w-full mx-auto">
       {/* 필터 */}
       <div className="mb-6 border p-4 rounded bg-white shadow-sm">
         <h2 className="font-semibold mb-2">필터</h2>
@@ -95,7 +95,7 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
               const isToday = day === todayKoreanWeekday
               return (
                 <div key={day} className="min-w-[150px]">
-                  <div className={`text-center font-semibold border-b pb-1 mb-2 ${isToday ? 'bg-green-50 text-black-600 rounded' : ''}`}>
+                  <div className={`text-center font-semibold pb-1 mb-2 ${isToday ? 'bg-green-50 text-black-600 rounded' : ''}`}>
                     {day}
                   </div>
                   <div className="space-y-3">
