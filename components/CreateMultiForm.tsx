@@ -39,7 +39,6 @@ export default function CreateMultiForm() {
 
   const handleGameChange = (selected: string) => {
     setGame(selected)
-    setTitle(selected) // 💡 게임 선택 시 title도 자동 설정
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
