@@ -94,7 +94,7 @@ export default function CreateMultiForm() {
           type="text"
           placeholder="제목"
           value={title}
-          onChange={(e) => setMultiName(e.target.value)}
+          onChange={(e) => setTitle(e.target.value)}
           required
           className="border p-2 rounded"
         />
