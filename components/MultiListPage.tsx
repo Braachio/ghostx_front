@@ -60,9 +60,9 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
   }, {})
 
   return (
-    <div className="p-6 min-w-screen-2xl max-w-full mx-auto">
-      {/* 필터 */}
-      <div className="mb-6 border p-4 rounded bg-white shadow-sm">
+    <div className="flex justify-between items-start gap-4 mb-6">
+      {/* 게임 필터 */}
+      <div className="border p-4 rounded bg-white shadow-sm flex-1">
         <h2 className="font-semibold mb-2">게임 필터</h2>
         <div className="flex flex-wrap gap-4 items-center">
           {allGames.map(game => (
@@ -78,7 +78,8 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
         </div>
       </div>
 
-      <div className="mb-6 ml-auto">
+      {/* 주차 필터 */}
+      <div className="w-fit">
         <WeekFilter
             year={year}
             week={week}
