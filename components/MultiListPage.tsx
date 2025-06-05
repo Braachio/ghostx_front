@@ -60,10 +60,10 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
   }, {})
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-6 max-w-screen-2xl mx-auto">
       {/* 필터 */}
       <div className="mb-6 border p-4 rounded bg-white shadow-sm">
-        <h2 className="font-semibold mb-2">플링터: 게임 + 주차</h2>
+        <h2 className="font-semibold mb-2">필터</h2>
         <div className="flex flex-wrap gap-4 items-center">
           {allGames.map(game => (
             <label key={game} className="flex items-center space-x-1">
