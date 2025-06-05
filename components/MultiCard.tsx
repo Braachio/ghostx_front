@@ -38,7 +38,7 @@ export default function MultiCard({
   }
 
   return (
-    <div className={`border p-4 rounded shadow bg-white h-[180px] overflow-hidden ${isOpen ? 'border-green-400' : ''}`}>
+    <div className={`border p-4 rounded shadow bg-white h-[150px] overflow-hidden ${isOpen ? 'border-green-400' : ''}`}>
       <div className="flex justify-between items-start">
         <Link href={`/multis/${multi.id}`}>
           <h2 className="text-lg font-semibold hover:underline mb-1">
@@ -65,6 +65,7 @@ export default function MultiCard({
       </div>
       <p className="text-sm text-gray-500 mb-1">{multi.created_at ? new Date(multi.created_at).toLocaleString() : '날짜 없음'}</p>
       <p className="text-sm">🧭 <strong>클래스:</strong> {multi.multi_class}</p>
+      <p className="text-sm">🧭 <strong>트랙:</strong> {multi.game_track}</p>
       <p className="text-sm">📅 <strong>오픈 시간:</strong> {multi.multi_day?.join(', ')} {multi.multi_time && `${multi.multi_time}`}</p>
     </div>
   )
