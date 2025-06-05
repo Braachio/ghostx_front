@@ -94,8 +94,10 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
             {daysOfWeek.map(day => {
               const isToday = day === todayKoreanWeekday
               return (
-                <div key={day} className={`min-w-[150px] ${isToday ? 'bg-green-50 rounded' : ''}`}>
-                  <div className={`text-center font-semibold border-b pb-1 mb-2 ${isToday ? 'text-green-600' : ''}`}>{day}</div>
+                <div key={day} className="min-w-[150px]">
+                  <div className={`text-center font-semibold border-b pb-1 mb-2 ${isToday ? 'bg-green-50 text-green-600 rounded' : ''}`}>
+                    {day}
+                  </div>
                   <div className="space-y-3">
                     {gameMultis.filter(m => m.multi_day.includes(day)).map(m => (
                       <MultiCard key={m.id} multi={m} currentUserId={currentUserId} />
