@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import type { Database } from '@/lib/database.types'
+import { getWeekRange, getCurrentWeekNumber } from '@/app/utils/dateUtils'
 
 export default function CreateMultiForm() {
   const supabase = createClientComponentClient<Database>()
@@ -17,6 +18,7 @@ export default function CreateMultiForm() {
   const [multiDay, setMultiDay] = useState<string[]>([])
   const [multiTime, setMultiTime] = useState('')
   const [description, setDescription] = useState('')
+  const [week, setWeek] = useState<number>(getCurrentWeekNumber().week)
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data, error }) => {
@@ -47,6 +49,7 @@ export default function CreateMultiForm() {
       multi_day: multiDay,
       multi_time: multiTime,
       description,
+      week,
       author_id: userId,
       created_at: new Date().toISOString(),
     })
@@ -131,6 +134,26 @@ export default function CreateMultiForm() {
             onChange={(e) => setMultiTime(e.target.value)}
             className="border p-2 rounded w-full"
           />
+        </label>
+
+        <label className="text-sm">
+          주차 선택:
+          <select
+            value={week}
+            onChange={(e) => setWeek(Number(e.target.value))}
+            className="border p-2 rounded w-full"
+          >
+            {Array.from({ length: 20 }, (_, i) => {
+              const w = i + 1
+              const { start, end } = getWeekRange(2025, w)
+              const label = `${w}주차 (${start} ~ ${end})${w === getCurrentWeekNumber().week ? ' (이번주)' : ''}`
+              return (
+                <option key={w} value={w}>
+                  {label}
+                </option>
+              )
+            })}
+          </select>
         </label>
 
         <textarea
