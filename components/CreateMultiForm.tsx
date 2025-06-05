@@ -1,4 +1,3 @@
-// ✅ CreateMultiForm.tsx (최종본)
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -70,7 +69,7 @@ export default function CreateMultiForm() {
         onSubmit={handleSubmit}
         className="flex flex-col gap-4 max-w-md w-full p-6 bg-white shadow-md rounded"
       >
-        <h2 className="text-xl font-bold mb-2 text-center">\ud83d\udce2 \uc0c8 \uacf5\uc9c0 \ub4f1\ub85d</h2>
+        <h2 className="text-xl font-bold mb-2 text-center">📢 새 공지 등록</h2>
 
         <select
           value={game}
@@ -78,18 +77,18 @@ export default function CreateMultiForm() {
           required
           className="border p-2 rounded"
         >
-          <option value="">\uac8c\uc784\uc744 \uc120\ud0dd\ud558\uc138\uc694</option>
-          <option value="\ucf64\ud398\ud2f0\uce58\uc624\ub124">\ucf64\ud398\ud2f0\uce58\uc624\ub124</option>
-          <option value="\uc544\uc138\ud1a0\ucf54\ub974\uc0ac">\uc544\uc138\ud1a0\ucf54\ub974\uc0ac</option>
-          <option value="\uadf8\ub780\ud22c\ub9ac\uc2a4\ubaa87">\uadf8\ub780\ud22c\ub9ac\uc2a4\ubaa87</option>
-          <option value="\ub974\ub9cc\uc5bc\ud2f0\ubc84\ud2b8">\ub974\ub9cc\uc5bc\ud2f0\ubc84\ud2b8</option>
-          <option value="\uc544\uc774\ub808\uc774\uc2f1">\uc544\uc774\ub808\uc774\uc2f1</option>
-          <option value="\uc54c\ud398\ud1302">\uc54c\ud398\ud1302</option>
+          <option value="">게임을 선택하세요</option>
+          <option value="컴페티치오네">컴페티치오네</option>
+          <option value="아세토코르사">아세토코르사</option>
+          <option value="그란투리스모7">그란투리스모7</option>
+          <option value="르망얼티밋">르망얼티밋</option>
+          <option value="아이레이싱">아이레이싱</option>
+          <option value="알펙터2">알펙터2</option>
         </select>
 
         <input
           type="text"
-          placeholder="\uc81c\ubaa9"
+          placeholder="제목"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
@@ -98,7 +97,7 @@ export default function CreateMultiForm() {
 
         <input
           type="text"
-          placeholder="\ud074\ub798\uc2a4 (\uc608: GT3)"
+          placeholder="클래스 (예: GT3)"
           value={multiClass}
           onChange={(e) => setMultiClass(e.target.value)}
           required
@@ -107,7 +106,7 @@ export default function CreateMultiForm() {
 
         <input
           type="text"
-          placeholder="\ud2b8\ub799"
+          placeholder="트랙"
           value={gameTrack}
           onChange={(e) => setGameTrack(e.target.value)}
           required
@@ -115,8 +114,8 @@ export default function CreateMultiForm() {
         />
 
         <fieldset className="flex flex-wrap gap-2">
-          <legend className="text-sm font-medium">\uc694\uc77c</legend>
-          {['\uc6d4', '\ud654', '\uc218', '\ubaa9', '\uae08', '\ud1a0', '\uc77c'].map((day) => (
+          <legend className="text-sm font-medium">요일</legend>
+          {['월', '화', '수', '목', '금', '토', '일'].map((day) => (
             <label key={day} className="text-sm">
               <input
                 type="checkbox"
@@ -129,7 +128,7 @@ export default function CreateMultiForm() {
         </fieldset>
 
         <label className="text-sm">
-          \uc624\ud508 \uc2dc\uac04:
+          오픈 시간:
           <input
             type="time"
             value={multiTime}
@@ -139,7 +138,7 @@ export default function CreateMultiForm() {
         </label>
 
         <label className="text-sm">
-          \uc8fc\ucc28 \uc120\ud0dd:
+          주차 선택:
           <select
             value={week}
             onChange={(e) => setWeek(Number(e.target.value))}
@@ -147,8 +146,8 @@ export default function CreateMultiForm() {
           >
             {Array.from({ length: 5 }, (_, i) => {
               const w = currentWeekInfo.week + i
-              const { start, end } = getWeekRange(2025, w)
-              const label = `${w}\uc8fc\ucc28 (${start} ~ ${end})${w === currentWeekInfo.week ? ' (\uc774\ubcf4\ub0b4)' : ''}`
+              const { start, end } = getWeekRange(currentWeekInfo.year, w)
+              const label = `${w}주차 (${start} ~ ${end})${w === currentWeekInfo.week ? ' (이번주)' : ''}`
               return (
                 <option key={w} value={w}>
                   {label}
@@ -159,7 +158,7 @@ export default function CreateMultiForm() {
         </label>
 
         <textarea
-          placeholder="\uc0c1\uc138 \ub0b4\uc6a9"
+          placeholder="상세 내용"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="border p-2 rounded h-32"
@@ -169,7 +168,7 @@ export default function CreateMultiForm() {
           type="submit"
           className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
         >
-          \ub4f1\ub85d
+          등록
         </button>
       </form>
     </div>

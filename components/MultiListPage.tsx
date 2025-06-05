@@ -7,7 +7,7 @@ import { getWeekRange } from '@/app/utils/dateUtils'
 import WeekFilter from './WeekFilter'
 
 const daysOfWeek = ['월', '화', '수', '목', '금', '토', '일']
-const allGames = ['컴페티치오네', '아세토코르사', '그란투리스모7', '르만얼티밈', '아이레이싱', '알페터2']
+const allGames = ['컴페티치오네', '아세토코르사', '그란투리스모7', '르망얼티밋', '아이레이싱', '알페터2']
 
 type Multi = Database['public']['Tables']['multis']['Row']
 
