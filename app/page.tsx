@@ -10,7 +10,9 @@ interface MeResponse {
 
 export default function HomePage() {
   const [user, setUser] = useState<MeResponse | null>(null)
+  const [views, setViews] = useState<number | null>(null)
 
+  // 로그인 및 조회수 증가
   useEffect(() => {
     const checkLogin = async () => {
       try {
@@ -27,7 +29,33 @@ export default function HomePage() {
       }
     }
 
+    const incrementViews = async () => {
+      try {
+        await fetch('/api/incrementView', { method: 'POST' }) // 증가만
+      } catch (err) {
+        console.error('조회수 증가 실패:', err)
+      }
+    }
+
     checkLogin()
+    incrementViews()
+  }, [])
+
+  // 조회수 표시용
+  useEffect(() => {
+    const loadViews = async () => {
+      try {
+        const res = await fetch('/api/getView')
+        if (res.ok) {
+          const { view_count } = await res.json()
+          setViews(view_count)
+        }
+      } catch (err) {
+        console.error('조회수 로드 실패:', err)
+      }
+    }
+
+    loadViews()
   }, [])
 
   return (
@@ -38,10 +66,7 @@ export default function HomePage() {
           {user ? `👤 ${user.username}님 환영합니다` : '🕵 로그인되지 않음'}
         </h2>
         {!user && (
-          <Link
-            href="/login"
-            className="px-4 py-2 bg-gray-600 text-white rounded"
-          >
+          <Link href="/login" className="px-4 py-2 bg-gray-600 text-white rounded">
             로그인
           </Link>
         )}
@@ -54,7 +79,7 @@ export default function HomePage() {
         <Link href="/multis">
           <button className="px-4 py-2 bg-blue-600 text-white rounded">공지 모음</button>
         </Link>
-        {/*
+        {/* 향후 확장용
         <Link href="/events">
           <button className="px-4 py-2 bg-green-600 text-white rounded">이벤트 보기</button>
         </Link>
@@ -63,6 +88,11 @@ export default function HomePage() {
         </Link>
         */}
       </div>
+
+      {/* 조회수 표시 */}
+      {views !== null && (
+        <p className="text-sm text-gray-500">👁️ 총 방문수: {views.toLocaleString()}회</p>
+      )}
     </div>
   )
 }
