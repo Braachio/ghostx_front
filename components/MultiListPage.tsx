@@ -77,7 +77,9 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
           ))}
         </div>
       </div>
-          <WeekFilter
+
+      <div className="mb-6 ml-auto">
+        <WeekFilter
             year={year}
             week={week}
             setYear={setYear}
@@ -85,9 +87,11 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
             minWeek={currentWeek - 1}
             maxWeek={currentWeek + 4}
           />
+      </div>
+          
       {/* 게임 별 요일 가능 공지 */}
       {Object.entries(groupedByGame).map(([game, gameMultis]) => (
-        <div key={game} className="mt-8 mb-10 border border-gray-300 rounded-lg p-4 bg-white shadow-sm"> {/*카테고리 구분선*/}
+        <div key={game} className="mb-10 border border-gray-300 rounded-lg p-4 bg-white shadow-sm"> {/*카테고리 구분선*/}
           <h2 className="text-xl font-bold mb-3">{game}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 overflow-x-auto">
             {daysOfWeek.map(day => {
