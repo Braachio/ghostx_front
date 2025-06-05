@@ -1,4 +1,3 @@
-// ✅ components/MultiListPage.tsx (최종 개선본)
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -60,7 +59,7 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
   }, {})
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-6 max-w-7xl mx-auto">
       {/* 필터 */}
       <div className="mb-6 border p-4 rounded bg-white shadow-sm">
         <h2 className="font-semibold mb-2">플링터: 게임 + 주차</h2>
@@ -94,8 +93,10 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
             {daysOfWeek.map(day => {
               const isToday = day === todayKoreanWeekday
               return (
-                <div key={day} className={`min-w-[200px]`}>
-                  <div className={`text-center font-semibold border-b pb-1 mb-2 ${isToday ? 'bg-green-50 text-black-600 rounded' : ''}`}>{day}</div>
+                <div key={day} className={`w-[240px]`}>
+                  <div className={`text-center font-semibold border-b pb-1 mb-2 rounded ${isToday ? 'bg-green-50 text-green-700' : ''}`}>
+                    {day}
+                  </div>
                   <div className="space-y-3">
                     {gameMultis.filter(m => m.multi_day.includes(day)).map(m => (
                       <MultiCard key={m.id} multi={m} currentUserId={currentUserId} />
