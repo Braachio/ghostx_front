@@ -38,22 +38,22 @@ export default function EventsPage() {
       </div>
 
       {events.length === 0 ? (
-        <p>진행 중인 이벤트가 없습니다.</p>
+        <p className="text-gray-600">진행 중인 이벤트가 없습니다.</p>
       ) : (
         <ul className="space-y-4">
           {events.map((event) => (
-            <li key={event.id} className="border p-4 rounded hover:shadow">
+            <li key={event.id} className="border p-4 rounded hover:shadow bg-white">
               <Link
                 href={`/events/${event.id}`}
-                className="text-xl font-semibold text-white-600 hover:underline"
+                className="text-xl font-semibold text-blue-600 hover:underline"
               >
-                {event.title}
+                {event.title ?? '제목 없음'}
               </Link>
-              <p className="text-sm text-white-600">
-                {new Date(event.start_date).toLocaleDateString()} ~{' '}
-                {new Date(event.end_date).toLocaleDateString()}
+              <p className="text-sm text-gray-600 mt-1">
+                {(event.start_date ? new Date(event.start_date).toLocaleDateString() : '시작일 없음')} ~{' '}
+                {(event.end_date ? new Date(event.end_date).toLocaleDateString() : '종료일 없음')}
               </p>
-              <p className="mt-2 text-white-700">{event.description}</p>
+              <p className="mt-2 text-gray-800">{event.description ?? '설명이 없습니다.'}</p>
             </li>
           ))}
         </ul>
