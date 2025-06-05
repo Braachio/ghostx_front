@@ -82,7 +82,7 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
             week={week}
             setYear={setYear}
             setWeek={setWeek}
-            minWeek={currentWeek}
+            minWeek={currentWeek - 1}
             maxWeek={currentWeek + 4}
           />
       {/* 게임 별 요일 가능 공지 */}
