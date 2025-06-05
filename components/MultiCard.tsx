@@ -38,7 +38,7 @@ export default function MultiCard({
   }
 
   return (
-    <div className={`border p-4 rounded shadow bg-white h-[150px] overflow-hidden ${isOpen ? 'border-green-400' : ''}`}>
+    <div className={`border p-4 rounded shadow bg-white h-[120px] overflow-hidden ${isOpen ? 'border-green-400' : ''}`}>
       <div className="flex justify-between items-start">
         <Link href={`/multis/${multi.id}`}>
           <h2 className="text-lg font-semibold hover:underline mb-1">
