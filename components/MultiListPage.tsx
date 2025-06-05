@@ -63,7 +63,7 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
     <div className="p-6 min-w-screen-2xl max-w-full mx-auto">
       {/* 필터 */}
       <div className="mb-6 border p-4 rounded bg-white shadow-sm">
-        <h2 className="font-semibold mb-2">필터</h2>
+        <h2 className="font-semibold mb-2">게임 필터</h2>
         <div className="flex flex-wrap gap-4 items-center">
           {allGames.map(game => (
             <label key={game} className="flex items-center space-x-1">
@@ -75,6 +75,8 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
               <span>{game}</span>
             </label>
           ))}
+        </div>
+      </div>
           <WeekFilter
             year={year}
             week={week}
@@ -83,9 +85,6 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
             minWeek={currentWeek}
             maxWeek={currentWeek + 4}
           />
-        </div>
-      </div>
-
       {/* 게임 별 요일 가능 공지 */}
       {Object.entries(groupedByGame).map(([game, gameMultis]) => (
         <div key={game} className="mb-10 border border-gray-300 rounded-lg p-4 bg-white shadow-sm"> {/*카테고리 구분선*/}
