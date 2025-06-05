@@ -1,10 +1,9 @@
-// app/api/getView/route.ts
-import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { NextResponse } from 'next/server'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY! // 보안 주의
 )
 
 export async function GET() {
