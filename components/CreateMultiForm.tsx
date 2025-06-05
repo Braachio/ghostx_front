@@ -12,12 +12,12 @@ export default function CreateMultiForm() {
   const [userId, setUserId] = useState<string | null>(null)
 
   const [title, setTitle] = useState('')
-  const [gameCategory, setGameCategory] = useState('')
+  const [gameTrack, setGameTrack] = useState('')
   const [game, setGame] = useState('')
-  const [multiName, setMultiName] = useState('')
+  const [multiClass, setMultiClass] = useState('')
   const [multiDay, setMultiDay] = useState<string[]>([])
   const [multiTime, setMultiTime] = useState('')
-  const [isOpen, setIsOpen] = useState(false)
+  //const [isOpen, setIsOpen] = useState(false)
   const [description, setDescription] = useState('')
 
   useEffect(() => {
@@ -47,12 +47,12 @@ export default function CreateMultiForm() {
 
     const { error } = await supabase.from('multis').insert({
       title,
-      game_category: gameCategory,
+      game_track: gameTrack,
       game,
-      multi_name: multiName,
+      multi_class: multiClass,
       multi_day: multiDay,
       multi_time: multiTime,
-      is_open: isOpen,
+      //is_open: isOpen,
       description,
       author_id: userId,
       created_at: new Date().toISOString(),
@@ -101,8 +101,8 @@ export default function CreateMultiForm() {
         <input
           type="text"
           placeholder="클래스 (예: GT3)"
-          value={multiName}
-          onChange={(e) => setMultiName(e.target.value)}
+          value={multiClass}
+          onChange={(e) => setMultiClass(e.target.value)}
           required
           className="border p-2 rounded"
         />
@@ -110,8 +110,8 @@ export default function CreateMultiForm() {
         <input
           type="text"
           placeholder="트랙"
-          value={gameCategory}
-          onChange={(e) => setGameCategory(e.target.value)}
+          value={gameTrack}
+          onChange={(e) => setGameTrack(e.target.value)}
           required
           className="border p-2 rounded"
         />
@@ -138,6 +138,7 @@ export default function CreateMultiForm() {
           className="border p-2 rounded"
         />
 
+        {/*}
         <label className="text-sm">
           <input
             type="checkbox"
@@ -147,6 +148,7 @@ export default function CreateMultiForm() {
           />
           오픈 여부
         </label>
+        */}
 
         <textarea
           placeholder="상세 내용"

@@ -8,7 +8,7 @@ interface Multi {
   id: number
   title: string
   game: string
-  multi_name: string
+  multi_class: string
   multi_day: string[]
   multi_time: string | null
   is_open: boolean
