@@ -66,7 +66,7 @@ export default function HomePage() {
 
       {/* 조회수 표시 */}
       {views !== null && (
-        <p className="text-sm text-gray-500">👁️ 총 방문수: {views.toLocaleString()}회</p>
+        <p className="ml-auto text-sm text-gray-500">👁️ 총 방문수: {views.toLocaleString()}회</p>
       )}
     </div>
   )
