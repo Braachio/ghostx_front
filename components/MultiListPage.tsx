@@ -17,12 +17,14 @@ const allGames = [
 
 export default function MultiListPage({
   currentUserId,
+  simplified = false,
 }: {
   currentUserId: string | null
   simplified?: boolean
 }) {
   const [multis, setMultis] = useState<Multi[]>([])
   const [selectedGames, setSelectedGames] = useState<string[]>(allGames)
+  const [sortBy, setSortBy] = useState<'latest' | 'oldest'>('latest')
 
   useEffect(() => {
     const fetchMultis = async () => {
@@ -42,7 +44,13 @@ export default function MultiListPage({
     )
   }
 
-  const filtered = multis.filter(multi => selectedGames.includes(multi.game))
+  const filtered = multis
+    .filter(multi => selectedGames.includes(multi.game))
+    .sort((a, b) => {
+      const dateA = new Date(a.created_at).getTime()
+      const dateB = new Date(b.created_at).getTime()
+      return sortBy === 'latest' ? dateB - dateA : dateA - dateB
+    })
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
@@ -61,6 +69,18 @@ export default function MultiListPage({
             </label>
           ))}
         </div>
+      </div>
+
+      {/* 정렬 옵션 */}
+      <div className="mb-4 flex justify-end">
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value as 'latest' | 'oldest')}
+          className="border p-2 rounded"
+        >
+          <option value="latest">최신순</option>
+          <option value="oldest">오래된순</option>
+        </select>
       </div>
 
       {/* 📃 공지 리스트 */}

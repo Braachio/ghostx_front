@@ -13,7 +13,6 @@ export default function MultiCard({
 }: {
   multi: Multi
   currentUserId: string | null
-  onDeleted?: () => void
 }) {
   const supabase = createClientComponentClient<Database>()
   const [isOpen, setIsOpen] = useState(multi.is_open)
@@ -39,31 +38,33 @@ export default function MultiCard({
 
   return (
     <div className="border p-4 rounded shadow mb-3 bg-white">
-      <Link href={`/multis/${multi.id}`}>
-        <h2 className="text-lg font-semibold hover:underline">{multi.title}</h2>
-      </Link>
-      <p className="text-sm text-gray-600 mb-1">{new Date(multi.created_at).toLocaleString()}</p>
-      <div className="flex items-center gap-4">
-        {isAuthor ? (
-          <button
-            onClick={toggleOpen}
-            disabled={isLoading}
-            className={`px-3 py-1 rounded text-sm ${
-              isOpen ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
-            }`}
-          >
-            {isOpen ? '✅ 서버 ON (클릭 시 OFF)' : '❌ 서버 OFF (클릭 시 ON)'}
-          </button>
-        ) : (
-          <span className="text-sm text-gray-500">
-            {isOpen ? '✅ 서버 ON' : '❌ 서버 OFF'}
-          </span>
-        )}
+      <div className="flex justify-between items-start">
+        <Link href={`/multis/${multi.id}`}>
+          <h2 className="text-lg font-semibold hover:underline mb-1">
+            {multi.title}
+          </h2>
+        </Link>
+        <div>
+          {isAuthor ? (
+            <button
+              onClick={toggleOpen}
+              disabled={isLoading}
+              className={`px-2 py-1 rounded text-xs whitespace-nowrap ml-2 ${
+                isOpen ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+              }`}
+            >
+              {isOpen ? '✅ ON' : '❌ OFF'}
+            </button>
+          ) : (
+            <span className="text-xs text-gray-500 ml-2">
+              {isOpen ? '✅ ON' : '❌ OFF'}
+            </span>
+          )}
+        </div>
       </div>
-      <p>🧭 <strong>클래스:</strong> {multi.multi_name}</p>
-      <p>📅 <strong>요일:</strong> {multi.multi_day?.join(', ')}</p>
-      <p>🕒 <strong>시간:</strong> {multi.multi_time}</p>
-      <p className="my-2 whitespace-pre-line text-gray-700">{multi.description}</p>
+      <p className="text-sm text-gray-500 mb-1">{new Date(multi.created_at).toLocaleString()}</p>
+      <p className="text-sm">🧭 <strong>클래스:</strong> {multi.multi_name}</p>
+      <p className="text-sm">📅 <strong>오픈 시간:</strong> {multi.multi_day?.join(', ')} {multi.multi_time && `오후 ${multi.multi_time}`}</p>
     </div>
   )
 }
