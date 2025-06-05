@@ -64,7 +64,7 @@ export default function MultiCard({
       </div>
       <p className="text-sm text-gray-500 mb-1">{new Date(multi.created_at).toLocaleString()}</p>
       <p className="text-sm">🧭 <strong>클래스:</strong> {multi.multi_name}</p>
-      <p className="text-sm">📅 <strong>오픈 시간:</strong> {multi.multi_day?.join(', ')} {multi.multi_time && `오후 ${multi.multi_time}`}</p>
+      <p className="text-sm">📅 <strong>오픈 시간:</strong> {multi.multi_day?.join(', ')} {multi.multi_time && `${multi.multi_time}`}</p>
     </div>
   )
 }

@@ -23,7 +23,7 @@ export default function MultiListPage({
 }) {
   const [multis, setMultis] = useState<Multi[]>([])
   const [selectedGames, setSelectedGames] = useState<string[]>(allGames)
-  const [sortBy, setSortBy] = useState<'latest' | 'oldest'>('latest')
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest')
 
   useEffect(() => {
     const fetchMultis = async () => {
@@ -36,28 +36,33 @@ export default function MultiListPage({
   }, [])
 
   const toggleGameSelection = (game: string) => {
-    setSelectedGames(prev =>
-      prev.includes(game)
-        ? prev.filter(g => g !== game)
-        : [...prev, game]
+    setSelectedGames((prev) =>
+      prev.includes(game) ? prev.filter((g) => g !== game) : [...prev, game]
     )
   }
 
   const filtered = multis
-    .filter(multi => selectedGames.includes(multi.game))
-    .sort((a, b) => {
-      const dateA = new Date(a.created_at).getTime()
-      const dateB = new Date(b.created_at).getTime()
-      return sortBy === 'latest' ? dateB - dateA : dateA - dateB
-    })
+    .filter((multi) => selectedGames.includes(multi.game))
+    .sort((a, b) =>
+      sortOrder === 'newest'
+        ? new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        : new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    )
+
+  // 게임별로 그룹화
+  const groupedByGame = filtered.reduce<Record<string, Multi[]>>((acc, multi) => {
+    if (!acc[multi.game]) acc[multi.game] = []
+    acc[multi.game].push(multi)
+    return acc
+  }, {})
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      {/* 🔍 게임 필터 체크박스 */}
+      {/* 🔍 게임 필터 체크박스 + 정렬 */}
       <div className="mb-6 border p-4 rounded bg-white shadow-sm">
         <h2 className="font-semibold mb-2">🎮 게임 필터</h2>
-        <div className="flex flex-wrap gap-3">
-          {allGames.map(game => (
+        <div className="flex flex-wrap gap-3 mb-3">
+          {allGames.map((game) => (
             <label key={game} className="flex items-center space-x-1">
               <input
                 type="checkbox"
@@ -68,26 +73,41 @@ export default function MultiListPage({
             </label>
           ))}
         </div>
+        <div className="text-sm space-x-2">
+          <label>
+            <input
+              type="radio"
+              name="sort"
+              value="newest"
+              checked={sortOrder === 'newest'}
+              onChange={() => setSortOrder('newest')}
+            /> 최신순
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="sort"
+              value="oldest"
+              checked={sortOrder === 'oldest'}
+              onChange={() => setSortOrder('oldest')}
+            /> 오래된순
+          </label>
+        </div>
       </div>
 
-      {/* 정렬 옵션 */}
-      <div className="mb-4 flex justify-end">
-        <select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value as 'latest' | 'oldest')}
-          className="border p-2 rounded"
-        >
-          <option value="latest">최신순</option>
-          <option value="oldest">오래된순</option>
-        </select>
-      </div>
-
-      {/* 📃 공지 리스트 */}
+      {/* 📃 게임별 공지 리스트 */}
       {filtered.length === 0 ? (
         <p className="text-gray-500">선택한 게임에 해당하는 공지가 없습니다.</p>
       ) : (
-        filtered.map(multi => (
-          <MultiCard key={multi.id} multi={multi} currentUserId={currentUserId} />
+        Object.entries(groupedByGame).map(([game, gameMultis]) => (
+          <div key={game} className="mb-8">
+            <h2 className="text-xl font-bold border-b pb-1 mb-3">{game}</h2>
+            <div className="space-y-4">
+              {gameMultis.map((multi) => (
+                <MultiCard key={multi.id} multi={multi} currentUserId={currentUserId} />
+              ))}
+            </div>
+          </div>
         ))
       )}
     </div>
