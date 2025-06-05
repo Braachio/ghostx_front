@@ -1,10 +1,9 @@
-// 1. MultiListPage.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
 import MultiCard from './MultiCard'
 import type { Database } from '@/lib/database.types'
-import { getWeekRange } from '@/app/utils/dateUtils'
+import { getWeekRange, getCurrentWeekNumber } from '@/app/utils/dateUtils'
 import WeekFilter from './WeekFilter'
 
 const daysOfWeek = ['월', '화', '수', '목', '금', '토', '일']
@@ -19,8 +18,8 @@ type MultiListPageProps = {
 export default function MultiListPage({ currentUserId }: MultiListPageProps) {
   const [multis, setMultis] = useState<Multi[]>([])
   const [selectedGames, setSelectedGames] = useState<string[]>(allGames)
+
   const today = new Date()
-  //const todayISO = today.toISOString().split('T')[0]
   const oneJan = new Date(today.getFullYear(), 0, 1)
   const currentWeek = Math.ceil((((+today - +oneJan) / 86400000) + oneJan.getDay() + 1) / 7)
 
@@ -60,7 +59,7 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      {/* 플링터 */}
+      {/* 필터 */}
       <div className="mb-6 border p-4 rounded bg-white shadow-sm">
         <h2 className="font-semibold mb-2">플링터: 게임 + 주차</h2>
         <div className="flex flex-wrap gap-4 items-center">
@@ -74,7 +73,14 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
               <span>{game}</span>
             </label>
           ))}
-          <WeekFilter year={year} week={week} setYear={setYear} setWeek={setWeek} />
+          <WeekFilter
+            year={year}
+            week={week}
+            setYear={setYear}
+            setWeek={setWeek}
+            minWeek={currentWeek}
+            maxWeek={currentWeek + 4}
+          />
         </div>
       </div>
 

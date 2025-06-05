@@ -1,12 +1,8 @@
-// 📁 app/utils/dateUtils.ts
-import { WeekRange } from '../types'
-
-export function getWeekRange(year: number, week: number): WeekRange {
+export function getWeekRange(year: number, week: number) {
   const jan4 = new Date(Date.UTC(year, 0, 4))
-  const dayOfWeek = jan4.getUTCDay() || 7 // 1=월요일 ... 7=일요일
+  const dayOfWeek = jan4.getUTCDay() || 7
   const weekStart = new Date(jan4)
   weekStart.setUTCDate(jan4.getUTCDate() - dayOfWeek + 1 + (week - 1) * 7)
-
   const weekEnd = new Date(weekStart)
   weekEnd.setUTCDate(weekStart.getUTCDate() + 6)
 
@@ -18,11 +14,12 @@ export function getWeekRange(year: number, week: number): WeekRange {
   }
 }
 
-export function getCurrentWeekNumber(): { year: number; week: number } {
-  const now = new Date()
-  const startOfYear = new Date(Date.UTC(now.getUTCFullYear(), 0, 1))
-  const pastDaysOfYear = (now.getTime() - startOfYear.getTime()) / 86400000
-  const dayOfWeek = startOfYear.getUTCDay() || 7
-  const week = Math.ceil((pastDaysOfYear + dayOfWeek - 1) / 7)
-  return { year: now.getUTCFullYear(), week }
+export function getCurrentWeekNumber() {
+  const today = new Date()
+  const oneJan = new Date(today.getFullYear(), 0, 1)
+  const numberOfDays = Math.floor((today.getTime() - oneJan.getTime()) / 86400000)
+  return {
+    year: today.getFullYear(),
+    week: Math.ceil((numberOfDays + oneJan.getDay() + 1) / 7),
+  }
 }
