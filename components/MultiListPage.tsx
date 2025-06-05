@@ -17,7 +17,6 @@ const allGames = [
 
 export default function MultiListPage({
   currentUserId,
-  simplified = false,
 }: {
   currentUserId: string | null
   simplified?: boolean
