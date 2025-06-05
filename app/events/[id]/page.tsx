@@ -1,4 +1,3 @@
-{/*
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
@@ -57,7 +56,13 @@ export default function EventDetailPage() {
       <h1 className="text-3xl font-bold mb-2">{event.title}</h1>
       <p className="text-gray-700 mb-4">{event.description}</p>
       <p className="text-sm text-gray-500 mb-6">
-        {new Date(event.start_date).toLocaleDateString()} ~ {new Date(event.end_date).toLocaleDateString()}
+        {event.start_date && event.end_date ? (
+          <>
+            {new Date(event.start_date).toLocaleDateString()} ~ {new Date(event.end_date).toLocaleDateString()}
+          </>
+        ) : (
+          '날짜 정보 없음'
+        )}
       </p>
 
       <h2 className="text-xl font-semibold mb-3">🏁 기록 랭킹</h2>
@@ -78,9 +83,17 @@ export default function EventDetailPage() {
               <tr key={r.id}>
                 <td className="border px-3 py-2 text-center">{i + 1}</td>
                 <td className="border px-3 py-2">{r.nickname}</td>
-                <td className="border px-3 py-2 text-center">{parseFloat(r.lap_time.toString()).toFixed(3)}</td>
                 <td className="border px-3 py-2 text-center">
-                  <a href={r.proof_link} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">보기</a>
+                  {r.lap_time !== null ? parseFloat(r.lap_time.toString()).toFixed(3) : 'N/A'}
+                </td>
+                <td className="border px-3 py-2 text-center">
+                  {r.proof_link ? (
+                    <a href={r.proof_link} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                      보기
+                    </a>
+                  ) : (
+                    '없음'
+                  )}
                 </td>
               </tr>
             ))}
@@ -90,4 +103,3 @@ export default function EventDetailPage() {
     </div>
   )
 }
-  */}
