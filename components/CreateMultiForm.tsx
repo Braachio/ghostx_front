@@ -10,14 +10,12 @@ export default function CreateMultiForm() {
   const router = useRouter()
 
   const [userId, setUserId] = useState<string | null>(null)
-
   const [title, setTitle] = useState('')
   const [gameTrack, setGameTrack] = useState('')
   const [game, setGame] = useState('')
   const [multiClass, setMultiClass] = useState('')
   const [multiDay, setMultiDay] = useState<string[]>([])
   const [multiTime, setMultiTime] = useState('')
-  //const [isOpen, setIsOpen] = useState(false)
   const [description, setDescription] = useState('')
 
   useEffect(() => {
@@ -37,10 +35,6 @@ export default function CreateMultiForm() {
     )
   }
 
-  const handleGameChange = (selected: string) => {
-    setGame(selected)
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!userId) return
@@ -52,7 +46,6 @@ export default function CreateMultiForm() {
       multi_class: multiClass,
       multi_day: multiDay,
       multi_time: multiTime,
-      //is_open: isOpen,
       description,
       author_id: userId,
       created_at: new Date().toISOString(),
@@ -76,7 +69,7 @@ export default function CreateMultiForm() {
 
         <select
           value={game}
-          onChange={(e) => handleGameChange(e.target.value)}
+          onChange={(e) => setGame(e.target.value)}
           required
           className="border p-2 rounded"
         >
@@ -130,25 +123,15 @@ export default function CreateMultiForm() {
           ))}
         </fieldset>
 
-        <input
-          type="text"
-          placeholder="오픈 시간 (예: 20:30)"
-          value={multiTime}
-          onChange={(e) => setMultiTime(e.target.value)}
-          className="border p-2 rounded"
-        />
-
-        {/*}
         <label className="text-sm">
+          오픈 시간:
           <input
-            type="checkbox"
-            checked={isOpen}
-            onChange={(e) => setIsOpen(e.target.checked)}
-            className="mr-2"
+            type="time"
+            value={multiTime}
+            onChange={(e) => setMultiTime(e.target.value)}
+            className="border p-2 rounded w-full"
           />
-          오픈 여부
         </label>
-        */}
 
         <textarea
           placeholder="상세 내용"
