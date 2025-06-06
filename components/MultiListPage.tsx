@@ -1,4 +1,4 @@
-// ✅ components/MultiListPage.tsx (최종본 with 요일별 날짜 표시)
+// ✅ components/MultiListPage.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -43,13 +43,11 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
     )
   }
 
-  const { start, end } = getWeekRange(year, week)
-
   const filtered = multis.filter(multi => {
-    const date = multi.created_at?.split('T')[0] ?? ''
     return (
       selectedGames.includes(multi.game) &&
-      date >= start && date <= end
+      multi.year === year &&
+      multi.week === week
     )
   })
 
@@ -59,6 +57,7 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
     return acc
   }, {})
 
+  const { start } = getWeekRange(year, week)
   const startDate = new Date(start)
 
   return (

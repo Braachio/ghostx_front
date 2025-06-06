@@ -50,6 +50,8 @@ export type Database = {
           multi_time: string | null
           title: string
           updated_at: string | null
+          year: number | null     // ✅ 추가
+          week: number | null     // ✅ 추가
         }
         Insert: {
           author_id?: string | null
@@ -64,6 +66,8 @@ export type Database = {
           multi_time?: string | null
           title: string
           updated_at?: string | null
+          year?: number | null     // ✅ 추가
+          week?: number | null     // ✅ 추가          
         }
         Update: {
           author_id?: string | null
@@ -78,6 +82,8 @@ export type Database = {
           multi_time?: string | null
           title?: string
           updated_at?: string | null
+          year?: number | null     // ✅ 추가
+          week?: number | null     // ✅ 추가
         }
         Relationships: []
       }

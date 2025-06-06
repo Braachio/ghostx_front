@@ -37,10 +37,17 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json()
+
+  const now = new Date()
+  const oneJan = new Date(now.getFullYear(), 0, 1)
+  const currentWeek = Math.ceil((((+now - +oneJan) / 86400000) + oneJan.getDay() + 1) / 7)
+
   const { error } = await supabase.from('multis').insert({
     ...body,
+    year: now.getFullYear(),
+    week: currentWeek,
     author_id: user.id,
-    created_at: new Date().toISOString(),
+    created_at: now.toISOString(),
   })
 
   if (error) {
