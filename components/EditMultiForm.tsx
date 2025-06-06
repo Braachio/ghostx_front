@@ -7,9 +7,9 @@ export default function EditMultiForm({ id }: { id: string }) {
   const router = useRouter()
 
   const [title, setTitle] = useState('')
-  const [gameCategory, setGameCategory] = useState('')
+  const [gameTrack, setGameTrack] = useState('')
   const [game, setGame] = useState('')
-  const [multiName, setMultiName] = useState('')
+  const [multiClass, setMultiClass] = useState('')
   const [multiDay, setMultiDay] = useState<string[]>([])
   const [multiTime, setMultiTime] = useState('')
   const [isOpen, setIsOpen] = useState(false)
@@ -22,13 +22,13 @@ export default function EditMultiForm({ id }: { id: string }) {
       const data = json.data
 
       setTitle(data.title)
-      setGameCategory(data.game_category)
       setGame(data.game)
-      setMultiName(data.multi_name)
+      setMultiClass(data.multi_class)
       setMultiDay(data.multi_day || [])
-      setMultiTime(data.multi_time)
+      setMultiTime(data.multi_time || '')
       setIsOpen(data.is_open)
-      setDescription(data.description)
+      setDescription(data.description || '')
+      setGameTrack(data.game_track || '')
     }
 
     fetchNotice()
@@ -48,13 +48,13 @@ export default function EditMultiForm({ id }: { id: string }) {
 
     const body = {
       title,
-      game_category: gameCategory,
       game,
-      multi_name: multiName,
+      multi_class: multiClass,
       multi_day: multiDay,
       multi_time: multiTime,
       is_open: isOpen,
       description,
+      game_track: gameTrack,
     }
 
     const res = await fetch(`/api/multis/${id}`, {
@@ -87,8 +87,8 @@ export default function EditMultiForm({ id }: { id: string }) {
       </select>
 
       <input type="text" value={title} onChange={e => setTitle(e.target.value)} required />
-      <input type="text" value={multiName} onChange={e => setMultiName(e.target.value)} required />
-      <input type="text" value={gameCategory} onChange={e => setGameCategory(e.target.value)} required />
+      <input type="text" value={multiClass} onChange={e => setMultiClass(e.target.value)} required />
+      <input type="text" value={gameTrack} onChange={e => setGameTrack(e.target.value)} required />
 
       <fieldset>
         <legend>요일</legend>
