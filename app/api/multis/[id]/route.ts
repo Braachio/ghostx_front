@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
+import { Database } from '@/lib/database.types' // ❗️환경에 맞게 경로 수정
 
-export async function GET(
-  req: NextRequest,
-  context: { params: { id: string } }
-) {
-  const supabase = createRouteHandlerClient({ cookies })
-  const { id } = context.params
+type Context = {
+  params: {
+    id: string
+  }
+}
+
+export async function GET(req: NextRequest, { params }: Context) {
+  const supabase = createRouteHandlerClient<Database>({ cookies })
+  const { id } = params
 
   const { data, error } = await supabase
     .from('multis')
@@ -15,23 +19,16 @@ export async function GET(
     .eq('id', id)
     .single()
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
-
-  if (!data) {
-    return NextResponse.json({ error: '찾을 수 없습니다.' }, { status: 404 })
-  }
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (!data) return NextResponse.json({ error: '찾을 수 없습니다.' }, { status: 404 })
 
   return NextResponse.json({ data })
 }
 
-export async function PATCH(
-  req: NextRequest,
-  context: { params: { id: string } }
-) {
-  const supabase = createRouteHandlerClient({ cookies })
-  const { id } = context.params
+export async function PATCH(req: NextRequest, { params }: Context) {
+  const supabase = createRouteHandlerClient<Database>({ cookies })
+  const { id } = params
+
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -62,19 +59,14 @@ export async function PATCH(
     .select()
     .single()
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
-
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ data })
 }
 
-export async function DELETE(
-  req: NextRequest,
-  context: { params: { id: string } }
-) {
-  const supabase = createRouteHandlerClient({ cookies })
-  const { id } = context.params
+export async function DELETE(req: NextRequest, { params }: Context) {
+  const supabase = createRouteHandlerClient<Database>({ cookies })
+  const { id } = params
+
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -99,9 +91,6 @@ export async function DELETE(
 
   const { error } = await supabase.from('multis').delete().eq('id', id)
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
-
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ success: true })
 }
