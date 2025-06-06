@@ -112,7 +112,7 @@ export default function MultiDetailPage() {
   const isAuthor = user && multi.author_id === user.id
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
+    <div className="max-w-3xl mx-auto p-6 relative min-h-screen flex flex-col">
       <button onClick={() => router.back()} className="mb-4 text-blue-600 underline">
         ← 뒤로가기
       </button>
@@ -129,22 +129,27 @@ export default function MultiDetailPage() {
       <p><strong>시간:</strong> {multi.multi_time || '미입력'}</p>
       <p><strong>오픈 여부:</strong> {multi.is_open ? '✅' : '❌'}</p>
 
-      <div className="mt-4 whitespace-pre-wrap">
+      <hr className="my-4 border-t border-gray-300" />
+
+      <div className="whitespace-pre-wrap flex-1">
         {multi.description ? linkify(multi.description) : '설명이 없습니다.'}
       </div>
 
       {isAuthor && (
-        <div className="mt-6 flex space-x-4">
-          <Link href={`/multis/${multi.id}/edit`}>
-            <button className="bg-gray-500 text-white px-4 py-2 rounded">수정</button>
-          </Link>
-          <button
-            onClick={handleDelete}
-            className="bg-gray-600 text-white px-4 py-2 rounded"
-          >
-            삭제
-          </button>
-        </div>
+        <>
+          <hr className="my-4 border-t border-gray-300" />
+          <div className="flex justify-end space-x-3 mt-4">
+            <Link href={`/multis/${multi.id}/edit`}>
+              <button className="bg-gray-500 text-white px-4 py-1.5 rounded text-sm">수정</button>
+            </Link>
+            <button
+              onClick={handleDelete}
+              className="bg-gray-600 text-white px-4 py-1.5 rounded text-sm"
+            >
+              삭제
+            </button>
+          </div>
+        </>
       )}
     </div>
   )
