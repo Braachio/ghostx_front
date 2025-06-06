@@ -114,10 +114,10 @@ export default function MultiDetailPage() {
         {isValidDate ? formattedDate.toLocaleString() : '날짜 정보 없음'}
       </p>
 
-      <p>🎮 <strong>게임:</strong> {multi.game}</p>
+      <p><strong>게임:</strong> {multi.game}</p>
+      {multi.game_track && <p><strong>트랙:</strong> {multi.game_track}</p>}
       {multi.multi_race && <p><strong>레이스:</strong> {multi.multi_race}</p>}
       {multi.multi_class && <p><strong>클래스:</strong> {multi.multi_class}</p>}
-      {multi.game_track && <p><strong>트랙:</strong> {multi.game_track}</p>}
       <p>
         <strong>오픈 시간:</strong>{' '}
         {multi.multi_day.length > 0 ? multi.multi_day.join(', ') : '요일 없음'}{' '}
