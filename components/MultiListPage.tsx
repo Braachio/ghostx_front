@@ -61,6 +61,9 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
 
   return (
     <div className="p-6 max-w-screen-2xl mx-auto">
+      
+      
+      
       {/* 필터 */}
       <div className="mb-6 border p-4 rounded bg-white shadow-sm">
         <h2 className="font-semibold mb-2">게임 필터</h2>
@@ -85,7 +88,7 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
             setYear={setYear}
             setWeek={setWeek}
             minWeek={currentWeek - 1}
-            maxWeek={currentWeek + 3}
+            maxWeek={currentWeek + 2}
           />
       </div>
           
