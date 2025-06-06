@@ -1,3 +1,4 @@
+// app/signup/page.tsx
 'use client'
 
 import { useState } from 'react'
@@ -10,44 +11,47 @@ export default function SignupPage() {
   const [password, setPassword] = useState('')
   const [nickname, setNickname] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError(null)
     setLoading(true)
 
-    const { data, error } = await supabase.auth.signUp({
+    // 1. Supabase Auth 회원가입
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
     })
 
-    if (error || !data.user) {
-      alert(`회원가입 실패: ${error?.message}`)
+    if (signUpError || !data.user) {
+      setError(signUpError?.message || '회원가입 실패')
       setLoading(false)
       return
     }
 
-    // 유저 프로필 정보 저장
-    const { error: profileError } = await supabase.from('profiles').insert([
-      {
-        id: data.user.id,
-        nickname,
-      },
-    ])
+    const userId = data.user.id
+
+    // 2. profiles 테이블에 닉네임 저장
+    const { error: profileError } = await supabase.from('profiles').insert({
+      id: userId,
+      nickname,
+    })
 
     if (profileError) {
-      alert(`프로필 저장 실패: ${profileError.message}`)
-      setLoading(false)
-      return
+      setError(profileError.message)
+    } else {
+      alert('회원가입 성공! 이메일 인증을 완료해 주세요.')
+      router.push('/login')
     }
 
-    alert('회원가입 성공! 이메일 인증을 확인해주세요.')
-    router.push('/login')
+    setLoading(false)
   }
 
   return (
-    <div className="max-w-md mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-4">회원가입</h2>
-      <form onSubmit={handleSignup} className="flex flex-col gap-4">
+    <div className="max-w-md mx-auto mt-12 p-6 bg-white rounded shadow">
+      <h2 className="text-xl font-bold mb-4">회원가입</h2>
+      <form onSubmit={handleSignup} className="flex flex-col gap-3">
         <input
           type="text"
           placeholder="닉네임"
@@ -75,10 +79,11 @@ export default function SignupPage() {
         <button
           type="submit"
           disabled={loading}
-          className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+          className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
         >
           {loading ? '가입 중...' : '회원가입'}
         </button>
+        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
       </form>
     </div>
   )
