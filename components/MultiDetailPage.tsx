@@ -129,6 +129,8 @@ export default function MultiDetailPage() {
         {multi.description ? linkify(multi.description) : '설명이 없습니다.'}
       </div>
 
+      <hr className="my-4 border-t border-gray-300" />
+      
       <div className="flex justify-between items-center mt-6">
         <Link href="/multis">
           <button className="bg-gray-500 text-white px-4 py-1.5 rounded text-sm hover:bg-gray-600">
