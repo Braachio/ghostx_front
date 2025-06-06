@@ -18,8 +18,8 @@ interface Multi {
   updated_at: string
 }
 
-// 관리자 확인 함수
-async function checkAdmin(access_token: string | null): Promise<boolean> {
+// 관리자 또는 작성자인지 확인
+async function checkAdminOrAuthor(access_token: string | null, resourceAuthorId: string): Promise<boolean> {
   if (!access_token) return false
 
   const { data: { user }, error } = await supabaseAdmin.auth.getUser(access_token)
@@ -31,8 +31,10 @@ async function checkAdmin(access_token: string | null): Promise<boolean> {
     .eq('id', user.id)
     .single()
 
-  if (profileError || !profile) return false
-  return profile.role === 'admin'
+  if (profileError) return false
+  if (profile?.role === 'admin') return true
+
+  return user.id === resourceAuthorId
 }
 
 // 단일 공지 가져오기
@@ -61,7 +63,18 @@ export async function PATCH(
 ): Promise<NextResponse<{ error?: string; data?: Multi }>> {
   const { id } = await params
   const access_token = req.headers.get('authorization')?.replace('Bearer ', '') ?? null
-  if (!(await checkAdmin(access_token))) {
+
+  const { data: existing } = await supabase
+    .from('multis')
+    .select('author_id')
+    .eq('id', id)
+    .single()
+
+  if (!existing) {
+    return NextResponse.json({ error: '데이터를 찾을 수 없습니다.' }, { status: 404 })
+  }
+
+  if (!(await checkAdminOrAuthor(access_token, existing.author_id))) {
     return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 })
   }
 
@@ -84,7 +97,18 @@ export async function DELETE(
 ): Promise<NextResponse<{ success?: boolean; error?: string }>> {
   const { id } = await params
   const access_token = req.headers.get('authorization')?.replace('Bearer ', '') ?? null
-  if (!(await checkAdmin(access_token))) {
+
+  const { data: existing } = await supabase
+    .from('multis')
+    .select('author_id')
+    .eq('id', id)
+    .single()
+
+  if (!existing) {
+    return NextResponse.json({ error: '데이터를 찾을 수 없습니다.' }, { status: 404 })
+  }
+
+  if (!(await checkAdminOrAuthor(access_token, existing.author_id))) {
     return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 })
   }
 
