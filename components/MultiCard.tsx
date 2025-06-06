@@ -49,7 +49,7 @@ export default function MultiCard({
       {/* 오픈 시간 + ON/OFF 버튼 */}
       <div className="flex items-center justify-between mb-2">
         <p className="text-sm">
-          ⏰ <strong>오픈:</strong> {multi.multi_time || '미입력'}
+          <strong>오픈:</strong> {multi.multi_time || '미입력'}
         </p>
 
         {isAuthor ? (
@@ -70,8 +70,8 @@ export default function MultiCard({
       </div>
 
       {/* 기타 정보 */}
-      <p className="text-sm">🏎️ <strong>클래스:</strong> {multi.multi_class}</p>
-      <p className="text-sm">🏁 <strong>트랙:</strong> {multi.game_track}</p>
+      <p className="text-sm"><strong>클래스:</strong> {multi.multi_class}</p>
+      <p className="text-sm"><strong>트랙:</strong> {multi.game_track}</p>
     </div>
   )
 
