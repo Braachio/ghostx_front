@@ -31,6 +31,7 @@ interface Multi {
   title: string
   game: string
   multi_class?: string
+  game_track?: string
   multi_name?: string
   multi_day: string[]
   multi_time: string | null
