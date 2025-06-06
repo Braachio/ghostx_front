@@ -91,6 +91,7 @@ export default function CreateMultiForm() {
           placeholder="제목"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          maxLength={9}
           required
           className="border p-2 rounded"
         />
@@ -100,6 +101,7 @@ export default function CreateMultiForm() {
           placeholder="클래스 (예: GT3)"
           value={multiClass}
           onChange={(e) => setMultiClass(e.target.value)}
+          maxLength={9}
           required
           className="border p-2 rounded"
         />
@@ -109,6 +111,7 @@ export default function CreateMultiForm() {
           placeholder="트랙"
           value={gameTrack}
           onChange={(e) => setGameTrack(e.target.value)}
+          maxLength={9}
           required
           className="border p-2 rounded"
         />
