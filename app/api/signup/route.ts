@@ -1,4 +1,3 @@
-// app/api/signup/route.ts
 import { NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
@@ -8,7 +7,6 @@ export async function POST(req: Request) {
   const supabase = createRouteHandlerClient<Database>({ cookies })
   const { email, password, nickname } = await req.json()
 
-  // 유저 등록
   const {
     data: { user },
     error: signUpError,
@@ -18,11 +16,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: signUpError?.message || '회원가입 실패' }, { status: 400 })
   }
 
-  // profiles 테이블에 연동된 정보 저장
   const { error: profileError } = await supabase.from('profiles').insert({
     id: user.id,
     nickname,
-    role: 'user', // 기본 역할: 일반 유저
+    role: 'user',
   })
 
   if (profileError) {

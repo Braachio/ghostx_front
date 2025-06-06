@@ -1,9 +1,7 @@
-// app/signup/page.tsx
 'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabaseClient'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -18,29 +16,16 @@ export default function SignupPage() {
     setError(null)
     setLoading(true)
 
-    // 1. Supabase Auth 회원가입
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
+    const res = await fetch('/api/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, nickname }),
     })
 
-    if (signUpError || !data.user) {
-      setError(signUpError?.message || '회원가입 실패')
-      setLoading(false)
-      return
-    }
+    const result = await res.json()
 
-    const userId = data.user.id
-    console.log('auth user id:', data.user.id)
-
-    // 2. profiles 테이블에 닉네임 저장
-    const { error: profileError } = await supabase.from('profiles').insert({
-      id: userId,
-      nickname,
-    })
-
-    if (profileError) {
-      setError(profileError.message)
+    if (!res.ok) {
+      setError(result.error || '회원가입 실패')
     } else {
       alert('회원가입 성공! 이메일 인증을 완료해 주세요.')
       router.push('/login')
