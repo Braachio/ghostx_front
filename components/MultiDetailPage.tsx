@@ -4,7 +4,6 @@ import { JSX, useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 
-// ✅ 링크 자동 변환 함수
 function linkify(text: string): JSX.Element[] {
   const urlRegex = /(https?:\/\/[^\s]+)/g
   const parts = text.split(urlRegex)
@@ -74,11 +73,7 @@ export default function MultiDetailPage() {
           setUser(meData.user)
         }
       } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError(err.message)
-        } else {
-          setError('알 수 없는 오류가 발생했습니다.')
-        }
+        setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.')
       }
     }
 
@@ -113,9 +108,12 @@ export default function MultiDetailPage() {
 
   return (
     <div className="max-w-3xl mx-auto p-6 relative min-h-screen flex flex-col">
-      <button onClick={() => router.back()} className="mb-4 text-blue-600 underline">
-        ← 뒤로가기
-      </button>
+      <Link
+        href="/multis"
+        className="bg-gray-600 fixed bottom-6 left-6 text-white-600 rounded text-sm"
+      >
+        목록
+      </Link>
 
       <h1 className="text-2xl font-bold mb-2">{multi.title}</h1>
       <p className="text-sm text-gray-500 mb-4">
@@ -126,9 +124,9 @@ export default function MultiDetailPage() {
       {multi.multi_class && <p><strong>클래스:</strong> {multi.multi_class}</p>}
       {multi.game_track && <p><strong>트랙:</strong> {multi.game_track}</p>}
       <p>
-       <strong>오픈 시간:</strong>{' '}
-       {multi.multi_day.length > 0 ? multi.multi_day.join(', ') : '요일 없음'}{' '}
-       {multi.multi_time ? multi.multi_time : ''}
+        <strong>오픈 시간:</strong>{' '}
+        {multi.multi_day.length > 0 ? multi.multi_day.join(', ') : '요일 없음'}{' '}
+        {multi.multi_time ?? ''}
       </p>
       <p><strong>오픈 여부:</strong> {multi.is_open ? '✅' : '❌'}</p>
 

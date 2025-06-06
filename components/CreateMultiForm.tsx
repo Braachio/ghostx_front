@@ -85,6 +85,7 @@ export default function CreateMultiForm() {
           <option value="아세토코르사">아세토코르사</option>
           <option value="그란투리스모7">그란투리스모7</option>
           <option value="르망얼티밋">르망얼티밋</option>
+          <option value="EA WRC">EA WRC</option>
           <option value="아이레이싱">아이레이싱</option>
           <option value="알펙터2">알펙터2</option>
         </select>
