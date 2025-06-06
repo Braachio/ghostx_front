@@ -136,11 +136,11 @@ export default function MultiDetailPage() {
       {isAuthor && (
         <div className="mt-6 flex space-x-4">
           <Link href={`/multis/${multi.id}/edit`}>
-            <button className="bg-yellow-500 text-white px-4 py-2 rounded">수정</button>
+            <button className="bg-gray-500 text-white px-4 py-2 rounded">수정</button>
           </Link>
           <button
             onClick={handleDelete}
-            className="bg-red-600 text-white px-4 py-2 rounded"
+            className="bg-gray-600 text-white px-4 py-2 rounded"
           >
             삭제
           </button>
