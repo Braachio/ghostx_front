@@ -2,32 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 
-interface Multi {
-  id: string
-  title: string
-  game_category: string
-  game: string
-  multi_name: string
-  multi_day: string[]
-  multi_time: string | null
-  is_open: boolean
-  description: string | null
-  author_id: string | null
-  created_at: string
-  updated_at: string
-  year?: number
-  week?: number
-}
-
-type Params = {
-  params: { id: string }
-}
-
-// ✅ GET - 단일 공지 조회
 export async function GET(
-  _req: NextRequest,
-  context: Params
-): Promise<NextResponse<{ data?: Multi; error?: string }>> {
+  req: NextRequest,
+  context: { params: { id: string } }
+) {
   const supabase = createRouteHandlerClient({ cookies })
   const { id } = context.params
 
@@ -37,20 +15,23 @@ export async function GET(
     .eq('id', id)
     .single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  if (!data) return NextResponse.json({ error: '찾을 수 없습니다.' }, { status: 404 })
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
 
-  return NextResponse.json({ data }, { status: 200 })
+  if (!data) {
+    return NextResponse.json({ error: '찾을 수 없습니다.' }, { status: 404 })
+  }
+
+  return NextResponse.json({ data })
 }
 
-// ✅ PATCH - 공지 수정
 export async function PATCH(
   req: NextRequest,
-  context: Params
-): Promise<NextResponse<{ data?: Multi; error?: string }>> {
+  context: { params: { id: string } }
+) {
   const supabase = createRouteHandlerClient({ cookies })
   const { id } = context.params
-
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -74,7 +55,6 @@ export async function PATCH(
   }
 
   const body = await req.json()
-
   const { data, error } = await supabase
     .from('multis')
     .update({ ...body, updated_at: new Date().toISOString() })
@@ -82,18 +62,19 @@ export async function PATCH(
     .select()
     .single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ data }, { status: 200 })
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  return NextResponse.json({ data })
 }
 
-// ✅ DELETE - 공지 삭제
 export async function DELETE(
-  _req: NextRequest,
-  context: Params
-): Promise<NextResponse<{ success?: boolean; error?: string }>> {
+  req: NextRequest,
+  context: { params: { id: string } }
+) {
   const supabase = createRouteHandlerClient({ cookies })
   const { id } = context.params
-
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -118,6 +99,9 @@ export async function DELETE(
 
   const { error } = await supabase.from('multis').delete().eq('id', id)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ success: true }, { status: 200 })
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  return NextResponse.json({ success: true })
 }
