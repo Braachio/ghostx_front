@@ -45,6 +45,7 @@ export default function MultiCard({
             {multi.title}
           </h2>
         </Link>
+      </div>
         <div>
           {isAuthor ? (
             <button
@@ -62,7 +63,6 @@ export default function MultiCard({
             </span>
           )}
         </div>
-      </div>
       {/*<p className="text-sm text-gray-500 mb-1">{multi.created_at ? new Date(multi.created_at).toLocaleString() : '날짜 없음'}</p>*/}
       <p className="text-sm">🏎️ <strong>클래스:</strong> {multi.multi_class}</p>
       <p className="text-sm">🏁 <strong>트랙:</strong> {multi.game_track}</p>
