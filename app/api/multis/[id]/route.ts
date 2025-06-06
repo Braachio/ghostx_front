@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabaseClient'
-import { supabaseAdmin } from '@/lib/supabaseAdminClient'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
 
 // 타입 정의
 interface Multi {
@@ -18,31 +18,13 @@ interface Multi {
   updated_at: string
 }
 
-// 관리자 또는 작성자인지 확인
-async function checkAdminOrAuthor(access_token: string | null, resourceAuthorId: string): Promise<boolean> {
-  if (!access_token) return false
-
-  const { data: { user }, error } = await supabaseAdmin.auth.getUser(access_token)
-  if (error || !user) return false
-
-  const { data: profile, error: profileError } = await supabaseAdmin
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  if (profileError) return false
-  if (profile?.role === 'admin') return true
-
-  return user.id === resourceAuthorId
-}
-
 // 단일 공지 가져오기
 export async function GET(
   _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ): Promise<NextResponse<{ error?: string; data?: Multi }>> {
-  const { id } = await params
+  const supabase = createRouteHandlerClient({ cookies })
+  const { id } = params
 
   const { data, error } = await supabase
     .from('multis')
@@ -59,10 +41,18 @@ export async function GET(
 // 공지 수정
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ): Promise<NextResponse<{ error?: string; data?: Multi }>> {
-  const { id } = await params
-  const access_token = req.headers.get('authorization')?.replace('Bearer ', '') ?? null
+  const supabase = createRouteHandlerClient({ cookies })
+  const { id } = params
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+  }
 
   const { data: existing } = await supabase
     .from('multis')
@@ -74,7 +64,7 @@ export async function PATCH(
     return NextResponse.json({ error: '데이터를 찾을 수 없습니다.' }, { status: 404 })
   }
 
-  if (!(await checkAdminOrAuthor(access_token, existing.author_id))) {
+  if (user.id !== existing.author_id) {
     return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 })
   }
 
@@ -93,10 +83,18 @@ export async function PATCH(
 // 공지 삭제
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ): Promise<NextResponse<{ success?: boolean; error?: string }>> {
-  const { id } = await params
-  const access_token = req.headers.get('authorization')?.replace('Bearer ', '') ?? null
+  const supabase = createRouteHandlerClient({ cookies })
+  const { id } = params
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+  }
 
   const { data: existing } = await supabase
     .from('multis')
@@ -108,35 +106,12 @@ export async function DELETE(
     return NextResponse.json({ error: '데이터를 찾을 수 없습니다.' }, { status: 404 })
   }
 
-  if (!(await checkAdminOrAuthor(access_token, existing.author_id))) {
+  if (user.id !== existing.author_id) {
     return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 })
   }
 
   const { error } = await supabase.from('multis').delete().eq('id', id)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ success: true }, { status: 200 })
-}
-
-// 공지 생성
-export async function POST(req: NextRequest): Promise<NextResponse<{ success?: boolean; error?: string }>> {
-  const access_token = req.headers.get('authorization')?.replace('Bearer ', '') ?? null
-
-  if (!access_token) {
-    return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
-  }
-
-  const { data: { user }, error } = await supabaseAdmin.auth.getUser(access_token)
-  if (error || !user) {
-    return NextResponse.json({ error: '사용자 인증 실패' }, { status: 401 })
-  }
-
-  const body = await req.json()
-
-  const { error: insertError } = await supabase
-    .from('multis')
-    .insert({ ...body, author_id: user.id, created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
-
-  if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 })
   return NextResponse.json({ success: true }, { status: 200 })
 }
