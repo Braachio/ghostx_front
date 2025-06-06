@@ -6,7 +6,7 @@ import type { Database } from '@/lib/database.types'
 
 export async function POST(req: Request) {
   const supabase = createRouteHandlerClient<Database>({ cookies })
-  const { email, password, username } = await req.json()
+  const { email, password, nickname } = await req.json()
 
   // 유저 등록
   const {
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   // profiles 테이블에 연동된 정보 저장
   const { error: profileError } = await supabase.from('profiles').insert({
     id: user.id,
-    username,
+    nickname,
     role: 'user', // 기본 역할: 일반 유저
   })
 
