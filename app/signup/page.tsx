@@ -31,6 +31,7 @@ export default function SignupPage() {
     }
 
     const userId = data.user.id
+    console.log('auth user id:', data.user.id)
 
     // 2. profiles 테이블에 닉네임 저장
     const { error: profileError } = await supabase.from('profiles').insert({
