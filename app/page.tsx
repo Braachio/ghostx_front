@@ -48,6 +48,8 @@ export default function HomePage() {
         <p className="ml-auto text-sm text-gray-500">총 방문수: {views.toLocaleString()}회</p>
       )}
 
+      <hr className="my-4 border-t border-gray-300" />
+      
       {/* 상단 사용자 정보 */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-sm text-gray-600">
