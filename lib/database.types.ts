@@ -45,6 +45,7 @@ export type Database = {
           game_track: string
           id: string
           is_open: boolean | null
+          multi_race: string
           multi_class: string
           multi_day: string[]
           multi_time: string | null
@@ -61,6 +62,7 @@ export type Database = {
           game_track: string
           id?: string
           is_open?: boolean | null
+          multi_race: string
           multi_class: string
           multi_day: string[]
           multi_time?: string | null
@@ -77,6 +79,7 @@ export type Database = {
           game_track?: string
           id?: string
           is_open?: boolean | null
+          multi_race: string
           multi_class?: string
           multi_day?: string[]
           multi_time?: string | null

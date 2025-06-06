@@ -29,6 +29,7 @@ interface Multi {
   id: number
   title: string
   game: string
+  multi_race?: string
   multi_class?: string
   game_track?: string
   multi_name?: string
@@ -114,6 +115,7 @@ export default function MultiDetailPage() {
       </p>
 
       <p>🎮 <strong>게임:</strong> {multi.game}</p>
+      {multi.multi_race && <p><strong>레이스:</strong> {multi.multi_race}</p>}
       {multi.multi_class && <p><strong>클래스:</strong> {multi.multi_class}</p>}
       {multi.game_track && <p><strong>트랙:</strong> {multi.game_track}</p>}
       <p>

@@ -11,6 +11,7 @@ export default function EditMultiForm({ id }: { id: string }) {
   const [title, setTitle] = useState('')
   const [gameTrack, setGameTrack] = useState('')
   const [game, setGame] = useState('')
+  const [multiRace, setMultiRace] = useState('')
   const [multiClass, setMultiClass] = useState('')
   const [multiDay, setMultiDay] = useState<string[]>([])
   const [multiTime, setMultiTime] = useState('')
@@ -26,6 +27,7 @@ export default function EditMultiForm({ id }: { id: string }) {
 
       setTitle(data.title)
       setGame(data.game)
+      setMultiRace(data.multi_race)
       setMultiClass(data.multi_class)
       setMultiDay(data.multi_day || [])
       setMultiTime(data.multi_time || '')
@@ -51,6 +53,7 @@ export default function EditMultiForm({ id }: { id: string }) {
     const body = {
       title,
       game,
+      multi_race: multiRace,
       multi_class: multiClass,
       multi_day: multiDay,
       multi_time: multiTime,
@@ -110,6 +113,16 @@ export default function EditMultiForm({ id }: { id: string }) {
           className="border p-2 rounded"
         />
 
+        <input
+          type="text"
+          placeholder="레이스 (예: 스프린트)"
+          value={multiRace}
+          onChange={(e) => setMultiRace(e.target.value)}
+          maxLength={9}
+          required
+          className="border p-2 rounded"
+        />
+        
         <input
           type="text"
           placeholder="클래스 (예: GT3)"

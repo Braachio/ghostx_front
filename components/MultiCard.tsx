@@ -28,7 +28,7 @@ export default function MultiCard({
 
     const { error } = await supabase
       .from('multis')
-      .update({ is_open: !isOpen })
+      .update({ is_open: !isOpen } as Database['public']['Tables']['multis']['Update'])
       .eq('id', multi.id)
 
     if (!error) setIsOpen(!isOpen)
@@ -70,6 +70,7 @@ export default function MultiCard({
       </div>
 
       {/* 기타 정보 */}
+      <p className="text-sm"><strong>레이스:</strong> {multi.multi_race}</p>
       <p className="text-sm"><strong>클래스:</strong> {multi.multi_class}</p>
       <p className="text-sm"><strong>트랙:</strong> {multi.game_track}</p>
     </div>
