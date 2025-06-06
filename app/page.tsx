@@ -48,10 +48,16 @@ export default function HomePage() {
         <h2 className="text-sm text-gray-600">
           {user ? `👤 ${user.username}님 환영합니다` : '🕵 로그인되지 않음'}
         </h2>
+
         {!user && (
-          <Link href="/login" className="px-4 py-2 bg-gray-600 text-white rounded">
-            로그인
-          </Link>
+          <div className="space-x-2">
+            <Link href="/signup" className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+              회원가입
+            </Link>
+            <Link href="/login" className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+              로그인
+            </Link>
+          </div>
         )}
       </div>
 
@@ -60,7 +66,9 @@ export default function HomePage() {
 
       <div className="space-x-4 mb-6">
         <Link href="/multis">
-          <button className="px-4 py-2 bg-blue-600 text-white rounded">공지 모음</button>
+          <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+            공지 모음
+          </button>
         </Link>
       </div>
 
