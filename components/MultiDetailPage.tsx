@@ -125,8 +125,11 @@ export default function MultiDetailPage() {
       <p>🎮 <strong>게임:</strong> {multi.game}</p>
       {multi.multi_class && <p><strong>클래스:</strong> {multi.multi_class}</p>}
       {multi.game_track && <p><strong>트랙:</strong> {multi.game_track}</p>}
-      <p><strong>요일:</strong> {multi.multi_day.length > 0 ? multi.multi_day.join(', ') : '없음'}</p>
-      <p><strong>시간:</strong> {multi.multi_time || '미입력'}</p>
+      <p>
+       <strong>오픈 시간:</strong>{' '}
+       {multi.multi_day.length > 0 ? multi.multi_day.join(', ') : '요일 없음'}{' '}
+       {multi.multi_time ? multi.multi_time : ''}
+      </p>
       <p><strong>오픈 여부:</strong> {multi.is_open ? '✅' : '❌'}</p>
 
       <hr className="my-4 border-t border-gray-300" />
