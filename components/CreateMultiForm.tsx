@@ -1,3 +1,4 @@
+// ✅ /components/CreateMultiForm.tsx
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -20,6 +21,7 @@ export default function CreateMultiForm() {
   const [description, setDescription] = useState('')
   const currentWeekInfo = getCurrentWeekNumber()
   const [week, setWeek] = useState<number>(currentWeekInfo.week)
+  const [year] = useState<number>(currentWeekInfo.year)
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data, error }) => {
@@ -50,6 +52,7 @@ export default function CreateMultiForm() {
       multi_day: multiDay,
       multi_time: multiTime,
       description,
+      year,
       week,
       author_id: userId,
       created_at: new Date().toISOString(),

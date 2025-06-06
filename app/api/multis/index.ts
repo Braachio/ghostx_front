@@ -1,4 +1,3 @@
-// app/api/multis/index.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabaseClient'
 import { supabaseAdmin } from '@/lib/supabaseAdminClient'
@@ -16,6 +15,8 @@ type Multi = {
   author_id: string | null
   created_at: string
   updated_at: string
+  year?: number
+  week?: number
 }
 
 type Data = { error?: string; success?: boolean; data?: Multi[] }
@@ -54,9 +55,19 @@ export async function POST(req: NextRequest): Promise<NextResponse<Data>> {
   }
 
   const body = await req.json()
+
+  const now = new Date()
+  const oneJan = new Date(now.getFullYear(), 0, 1)
+  const currentWeek = Math.ceil((((+now - +oneJan) / 86400000) + oneJan.getDay() + 1) / 7)
+
+  const year = body.year ?? now.getFullYear()
+  const week = body.week ?? currentWeek
+
   const { error } = await supabase.from('multis').insert({
     ...body,
-    created_at: new Date().toISOString(),
+    year,
+    week,
+    created_at: now.toISOString(),
   })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
