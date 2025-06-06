@@ -1,4 +1,4 @@
-// ✅ components/MultiListPage.tsx (최종본)
+// ✅ components/MultiListPage.tsx (최종본 with 요일별 날짜 표시)
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -59,11 +59,10 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
     return acc
   }, {})
 
+  const startDate = new Date(start)
+
   return (
     <div className="p-6 max-w-screen-2xl mx-auto">
-      
-      
-      
       {/* 필터 */}
       <div className="mb-6 border p-4 rounded bg-white shadow-sm">
         <h2 className="font-semibold mb-2">게임 필터</h2>
@@ -83,32 +82,33 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
 
       <div className="flex justify-end mb-6">
         <WeekFilter
-            year={year}
-            week={week}
-            setYear={setYear}
-            setWeek={setWeek}
-            minWeek={currentWeek - 1}
-            maxWeek={currentWeek + 2}
-          />
+          year={year}
+          week={week}
+          setYear={setYear}
+          setWeek={setWeek}
+          minWeek={currentWeek - 1}
+          maxWeek={currentWeek + 2}
+        />
       </div>
-          
+
       {/* 게임 별 요일 가능 공지 */}
       {Object.entries(groupedByGame).map(([game, gameMultis]) => (
-        <div key={game} className="mb-10 border border-gray-300 rounded-lg p-4 bg-white shadow-sm"> {/*카테고리 구분선*/}
+        <div key={game} className="mb-10 border border-gray-300 rounded-lg p-4 bg-white shadow-sm">
           <h2 className="text-xl font-bold mb-3">{game}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 overflow-x-auto">
-            {daysOfWeek.map(day => {
+            {daysOfWeek.map((day, i) => {
               const isToday = day === todayKoreanWeekday
+              const dateObj = new Date(startDate)
+              dateObj.setDate(startDate.getDate() + i)
+              const dateStr = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`
               return (
                 <div key={day} className="min-w-[150px]">
                   <div
-                    className={`
-                      text-center font-semibold border-b pb-1 mb-2
+                    className={`text-center font-semibold border-b pb-1 mb-2
                       ${isToday ? 'border-none bg-green-50 text-black-600 rounded' : ''}
-                      ${day === '일' ? 'text-red-500' : day === '토' ? 'text-blue-500' : ''}
-                    `}
+                      ${day === '일' ? 'text-red-500' : day === '토' ? 'text-blue-500' : ''}`}
                   >
-                    {day}
+                    {day} ({dateStr})
                   </div>
                   <div className="space-y-3">
                     {gameMultis.filter(m => m.multi_day.includes(day)).map(m => (
