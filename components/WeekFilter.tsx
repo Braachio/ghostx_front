@@ -1,7 +1,5 @@
-// 📁 components/WeekFilter.tsx
 'use client'
 
-import { getWeekRange } from '@/app/utils/dateUtils'
 import { useMemo } from 'react'
 
 interface WeekFilterProps {
@@ -20,28 +18,48 @@ export default function WeekFilter({ year, week, setYear, setWeek, minWeek, maxW
     setWeek(Number(w))
   }
 
+  const today = new Date()
+  const currentYear = today.getFullYear()
+  const oneJan = new Date(currentYear, 0, 1)
+  const currentWeek = Math.ceil((((+today - +oneJan) / 86400000) + oneJan.getDay() + 1) / 7)
+
   const options = useMemo(() => {
     return Array.from({ length: maxWeek - minWeek + 1 }, (_, i) => {
       const w = minWeek + i
-      const range = getWeekRange(year, w)
-      const now = new Date()
-      const today = now.toISOString().split('T')[0]
-      const thisWeek = getWeekRange(year, w).start <= today && getWeekRange(year, w).end >= today
-      return (
-        <option key={w} value={`${year}-${w}`}>
-          {year}년 {w}주차 ({range.start}~{range.end}){thisWeek ? ' (이번주)' : ''}
-        </option>
-      )
+      let label = ''
+
+      if (w === currentWeek - 1) label = '저번주'
+      else if (w === currentWeek) label = '이번주'
+      else if (w === currentWeek + 1) label = '다음주'
+      else if (w === currentWeek + 2) label = '다다음주'
+      else label = `${w}주차`
+
+      return {
+        label,
+        value: `${year}-${w}`,
+      }
     })
-  }, [year, minWeek, maxWeek])
+  }, [year, minWeek, maxWeek, currentWeek])
 
   return (
-    <select
-      value={`${year}-${week}`}
-      onChange={handleChange}
-      className="border p-2 rounded"
-    >
-      {options}
-    </select>
+    <div className="flex items-center gap-4">
+      {/* 현재 주차 표시 */}
+      <div className="text-base font-semibold whitespace-nowrap">
+        {year}년 {week}주차
+      </div>
+
+      {/* 드롭다운 */}
+      <select
+        value={`${year}-${week}`}
+        onChange={handleChange}
+        className="border p-2 rounded"
+      >
+        {options.map(opt => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+    </div>
   )
 }
