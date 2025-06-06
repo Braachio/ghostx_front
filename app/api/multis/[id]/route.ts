@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
-import { Database } from '@/lib/database.types'
 
+// 단일 공지 가져오기
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const supabase = createRouteHandlerClient<Database>({ cookies })
-  const { id } = params
+  context: { params: { id: string } }
+): Promise<Response> {
+  const supabase = createRouteHandlerClient({ cookies })
+  const { id } = context.params
 
   const { data, error } = await supabase
     .from('multis')
@@ -16,44 +16,64 @@ export async function GET(
     .eq('id', id)
     .single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  if (!data) return NextResponse.json({ error: '찾을 수 없습니다.' }, { status: 404 })
+  if (error)
+    return new NextResponse(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    })
 
-  return NextResponse.json({ data }, { status: 200 })
+  if (!data)
+    return new NextResponse(JSON.stringify({ error: '찾을 수 없습니다.' }), {
+      status: 404,
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+  return new NextResponse(JSON.stringify({ data }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  })
 }
 
+// 공지 수정
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const supabase = createRouteHandlerClient<Database>({ cookies })
-  const { id } = params
+  context: { params: { id: string } }
+): Promise<Response> {
+  const supabase = createRouteHandlerClient({ cookies })
+  const { id } = context.params
 
   const {
     data: { user },
-    error: authError,
   } = await supabase.auth.getUser()
 
-  if (authError || !user) {
-    return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+  if (!user) {
+    return new NextResponse(JSON.stringify({ error: '로그인이 필요합니다.' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    })
   }
 
-  const { data: existing, error: fetchError } = await supabase
+  const { data: existing } = await supabase
     .from('multis')
     .select('author_id')
     .eq('id', id)
     .single()
 
-  if (fetchError || !existing) {
-    return NextResponse.json({ error: '데이터를 찾을 수 없습니다.' }, { status: 404 })
+  if (!existing) {
+    return new NextResponse(JSON.stringify({ error: '데이터를 찾을 수 없습니다.' }), {
+      status: 404,
+      headers: { 'Content-Type': 'application/json' },
+    })
   }
 
   if (user.id !== existing.author_id) {
-    return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 })
+    return new NextResponse(JSON.stringify({ error: '권한이 없습니다.' }), {
+      status: 403,
+      headers: { 'Content-Type': 'application/json' },
+    })
   }
 
   const body = await req.json()
-
   const { data, error } = await supabase
     .from('multis')
     .update({ ...body, updated_at: new Date().toISOString() })
@@ -61,43 +81,67 @@ export async function PATCH(
     .select()
     .single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error)
+    return new NextResponse(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    })
 
-  return NextResponse.json({ data }, { status: 200 })
+  return new NextResponse(JSON.stringify({ data }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  })
 }
 
+// 공지 삭제
 export async function DELETE(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const supabase = createRouteHandlerClient<Database>({ cookies })
-  const { id } = params
+  req: NextRequest,
+  context: { params: { id: string } }
+): Promise<Response> {
+  const supabase = createRouteHandlerClient({ cookies })
+  const { id } = context.params
 
   const {
     data: { user },
-    error: authError,
   } = await supabase.auth.getUser()
 
-  if (authError || !user) {
-    return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+  if (!user) {
+    return new NextResponse(JSON.stringify({ error: '로그인이 필요합니다.' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    })
   }
 
-  const { data: existing, error: fetchError } = await supabase
+  const { data: existing } = await supabase
     .from('multis')
     .select('author_id')
     .eq('id', id)
     .single()
 
-  if (fetchError || !existing) {
-    return NextResponse.json({ error: '데이터를 찾을 수 없습니다.' }, { status: 404 })
+  if (!existing) {
+    return new NextResponse(JSON.stringify({ error: '데이터를 찾을 수 없습니다.' }), {
+      status: 404,
+      headers: { 'Content-Type': 'application/json' },
+    })
   }
 
   if (user.id !== existing.author_id) {
-    return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 })
+    return new NextResponse(JSON.stringify({ error: '권한이 없습니다.' }), {
+      status: 403,
+      headers: { 'Content-Type': 'application/json' },
+    })
   }
 
   const { error } = await supabase.from('multis').delete().eq('id', id)
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  return NextResponse.json({ success: true }, { status: 200 })
+  if (error)
+    return new NextResponse(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+  return new NextResponse(JSON.stringify({ success: true }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  })
 }
