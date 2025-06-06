@@ -36,7 +36,7 @@ export default function EditMultiForm({ id }: { id: string }) {
     }
 
     fetchNotice()
-  }, [id])
+  }, [currentWeekInfo.week, currentWeekInfo.year, id])
 
   const handleDayChange = (day: string) => {
     setMultiDay(prev =>
