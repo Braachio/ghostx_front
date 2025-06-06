@@ -1,15 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
-import { Database } from '@/lib/database.types' // ❗️환경에 맞게 경로 수정
+import { Database } from '@/lib/database.types'
 
-type Context = {
-  params: {
-    id: string
-  }
-}
-
-export async function GET(req: NextRequest, { params }: Context) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   const supabase = createRouteHandlerClient<Database>({ cookies })
   const { id } = params
 
@@ -25,7 +22,10 @@ export async function GET(req: NextRequest, { params }: Context) {
   return NextResponse.json({ data })
 }
 
-export async function PATCH(req: NextRequest, { params }: Context) {
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   const supabase = createRouteHandlerClient<Database>({ cookies })
   const { id } = params
 
@@ -33,9 +33,7 @@ export async function PATCH(req: NextRequest, { params }: Context) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) {
-    return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
-  }
+  if (!user) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
 
   const { data: existing } = await supabase
     .from('multis')
@@ -43,9 +41,7 @@ export async function PATCH(req: NextRequest, { params }: Context) {
     .eq('id', id)
     .single()
 
-  if (!existing) {
-    return NextResponse.json({ error: '데이터를 찾을 수 없습니다.' }, { status: 404 })
-  }
+  if (!existing) return NextResponse.json({ error: '데이터를 찾을 수 없습니다.' }, { status: 404 })
 
   if (user.id !== existing.author_id) {
     return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 })
@@ -63,7 +59,10 @@ export async function PATCH(req: NextRequest, { params }: Context) {
   return NextResponse.json({ data })
 }
 
-export async function DELETE(req: NextRequest, { params }: Context) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   const supabase = createRouteHandlerClient<Database>({ cookies })
   const { id } = params
 
@@ -71,9 +70,7 @@ export async function DELETE(req: NextRequest, { params }: Context) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) {
-    return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
-  }
+  if (!user) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
 
   const { data: existing } = await supabase
     .from('multis')
@@ -81,9 +78,7 @@ export async function DELETE(req: NextRequest, { params }: Context) {
     .eq('id', id)
     .single()
 
-  if (!existing) {
-    return NextResponse.json({ error: '데이터를 찾을 수 없습니다.' }, { status: 404 })
-  }
+  if (!existing) return NextResponse.json({ error: '데이터를 찾을 수 없습니다.' }, { status: 404 })
 
   if (user.id !== existing.author_id) {
     return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 })
