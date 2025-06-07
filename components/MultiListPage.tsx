@@ -1,13 +1,14 @@
+// ✅ 다크모드 + 이번주 디폴트 적용된 전체 코드
 'use client'
 
 import { useEffect, useState } from 'react'
 import MultiCard from './MultiCard'
 import type { Database } from '@/lib/database.types'
-import { getWeekRange } from '@/app/utils/dateUtils'
+import { getWeekRange, getCurrentWeekNumber } from '@/app/utils/dateUtils'
 import WeekFilter from './WeekFilter'
 
 const daysOfWeek = ['월', '화', '수', '목', '금', '토', '일']
-const allGames = ['컴페티치오네', '아세토코르사', '그란투리스모7', '르망얼티밋','EA WRC', '아이레이싱', '알펙터2']
+const allGames = ['컴페티치오네', '아세토코르사', '그란투리스모7', '르만얼티밍','EA WRC', '아이레이싱', '알페터2']
 
 type Multi = Database['public']['Tables']['multis']['Row']
 
@@ -15,24 +16,16 @@ type MultiListPageProps = {
   currentUserId: string | null
 }
 
-function getKoreanWeek(date: Date) {
-  const start = new Date(date.getFullYear(), 0, 1);
-  const diff = (date.getTime() - start.getTime()) / 86400000;
-  const startDay = start.getDay() === 0 ? 7 : start.getDay();
-  const offset = startDay <= 1 ? 0 : 7 - (startDay - 1);
-  return Math.ceil((diff + offset) / 7);
-}
-
 export default function MultiListPage({ currentUserId }: MultiListPageProps) {
   const [multis, setMultis] = useState<Multi[]>([])
   const [selectedGames, setSelectedGames] = useState<string[]>(allGames)
 
-  const today = new Date()
-  const currentWeek = getKoreanWeek(today)
-  const todayKoreanWeekday = new Intl.DateTimeFormat('ko-KR', { weekday: 'short' }).format(today)
+  const current = getCurrentWeekNumber()
+  const [year, setYear] = useState(current.year)
+  const [week, setWeek] = useState(current.week)
 
-  const [year, setYear] = useState(today.getFullYear())
-  const [week, setWeek] = useState(currentWeek)
+  const today = new Date()
+  const todayKoreanWeekday = new Intl.DateTimeFormat('ko-KR', { weekday: 'short' }).format(today)
 
   useEffect(() => {
     const fetchMultis = async () => {
@@ -91,8 +84,8 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
           week={week}
           setYear={setYear}
           setWeek={setWeek}
-          minWeek={currentWeek - 1}
-          maxWeek={currentWeek + 2}
+          minWeek={current.week - 1}
+          maxWeek={current.week + 2}
         />
       </div>
 
