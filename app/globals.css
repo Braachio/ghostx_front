@@ -1,4 +1,12 @@
 @import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 기본 테마 텍스트 및 배경 색상 설정 */
+html, body {
+  @apply bg-white text-black;
+}
 
 :root {
   --background: #ffffff;
@@ -13,6 +21,10 @@
 }
 
 @media (prefers-color-scheme: dark) {
+  html, body {
+    @apply bg-gray-900 text-white;
+  }
+  
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;

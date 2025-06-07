@@ -15,7 +15,7 @@ function linkify(text: string): JSX.Element[] {
         href={part}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-blue-600 underline break-all"
+        className="text-blue-600 underline break-all dark:text-blue-400"
       >
         {part}
       </a>
@@ -100,17 +100,17 @@ export default function MultiDetailPage() {
     }
   }
 
-  if (error) return <p className="p-6 text-red-500">⚠️ {error}</p>
-  if (!multi) return <p className="p-6">불러오는 중...</p>
+  if (error) return <p className="p-6 text-red-500 dark:text-red-400">⚠️ {error}</p>
+  if (!multi) return <p className="p-6 text-gray-700 dark:text-gray-300">불러오는 중...</p>
 
   const formattedDate = new Date(multi.created_at)
   const isValidDate = !isNaN(formattedDate.getTime())
   const isAuthor = user && multi.author_id === user.id
 
   return (
-    <div className="max-w-3xl mx-auto p-6 relative min-h-screen flex flex-col">
+    <div className="max-w-3xl mx-auto p-6 relative min-h-screen flex flex-col bg-white text-gray-800 dark:bg-gray-900 dark:text-gray-100">
       <h1 className="text-2xl font-bold mb-2">{multi.title}</h1>
-      <p className="text-sm text-gray-500 mb-4">
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
         {isValidDate ? formattedDate.toLocaleString() : '날짜 정보 없음'}
       </p>
 
@@ -125,17 +125,17 @@ export default function MultiDetailPage() {
       </p>
       <p><strong>오픈 여부:</strong> {multi.is_open ? '✅' : '❌'}</p>
 
-      <hr className="my-4 border-t border-gray-300" />
+      <hr className="my-4 border-t border-gray-300 dark:border-gray-700" />
 
       <div className="whitespace-pre-wrap flex-1">
         {multi.description ? linkify(multi.description) : '설명이 없습니다.'}
       </div>
 
-      <hr className="my-4 border-t border-gray-300" />
+      <hr className="my-4 border-t border-gray-300 dark:border-gray-700" />
       
       <div className="flex justify-between items-center mt-6">
         <Link href="/multis">
-          <button className="bg-gray-500 text-white px-4 py-1.5 rounded text-sm hover:bg-gray-600">
+          <button className="bg-gray-500 text-white px-4 py-1.5 rounded text-sm hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700">
             목록
           </button>
         </Link>
@@ -143,13 +143,13 @@ export default function MultiDetailPage() {
         {isAuthor && (
           <div className="flex space-x-3">
             <Link href={`/multis/${multi.id}/edit`}>
-              <button className="bg-gray-500 text-white px-4 py-1.5 rounded text-sm hover:bg-gray-600">
+              <button className="bg-gray-500 text-white px-4 py-1.5 rounded text-sm hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700">
                 수정
               </button>
             </Link>
             <button
               onClick={handleDelete}
-              className="bg-gray-600 text-white px-4 py-1.5 rounded text-sm hover:bg-gray-700"
+              className="bg-red-600 text-white px-4 py-1.5 rounded text-sm hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
             >
               삭제
             </button>

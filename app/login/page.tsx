@@ -21,33 +21,44 @@ export default function LoginPage() {
 
     if (res.ok) {
       alert('로그인 성공')
-      router.push('/') // 원하는 페이지로 이동
+      router.push('/')
     } else {
       alert(`로그인 실패: ${data.error}`)
     }
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-50">
-      <form onSubmit={handleLogin} className="flex flex-col gap-4 w-full max-w-md p-6 bg-white shadow-md rounded">
-        <h2 className="text-xl font-bold text-center">🔐 로그인</h2>
+    <div className="flex justify-center items-center min-h-screen bg-gray-50 dark:bg-gray-900">
+      <form
+        onSubmit={handleLogin}
+        className="flex flex-col gap-4 w-full max-w-md p-6 bg-white dark:bg-gray-800 shadow-md rounded"
+      >
+        <h2 className="text-xl font-bold text-center text-gray-800 dark:text-white">🔐 로그인</h2>
+
         <input
           type="email"
           placeholder="이메일"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="border p-2 rounded"
+          className="border p-2 rounded text-black dark:text-white dark:bg-gray-700 dark:border-gray-600"
         />
+
         <input
           type="password"
           placeholder="비밀번호"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          className="border p-2 rounded"
+          className="border p-2 rounded text-black dark:text-white dark:bg-gray-700 dark:border-gray-600"
         />
-        <button type="submit" className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700">로그인</button>
+
+        <button
+          type="submit"
+          className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
+        >
+          로그인
+        </button>
       </form>
     </div>
   )

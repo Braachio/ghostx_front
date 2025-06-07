@@ -1,4 +1,3 @@
-// ✅ components/MultiListPage.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -68,9 +67,9 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
   const startDate = new Date(start)
 
   return (
-    <div className="p-6 max-w-screen-2xl mx-auto">
+    <div className="p-6 max-w-screen-2xl mx-auto transition-colors duration-300 text-black dark:text-white">
       {/* 필터 */}
-      <div className="mb-6 border p-4 rounded bg-white shadow-sm">
+      <div className="mb-6 border p-4 rounded bg-white dark:bg-gray-900 dark:border-gray-700 shadow-sm">
         <h2 className="font-semibold mb-2">게임 필터</h2>
         <div className="flex flex-wrap gap-4 items-center">
           {allGames.map(game => (
@@ -99,7 +98,7 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
 
       {/* 게임 별 요일 가능 공지 */}
       {Object.entries(groupedByGame).map(([game, gameMultis]) => (
-        <div key={game} className="mb-10 border border-gray-300 rounded-lg p-4 bg-white shadow-sm">
+        <div key={game} className="mb-10 border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-900 shadow-sm">
           <h2 className="text-xl font-bold mb-3">{game}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 overflow-x-auto">
             {daysOfWeek.map((day, i) => {
@@ -111,7 +110,7 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
                 <div key={day} className="min-w-[150px]">
                   <div
                     className={`text-center font-semibold border-b pb-1 mb-2
-                      ${isToday ? 'border-none bg-green-50 text-black-600 rounded' : ''}
+                      ${isToday ? 'border-none bg-green-50 dark:bg-green-900 dark:text-green-300 rounded' : ''}
                       ${day === '일' ? 'text-red-500' : day === '토' ? 'text-blue-500' : ''}`}
                   >
                     {day} ({dateStr})
@@ -129,7 +128,9 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
       ))}
 
       {filtered.length === 0 && (
-        <p className="text-gray-500 mt-6">선택한 게임 및 주차에 해당하는 공지가 없습니다.</p>
+        <p className="text-gray-500 dark:text-gray-400 mt-6">
+          선택한 게임 및 주차에 해당하는 공지가 없습니다.
+        </p>
       )}
     </div>
   )

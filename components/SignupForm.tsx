@@ -1,3 +1,4 @@
+// ✅ SignupForm.tsx (다크모드 대응 완료)
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -20,13 +21,9 @@ export default function SignupForm() {
 
   const email = `${emailId}@${isCustom ? customDomain : emailDomain}`
 
-  // 이메일 중복 확인
   useEffect(() => {
     const delay = setTimeout(async () => {
-      if (!emailId || !(emailDomain || customDomain)) {
-        return setEmailAvailable(null)
-      }
-
+      if (!emailId || !(emailDomain || customDomain)) return setEmailAvailable(null)
       try {
         const res = await fetch('/api/check-email', {
           method: 'POST',
@@ -36,20 +33,16 @@ export default function SignupForm() {
         const result = await res.json()
         setEmailAvailable(result.available ?? null)
       } catch (err: unknown) {
-        const e = err as Error
-        setError(e.message || '')
+        setError((err as Error).message || '')
         setEmailAvailable(null)
       }
     }, 500)
-
     return () => clearTimeout(delay)
   }, [emailId, emailDomain, customDomain])
 
-  // 닉네임 중복 확인
   useEffect(() => {
     const delay = setTimeout(async () => {
       if (!nickname) return setNicknameAvailable(null)
-
       try {
         const res = await fetch('/api/check-nickname', {
           method: 'POST',
@@ -59,28 +52,19 @@ export default function SignupForm() {
         const result = await res.json()
         setNicknameAvailable(result.available ?? null)
       } catch (err: unknown) {
-        const e = err as Error
-        setError(e.message || '')
+        setError((err as Error).message || '')
         setNicknameAvailable(null)
       }
     }, 500)
-
     return () => clearTimeout(delay)
   }, [nickname])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
-
-    if (password !== confirmPassword) {
-      return setError('비밀번호가 일치하지 않습니다.')
-    }
-    if (emailAvailable === false) {
-      return setError('이미 사용 중인 이메일입니다.')
-    }
-    if (nicknameAvailable === false) {
-      return setError('이미 사용 중인 닉네임입니다.')
-    }
+    if (password !== confirmPassword) return setError('비밀번호가 일치하지 않습니다.')
+    if (emailAvailable === false) return setError('이미 사용 중인 이메일입니다.')
+    if (nicknameAvailable === false) return setError('이미 사용 중인 닉네임입니다.')
 
     setLoading(true)
     try {
@@ -89,7 +73,6 @@ export default function SignupForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, nickname }),
       })
-
       const result = await res.json()
       if (!res.ok) {
         setError(result.error || '회원가입 실패')
@@ -98,15 +81,14 @@ export default function SignupForm() {
         router.push('/login')
       }
     } catch (err: unknown) {
-      const e = err as Error
-      setError(e.message || '네트워크 오류가 발생했습니다.')
+      setError((err as Error).message || '네트워크 오류가 발생했습니다.')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="max-w-md mx-auto mt-12 p-6 bg-white rounded shadow">
+    <div className="max-w-md mx-auto mt-12 p-6 bg-white text-black dark:bg-gray-900 dark:text-white rounded shadow transition-colors">
       <h2 className="text-xl font-bold mb-4 text-center">회원가입</h2>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
@@ -114,7 +96,7 @@ export default function SignupForm() {
           placeholder="닉네임"
           value={nickname}
           onChange={e => setNickname(e.target.value)}
-          className="border p-2 rounded"
+          className="border p-2 rounded bg-white dark:bg-gray-800 text-black dark:text-white"
           required
         />
         {nickname && (
@@ -126,7 +108,6 @@ export default function SignupForm() {
               : '이미 사용 중인 닉네임입니다.'}
           </p>
         )}
-
         <div className="flex gap-2">
           <input
             type="text"
@@ -134,7 +115,7 @@ export default function SignupForm() {
             value={emailId}
             onChange={e => setEmailId(e.target.value)}
             required
-            className="border p-2 rounded w-1/2"
+            className="border p-2 rounded w-1/2 bg-white dark:bg-gray-800 text-black dark:text-white"
           />
           <span className="self-center">@</span>
           {isCustom ? (
@@ -144,7 +125,7 @@ export default function SignupForm() {
               value={customDomain}
               onChange={e => setCustomDomain(e.target.value)}
               required
-              className="border p-2 rounded w-1/2"
+              className="border p-2 rounded w-1/2 bg-white dark:bg-gray-800 text-black dark:text-white"
             />
           ) : (
             <select
@@ -158,7 +139,7 @@ export default function SignupForm() {
                   setEmailDomain(e.target.value)
                 }
               }}
-              className="border p-2 rounded w-1/2"
+              className="border p-2 rounded w-1/2 bg-white dark:bg-gray-800 text-black dark:text-white"
               required
             >
               <option value="">선택</option>
@@ -170,7 +151,6 @@ export default function SignupForm() {
             </select>
           )}
         </div>
-
         {emailId && (emailDomain || customDomain) && (
           <p className={`text-sm ${emailAvailable ? 'text-green-600' : 'text-red-500'}`}>
             {emailAvailable === null
@@ -180,14 +160,13 @@ export default function SignupForm() {
               : '이미 사용 중인 이메일입니다.'}
           </p>
         )}
-
         <input
           type="password"
           placeholder="비밀번호"
           value={password}
           onChange={e => setPassword(e.target.value)}
           required
-          className="border p-2 rounded"
+          className="border p-2 rounded bg-white dark:bg-gray-800 text-black dark:text-white"
         />
         <input
           type="password"
@@ -195,17 +174,15 @@ export default function SignupForm() {
           value={confirmPassword}
           onChange={e => setConfirmPassword(e.target.value)}
           required
-          className="border p-2 rounded"
+          className="border p-2 rounded bg-white dark:bg-gray-800 text-black dark:text-white"
         />
-
         <button
           type="submit"
           disabled={loading}
-          className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:opacity-50"
+          className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white p-2 rounded disabled:opacity-50"
         >
           {loading ? '가입 중...' : '회원가입'}
         </button>
-
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
       </form>
     </div>

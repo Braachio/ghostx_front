@@ -81,18 +81,18 @@ export default function EditMultiForm({ id }: { id: string }) {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-50">
+    <div className="flex justify-center items-center min-h-screen bg-gray-50 dark:bg-gray-900">
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col gap-4 max-w-md w-full p-6 bg-white shadow-md rounded"
+        className="flex flex-col gap-4 max-w-md w-full p-6 bg-white dark:bg-gray-800 shadow-md rounded"
       >
-        <h2 className="text-xl font-bold mb-2 text-center">✏️ 공지 수정</h2>
+        <h2 className="text-xl font-bold mb-2 text-center text-gray-800 dark:text-white">✏️ 공지 수정</h2>
 
         <select
           value={game}
           onChange={(e) => setGame(e.target.value)}
           required
-          className="border p-2 rounded"
+          className="border p-2 rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
         >
           <option value="">게임을 선택하세요</option>
           <option value="컴페티치오네">컴페티치오네</option>
@@ -110,7 +110,7 @@ export default function EditMultiForm({ id }: { id: string }) {
           onChange={(e) => setTitle(e.target.value)}
           maxLength={9}
           required
-          className="border p-2 rounded"
+          className="border p-2 rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
         />
 
         <input
@@ -120,9 +120,9 @@ export default function EditMultiForm({ id }: { id: string }) {
           onChange={(e) => setMultiRace(e.target.value)}
           maxLength={9}
           required
-          className="border p-2 rounded"
+          className="border p-2 rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
         />
-        
+
         <input
           type="text"
           placeholder="클래스 (예: GT3)"
@@ -130,7 +130,7 @@ export default function EditMultiForm({ id }: { id: string }) {
           onChange={(e) => setMultiClass(e.target.value)}
           maxLength={9}
           required
-          className="border p-2 rounded"
+          className="border p-2 rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
         />
 
         <input
@@ -140,10 +140,10 @@ export default function EditMultiForm({ id }: { id: string }) {
           onChange={(e) => setGameTrack(e.target.value)}
           maxLength={9}
           required
-          className="border p-2 rounded"
+          className="border p-2 rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
         />
 
-        <fieldset className="flex flex-wrap gap-2">
+        <fieldset className="flex flex-wrap gap-2 text-gray-800 dark:text-gray-200">
           <legend className="text-sm font-medium">요일</legend>
           {['월', '화', '수', '목', '금', '토', '일'].map((day) => (
             <label key={day} className="text-sm">
@@ -157,22 +157,22 @@ export default function EditMultiForm({ id }: { id: string }) {
           ))}
         </fieldset>
 
-        <label className="text-sm">
+        <label className="text-sm text-gray-800 dark:text-gray-200">
           오픈 시간:
           <input
             type="time"
             value={multiTime}
             onChange={(e) => setMultiTime(e.target.value)}
-            className="border p-2 rounded w-full"
+            className="border p-2 rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           />
         </label>
 
-        <label className="text-sm">
+        <label className="text-sm text-gray-800 dark:text-gray-200">
           주차 선택:
           <select
             value={week}
             onChange={(e) => setWeek(Number(e.target.value))}
-            className="border p-2 rounded w-full"
+            className="border p-2 rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           >
             {Array.from({ length: 5 }, (_, i) => {
               const w = currentWeekInfo.week + i
@@ -191,12 +191,12 @@ export default function EditMultiForm({ id }: { id: string }) {
           placeholder="상세 내용"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="border p-2 rounded h-32"
+          className="border p-2 rounded h-32 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
         />
 
         <button
           type="submit"
-          className="bg-green-600 text-white py-2 rounded hover:bg-green-700"
+          className="bg-green-600 text-white py-2 rounded hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800"
         >
           수정하기
         </button>
