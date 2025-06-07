@@ -32,7 +32,7 @@ export default function WeekFilter({
 
   const options = useMemo(() => {
     return Array.from({ length: maxWeek - minWeek + 1 }, (_, i) => {
-      const w = minWeek + i - 1
+      const w = minWeek + i
       let label = ''
 
       if (year === currentYear && w === currentWeek - 1) label = '저번주'
