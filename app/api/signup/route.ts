@@ -1,3 +1,4 @@
+// ✅ /app/api/signup/route.ts
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
@@ -9,9 +10,9 @@ export async function POST(req: Request) {
     cookies: () => cookieStore,
   })
 
-  const { email, password, nickname } = await req.json()
+  const { email, password } = await req.json()
 
-  // 회원가입
+  // 회원가입 처리
   const {
     data: { user },
     error: signUpError,
@@ -24,17 +25,7 @@ export async function POST(req: Request) {
     )
   }
 
-  // profiles 테이블에 명시적으로 삽입
-  const { error: profileError } = await supabase
-    .from('profiles')
-    .insert([{ id: user.id, email, nickname }])
-
-  if (profileError) {
-    return NextResponse.json(
-      { error: profileError.message || '프로필 저장 실패' },
-      { status: 500 }
-    )
-  }
+  // 프로필은 수동 등록하므로 따로 삽입 X
 
   return NextResponse.json({ success: true })
 }

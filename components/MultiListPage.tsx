@@ -16,13 +16,20 @@ type MultiListPageProps = {
   currentUserId: string | null
 }
 
+function getKoreanWeek(date: Date) {
+  const start = new Date(date.getFullYear(), 0, 1);
+  const diff = (date.getTime() - start.getTime()) / 86400000;
+  const startDay = start.getDay() === 0 ? 7 : start.getDay();
+  const offset = startDay <= 1 ? 0 : 7 - (startDay - 1);
+  return Math.ceil((diff + offset) / 7);
+}
+
 export default function MultiListPage({ currentUserId }: MultiListPageProps) {
   const [multis, setMultis] = useState<Multi[]>([])
   const [selectedGames, setSelectedGames] = useState<string[]>(allGames)
 
   const today = new Date()
-  const oneJan = new Date(today.getFullYear(), 0, 1)
-  const currentWeek = Math.ceil((((+today - +oneJan) / 86400000) + oneJan.getDay() + 1) / 7)
+  const currentWeek = getKoreanWeek(today)
   const todayKoreanWeekday = new Intl.DateTimeFormat('ko-KR', { weekday: 'short' }).format(today)
 
   const [year, setYear] = useState(today.getFullYear())

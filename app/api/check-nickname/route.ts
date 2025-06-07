@@ -1,14 +1,11 @@
-// /api/check-nickname/route.ts
+// /app/api/check-nickname/route.ts
+import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
-import { NextResponse } from 'next/server'
 import type { Database } from '@/lib/database.types'
 
-export async function POST(req: Request) {
-  const supabase = createRouteHandlerClient<Database>({
-    cookies: () => cookies(),
-  })
-
+export async function POST(req: NextRequest) {
+  const supabase = createRouteHandlerClient<Database>({ cookies: () => cookies() })
   const { nickname } = await req.json()
 
   const { data, error } = await supabase
@@ -18,7 +15,8 @@ export async function POST(req: Request) {
     .maybeSingle()
 
   if (error) {
-    return NextResponse.json({ error: '중복 검사 실패' }, { status: 500 })
+    console.error('닉네임 확인 오류:', error.message)
+    return NextResponse.json({ available: null }, { status: 500 })
   }
 
   return NextResponse.json({ available: !data })
