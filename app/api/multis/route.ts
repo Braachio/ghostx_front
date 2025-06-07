@@ -1,11 +1,13 @@
-// 📁 /app/api/multis/route.ts
+// /app/api/multis/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import type { Database } from '@/lib/database.types'
 
 export async function GET(req: NextRequest) {
-  const supabase = createRouteHandlerClient<Database>({ cookies })
+  const supabase = createRouteHandlerClient<Database>({
+    cookies: () => cookies(),
+  })
 
   const start = req.nextUrl.searchParams.get('start')
   const end = req.nextUrl.searchParams.get('end')
@@ -25,14 +27,16 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(data)
 }
 
-export async function POST(req: Request) {
-  const supabase = createRouteHandlerClient<Database>({ cookies })
+export async function POST(req: NextRequest) {
+  const supabase = createRouteHandlerClient<Database>({
+    cookies: () => cookies(),
+  })
+
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
   if (!user) {
-    console.warn('🚫 [WARN] 로그인된 유저 없음')
     return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
   }
 
@@ -42,7 +46,7 @@ export async function POST(req: Request) {
   const oneJan = new Date(now.getFullYear(), 0, 1)
   const currentWeek = Math.ceil((((+now - +oneJan) / 86400000) + oneJan.getDay() + 1) / 7)
 
-  const { error } = await supabase.from('multis').insert({
+  const { error: insertError } = await supabase.from('multis').insert({
     ...body,
     year: now.getFullYear(),
     week: currentWeek,
@@ -50,9 +54,8 @@ export async function POST(req: Request) {
     created_at: now.toISOString(),
   })
 
-  if (error) {
-    console.error('❌ [ERROR] 등록 실패:', error.message)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  if (insertError) {
+    return NextResponse.json({ error: insertError.message }, { status: 500 })
   }
 
   return NextResponse.json({ success: true })
