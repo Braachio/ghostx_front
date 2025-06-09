@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 
 interface MeResponse {
   id: string
-  username: string
+  nickname: string
 }
 
 export default function HomePage() {
@@ -52,7 +52,7 @@ export default function HomePage() {
       {/* 상단 사용자 정보 */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-sm text-gray-600 dark:text-gray-300">
-          {user ? `👤 ${user.username}님 환영합니다` : '🕵 로그인되지 않음'}
+          {user ? `👤 ${user.nickname}님 환영합니다` : '🕵 로그인되지 않음'}
         </h2>
 
         {!user && (
