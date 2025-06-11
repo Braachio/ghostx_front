@@ -1,8 +1,0 @@
-{
-  "cron": [
-    {
-      "path": "/api/register-from-sheet",
-      "schedule": "0 9 * * *"
-    }
-  ]
-}
