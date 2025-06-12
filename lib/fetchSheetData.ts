@@ -1,17 +1,19 @@
+// lib/fetchSheetData.ts
 import { google } from 'googleapis'
-import { JWT } from 'google-auth-library'
-import keys from 'service-account.json' // 상대경로 확인
 
 const SHEET_ID = '1D5eXqqnHDODAeEjyVZf5INmLbG63yaMtufjmhd08R54'
 const RANGE = '세부 일정표!B71:I'
 
-export default async function fetchSheetData() {
+export async function fetchSheetData() {
   const auth = new google.auth.GoogleAuth({
-    credentials: keys,
+    credentials: {
+      client_email: process.env.GOOGLE_CLIENT_EMAIL,
+      private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    },
     scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
   })
 
-  const client = (await auth.getClient()) as JWT
+  const client = await auth.getClient()
   const sheets = google.sheets({ version: 'v4', auth: client })
 
   const res = await sheets.spreadsheets.values.get({
@@ -24,12 +26,12 @@ export default async function fetchSheetData() {
 
   return rows.map(([일자, 요일, 시간, 게임, 서킷, 클래스, 레이스, 공지]) => ({
     date: 일자,
-    day: 요일,
-    time: 시간,
+    multiDay: 요일,
+    multiTime: 시간,
     game: 게임,
-    track: 서킷,
-    class: 클래스,
-    race: 레이스,
-    notice: 공지,
+    gameTrack: 서킷,
+    multiClass: 클래스,
+    multiRace: 레이스,
+    description: 공지,
   }))
 }

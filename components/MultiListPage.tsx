@@ -1,4 +1,3 @@
-// ✅ 다크모드 + 이번주 디폴트 적용된 전체 코드
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -6,11 +5,18 @@ import MultiCard from './MultiCard'
 import type { Database } from '@/lib/database.types'
 import { getWeekRange, getCurrentWeekNumber } from '@/app/utils/dateUtils'
 import WeekFilter from './WeekFilter'
+import Link from 'next/link'
 
 const daysOfWeek = ['월', '화', '수', '목', '금', '토', '일']
 const allGames = ['컴페티치오네', '아세토코르사', '그란투리스모7', '르망얼티밋','EA WRC', '아이레이싱', '알펙터2']
 
 type Multi = Database['public']['Tables']['multis']['Row']
+type GameNotice = {
+  id: string
+  game: string
+  title: string
+  content: string
+}
 
 type MultiListPageProps = {
   currentUserId: string | null
@@ -19,6 +25,7 @@ type MultiListPageProps = {
 export default function MultiListPage({ currentUserId }: MultiListPageProps) {
   const [multis, setMultis] = useState<Multi[]>([])
   const [selectedGames, setSelectedGames] = useState<string[]>(allGames)
+  const [gameNotices, setGameNotices] = useState<GameNotice[]>([])
 
   const current = getCurrentWeekNumber()
   const [year, setYear] = useState(current.year)
@@ -34,6 +41,13 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
       setMultis(data)
     }
     fetchMultis()
+
+    const fetchNotices = async () => {
+      const res = await fetch('/api/game-notices')
+      const data = await res.json()
+      setGameNotices(data)
+    }
+    fetchNotices()
   }, [])
 
   const toggleGameSelection = (game: string) => {
@@ -90,35 +104,65 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
       </div>
 
       {/* 게임 별 요일 가능 공지 */}
-      {Object.entries(groupedByGame).map(([game, gameMultis]) => (
-        <div key={game} className="mb-10 border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-900 shadow-sm">
-          <h2 className="text-xl font-bold mb-3">{game}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 overflow-x-auto">
-            {daysOfWeek.map((day, i) => {
-              const isToday = day === todayKoreanWeekday
-              const dateObj = new Date(startDate)
-              dateObj.setDate(startDate.getDate() + i)
-              const dateStr = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`
-              return (
-                <div key={day} className="min-w-[150px]">
-                  <div
-                    className={`text-center font-semibold border-b pb-1 mb-2
-                      ${isToday ? 'border-none bg-green-50 dark:bg-green-900 dark:text-green-300 rounded' : ''}
-                      ${day === '일' ? 'text-red-500' : day === '토' ? 'text-blue-500' : ''}`}
-                  >
-                    {day} ({dateStr})
+      {Object.entries(groupedByGame).map(([game, gameMultis]) => {
+        const notice = gameNotices.find(n => n.game === game)
+
+        return (
+          <div key={game} className="mb-10 border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-900 shadow-sm">
+            <h2 className="text-xl font-bold mb-3">{game}</h2>
+
+            {notice && (
+              <div className="mb-4 p-3 border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-900 dark:text-white rounded">
+                <Link href={`/game-notice/${notice.id}`}>
+                  <h3 className="font-bold">{notice.title}</h3>
+                </Link>
+                <p className="text-sm whitespace-pre-wrap">
+                  {notice.content.split(/(https?:\/\/[^\s]+)/g).map((part, idx) =>
+                    part.match(/^https?:\/\/[^\s]+$/) ? (
+                      <a
+                        key={idx}
+                        href={part}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline text-blue-600 dark:text-blue-300"
+                      >
+                        {part}
+                      </a>
+                    ) : (
+                      part
+                    )
+                  )}
+                </p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 overflow-x-auto">
+              {daysOfWeek.map((day, i) => {
+                const isToday = day === todayKoreanWeekday
+                const dateObj = new Date(startDate)
+                dateObj.setDate(startDate.getDate() + i)
+                const dateStr = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`
+                return (
+                  <div key={day} className="min-w-[150px]">
+                    <div
+                      className={`text-center font-semibold border-b pb-1 mb-2
+                        ${isToday ? 'border-none bg-green-50 dark:bg-green-900 dark:text-green-300 rounded' : ''}
+                        ${day === '일' ? 'text-red-500' : day === '토' ? 'text-blue-500' : ''}`}
+                    >
+                      {day} ({dateStr})
+                    </div>
+                    <div className="space-y-3">
+                      {gameMultis.filter(m => m.multi_day.includes(day)).map(m => (
+                        <MultiCard key={m.id} multi={m} currentUserId={currentUserId} />
+                      ))}
+                    </div>
                   </div>
-                  <div className="space-y-3">
-                    {gameMultis.filter(m => m.multi_day.includes(day)).map(m => (
-                      <MultiCard key={m.id} multi={m} currentUserId={currentUserId} />
-                    ))}
-                  </div>
-                </div>
-              )
-            })}
+                )
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        )
+      })}
 
       {filtered.length === 0 && (
         <p className="text-gray-500 dark:text-gray-400 mt-6">
