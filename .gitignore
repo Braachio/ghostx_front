@@ -41,5 +41,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-google-credentials.json"service-account.json" 
-service-account.json
+"service-account.json"
+"lib/google-credentials.json" 
