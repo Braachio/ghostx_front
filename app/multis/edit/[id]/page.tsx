@@ -1,10 +1,9 @@
 import EditMultiForm from '@/components/EditMultiForm'
 
-interface PageProps {
+export default function EditMultiPage({
+  params,
+}: {
   params: { id: string }
-}
-
-export default function EditMultiPage({ params }: PageProps) {
-  const { id } = params
-  return <EditMultiForm id={id} />
+}) {
+  return <EditMultiForm id={params.id} />
 }
