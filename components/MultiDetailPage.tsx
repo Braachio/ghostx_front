@@ -8,14 +8,9 @@ function linkify(text: string): JSX.Element[] {
   const urlRegex = /(https?:\/\/[^\s]+)/g
   const parts = text.split(urlRegex)
 
-<<<<<<< HEAD
-  return parts.map((part, index) =>
-    urlRegex.test(part) ? (
-=======
   return parts.map((part, index) => {
     urlRegex.lastIndex = 0
     return urlRegex.test(part) ? (
->>>>>>> 58233e0 (Add root layout for Next.js app directory)
       <a
         key={index}
         href={part}
@@ -28,11 +23,7 @@ function linkify(text: string): JSX.Element[] {
     ) : (
       <span key={index}>{part}</span>
     )
-<<<<<<< HEAD
-  )
-=======
   })
->>>>>>> 58233e0 (Add root layout for Next.js app directory)
 }
 
 interface Multi {
