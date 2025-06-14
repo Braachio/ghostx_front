@@ -38,6 +38,7 @@ export type Database = {
       }
       multis: {
         Row: {
+          link: string | null
           author_id: string | null
           created_at: string | null
           description: string | null

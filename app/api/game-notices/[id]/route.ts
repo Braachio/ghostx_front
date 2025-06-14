@@ -1,14 +1,24 @@
-// app/api/game-notices/[id]/route.ts
-import { createClient } from '@supabase/supabase-js'
 import { NextRequest } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+
+// 타입 명시 추가
+type RouteContext = {
+  params: {
+    id: string
+  }
+}
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params
+export async function GET(req: NextRequest, context: RouteContext) {
+  const id = context.params.id
+
+  if (!id || id === 'undefined') {
+    return new Response(JSON.stringify({ error: 'Invalid ID' }), { status: 400 })
+  }
 
   const { data, error } = await supabase
     .from('game_notices')
@@ -16,31 +26,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     .eq('id', id)
     .single()
 
-  if (error) return new Response(JSON.stringify({ error }), { status: 500 })
-  return new Response(JSON.stringify(data), { status: 200 })
-}
+  if (error) {
+    console.error('GET error:', error)
+    return new Response(JSON.stringify({ error: error.message }), { status: 500 })
+  }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params
-  const { title, content } = await req.json()
-
-  const { error } = await supabase
-    .from('game_notices')
-    .update({ title, content })
-    .eq('id', id)
-
-  if (error) return new Response(JSON.stringify({ error }), { status: 500 })
-  return new Response(JSON.stringify({ success: true }), { status: 200 })
-}
-
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params
-
-  const { error } = await supabase
-    .from('game_notices')
-    .delete()
-    .eq('id', id)
-
-  if (error) return new Response(JSON.stringify({ error }), { status: 500 })
-  return new Response(JSON.stringify({ success: true }), { status: 200 })
+  return new Response(JSON.stringify(data), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  })
 }

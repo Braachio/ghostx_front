@@ -18,10 +18,10 @@ export default function CreateMultiForm() {
   const [multiClass, setMultiClass] = useState('')
   const [multiDay, setMultiDay] = useState<string[]>([])
   const [multiTime, setMultiTime] = useState('')
-  const [description, setDescription] = useState('')
   const currentWeekInfo = getCurrentWeekNumber()
   const [week, setWeek] = useState<number>(currentWeekInfo.week)
   const [year] = useState<number>(currentWeekInfo.year)
+  const [link, setLink] = useState('')
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data, error }) => {
@@ -52,7 +52,7 @@ export default function CreateMultiForm() {
       multi_class: multiClass,
       multi_day: multiDay,
       multi_time: multiTime,
-      description,
+      link,
       year,
       week,
       author_id: userId,
@@ -175,11 +175,12 @@ export default function CreateMultiForm() {
           </select>
         </label>
 
-        <textarea
-          placeholder="상세 내용"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="border p-2 rounded h-32 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+        <input
+          type="url"
+          placeholder="공지 링크 입력 (예: https://example.com)"
+          value={link}
+          onChange={(e) => setLink(e.target.value)}
+          className="w-full border p-2 rounded"
         />
 
         <button

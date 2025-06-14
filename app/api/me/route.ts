@@ -4,14 +4,13 @@ import { NextResponse } from 'next/server'
 import type { Database } from '@/lib/database.types'
 
 export async function GET() {
-  const cookieStore = cookies() // ❗ `cookies()`는 여전히 동기처럼 사용해도 됩니다 (Next.js v14 기준)
   const supabase = createRouteHandlerClient<Database>({
-    cookies: () => cookieStore,
+    cookies: cookies, // ✅ 함수 자체를 넘김 (이렇게만 바꿔도 깔끔함)
   })
 
-  const userResponse = await supabase.auth.getUser()
-
-  const user = userResponse.data.user
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   if (!user) {
     return NextResponse.json({ user: null }, { status: 401 })

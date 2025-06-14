@@ -42,10 +42,21 @@ export default function MultiCard({
         ${isOpen ? 'border-green-400' : 'border-gray-300'}
         bg-white text-black dark:bg-gray-900 dark:text-white dark:border-gray-700`}
     >
-      {/* 제목 */}
-      <Link href={`/multis/${multi.id}`}>
-        <h2 className="text-lg font-semibold hover:underline mb-2">{multi.title}</h2>
-      </Link>
+      {/* 제목: 외부 링크가 있으면 <a>, 없으면 <Link> */}
+      {multi.link ? (
+        <a
+          href={multi.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-lg font-semibold hover:underline mb-2 block"
+        >
+          {multi.title}
+        </a>
+      ) : (
+        <Link href={`/multis/${multi.id}`}>
+          <h2 className="text-lg font-semibold hover:underline mb-2">{multi.title}</h2>
+        </Link>
+      )}
 
       {/* 오픈 시간 + ON/OFF 버튼 */}
       <div className="flex items-center justify-between mb-2">

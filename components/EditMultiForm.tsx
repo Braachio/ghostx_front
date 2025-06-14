@@ -4,45 +4,67 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getCurrentWeekNumber, getWeekRange } from '@/app/utils/dateUtils'
 
+type MultisType = {
+  title: string
+  game: string
+  multi_race: string
+  multi_class: string
+  game_track: string
+  multi_day: string[]
+  multi_time: string
+  description: string
+  link: string
+  year: number
+  week: number
+}
+
 export default function EditMultiForm({ id }: { id: string }) {
   const router = useRouter()
   const currentWeekInfo = getCurrentWeekNumber()
 
   const [title, setTitle] = useState('')
-  const [gameTrack, setGameTrack] = useState('')
   const [game, setGame] = useState('')
   const [multiRace, setMultiRace] = useState('')
   const [multiClass, setMultiClass] = useState('')
+  const [gameTrack, setGameTrack] = useState('')
   const [multiDay, setMultiDay] = useState<string[]>([])
   const [multiTime, setMultiTime] = useState('')
   const [description, setDescription] = useState('')
+  const [link, setLink] = useState('')
   const [year, setYear] = useState(currentWeekInfo.year)
   const [week, setWeek] = useState(currentWeekInfo.week)
 
   useEffect(() => {
     const fetchNotice = async () => {
-      const res = await fetch(`/api/multis/${id}`)
-      const json = await res.json()
-      const data = json.data
+      try {
+        const res = await fetch(`/api/multis/${id}`)
+        if (!res.ok) throw new Error('❌ 데이터 불러오기 실패')
 
-      setTitle(data.title)
-      setGame(data.game)
-      setMultiRace(data.multi_race)
-      setMultiClass(data.multi_class)
-      setMultiDay(data.multi_day || [])
-      setMultiTime(data.multi_time || '')
-      setDescription(data.description || '')
-      setGameTrack(data.game_track || '')
-      setYear(data.year || currentWeekInfo.year)
-      setWeek(data.week || currentWeekInfo.week)
+        const json = await res.json()
+        const data = (json.data ?? json) as MultisType
+
+        setTitle(data.title ?? '')
+        setGame(String(data.game ?? ''))
+        setMultiRace(data.multi_race ?? '')
+        setMultiClass(data.multi_class ?? '')
+        setGameTrack(data.game_track ?? '')
+        setMultiDay(data.multi_day ?? [])
+        setMultiTime(data.multi_time ?? '')
+        setDescription(data.description ?? '')
+        setLink(data.link ?? '')
+        setYear(data.year ?? currentWeekInfo.year)
+        setWeek(data.week ?? currentWeekInfo.week)
+      } catch (error) {
+        console.error('공지 불러오기 실패:', error)
+      }
     }
 
     fetchNotice()
-  }, [currentWeekInfo.week, currentWeekInfo.year, id])
+  }, [currentWeekInfo, id])
 
   const handleDayChange = (day: string) => {
-    setMultiDay(prev =>
-      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
+    setMultiDay((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
     )
   }
 
@@ -50,7 +72,7 @@ export default function EditMultiForm({ id }: { id: string }) {
     e.preventDefault()
     const access_token = localStorage.getItem('access_token')
 
-    const body = {
+    const body: MultisType = {
       title,
       game,
       multi_race: multiRace,
@@ -61,6 +83,7 @@ export default function EditMultiForm({ id }: { id: string }) {
       game_track: gameTrack,
       year,
       week,
+      link,
     }
 
     const res = await fetch(`/api/multis/${id}`, {
@@ -74,7 +97,7 @@ export default function EditMultiForm({ id }: { id: string }) {
 
     if (res.ok) {
       alert('수정 완료!')
-      router.push('/multis')
+      router.push('/myposts')
     } else {
       alert('수정 실패')
     }
@@ -86,7 +109,9 @@ export default function EditMultiForm({ id }: { id: string }) {
         onSubmit={handleSubmit}
         className="flex flex-col gap-4 max-w-md w-full p-6 bg-white dark:bg-gray-800 shadow-md rounded"
       >
-        <h2 className="text-xl font-bold mb-2 text-center text-gray-800 dark:text-white">✏️ 공지 수정</h2>
+        <h2 className="text-xl font-bold mb-2 text-center text-gray-800 dark:text-white">
+          ✏️ 공지 수정
+        </h2>
 
         <select
           value={game}
@@ -187,11 +212,12 @@ export default function EditMultiForm({ id }: { id: string }) {
           </select>
         </label>
 
-        <textarea
-          placeholder="상세 내용"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="border p-2 rounded h-32 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+        <input
+          type="url"
+          placeholder="공지 링크 (선택)"
+          value={link}
+          onChange={(e) => setLink(e.target.value)}
+          className="border p-2 rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
         />
 
         <button

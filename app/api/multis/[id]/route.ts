@@ -3,16 +3,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
-import { Database } from '@/lib/database.types'
+import type { Database } from '@/lib/database.types'
 
-// 경로에서 ID 추출하는 유틸 함수
 function extractIdFromUrl(req: NextRequest): string | null {
   const urlParts = req.nextUrl.pathname.split('/')
   return urlParts[urlParts.length - 1] || null
 }
 
 export async function GET(req: NextRequest) {
-  const supabase = createRouteHandlerClient<Database>({ cookies: () => cookies() })
+  const supabase = createRouteHandlerClient<Database>({ cookies }) // ✅ 여기만 변경
   const id = extractIdFromUrl(req)
   if (!id) return NextResponse.json({ error: 'ID가 없습니다.' }, { status: 400 })
 
@@ -25,11 +24,11 @@ export async function GET(req: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   if (!data) return NextResponse.json({ error: '찾을 수 없습니다.' }, { status: 404 })
 
-  return NextResponse.json({ data })
+  return NextResponse.json(data)
 }
 
 export async function PATCH(req: NextRequest) {
-  const supabase = createRouteHandlerClient<Database>({ cookies: () => cookies() })
+  const supabase = createRouteHandlerClient<Database>({ cookies }) // ✅
   const id = extractIdFromUrl(req)
   if (!id) return NextResponse.json({ error: 'ID가 없습니다.' }, { status: 400 })
 
@@ -51,11 +50,11 @@ export async function PATCH(req: NextRequest) {
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ data })
+  return NextResponse.json(data)
 }
 
 export async function DELETE(req: NextRequest) {
-  const supabase = createRouteHandlerClient<Database>({ cookies: () => cookies() })
+  const supabase = createRouteHandlerClient<Database>({ cookies }) // ✅
   const id = extractIdFromUrl(req)
   if (!id) return NextResponse.json({ error: 'ID가 없습니다.' }, { status: 400 })
 
@@ -70,5 +69,6 @@ export async function DELETE(req: NextRequest) {
 
   const { error } = await supabase.from('multis').delete().eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
   return NextResponse.json({ success: true })
 }

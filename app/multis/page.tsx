@@ -45,6 +45,15 @@ export default function MultisPage() {
               <button className="px-4 py-2 bg-blue-600 text-white rounded">공지 등록</button>
             </Link>
           )}
+
+          {user && (
+            <Link href="/myposts">
+              <button className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800">
+              내 게시글 관리
+              </button>
+            </Link>
+          )}
+          
           <Link href="/">
             <button className="px-4 py-2 bg-gray-500 text-white rounded">홈으로</button>
           </Link>

@@ -1,17 +1,20 @@
-// app/layout.tsx
+'use client'
+
+import { useState } from 'react'
+import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs'
+import { SessionContextProvider } from '@supabase/auth-helpers-react'
+import type { Database } from '@/lib/database.types'
 import './globals.css'
-import { ReactNode } from 'react'
 
-export const metadata = {
-  title: 'Sim Racing Events',
-  description: 'Time trial event platform for sim racers',
-}
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const [supabase] = useState(() => createBrowserSupabaseClient<Database>())
 
-export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ko">
-      <body className="bg-white text-black dark:bg-gray-900 dark:text-white transition-colors duration-300">
-        {children}
+      <body>
+        <SessionContextProvider supabaseClient={supabase}>
+          {children}
+        </SessionContextProvider>
       </body>
     </html>
   )
