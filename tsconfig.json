@@ -12,16 +12,15 @@
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
-    "module": "commonjs",
-    "moduleResolution": "Node",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
     "types": [
-      "node",
-      "jest"
-    ], 
+      "node"
+    ], // ✅ 추가
     "plugins": [
       {
         "name": "next"
@@ -38,7 +37,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "sheet-cron-app/server.ts"  ],
+    "lib/supabase.js"
+  ],
   "exclude": [
     "node_modules"
   ]

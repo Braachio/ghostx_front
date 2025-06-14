@@ -1,9 +1,30 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { JSX, useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import linkify from '@/lib/linkify'
+
+function linkify(text: string): JSX.Element[] {
+  const urlRegex = /(https?:\/\/[^\s]+)/g
+  const parts = text.split(urlRegex)
+
+  return parts.map((part, index) => {
+    urlRegex.lastIndex = 0
+    return urlRegex.test(part) ? (
+      <a
+        key={index}
+        href={part}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-blue-600 underline break-all dark:text-blue-400"
+      >
+        {part}
+      </a>
+    ) : (
+      <span key={index}>{part}</span>
+    )
+  })
+}
 
 interface Multi {
   id: number

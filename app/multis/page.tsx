@@ -40,12 +40,9 @@ export default function MultisPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">📢 공지 모음</h1>
         <div className="space-x-2">
-          <Link href="/multis/notice">
-              <button className="px-4 py-2 bg-blue-600 text-white rounded">공지 등록</button>
-          </Link>
           {user && (
             <Link href="/multis/new">
-              <button className="px-4 py-2 bg-blue-600 text-white rounded">일정 등록</button>
+              <button className="px-4 py-2 bg-blue-600 text-white rounded">공지 등록</button>
             </Link>
           )}
           <Link href="/">
