@@ -1,10 +1,13 @@
 // app/multis/edit/[id]/page.tsx
 import EditMultiForm from '@/components/EditMultiForm'
 
-interface PageProps {
-  params: { id: string }
+type Props = {
+  params: {
+    id: string
+  }
 }
 
-export default function Page({ params }: PageProps) {
-  return <EditMultiForm id={params.id} />
+export default function Page(props: Props) {
+  const { id } = props.params
+  return <EditMultiForm id={id} />
 }
