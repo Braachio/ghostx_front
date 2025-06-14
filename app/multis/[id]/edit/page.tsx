@@ -1,11 +1,12 @@
+// /app/multis/[id]/edit/page.tsx
+'use client'
+
+import { useParams } from 'next/navigation'
 import EditMultiForm from '@/components/EditMultiForm'
 
-interface PageProps {
-  params: {
-    id: string
-  }
-}
+export default function EditMultiPage() {
+  const params = useParams()
+  const id = params?.id as string
 
-export default function EditMultiPage({ params }: PageProps) {
-  return <EditMultiForm id={params.id} />
+  return <EditMultiForm id={id} />
 }
