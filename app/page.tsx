@@ -82,6 +82,12 @@ export default function HomePage() {
             공지 모음
           </button>
         </Link>
+
+        <Link href="/upload-id">
+          <button className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800">
+            주행 데이터 분석하기
+          </button>
+        </Link>
       </div>
     </div>
   )
