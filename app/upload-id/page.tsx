@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs'
 import type { Database } from '@/lib/database.types'
@@ -53,7 +54,14 @@ export default function UploadIdPage() {
 
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-6">
-      <h2 className="text-2xl font-bold">📂 MoTeC CSV 업로드 분석</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">📂 MoTeC CSV 업로드 분석</h2>
+        <Link href="/">
+            <button className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 transition">
+                홈으로
+            </button>
+        </Link>
+      </div>
 
       <div>
         <input
