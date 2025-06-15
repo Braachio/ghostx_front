@@ -55,7 +55,21 @@ export default function UploadIdPage() {
     <div className="p-6 max-w-3xl mx-auto space-y-6">
       <h2 className="text-2xl font-bold">📂 MoTeC CSV 업로드 분석</h2>
 
-      <input type="file" accept=".csv" onChange={handleUpload} />
+      <div>
+        <input
+            id="csv-upload"
+            type="file"
+            accept=".csv"
+            onChange={handleUpload}
+            className="hidden"
+        />
+        <label
+            htmlFor="csv-upload"
+            className="inline-block px-2.5 py-0.8 bg-blue-600 text-white rounded-xl cursor-pointer hover:bg-blue-700 transition"
+        >
+            📂 CSV 파일 선택
+        </label>
+      </div>
 
       {/* ✅ 안내 문구 */}
       <div className="bg-blue-50 dark:bg-gray-800 p-4 rounded-xl border border-blue-200 dark:border-gray-600">
