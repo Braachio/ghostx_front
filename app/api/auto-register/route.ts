@@ -1,7 +1,7 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies as getCookies } from 'next/headers'
 import { NextResponse } from 'next/server'
-import { parseCsvDateToWeek } from '@/lib/dateParser'
+import { parseCsvDateToWeek } from 'lib/dateParser'
 
 export async function POST(req: Request) {
   const supabase = createRouteHandlerClient({ cookies: getCookies })
