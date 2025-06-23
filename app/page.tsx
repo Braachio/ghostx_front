@@ -56,7 +56,7 @@ export default function HomePage() {
         {/* 상단 */}
         <div className="flex justify-between items-center border-b pb-4 border-gray-300 dark:border-gray-700">
           <div>
-            <h1 className="text-3xl font-bold mb-1">🏎️ 심레이싱 데이터 서비스</h1>
+            <h1 className="text-3xl font-bold mb-1">심레이싱 데이터 서비스</h1>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               실제 데이터를 바탕으로 나만의 주행 분석을 시작해보세요.
             </p>
