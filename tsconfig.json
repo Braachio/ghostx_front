@@ -38,7 +38,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "lib/supabase.js"
-  ],
+, "app/api/auto-register"  ],
   "exclude": [
     "node_modules"
   ]
