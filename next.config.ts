@@ -1,4 +1,4 @@
-/** @type {import('next').NextConfig} */
+// ✅ 올바른 설정
 const nextConfig = {
   env: {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -8,4 +8,4 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig
+export default nextConfig // ✅ 이것만 남기기

@@ -91,23 +91,32 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
 
       {/* 게임 별 요일 가능 공지 */}
       {Object.entries(groupedByGame).map(([game, gameMultis]) => (
-        <div key={game} className="mb-10 border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-900 shadow-sm">
+        <div
+          key={game}
+          className="mb-10 border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-900 shadow-sm"
+        >
           <h2 className="text-xl font-bold mb-3">{game}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 overflow-x-auto">
+          {/* 반응형 그리드: 모바일 1열, 태블릿 2열, PC는 7열 */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
             {daysOfWeek.map((day, i) => {
               const isToday = day === todayKoreanWeekday
               const dateObj = new Date(startDate)
               dateObj.setDate(startDate.getDate() + i)
               const dateStr = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`
               return (
-                <div key={day} className="min-w-[150px]">
+                <div
+                  key={day}
+                  className="min-w-0 sm:min-w-[150px] flex flex-col"
+                >
+                  {/* 요일 헤더 */}
                   <div
-                    className={`text-center font-semibold border-b pb-1 mb-2
+                    className={`text-center text-sm font-semibold border-b pb-1 mb-2
                       ${isToday ? 'border-none bg-green-50 dark:bg-green-900 dark:text-green-300 rounded' : ''}
                       ${day === '일' ? 'text-red-500' : day === '토' ? 'text-blue-500' : ''}`}
                   >
                     {day} ({dateStr})
                   </div>
+                  {/* 공지 카드 리스트 */}
                   <div className="space-y-3">
                     {gameMultis.filter(m => m.multi_day.includes(day)).map(m => (
                       <MultiCard key={m.id} multi={m} currentUserId={currentUserId} />
@@ -119,6 +128,7 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
           </div>
         </div>
       ))}
+
 
       {filtered.length === 0 && (
         <p className="text-gray-500 dark:text-gray-400 mt-6">

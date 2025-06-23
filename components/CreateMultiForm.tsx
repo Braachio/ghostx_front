@@ -23,16 +23,14 @@ export default function CreateMultiForm() {
   const [year] = useState<number>(currentWeekInfo.year)
   const [link, setLink] = useState('')
 
+  const [anonymousNickname, setAnonymousNickname] = useState('')
+  const [anonymousPassword, setAnonymousPassword] = useState('')
+
   useEffect(() => {
-    supabase.auth.getUser().then(({ data, error }) => {
-      if (error || !data.user) {
-        alert('로그인이 필요합니다.')
-        router.push('/login')
-      } else {
-        setUserId(data.user.id)
-      }
+    supabase.auth.getUser().then(({ data }) => {
+      setUserId(data.user?.id ?? null)
     })
-  }, [router, supabase.auth])
+  }, [supabase])
 
   const handleDayChange = (day: string) => {
     setMultiDay(prev =>
@@ -42,7 +40,14 @@ export default function CreateMultiForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!userId) return
+
+    // 익명 사용자의 경우 유효성 검증
+    if (!userId) {
+      if (!anonymousNickname || !/^\d{4}$/.test(anonymousPassword)) {
+        alert('닉네임과 4자리 숫자 비밀번호를 입력해주세요.')
+        return
+      }
+    }
 
     const { error } = await supabase.from('multis').insert({
       title,
@@ -56,13 +61,15 @@ export default function CreateMultiForm() {
       year,
       week,
       author_id: userId,
+      anonymous_nickname: userId ? null : anonymousNickname,
+      anonymous_password: userId ? null : anonymousPassword,
       created_at: new Date().toISOString(),
     })
 
     if (error) {
       alert(`등록 실패: ${error.message}`)
     } else {
-      alert('멀티 공지 등록 완료!')
+      alert('✅ 멀티 공지 등록 완료!')
       router.push('/multis')
     }
   }
@@ -74,6 +81,30 @@ export default function CreateMultiForm() {
         className="flex flex-col gap-4 max-w-md w-full p-6 bg-white dark:bg-gray-800 shadow-md rounded"
       >
         <h2 className="text-xl font-bold mb-2 text-center text-gray-800 dark:text-white">📢 새 공지 등록</h2>
+
+        {!userId && (
+          <>
+            <input
+              type="text"
+              placeholder="닉네임 (익명 작성 시)"
+              value={anonymousNickname}
+              onChange={(e) => setAnonymousNickname(e.target.value)}
+              maxLength={10}
+              required
+              className="border p-2 rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            />
+            <input
+              type="password"
+              placeholder="숫자 비밀번호 (4자리)"
+              value={anonymousPassword}
+              onChange={(e) => setAnonymousPassword(e.target.value)}
+              pattern="\d{4}"
+              title="숫자 4자리 입력"
+              required
+              className="border p-2 rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            />
+          </>
+        )}
 
         <select
           value={game}
@@ -180,7 +211,7 @@ export default function CreateMultiForm() {
           placeholder="공지 링크 입력 (예: https://example.com)"
           value={link}
           onChange={(e) => setLink(e.target.value)}
-          className="w-full border p-2 rounded"
+          className="w-full border p-2 rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
         />
 
         <button
