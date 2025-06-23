@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { useSupabaseClient } from '@supabase/auth-helpers-react'
 
 interface MeResponse {
   id: string
@@ -11,6 +12,12 @@ interface MeResponse {
 export default function HomePage() {
   const [user, setUser] = useState<MeResponse | null>(null)
   const [views, setViews] = useState<number | null>(null)
+  const supabase = useSupabaseClient()
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    location.reload()  // 또는 router.push('/login')
+  }
 
   useEffect(() => {
     const loadUserAndViews = async () => {
@@ -57,9 +64,17 @@ export default function HomePage() {
 
           <div>
             {user ? (
-              <span className="text-sm text-green-600 dark:text-green-400">
-                👤 {user.nickname}님 환영합니다
-              </span>
+              <div className="flex items-center space-x-3">
+                <span className="text-sm text-green-600 dark:text-green-400">
+                  👤 {user.nickname}님 환영합니다
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="text-sm px-2 py-1 bg-red-500 text-white rounded hover:bg-gray-600 transition"
+                >
+                  로그아웃
+                </button>
+              </div>              
             ) : (
               <div className="flex space-x-2">
                 <Link
