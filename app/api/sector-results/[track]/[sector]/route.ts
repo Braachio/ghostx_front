@@ -1,20 +1,26 @@
 // app/api/sector-results/[track]/[sector]/route.ts
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET(
-  req: Request,
-  { params }: { params: { track: string; sector: string } }
-) {
+export async function GET(req: NextRequest) {
   const supabase = createRouteHandlerClient({ cookies })
-  const { track, sector } = params
+
+  // Extract dynamic params from the URL
+  const pathSegments = req.nextUrl.pathname.split('/')
+  const track = decodeURIComponent(pathSegments[pathSegments.length - 2])
+  const sectorStr = pathSegments[pathSegments.length - 1]
+  const sector = parseInt(sectorStr)
+
+  if (isNaN(sector)) {
+    return NextResponse.json({ error: 'Invalid sector number' }, { status: 400 })
+  }
 
   const { data, error } = await supabase
     .from('sector_results')
     .select('*')
     .eq('track', track)
-    .eq('sector', parseInt(sector)) // sector는 number로 저장되었으므로
+    .eq('sector', sector)
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
