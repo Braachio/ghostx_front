@@ -80,6 +80,7 @@ export default function UploadIdPage() {
     fetchUserAndLaps()
   }, [])
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getSummaryStats = (segment: any[]) => {
     const duration = segment.at(-1)?.time - segment[0]?.time || 0
     const speeds = segment.map((d) => d.speed).filter((v) => v !== undefined && !isNaN(v))
