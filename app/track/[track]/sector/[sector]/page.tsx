@@ -1,14 +1,11 @@
 // app/track/[track]/sector/[sector]/page.tsx
 import SectorRanking from '@/components/SectorRanking'
 
-interface PageProps {
-  params: {
-    track: string
-    sector: string
-  }
-}
-
-export default async function SectorPage({ params }: PageProps) {
+export default async function SectorPage({
+  params,
+}: {
+  params: { track: string; sector: string }
+}) {
   const { track, sector } = params
   const sectorNumber = parseInt(sector, 10)
 
