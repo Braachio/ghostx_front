@@ -1,5 +1,3 @@
-// UploadIdPage.tsx
-
 'use client'
 
 import Link from 'next/link'
@@ -9,6 +7,7 @@ import type { Database } from '@/lib/database.types'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
+import { PostgrestResponse } from '@supabase/supabase-js'
 
 interface StyleReport {
   user_id: string
@@ -37,22 +36,62 @@ interface ResultType {
   style_report?: StyleReport
 }
 
+interface LapMeta {
+  id: string
+  user_id: string
+  track: string
+  car: string
+  created_at: string
+  hash: string
+}
+
 export default function UploadIdPage() {
   const [message, setMessage] = useState('')
   const [result, setResult] = useState<ResultType | null>(null)
   const [userId, setUserId] = useState<string>('')
+  const [lapList, setLapList] = useState<LapMeta[]>([])
+  const [selectedLapId, setSelectedLapId] = useState<string>('')
+  const [xAxisKey, setXAxisKey] = useState<'time' | 'distance'>('time') // ✅ 토글 상태
+  const [selectedSegmentIndex, setSelectedSegmentIndex] = useState<number>(0)
+
+  const toggleXAxis = () => {
+    setXAxisKey(prev => (prev === 'time' ? 'distance' : 'time'))
+  }
 
   const supabase = createPagesBrowserClient<Database>()
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const { data } = await supabase.auth.getUser()
-      if (data?.user?.id) {
-        setUserId(data.user.id)
+    const fetchUserAndLaps = async () => {
+      const { data: userData } = await supabase.auth.getUser()
+      if (userData?.user?.id) {
+        const uid = userData.user.id
+        setUserId(uid)
+
+        const { data: laps } = await supabase
+          .from('lap_meta')
+          .select('*')
+          .eq('user_id', uid)
+          .order('created_at', { ascending: false }) as PostgrestResponse<LapMeta>
+
+        if (laps) setLapList(laps)
       }
     }
-    fetchUser()
+
+    fetchUserAndLaps()
   }, [])
+
+  const getSummaryStats = (segment: any[]) => {
+    const duration = segment.at(-1)?.time - segment[0]?.time || 0
+    const speeds = segment.map((d) => d.speed).filter((v) => v !== undefined && !isNaN(v))
+    const maxSpeed = Math.max(...speeds)
+    const minSpeed = Math.min(...speeds)
+
+    return {
+      duration: duration.toFixed(2), // 초 단위
+      maxSpeed: maxSpeed.toFixed(1),
+      minSpeed: minSpeed.toFixed(1),
+    }
+  }
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -74,7 +113,17 @@ export default function UploadIdPage() {
         method: 'POST',
         body: formData,
       })
+
       const data = await res.json()
+      if (!res.ok) {
+        if (res.status === 409 && data?.error?.includes("중복된 랩")) {
+          setMessage('❌ 중복된 랩 데이터입니다.')
+        } else {
+          setMessage(`❌ 에러: ${data?.error || '알 수 없는 오류'}`)
+        }
+        return
+      }
+
       setResult(data)
       setMessage('✅ 분석 완료')
     } catch (err) {
@@ -83,156 +132,170 @@ export default function UploadIdPage() {
     }
   }
 
+  const fetchLapDetail = async (lapId: string) => {
+    setMessage('📦 저장된 랩 데이터 불러오는 중...')
+    try {
+      const res = await fetch(`http://localhost:8000/api/lap/${lapId}`)
+      const data = await res.json()
+
+      if (!res.ok) {
+        setMessage(`❌ 랩 데이터 불러오기 실패: ${data?.error || '서버 오류'}`)
+        return
+      }
+
+      setResult(data)
+      setMessage('✅ 데이터 불러오기 완료')
+    } catch (err) {
+      console.error(err)
+      setMessage('❌ 네트워크 오류로 데이터 불러오기 실패')
+    }
+  }
+
+  const splitByTimeGap = (data: Array<Record<string, number>>, threshold = 1.5) => {
+    if (!data || data.length === 0) return []
+
+    const result: Array<Array<Record<string, number>>> = []
+    let currentGroup: Array<Record<string, number>> = [data[0]]
+
+    for (let i = 1; i < data.length; i++) {
+      const prev = data[i - 1]
+      const curr = data[i]
+      const gap = curr.time - prev.time
+
+      if (gap > threshold) {
+        result.push(currentGroup)
+        currentGroup = []
+      }
+      currentGroup.push(curr)
+    }
+
+    if (currentGroup.length) result.push(currentGroup)
+    return result
+  }
+
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">📂 MoTeC CSV 업로드 분석</h2>
         <Link href="/">
-          <button className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 transition">
-            홈으로
-          </button>
+          <button className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 transition">홈으로</button>
         </Link>
       </div>
 
-      <div>
-        <input
-          id="csv-upload"
-          type="file"
-          accept=".csv"
-          onChange={handleUpload}
-          className="hidden"
-        />
-        <label
-          htmlFor="csv-upload"
-          className="inline-block px-4 py-2 bg-blue-600 text-white rounded-xl cursor-pointer hover:bg-blue-700 transition"
-        >
-          📂 CSV 파일 선택
-        </label>
-      </div>
+      <div className="space-y-3">
+        <div>
+          <input id="csv-upload" type="file" accept=".csv" onChange={handleUpload} className="hidden" />
+          <label htmlFor="csv-upload" className="inline-block px-4 py-2 bg-blue-600 text-white rounded-xl cursor-pointer hover:bg-blue-700 transition">
+            📤 CSV 파일 업로드
+          </label>
+        </div>
 
-      {/* 안내 문구 */}
-      <div className="bg-blue-50 dark:bg-gray-800 p-4 rounded-xl border border-blue-200 dark:border-gray-600">
-        <h3 className="font-semibold text-blue-700 dark:text-blue-300 mb-2">📘 MoTeC CSV 내보내기 방법</h3>
-        <ul className="list-disc list-inside text-sm text-gray-700 dark:text-gray-200 space-y-1">
-          <li>MoTeC <strong>i2 Pro</strong> 실행</li>
-          <li><strong>[File] → [Export As...] → CSV</strong> 선택</li>
-          <li>원하는 <strong>채널</strong>과 <strong>랩</strong> 선택 후 저장</li>
-          <li>해당 CSV 파일을 이곳에 업로드하면 분석됩니다 ✅</li>
-        </ul>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">※ 현재는 .ld 파일은 지원되지 않습니다.</p>
+        {lapList.length > 0 && (
+          <div>
+            <label className="mr-2 font-medium text-sm">📜 이전 랩 선택:</label>
+            <select
+              className="border rounded px-2 py-1 text-sm"
+              value={selectedLapId}
+              onChange={(e) => {
+                const id = e.target.value
+                setSelectedLapId(id)
+                if (id) fetchLapDetail(id)
+              }}
+            >
+              <option value="">선택하세요</option>
+              {lapList.map((lap) => (
+                <option key={lap.id} value={lap.id}>
+                  {lap.track} - {lap.car} ({new Date(lap.created_at).toLocaleString()})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
       <p className="text-sm text-gray-600 dark:text-gray-400">{message}</p>
 
-      {result && (
-        <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-4 space-y-4">
-          {/* 트랙 및 차량 정보 */}
-          <div className="text-sm text-gray-800 dark:text-gray-200 space-y-1">
-            <p><span className="font-semibold">🏁 트랙:</span> {result.track || '알 수 없음'}</p>
-            <p><span className="font-semibold">🚗 차량:</span> {result.car || '알 수 없음'}</p>
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">📈 주행 시각화</h3>
+        <button
+          onClick={toggleXAxis}
+          className="text-sm px-3 py-1 rounded bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-100 hover:bg-blue-200 dark:hover:bg-blue-700 transition"
+        >
+          X축 전환: {xAxisKey === 'time' ? '⏱ 시간' : '📏 거리'}
+        </button>
+      </div>
+      
+      {result?.data && (
+        <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-4 space-y-6">
+          <div className="text-sm text-gray-800 dark:text-gray-200">
+            <p><strong>🏁 트랙:</strong> {result.track}</p>
+            <p><strong>🚗 차량:</strong> {result.car}</p>
           </div>
 
-          {/* 주행 데이터 그래프 */}
-          {result.data && Array.isArray(result.data) && (
-            <div className="mt-6 space-y-8">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">📈 주행 입력값 시각화</h3>
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">📈 주행 시각화</h3>
 
-              {/* Throttle */}
-              <ResponsiveContainer width="100%" height={200}>
-                <LineChart data={result.data} syncId="shared-zoom">
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="time" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="throttle" stroke="#82ca9d" dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
-
-              {/* Brake */}
-              <ResponsiveContainer width="100%" height={200}>
-                <LineChart data={result.data} syncId="shared-zoom">
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="time" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="brake" stroke="#ff7300" dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
-
-              {/* Steering Angle */}
-              <ResponsiveContainer width="100%" height={200}>
-                <LineChart data={result.data} syncId="shared-zoom">
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="time" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="steerangle" stroke="#8884d8" dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
+          {result?.data && (
+            <div className="mb-4">
+              <label className="mr-2 font-medium text-sm">🧭 구간 선택:</label>
+              <select
+                className="border rounded px-2 py-1 text-sm"
+                value={selectedSegmentIndex}
+                onChange={(e) => setSelectedSegmentIndex(Number(e.target.value))}
+              >
+                {splitByTimeGap(result.data).map((_, idx) => (
+                  <option key={idx} value={idx}>
+                    구간 {idx + 1}
+                  </option>
+                ))}
+              </select>
             </div>
           )}
 
-          {/* 전체 주행 스타일 리포트 */}
-          {result.style_report && (
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-100">📊 전체 주행 스타일 분석</h3>
-              <p className="text-sm text-gray-700 dark:text-gray-200">
-                총 코너 수: <strong>{result.style_report.total_corners}</strong><br />
-                주요 스타일: <strong>{result.style_report.main_style}</strong>
-              </p>
-              <div className="mt-2">
-                <h4 className="font-semibold text-gray-700 dark:text-gray-200 mb-1">📌 스타일 분포:</h4>
-                <ul className="list-disc list-inside text-sm text-gray-700 dark:text-gray-200">
-                  {Object.entries(result.style_report.style_distribution).map(([style, count]) => (
-                    <li key={style}>{style}: {count}회</li>
-                  ))}
-                </ul>
-              </div>
-              <div className="mt-2">
-                <h4 className="font-semibold text-gray-700 dark:text-gray-200 mb-1">🧠 주행 피드백:</h4>
-                <ul className="list-disc list-inside text-sm text-gray-700 dark:text-gray-200">
-                  {result.style_report.feedback.map((item, idx) => (
-                    <li key={idx}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          )}
+          {result?.data && (() => {
+            const segments = splitByTimeGap(result.data)
+            const segment = segments[selectedSegmentIndex]
+            const stats = getSummaryStats(segment)
+            
+            return (
+              <div className="bg-white dark:bg-gray-900 shadow-md rounded-xl p-4 space-y-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-base font-semibold text-gray-800 dark:text-gray-100">📦 구간 {selectedSegmentIndex + 1}</h4>
+                </div>
 
-          {/* 코너별 분석 리포트 */}
-          {result.corner_feedback && Array.isArray(result.corner_feedback) && (
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-100">🏎️ 코너별 분석 리포트</h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm text-left text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600">
-                  <thead className="bg-gray-200 dark:bg-gray-700">
-                    <tr>
-                      <th className="px-3 py-2">코너</th>
-                      <th className="px-3 py-2">진입속도</th>
-                      <th className="px-3 py-2">최저속도</th>
-                      <th className="px-3 py-2">탈출속도</th>
-                      <th className="px-3 py-2">이상적 속도</th>
-                      <th className="px-3 py-2">스타일</th>
-                      <th className="px-3 py-2">피드백</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {result.corner_feedback.map((corner: CornerFeedback, idx: number) => (
-                      <tr key={idx} className="border-t border-gray-300 dark:border-gray-600">
-                        <td className="px-3 py-1">{corner.name}</td>
-                        <td className="px-3 py-1">{corner.entry_speed} km/h</td>
-                        <td className="px-3 py-1">{corner.min_speed} km/h</td>
-                        <td className="px-3 py-1">{corner.exit_speed} km/h</td>
-                        <td className="px-3 py-1">{corner.ideal_exit_speed} km/h</td>
-                        <td className="px-3 py-1">{corner.style}</td>
-                        <td className="px-3 py-1">{corner.feedback}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                {/* 📊 요약 정보 표시 */}
+                <div className="flex gap-6 text-sm text-gray-700 dark:text-gray-300">
+                  <p><strong>⏱ 지속 시간:</strong> {stats.duration}초</p>
+                  <p><strong>🚀 최고 속도:</strong> {stats.maxSpeed} km/h</p>
+                  <p><strong>🐢 최저 속도:</strong> {stats.minSpeed} km/h</p>
+                </div>
+
+                {/* Throttle + Brake */}
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart data={segment} syncId="segment-sync">
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey={xAxisKey} tick={false} axisLine={false} />
+                    <YAxis />
+                    <Tooltip />
+                    <Line type="monotone" dataKey="throttle" stroke="#82ca9d" dot={false} />
+                    <Line type="monotone" dataKey="brake" stroke="#ff7300" dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+
+                {/* speed, steerangle, gear */}
+                {["speed", "steerangle", "gear"].map((key, i) => (
+                  <ResponsiveContainer key={i} width="100%" height={200}>
+                    <LineChart data={segment} syncId="segment-sync">
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey={xAxisKey} tick={false} axisLine={false} />
+                      <YAxis />
+                      <Tooltip />
+                      <Line type="monotone" dataKey={key} stroke="#8884d8" dot={false} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                ))}
               </div>
-            </div>
-          )}
+            )
+          })()}
         </div>
       )}
     </div>

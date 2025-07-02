@@ -9,6 +9,190 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      analysis_results: {
+        Row: {
+          avg_brake: number | null
+          avg_lap_time: number | null
+          avg_speed: number | null
+          avg_throttle: number | null
+          best_lap_time: number | null
+          created_at: string | null
+          file_url: string
+          id: string
+          num_laps: number | null
+          sector1_avg: number | null
+          sector2_avg: number | null
+          sector3_avg: number | null
+          user_id: string | null
+        }
+        Insert: {
+          avg_brake?: number | null
+          avg_lap_time?: number | null
+          avg_speed?: number | null
+          avg_throttle?: number | null
+          best_lap_time?: number | null
+          created_at?: string | null
+          file_url: string
+          id?: string
+          num_laps?: number | null
+          sector1_avg?: number | null
+          sector2_avg?: number | null
+          sector3_avg?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          avg_brake?: number | null
+          avg_lap_time?: number | null
+          avg_speed?: number | null
+          avg_throttle?: number | null
+          best_lap_time?: number | null
+          created_at?: string | null
+          file_url?: string
+          id?: string
+          num_laps?: number | null
+          sector1_avg?: number | null
+          sector2_avg?: number | null
+          sector3_avg?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analysis_results_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      anonymous_posters: {
+        Row: {
+          created_at: string | null
+          id: string
+          nickname: string
+          password_hash: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          nickname: string
+          password_hash: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          nickname?: string
+          password_hash?: string
+        }
+        Relationships: []
+      }
+      corner_analysis: {
+        Row: {
+          brake_slope: number | null
+          corner_index: number | null
+          end_time: number | null
+          id: string
+          lap_id: string | null
+          start_time: number | null
+          style: string | null
+          throttle_slope: number | null
+          user_id: string | null
+        }
+        Insert: {
+          brake_slope?: number | null
+          corner_index?: number | null
+          end_time?: number | null
+          id: string
+          lap_id?: string | null
+          start_time?: number | null
+          style?: string | null
+          throttle_slope?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          brake_slope?: number | null
+          corner_index?: number | null
+          end_time?: number | null
+          id?: string
+          lap_id?: string | null
+          start_time?: number | null
+          style?: string | null
+          throttle_slope?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      corner_zones: {
+        Row: {
+          corner_number: number
+          created_at: string | null
+          end_distance: number | null
+          end_time: number
+          entry_speed: number | null
+          exit_speed: number | null
+          feedback: string | null
+          id: string
+          ideal_exit_speed: number | null
+          label: string | null
+          lap_id: string | null
+          min_speed: number | null
+          notes: string | null
+          start_distance: number | null
+          start_time: number
+          style: string | null
+          track_name: string
+          user_id: string | null
+        }
+        Insert: {
+          corner_number: number
+          created_at?: string | null
+          end_distance?: number | null
+          end_time: number
+          entry_speed?: number | null
+          exit_speed?: number | null
+          feedback?: string | null
+          id?: string
+          ideal_exit_speed?: number | null
+          label?: string | null
+          lap_id?: string | null
+          min_speed?: number | null
+          notes?: string | null
+          start_distance?: number | null
+          start_time: number
+          style?: string | null
+          track_name: string
+          user_id?: string | null
+        }
+        Update: {
+          corner_number?: number
+          created_at?: string | null
+          end_distance?: number | null
+          end_time?: number
+          entry_speed?: number | null
+          exit_speed?: number | null
+          feedback?: string | null
+          id?: string
+          ideal_exit_speed?: number | null
+          label?: string | null
+          lap_id?: string | null
+          min_speed?: number | null
+          notes?: string | null
+          start_distance?: number | null
+          start_time?: number
+          style?: string | null
+          track_name?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "corner_zones_lap_id_fkey"
+            columns: ["lap_id"]
+            isOneToOne: false
+            referencedRelation: "lap_meta"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           description: string | null
@@ -36,9 +220,547 @@ export type Database = {
         }
         Relationships: []
       }
+      feedback: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string
+          message: string
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          message: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          message?: string
+        }
+        Relationships: []
+      }
+      game_notices: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          created_by: string | null
+          game: string
+          id: string
+          title: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          game: string
+          id?: string
+          title: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          game?: string
+          id?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      lap_controls: {
+        Row: {
+          brake: number | null
+          distance: number | null
+          gear: number | null
+          id: number
+          lap_id: string | null
+          rpm: number | null
+          rpms: number | null
+          speed: number | null
+          steerangle: number | null
+          steering: number | null
+          throttle: number | null
+          time: number | null
+        }
+        Insert: {
+          brake?: number | null
+          distance?: number | null
+          gear?: number | null
+          id?: number
+          lap_id?: string | null
+          rpm?: number | null
+          rpms?: number | null
+          speed?: number | null
+          steerangle?: number | null
+          steering?: number | null
+          throttle?: number | null
+          time?: number | null
+        }
+        Update: {
+          brake?: number | null
+          distance?: number | null
+          gear?: number | null
+          id?: number
+          lap_id?: string | null
+          rpm?: number | null
+          rpms?: number | null
+          speed?: number | null
+          steerangle?: number | null
+          steering?: number | null
+          throttle?: number | null
+          time?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lap_controls_lap_id_fkey"
+            columns: ["lap_id"]
+            isOneToOne: false
+            referencedRelation: "lap_meta"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lap_data: {
+        Row: {
+          abs: number | null
+          air_temp: number | null
+          brake: number | null
+          brake_temp_lf: number | null
+          brake_temp_lr: number | null
+          brake_temp_rf: number | null
+          brake_temp_rr: number | null
+          bump_force_lf: number | null
+          bump_force_lr: number | null
+          bump_force_rf: number | null
+          bump_force_rr: number | null
+          bumpodn_ride_lf: number | null
+          bumpodn_ride_lr: number | null
+          bumpodn_ride_rf: number | null
+          bumpodn_ride_rr: number | null
+          bumpopup_ride_lf: number | null
+          bumpopup_ride_lr: number | null
+          bumpopup_ride_rf: number | null
+          bumpopup_ride_rr: number | null
+          car: string | null
+          clutch: number | null
+          created_at: string | null
+          data: Json | null
+          en_ap: number | null
+          en_dy: number | null
+          en_et: number | null
+          en_gr: number | null
+          en_tb: number | null
+          en_td: number | null
+          en_tl: number | null
+          en_tw: number | null
+          en_w: number | null
+          g_lat: number | null
+          g_lon: number | null
+          gear: number | null
+          id: string
+          lap_beacon: number | null
+          roty: number | null
+          rpms: number | null
+          speed: number | null
+          steerangle: number | null
+          sus_travel_lf: number | null
+          sus_travel_lr: number | null
+          sus_travel_rf: number | null
+          sus_travel_rr: number | null
+          tc: number | null
+          throttle: number | null
+          time: number | null
+          track: string | null
+          track_temp: number | null
+          tyre_press_lf: number | null
+          tyre_press_lr: number | null
+          tyre_press_rf: number | null
+          tyre_press_rr: number | null
+          tyre_tair_lf: number | null
+          tyre_tair_lr: number | null
+          tyre_tair_rf: number | null
+          tyre_tair_rr: number | null
+          user_id: string | null
+          weather: string | null
+          wheel_speed_lf: number | null
+          wheel_speed_lr: number | null
+          wheel_speed_rf: number | null
+          wheel_speed_rr: number | null
+        }
+        Insert: {
+          abs?: number | null
+          air_temp?: number | null
+          brake?: number | null
+          brake_temp_lf?: number | null
+          brake_temp_lr?: number | null
+          brake_temp_rf?: number | null
+          brake_temp_rr?: number | null
+          bump_force_lf?: number | null
+          bump_force_lr?: number | null
+          bump_force_rf?: number | null
+          bump_force_rr?: number | null
+          bumpodn_ride_lf?: number | null
+          bumpodn_ride_lr?: number | null
+          bumpodn_ride_rf?: number | null
+          bumpodn_ride_rr?: number | null
+          bumpopup_ride_lf?: number | null
+          bumpopup_ride_lr?: number | null
+          bumpopup_ride_rf?: number | null
+          bumpopup_ride_rr?: number | null
+          car?: string | null
+          clutch?: number | null
+          created_at?: string | null
+          data?: Json | null
+          en_ap?: number | null
+          en_dy?: number | null
+          en_et?: number | null
+          en_gr?: number | null
+          en_tb?: number | null
+          en_td?: number | null
+          en_tl?: number | null
+          en_tw?: number | null
+          en_w?: number | null
+          g_lat?: number | null
+          g_lon?: number | null
+          gear?: number | null
+          id?: string
+          lap_beacon?: number | null
+          roty?: number | null
+          rpms?: number | null
+          speed?: number | null
+          steerangle?: number | null
+          sus_travel_lf?: number | null
+          sus_travel_lr?: number | null
+          sus_travel_rf?: number | null
+          sus_travel_rr?: number | null
+          tc?: number | null
+          throttle?: number | null
+          time?: number | null
+          track?: string | null
+          track_temp?: number | null
+          tyre_press_lf?: number | null
+          tyre_press_lr?: number | null
+          tyre_press_rf?: number | null
+          tyre_press_rr?: number | null
+          tyre_tair_lf?: number | null
+          tyre_tair_lr?: number | null
+          tyre_tair_rf?: number | null
+          tyre_tair_rr?: number | null
+          user_id?: string | null
+          weather?: string | null
+          wheel_speed_lf?: number | null
+          wheel_speed_lr?: number | null
+          wheel_speed_rf?: number | null
+          wheel_speed_rr?: number | null
+        }
+        Update: {
+          abs?: number | null
+          air_temp?: number | null
+          brake?: number | null
+          brake_temp_lf?: number | null
+          brake_temp_lr?: number | null
+          brake_temp_rf?: number | null
+          brake_temp_rr?: number | null
+          bump_force_lf?: number | null
+          bump_force_lr?: number | null
+          bump_force_rf?: number | null
+          bump_force_rr?: number | null
+          bumpodn_ride_lf?: number | null
+          bumpodn_ride_lr?: number | null
+          bumpodn_ride_rf?: number | null
+          bumpodn_ride_rr?: number | null
+          bumpopup_ride_lf?: number | null
+          bumpopup_ride_lr?: number | null
+          bumpopup_ride_rf?: number | null
+          bumpopup_ride_rr?: number | null
+          car?: string | null
+          clutch?: number | null
+          created_at?: string | null
+          data?: Json | null
+          en_ap?: number | null
+          en_dy?: number | null
+          en_et?: number | null
+          en_gr?: number | null
+          en_tb?: number | null
+          en_td?: number | null
+          en_tl?: number | null
+          en_tw?: number | null
+          en_w?: number | null
+          g_lat?: number | null
+          g_lon?: number | null
+          gear?: number | null
+          id?: string
+          lap_beacon?: number | null
+          roty?: number | null
+          rpms?: number | null
+          speed?: number | null
+          steerangle?: number | null
+          sus_travel_lf?: number | null
+          sus_travel_lr?: number | null
+          sus_travel_rf?: number | null
+          sus_travel_rr?: number | null
+          tc?: number | null
+          throttle?: number | null
+          time?: number | null
+          track?: string | null
+          track_temp?: number | null
+          tyre_press_lf?: number | null
+          tyre_press_lr?: number | null
+          tyre_press_rf?: number | null
+          tyre_press_rr?: number | null
+          tyre_tair_lf?: number | null
+          tyre_tair_lr?: number | null
+          tyre_tair_rf?: number | null
+          tyre_tair_rr?: number | null
+          user_id?: string | null
+          weather?: string | null
+          wheel_speed_lf?: number | null
+          wheel_speed_lr?: number | null
+          wheel_speed_rf?: number | null
+          wheel_speed_rr?: number | null
+        }
+        Relationships: []
+      }
+      lap_meta: {
+        Row: {
+          air_temp: number | null
+          car: string | null
+          created_at: string | null
+          id: string
+          track: string | null
+          track_temp: number | null
+          user_id: string
+          weather: string | null
+        }
+        Insert: {
+          air_temp?: number | null
+          car?: string | null
+          created_at?: string | null
+          id?: string
+          track?: string | null
+          track_temp?: number | null
+          user_id: string
+          weather?: string | null
+        }
+        Update: {
+          air_temp?: number | null
+          car?: string | null
+          created_at?: string | null
+          id?: string
+          track?: string | null
+          track_temp?: number | null
+          user_id?: string
+          weather?: string | null
+        }
+        Relationships: []
+      }
+      lap_raw: {
+        Row: {
+          chunk_index: number | null
+          data: Json | null
+          id: string
+          lap_id: string | null
+        }
+        Insert: {
+          chunk_index?: number | null
+          data?: Json | null
+          id?: string
+          lap_id?: string | null
+        }
+        Update: {
+          chunk_index?: number | null
+          data?: Json | null
+          id?: string
+          lap_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lap_raw_lap_id_fkey"
+            columns: ["lap_id"]
+            isOneToOne: false
+            referencedRelation: "lap_meta"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lap_vehicle_status: {
+        Row: {
+          abs: number | null
+          brake_temp_lf: number | null
+          brake_temp_lr: number | null
+          brake_temp_rf: number | null
+          brake_temp_rr: number | null
+          bumpstop_force_lf: number | null
+          bumpstop_force_lr: number | null
+          bumpstop_force_rf: number | null
+          bumpstop_force_rr: number | null
+          bumpstopdn_ride_lf: number | null
+          bumpstopdn_ride_lr: number | null
+          bumpstopdn_ride_rf: number | null
+          bumpstopdn_ride_rr: number | null
+          bumpstopup_ride_lf: number | null
+          bumpstopup_ride_lr: number | null
+          bumpstopup_ride_rf: number | null
+          bumpstopup_ride_rr: number | null
+          clutch: number | null
+          distance: number | null
+          en_ap: number | null
+          en_dy: number | null
+          en_et: number | null
+          en_gr: number | null
+          en_tb: number | null
+          en_td: number | null
+          en_tl: number | null
+          en_tw: number | null
+          en_w: number | null
+          g_lat: number | null
+          g_lon: number | null
+          id: number
+          lap_beacon: number | null
+          lap_id: string | null
+          roty: number | null
+          sus_travel_lf: number | null
+          sus_travel_lr: number | null
+          sus_travel_rf: number | null
+          sus_travel_rr: number | null
+          tc: number | null
+          time: number | null
+          tyre_press_lf: number | null
+          tyre_press_lr: number | null
+          tyre_press_rf: number | null
+          tyre_press_rr: number | null
+          tyre_tair_lf: number | null
+          tyre_tair_lr: number | null
+          tyre_tair_rf: number | null
+          tyre_tair_rr: number | null
+          wheel_speed_lf: number | null
+          wheel_speed_lr: number | null
+          wheel_speed_rf: number | null
+          wheel_speed_rr: number | null
+        }
+        Insert: {
+          abs?: number | null
+          brake_temp_lf?: number | null
+          brake_temp_lr?: number | null
+          brake_temp_rf?: number | null
+          brake_temp_rr?: number | null
+          bumpstop_force_lf?: number | null
+          bumpstop_force_lr?: number | null
+          bumpstop_force_rf?: number | null
+          bumpstop_force_rr?: number | null
+          bumpstopdn_ride_lf?: number | null
+          bumpstopdn_ride_lr?: number | null
+          bumpstopdn_ride_rf?: number | null
+          bumpstopdn_ride_rr?: number | null
+          bumpstopup_ride_lf?: number | null
+          bumpstopup_ride_lr?: number | null
+          bumpstopup_ride_rf?: number | null
+          bumpstopup_ride_rr?: number | null
+          clutch?: number | null
+          distance?: number | null
+          en_ap?: number | null
+          en_dy?: number | null
+          en_et?: number | null
+          en_gr?: number | null
+          en_tb?: number | null
+          en_td?: number | null
+          en_tl?: number | null
+          en_tw?: number | null
+          en_w?: number | null
+          g_lat?: number | null
+          g_lon?: number | null
+          id?: number
+          lap_beacon?: number | null
+          lap_id?: string | null
+          roty?: number | null
+          sus_travel_lf?: number | null
+          sus_travel_lr?: number | null
+          sus_travel_rf?: number | null
+          sus_travel_rr?: number | null
+          tc?: number | null
+          time?: number | null
+          tyre_press_lf?: number | null
+          tyre_press_lr?: number | null
+          tyre_press_rf?: number | null
+          tyre_press_rr?: number | null
+          tyre_tair_lf?: number | null
+          tyre_tair_lr?: number | null
+          tyre_tair_rf?: number | null
+          tyre_tair_rr?: number | null
+          wheel_speed_lf?: number | null
+          wheel_speed_lr?: number | null
+          wheel_speed_rf?: number | null
+          wheel_speed_rr?: number | null
+        }
+        Update: {
+          abs?: number | null
+          brake_temp_lf?: number | null
+          brake_temp_lr?: number | null
+          brake_temp_rf?: number | null
+          brake_temp_rr?: number | null
+          bumpstop_force_lf?: number | null
+          bumpstop_force_lr?: number | null
+          bumpstop_force_rf?: number | null
+          bumpstop_force_rr?: number | null
+          bumpstopdn_ride_lf?: number | null
+          bumpstopdn_ride_lr?: number | null
+          bumpstopdn_ride_rf?: number | null
+          bumpstopdn_ride_rr?: number | null
+          bumpstopup_ride_lf?: number | null
+          bumpstopup_ride_lr?: number | null
+          bumpstopup_ride_rf?: number | null
+          bumpstopup_ride_rr?: number | null
+          clutch?: number | null
+          distance?: number | null
+          en_ap?: number | null
+          en_dy?: number | null
+          en_et?: number | null
+          en_gr?: number | null
+          en_tb?: number | null
+          en_td?: number | null
+          en_tl?: number | null
+          en_tw?: number | null
+          en_w?: number | null
+          g_lat?: number | null
+          g_lon?: number | null
+          id?: number
+          lap_beacon?: number | null
+          lap_id?: string | null
+          roty?: number | null
+          sus_travel_lf?: number | null
+          sus_travel_lr?: number | null
+          sus_travel_rf?: number | null
+          sus_travel_rr?: number | null
+          tc?: number | null
+          time?: number | null
+          tyre_press_lf?: number | null
+          tyre_press_lr?: number | null
+          tyre_press_rf?: number | null
+          tyre_press_rr?: number | null
+          tyre_tair_lf?: number | null
+          tyre_tair_lr?: number | null
+          tyre_tair_rf?: number | null
+          tyre_tair_rr?: number | null
+          wheel_speed_lf?: number | null
+          wheel_speed_lr?: number | null
+          wheel_speed_rf?: number | null
+          wheel_speed_rr?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lap_vehicle_status_lap_id_fkey"
+            columns: ["lap_id"]
+            isOneToOne: false
+            referencedRelation: "lap_meta"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       multis: {
         Row: {
-          link: string | null
+          anonymous_nickname: string | null
+          anonymous_password: string | null
           author_id: string | null
           created_at: string | null
           description: string | null
@@ -46,16 +768,19 @@ export type Database = {
           game_track: string
           id: string
           is_open: boolean | null
-          multi_race: string
+          link: string | null
           multi_class: string
           multi_day: string[]
+          multi_race: string | null
           multi_time: string | null
           title: string
           updated_at: string | null
-          year: number | null     
-          week: number | null    
+          week: number | null
+          year: number | null
         }
         Insert: {
+          anonymous_nickname?: string | null
+          anonymous_password?: string | null
           author_id?: string | null
           created_at?: string | null
           description?: string | null
@@ -63,16 +788,19 @@ export type Database = {
           game_track: string
           id?: string
           is_open?: boolean | null
-          multi_race: string
+          link?: string | null
           multi_class: string
           multi_day: string[]
+          multi_race?: string | null
           multi_time?: string | null
           title: string
           updated_at?: string | null
-          year?: number | null     
-          week?: number | null              
+          week?: number | null
+          year?: number | null
         }
         Update: {
+          anonymous_nickname?: string | null
+          anonymous_password?: string | null
           author_id?: string | null
           created_at?: string | null
           description?: string | null
@@ -80,14 +808,36 @@ export type Database = {
           game_track?: string
           id?: string
           is_open?: boolean | null
-          multi_race: string
+          link?: string | null
           multi_class?: string
           multi_day?: string[]
+          multi_race?: string | null
           multi_time?: string | null
           title?: string
           updated_at?: string | null
-          year?: number | null     
-          week?: number | null     
+          week?: number | null
+          year?: number | null
+        }
+        Relationships: []
+      }
+      page_views: {
+        Row: {
+          id: string
+          page_name: string
+          updated_at: string | null
+          view_count: number | null
+        }
+        Insert: {
+          id?: string
+          page_name: string
+          updated_at?: string | null
+          view_count?: number | null
+        }
+        Update: {
+          id?: string
+          page_name?: string
+          updated_at?: string | null
+          view_count?: number | null
         }
         Relationships: []
       }
@@ -117,25 +867,25 @@ export type Database = {
       }
       profiles: {
         Row: {
-          email: string
           created_at: string | null
+          email: string | null
           id: string
-          role: string | null
           nickname: string | null
+          role: string | null
         }
         Insert: {
-          email: string
           created_at?: string | null
+          email?: string | null
           id: string
-          role?: string | null
           nickname?: string | null
+          role?: string | null
         }
         Update: {
-          email: string
           created_at?: string | null
+          email?: string | null
           id?: string
-          role?: string | null
           nickname?: string | null
+          role?: string | null
         }
         Relationships: []
       }
@@ -174,12 +924,72 @@ export type Database = {
           },
         ]
       }
+      sector_results: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_public: boolean | null
+          lap_id: string | null
+          sector_end: number
+          sector_index: number
+          sector_number: number | null
+          sector_start: number
+          sector_time: number
+          track: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          lap_id?: string | null
+          sector_end: number
+          sector_index: number
+          sector_number?: number | null
+          sector_start: number
+          sector_time: number
+          track?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          lap_id?: string | null
+          sector_end?: number
+          sector_index?: number
+          sector_number?: number | null
+          sector_start?: number
+          sector_time?: number
+          track?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sector_results_lap_id_fkey"
+            columns: ["lap_id"]
+            isOneToOne: false
+            referencedRelation: "lap_meta"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sector_results_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_home_views: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
