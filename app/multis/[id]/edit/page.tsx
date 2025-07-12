@@ -2,7 +2,7 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import EditMultiForm from '@/components/EditMultiForm'
+import EditMultiForm from '@/components/forms/EditMultiForm'
 
 export default function EditMultiPage() {
   const params = useParams()

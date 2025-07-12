@@ -13,6 +13,15 @@ html, body {
   --foreground: #171717;
 }
 
+@keyframes rpmGlow {
+  from {
+    box-shadow: 0 0 10px 2px rgba(255, 0, 0, 0.5);
+  }
+  to {
+    box-shadow: 0 0 20px 6px rgba(255, 0, 0, 0.9);
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

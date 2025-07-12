@@ -5,7 +5,7 @@ import type { Database } from '@/lib/database.types'
 
 export async function GET() {
   const supabase = createRouteHandlerClient<Database>({
-    cookies: cookies, // ✅ 함수 자체를 넘김 (이렇게만 바꿔도 깔끔함)
+    cookies: cookies,
   })
 
   const {
@@ -18,7 +18,7 @@ export async function GET() {
 
   const { data: profile, error } = await supabase
     .from('profiles')
-    .select('id, nickname')
+    .select('id, nickname, has_uploaded_data')
     .eq('id', user.id)
     .single()
 
@@ -26,5 +26,16 @@ export async function GET() {
     return NextResponse.json({ error: '프로필 조회 실패' }, { status: 500 })
   }
 
-  return NextResponse.json({ user: profile })
+  // 여기까지 왔으면 profile은 Profile 타입이 확정됨
+  const { nickname, has_uploaded_data } = profile
+
+  return NextResponse.json({
+    user: {
+      id: user.id,
+      email: user.email,
+      email_confirmed_at: user.email_confirmed_at,
+      nickname,
+      has_uploaded_data: has_uploaded_data ?? false,
+    },
+  })
 }

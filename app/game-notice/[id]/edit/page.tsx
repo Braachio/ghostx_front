@@ -2,7 +2,7 @@
 
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import EditNoticeForm, { Notice } from '@/components/EditNoticeForm'
+import EditNoticeForm, { Notice } from '@/components/forms/EditNoticeForm'
 
 export default function EditGameNoticePage() {
   const { id } = useParams() as { id: string }

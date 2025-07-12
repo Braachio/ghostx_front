@@ -6,9 +6,23 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
+export type Profiles = {
+  id: string
+  nickname: string
+  has_uploaded_data: boolean | null
+  agreed_terms: boolean | null  // ✅ 이용약관 동의
+  agreed_privacy: boolean | null  // ✅ 개인정보처리방침 동의
+}
+
+
 export type Database = {
   public: {
     Tables: {
+      Profiles: {
+        Row: Profiles
+        Insert: Partial<Profiles>
+        Update: Partial<Profiles>
+      }
       analysis_results: {
         Row: {
           avg_brake: number | null

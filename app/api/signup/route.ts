@@ -1,4 +1,3 @@
-// ✅ /app/api/signup/route.ts
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
@@ -6,26 +5,47 @@ import type { Database } from '@/lib/database.types'
 
 export async function POST(req: Request) {
   const cookieStore = cookies()
-  const supabase = createRouteHandlerClient<Database>({
-    cookies: () => cookieStore,
-  })
+  const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore })
 
-  const { email, password } = await req.json()
+  try {
+    const { email, password, agreed_terms, agreed_privacy } = await req.json()
 
-  // 회원가입 처리
-  const {
-    data: { user },
-    error: signUpError,
-  } = await supabase.auth.signUp({ email, password })
+    console.log({ email, password, agreed_terms, agreed_privacy }) // 확인용
 
-  if (signUpError || !user) {
-    return NextResponse.json(
-      { error: signUpError?.message || '회원가입 실패' },
-      { status: 400 }
-    )
+    if (!email || !password) {
+      return NextResponse.json({ error: '이메일과 비밀번호는 필수입니다.' }, { status: 400 })
+    }
+
+    const {
+      data: { user },
+      error: signUpError,
+    } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+        data: {
+          agreed_terms: !!agreed_terms,
+          agreed_privacy: !!agreed_privacy,
+        },
+      },
+    })
+
+    if (signUpError || !user) {
+      return NextResponse.json(
+        { error: signUpError?.message || '회원가입 실패' },
+        { status: 400 }
+      )
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('회원가입 에러:', error.message)
+    } else {
+      console.error('회원가입 에러:', error)
+    }
+
+    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 })
   }
-
-  // 프로필은 수동 등록하므로 따로 삽입 X
-
-  return NextResponse.json({ success: true })
 }

@@ -1,4 +1,3 @@
-// ✅ SignupForm.tsx (다크모드 대응 완료)
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -7,15 +6,14 @@ import { useRouter } from 'next/navigation'
 export default function SignupForm() {
   const router = useRouter()
 
-  const [nickname, setNickname] = useState('')
   const [emailId, setEmailId] = useState('')
   const [emailDomain, setEmailDomain] = useState('')
   const [customDomain, setCustomDomain] = useState('')
   const [isCustom, setIsCustom] = useState(false)
   const [emailAvailable, setEmailAvailable] = useState<boolean | null>(null)
-  const [nicknameAvailable, setNicknameAvailable] = useState<boolean | null>(null)
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [agreeTerms, setAgreeTerms] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -40,40 +38,29 @@ export default function SignupForm() {
     return () => clearTimeout(delay)
   }, [emailId, emailDomain, customDomain])
 
-  useEffect(() => {
-    const delay = setTimeout(async () => {
-      if (!nickname) return setNicknameAvailable(null)
-      try {
-        const res = await fetch('/api/check-nickname', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nickname }),
-        })
-        const result = await res.json()
-        setNicknameAvailable(result.available ?? null)
-      } catch (err: unknown) {
-        setError((err as Error).message || '')
-        setNicknameAvailable(null)
-      }
-    }, 500)
-    return () => clearTimeout(delay)
-  }, [nickname])
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+
     if (password !== confirmPassword) return setError('비밀번호가 일치하지 않습니다.')
     if (emailAvailable === false) return setError('이미 사용 중인 이메일입니다.')
-    if (nicknameAvailable === false) return setError('이미 사용 중인 닉네임입니다.')
+    if (!agreeTerms) return setError('이용약관 및 개인정보 수집에 동의해야 가입할 수 있습니다.')
 
     setLoading(true)
     try {
       const res = await fetch('/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, nickname }),
+        body: JSON.stringify({
+          email,
+          password,
+          agreed_terms: true,
+          agreed_privacy: true,
+        }),
       })
+
       const result = await res.json()
+
       if (!res.ok) {
         setError(result.error || '회원가입 실패')
       } else {
@@ -91,29 +78,12 @@ export default function SignupForm() {
     <div className="max-w-md mx-auto mt-12 p-6 bg-white text-black dark:bg-gray-900 dark:text-white rounded shadow transition-colors">
       <h2 className="text-xl font-bold mb-4 text-center">회원가입</h2>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <input
-          type="text"
-          placeholder="닉네임"
-          value={nickname}
-          onChange={e => setNickname(e.target.value)}
-          className="border p-2 rounded bg-white dark:bg-gray-800 text-black dark:text-white"
-          required
-        />
-        {nickname && (
-          <p className={`text-sm ${nicknameAvailable ? 'text-green-600' : 'text-red-500'}`}>
-            {nicknameAvailable === null
-              ? '닉네임 확인 중...'
-              : nicknameAvailable
-              ? '사용 가능한 닉네임입니다.'
-              : '이미 사용 중인 닉네임입니다.'}
-          </p>
-        )}
         <div className="flex gap-2">
           <input
             type="text"
             placeholder="이메일 아이디"
             value={emailId}
-            onChange={e => setEmailId(e.target.value)}
+            onChange={(e) => setEmailId(e.target.value)}
             required
             className="border p-2 rounded w-1/2 bg-white dark:bg-gray-800 text-black dark:text-white"
           />
@@ -123,14 +93,14 @@ export default function SignupForm() {
               type="text"
               placeholder="example.com"
               value={customDomain}
-              onChange={e => setCustomDomain(e.target.value)}
+              onChange={(e) => setCustomDomain(e.target.value)}
               required
               className="border p-2 rounded w-1/2 bg-white dark:bg-gray-800 text-black dark:text-white"
             />
           ) : (
             <select
               value={emailDomain}
-              onChange={e => {
+              onChange={(e) => {
                 if (e.target.value === 'custom') {
                   setIsCustom(true)
                   setEmailDomain('')
@@ -151,6 +121,7 @@ export default function SignupForm() {
             </select>
           )}
         </div>
+
         {emailId && (emailDomain || customDomain) && (
           <p className={`text-sm ${emailAvailable ? 'text-green-600' : 'text-red-500'}`}>
             {emailAvailable === null
@@ -160,11 +131,12 @@ export default function SignupForm() {
               : '이미 사용 중인 이메일입니다.'}
           </p>
         )}
+
         <input
           type="password"
           placeholder="비밀번호"
           value={password}
-          onChange={e => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
           required
           className="border p-2 rounded bg-white dark:bg-gray-800 text-black dark:text-white"
         />
@@ -172,10 +144,25 @@ export default function SignupForm() {
           type="password"
           placeholder="비밀번호 확인"
           value={confirmPassword}
-          onChange={e => setConfirmPassword(e.target.value)}
+          onChange={(e) => setConfirmPassword(e.target.value)}
           required
           className="border p-2 rounded bg-white dark:bg-gray-800 text-black dark:text-white"
         />
+
+        {/* ✅ 약관 동의 체크박스 */}
+        <label className="text-sm flex items-start gap-2">
+          <input
+            type="checkbox"
+            checked={agreeTerms}
+            onChange={(e) => setAgreeTerms(e.target.checked)}
+            required
+          />
+          <span>
+            <a href="/terms" target="_blank" className="underline">이용약관</a> 및
+            <a href="/privacy" target="_blank" className="underline ml-1">개인정보 수집 및 이용</a>에 동의합니다.
+          </span>
+        </label>
+
         <button
           type="submit"
           disabled={loading}
@@ -183,6 +170,7 @@ export default function SignupForm() {
         >
           {loading ? '가입 중...' : '회원가입'}
         </button>
+
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
       </form>
     </div>

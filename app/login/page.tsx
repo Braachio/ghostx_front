@@ -7,23 +7,36 @@ export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError(null)
 
-    const res = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    })
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
 
-    const data = await res.json()
+      const data = await res.json()
 
-    if (res.ok) {
-      alert('로그인 성공')
-      router.push('/')
-    } else {
-      alert(`로그인 실패: ${data.error}`)
+      if (!res.ok) {
+        setError(data.error || '로그인 실패')
+        return
+      }
+
+      // 로그인 성공 후 유저 인증 여부 확인
+      const profileRes = await fetch('/api/me')
+      const userData = await profileRes.json()
+
+      const isVerified = !!userData.user?.email_confirmed_at
+
+      router.push(isVerified ? '/dashboard' : '/onboarding')
+    } catch (err) {
+      console.error('로그인 오류:', err)
+      setError('서버 오류가 발생했습니다.')
     }
   }
 
@@ -59,6 +72,8 @@ export default function LoginPage() {
         >
           로그인
         </button>
+
+        {error && <p className="text-red-500 text-center text-sm">{error}</p>}
       </form>
     </div>
   )
