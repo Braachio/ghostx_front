@@ -1,12 +1,29 @@
-import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import type { Database } from '@/lib/database.types'
+import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
-  const supabase = createServerSupabaseClient({ req })
-  const { data: { user } } = await supabase.auth.getUser()
+  const supabase = createRouteHandlerClient<Database>({ cookies })
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const { consent } = await req.json()
 
-  if (!user) return new Response('Unauthorized', { status: 401 })
+  const { error } = await supabase
+    .from('profiles')
+    .update({ cookie_consent: consent }) // ✏️ 테이블 및 필드명 맞게 수정하세요
+    .eq('id', user.id)
 
-  await supabase.from('profiles').update({ cookie_consent: consent }).eq('id', user.id)
-  return new Response('OK')
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  return NextResponse.json({ success: true })
 }
