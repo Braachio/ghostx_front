@@ -13,6 +13,7 @@ import Image from 'next/image'
 import GearSpeedCircle from '@/components/GearSpeedCircle'
 import RPMShiftLight from '@/components/RPMShiftLight'
 import TimerDisplay from '@/components/TimerDisplay'
+import { API_URL } from '@/lib/constants'
 
 interface CornerExitFeedback {
   start_idx: number 
@@ -145,7 +146,7 @@ export default function UploadIdPage() {
     formData.append('track_temp', '32')
 
     try {
-      const res = await fetch('http://localhost:8000/api/analyze-motec-csv', {
+      const res = await fetch(`${API_URL}/api/analyze-motec-csv`, {
         method: 'POST',
         body: formData,
       })
@@ -171,7 +172,7 @@ export default function UploadIdPage() {
   const fetchLapDetail = async (lapId: string) => {
     setMessage('📦 저장된 랩 데이터 불러오는 중...')
     try {
-      const res = await fetch(`http://localhost:8000/api/lap/${lapId}`)
+      const res = await fetch(`${API_URL}/api/lap/${lapId}`)
       const data = await res.json()
 
       if (!res.ok) {

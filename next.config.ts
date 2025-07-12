@@ -9,3 +9,9 @@ const nextConfig = {
 }
 
 export default nextConfig // ✅ 이것만 남기기
+
+module.exports = {
+  env: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+  },
+}
