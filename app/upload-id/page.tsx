@@ -210,7 +210,7 @@ export default function UploadIdPage() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
+    <div className="bg-white dark:bg-gray-900 min-h-screen p-6 max-w-5xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">ACC 랩 분석 리포트</h2>
         <Link href="/">
