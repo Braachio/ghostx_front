@@ -89,6 +89,7 @@ export default function UploadIdPage() {
   const [xAxisKey, setXAxisKey] = useState<'time' | 'distance'>('time') // ✅ 토글 상태
   const [selectedSegmentIndex, setSelectedSegmentIndex] = useState<number>(0)
   const [hoveredData, setHoveredData] = useState<Record<string, number> | null>(null)
+  const [hoveredExitIndex, setHoveredExitIndex] = useState<number | null>(null)
 
   const toggleXAxis = () => {
     setXAxisKey(prev => (prev === 'time' ? 'distance' : 'time'))
@@ -309,7 +310,7 @@ export default function UploadIdPage() {
                 </div>
 
                 {/* 💬 자연어 피드백 */}
-                {feedbacksInThisSegment.length > 0 ? (
+                {/* {feedbacksInThisSegment.length > 0 ? (
                   <div className="space-y-2">
                     {feedbacksInThisSegment.map((f, i) => (
                       <div
@@ -322,73 +323,79 @@ export default function UploadIdPage() {
                   </div>
                 ) : (
                   <p className="text-sm text-gray-500 dark:text-gray-400">해당 구간에 대한 피드백이 없습니다.</p>
-                )}
+                )} */}
 
-                {/* 🚦 Throttle + Brake */}
-                <ResponsiveContainer width="100%" height={200}>
-                  <LineChart
-                    data={segment}
-                    syncId="segment-sync"
-                    onMouseMove={(state) => {
-                      if (state?.activePayload && state.activePayload[0]?.payload) {
-                        setHoveredData(state.activePayload[0].payload)
-                      }
-                    }}
-                    onMouseLeave={() => setHoveredData(null)} // 마우스 나가면 리셋
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey={xAxisKey} tick={false} axisLine={false} />
-                    <YAxis />
-                    <Tooltip
-                      content={() => null}
-                      contentStyle={{
-                        backgroundColor: 'rgba(31, 41, 55, 0.85)', // 투명 다크
-                        border: '1px solid #4b5563',
-                        color: '#f9fafb',
-                        backdropFilter: 'blur(4px)', // 선택 블러
+                {/* 🚦 Throttle + Brake + 말풍선 통합 */}
+                <div className="relative">
+                  {/* 💬 Hover된 탈출 구간 피드백 말풍선 */}
+                  {hoveredExitIndex !== null && feedbacksInThisSegment[hoveredExitIndex] && (
+                    <div className="absolute -top-20 right-4 bg-white dark:bg-gray-800 border dark:border-gray-600 shadow-lg rounded p-3 z-50 max-w-[300px] text-sm text-gray-800 dark:text-gray-100">
+                      {feedbacksInThisSegment[hoveredExitIndex].feedback}
+                    </div>
+                  )}
+
+                  <ResponsiveContainer width="100%" height={200}>
+                    <LineChart
+                      data={segment}
+                      syncId="segment-sync"
+                      onMouseMove={(state) => {
+                        if (state?.activePayload && state.activePayload[0]?.payload) {
+                          setHoveredData(state.activePayload[0].payload)
+                        }
                       }}
-                      labelStyle={{ color: '#d1d5db' }}
-                      itemStyle={{ color: '#f9fafb' }}
-                    />
-                    <Line type="monotone" dataKey="throttle" stroke="#82ca9d" dot={false} />
-                    <Line type="monotone" dataKey="brake" stroke="#ff7300" dot={false} />
-                    <Line type="monotone" dataKey="gear" stroke="transparent" dot={false} />
+                      onMouseLeave={() => {
+                        setHoveredData(null)
+                        setHoveredExitIndex(null)
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey={xAxisKey} tick={false} axisLine={false} />
+                      <YAxis />
+                      <Tooltip content={() => null} />
 
-                    {/* ✅ 탈출 구간 강조 */}
-                    {feedbacksInThisSegment.map((f, idx) => {
-                      const startTime = result.data?.[f.start_idx]?.time
-                      let endTime = result.data?.[f.end_idx]?.time
-                      if (endTime === undefined || endTime > segmentEndTime) {
-                        endTime = segmentEndTime
-                      }
-                      if (startTime === undefined || endTime === undefined) return null
+                      <Line type="monotone" dataKey="throttle" stroke="#82ca9d" dot={false} />
+                      <Line type="monotone" dataKey="brake" stroke="#ff7300" dot={false} />
+                      <Line type="monotone" dataKey="gear" stroke="transparent" dot={false} />
 
-                      return (
-                        <ReferenceArea
-                          key={idx}
-                          x1={startTime}
-                          x2={endTime}
-                          strokeOpacity={0.1}
-                          fill="#aaf"
-                          fillOpacity={0.2}
-                        />
-                      )
-                    })}
-                  </LineChart>
-                </ResponsiveContainer>
+                      {/* ✅ 탈출 구간 강조 */}
+                      {feedbacksInThisSegment.map((f, idx) => {
+                        const startTime = result.data?.[f.start_idx]?.time
+                        let endTime = result.data?.[f.end_idx]?.time
+                        if (endTime === undefined || endTime > segmentEndTime) {
+                          endTime = segmentEndTime
+                        }
+                        if (startTime === undefined || endTime === undefined) return null
+
+                        return (
+                          <ReferenceArea
+                            key={idx}
+                            x1={startTime}
+                            x2={endTime}
+                            strokeOpacity={0.1}
+                            fill="#aaf"
+                            fillOpacity={0.2}
+                            onMouseEnter={() => setHoveredExitIndex(idx)}
+                            onMouseLeave={() => setHoveredExitIndex(null)}
+                          />
+                        )
+                      })}
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+         
 
               <div className="flex justify-between items-start text-sm mt-2">
                 {/* 🏁 차량 및 트랙 정보 (왼쪽 정렬) */}
-                <div className="flex gap-47 text-gray-700 dark:text-gray-300">
+                <div className="flex gap-40 text-gray-700 dark:text-gray-300">
                   <p><strong>🏁 트랙:</strong> {result.track}</p>
                   <p><strong>🚗 차량:</strong> {result.car}</p>
                 </div>
 
                 {/* 📊 요약 정보 (오른쪽 정렬) */}
-                <div className="flex gap-2.5 text-gray-700 dark:text-gray-300">
+                <div className="flex gap-2 text-gray-700 dark:text-gray-300">
                   <p><strong>⏱ 지속 시간:</strong> {stats.duration}초</p>
-                  <p><strong>🚀 최고 속도:</strong> {stats.maxSpeed} km/h</p>
-                  <p><strong>🐢 최저 속도:</strong> {stats.minSpeed} km/h</p>
+                  <p><strong>🚀 최고 속도:</strong> {stats.maxSpeed} kph</p>
+                  <p><strong>🐢 최저 속도:</strong> {stats.minSpeed} kph</p>
                 </div>
               </div>
 
