@@ -431,18 +431,18 @@ export default function UploadIdPage() {
                     <div className="flex flex-wrap items-center gap-1">
                       <div className="flex flex-col items-center min-w-[32px] text-sm">
                         <span className="mt-1 text-gray-700 dark:text-gray-200">
-                          {hoveredData?.throttle?.toFixed(0) ?? '-'}
-                        </span>
-                        <VerticalBar value={hoveredData?.throttle ?? 0} color="#82ca9d" />
-                        <span className="mt-1 text-gray-700 dark:text-gray-200">THR</span>
-                      </div>
-                      <div className="flex flex-col items-center min-w-[32px] text-sm">
-                        <span className="mt-1 text-gray-700 dark:text-gray-200">
                           {hoveredData?.brake?.toFixed(0) ?? '-'}
                         </span>
                         <VerticalBar value={hoveredData?.brake ?? 0} color="#ff7300" />
                         <span className="mt-1 text-gray-700 dark:text-gray-200">BRK</span>
                       </div>
+                      <div className="flex flex-col items-center min-w-[32px] text-sm">
+                        <span className="mt-1 text-gray-700 dark:text-gray-200">
+                          {hoveredData?.throttle?.toFixed(0) ?? '-'}
+                        </span>
+                        <VerticalBar value={hoveredData?.throttle ?? 0} color="#82ca9d" />
+                        <span className="mt-1 text-gray-700 dark:text-gray-200">THR</span>
+                      </div>                      
                     </div>
 
                     {/* ⚙️ 기어 + 속도 */}
