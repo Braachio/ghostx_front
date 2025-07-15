@@ -505,6 +505,11 @@ export default function UploadIdPage() {
                       {hoveredData ? <TimerDisplay value={hoveredData?.[xAxisKey] ?? 0} /> : '--:--'}
                     </div>
 
+                    {/* ⚙️ 기어 + 속도 */}
+                    <div className="min-w-[96px]">
+                      <GearSpeedCircle gear={hoveredData?.gear ?? '-'} speed={hoveredData?.speed ?? 0} />
+                    </div>
+
                     {/* 🧭 Steering */}
                     <div className="flex flex-col items-center min-w-[10px]">
                       <SteeringWheel angle={-(hoveredData?.steerangle ?? 0)} />
@@ -526,11 +531,6 @@ export default function UploadIdPage() {
                         <VerticalBar value={hoveredData?.throttle ?? 0} color="#82ca9d" />
                         <span className="mt-1 text-gray-700 dark:text-gray-200">THR</span>
                       </div>                      
-                    </div>
-
-                    {/* ⚙️ 기어 + 속도 */}
-                    <div className="min-w-[96px]">
-                      <GearSpeedCircle gear={hoveredData?.gear ?? '-'} speed={hoveredData?.speed ?? 0} />
                     </div>
                   </div>
 
