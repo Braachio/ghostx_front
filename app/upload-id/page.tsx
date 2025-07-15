@@ -13,7 +13,17 @@ import Image from 'next/image'
 import GearSpeedCircle from '@/components/GearSpeedCircle'
 import RPMShiftLight from '@/components/RPMShiftLight'
 import TimerDisplay from '@/components/TimerDisplay'
-import { API_URL } from '@/lib/constants'
+// import { API_URL } from '@/lib/constants'
+
+interface CornerEntryFeedback {
+  start_idx: number 
+  end_idx: number
+  corner_index: number
+  feedback: string
+  avg_brake_pressure: number
+  brake_duration: number
+  steer_variability: number
+}
 
 interface CornerExitFeedback {
   start_idx: number 
@@ -35,7 +45,8 @@ interface ResultType {
   car: string
   data?: Array<Record<string, number>>
   sector_results?: SectorResult[]        
-  corner_exit_analysis?: CornerExitFeedback[] 
+  corner_exit_analysis: CornerExitFeedback[] 
+  corner_entry_analysis?: CornerEntryFeedback[]
 }
 
 interface LapMeta {
@@ -90,6 +101,8 @@ export default function UploadIdPage() {
   const [selectedSegmentIndex, setSelectedSegmentIndex] = useState<number>(0)
   const [hoveredData, setHoveredData] = useState<Record<string, number> | null>(null)
   const [hoveredExitIndex, setHoveredExitIndex] = useState<number | null>(null)
+  const [hoveredTrailIndex, setHoveredTrailIndex] = useState<number | null>(null)
+  const [analysisMode, setAnalysisMode] = useState<'braking' | 'throttle'>('throttle')
 
   const toggleXAxis = () => {
     setXAxisKey(prev => (prev === 'time' ? 'distance' : 'time'))
@@ -117,19 +130,20 @@ export default function UploadIdPage() {
     fetchUserAndLaps()
   }, [])
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const getSummaryStats = (segment: any[]) => {
-    const duration = segment.at(-1)?.time - segment[0]?.time || 0
-    const speeds = segment.map((d) => d.speed).filter((v) => v !== undefined && !isNaN(v))
-    const maxSpeed = Math.max(...speeds)
-    const minSpeed = Math.min(...speeds)
+  const getSummaryStats = (segment: Array<Record<string, number>>) => {
+    if (!Array.isArray(segment) || segment.length === 0) return { duration: '0', maxSpeed: '-', minSpeed: '-' };
+
+    const duration = (segment.at(-1)?.time ?? 0) - (segment[0]?.time ?? 0);
+    const speeds = segment.map((d) => d.speed).filter((v) => v !== undefined && !isNaN(v));
+    const maxSpeed = Math.max(...speeds);
+    const minSpeed = Math.min(...speeds);
 
     return {
-      duration: duration.toFixed(2), // 초 단위
+      duration: duration.toFixed(2),
       maxSpeed: maxSpeed.toFixed(1),
       minSpeed: minSpeed.toFixed(1),
-    }
-  }
+    };
+  };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -147,7 +161,8 @@ export default function UploadIdPage() {
     formData.append('track_temp', '32')
 
     try {
-      const res = await fetch(`${API_URL}/api/analyze-motec-csv`, {
+      // const res = await fetch(`${API_URL}/api/analyze-motec-csv`, {
+      const res = await fetch(`http://localhost:8000/api/analyze-motec-csv`, {
         method: 'POST',
         body: formData,
       })
@@ -173,7 +188,8 @@ export default function UploadIdPage() {
   const fetchLapDetail = async (lapId: string) => {
     setMessage('📦 저장된 랩 데이터 불러오는 중...')
     try {
-      const res = await fetch(`${API_URL}/api/lap/${lapId}`)
+      // const res = await fetch(`${API_URL}/api/lap/${lapId}`)
+      const res = await fetch(`http://localhost:8000/api/lap/${lapId}`)
       const data = await res.json()
 
       if (!res.ok) {
@@ -271,20 +287,43 @@ export default function UploadIdPage() {
       
       {result?.data && (
         <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-4 space-y-6">
-          <div className="mb-4">
-            <label className="mr-2 font-medium text-sm">🧭 구간 선택:</label>
-            <select
-              className="border rounded px-2 py-1 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={selectedSegmentIndex}
-              onChange={(e) => setSelectedSegmentIndex(Number(e.target.value))}
-            >
-              {splitByTimeGap(result.data).map((_, idx) => (
-                <option key={idx} value={idx}>
-                  구간 {idx + 1}
-                </option>
-              ))}
-            </select>
+          {/* 🧭 구간 선택 + 분석 모드 토글 (한 줄 정렬) */}
+          <div className="flex justify-between items-center flex-wrap gap-2">
+            {/* 🧭 구간 선택 */}
+            <div className="flex items-center gap-2">
+              <label className="font-medium text-sm">🧭 구간 선택:</label>
+              <select
+                className="border rounded px-2 py-1 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={selectedSegmentIndex}
+                onChange={(e) => setSelectedSegmentIndex(Number(e.target.value))}
+              >
+                {splitByTimeGap(result.data).map((_, idx) => (
+                  <option key={idx} value={idx}>
+                    구간 {idx + 1}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* 분석 모드 토글 */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">분석 모드:</span>
+              <button
+                onClick={() => setAnalysisMode('braking')}
+                className={`px-3 py-1 rounded text-sm ${analysisMode === 'braking' ? 'bg-orange-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'}`}
+              >
+                브레이크
+              </button>              
+              <button
+                onClick={() => setAnalysisMode('throttle')}
+                className={`px-3 py-1 rounded text-sm ${analysisMode === 'throttle' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'}`}
+              >
+                스로틀
+              </button>
+            </div>
           </div>
+
+          
 
           {(() => {
             const segments = splitByTimeGap(result.data)
@@ -325,12 +364,19 @@ export default function UploadIdPage() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">해당 구간에 대한 피드백이 없습니다.</p>
                 )} */}
 
+                
                 {/* 🚦 Throttle + Brake + 말풍선 통합 */}
                 <div className="relative">
-                  {/* 💬 Hover된 탈출 구간 피드백 말풍선 */}
-                  {hoveredExitIndex !== null && feedbacksInThisSegment[hoveredExitIndex] && (
-                    <div className="absolute -top-20 right-4 bg-white dark:bg-gray-800 border dark:border-gray-600 shadow-lg rounded p-3 z-50 max-w-[300px] text-sm text-gray-800 dark:text-gray-100">
-                      {feedbacksInThisSegment[hoveredExitIndex].feedback}
+                  {/* 💬 Hover된 피드백 말풍선 */}
+                  {analysisMode === 'throttle' && hoveredExitIndex !== null && feedbacksInThisSegment[hoveredExitIndex] && (
+                    <div className="absolute -top-20 right-4 bg-white dark:bg-gray-800 border dark:border-gray-600 shadow-lg rounded p-3 z-50 max-w-[480px] text-sm text-gray-800 dark:text-gray-100">
+                      {feedbacksInThisSegment[hoveredExitIndex]?.feedback}
+                    </div>
+                  )}
+
+                  {analysisMode === 'braking' && hoveredTrailIndex !== null && result.corner_entry_analysis?.[hoveredTrailIndex] && (
+                    <div className="absolute -top-20 right-4 bg-white dark:bg-gray-800 border dark:border-gray-600 shadow-lg rounded p-3 z-50 max-w-[480px] text-sm text-gray-800 dark:text-gray-100">
+                      {result.corner_entry_analysis?.[hoveredTrailIndex]?.feedback}
                     </div>
                   )}
 
@@ -340,12 +386,13 @@ export default function UploadIdPage() {
                       syncId="segment-sync"
                       onMouseMove={(state) => {
                         if (state?.activePayload && state.activePayload[0]?.payload) {
-                          setHoveredData(state.activePayload[0].payload)
+                          setHoveredData(state.activePayload[0].payload);
                         }
                       }}
                       onMouseLeave={() => {
-                        setHoveredData(null)
-                        setHoveredExitIndex(null)
+                        setHoveredData(null);
+                        setHoveredExitIndex(null);
+                        setHoveredTrailIndex(null);
                       }}
                     >
                       <CartesianGrid strokeDasharray="3 3" />
@@ -357,18 +404,18 @@ export default function UploadIdPage() {
                       <Line type="monotone" dataKey="brake" stroke="#ff7300" dot={false} />
                       <Line type="monotone" dataKey="gear" stroke="transparent" dot={false} />
 
-                      {/* ✅ 탈출 구간 강조 */}
-                      {feedbacksInThisSegment.map((f, idx) => {
-                        const startTime = result.data?.[f.start_idx]?.time
-                        let endTime = result.data?.[f.end_idx]?.time
+                      {/* ✅ 스로틀 모드 → 코너 탈출 강조 */}
+                      {analysisMode === 'throttle' && feedbacksInThisSegment.map((f, idx) => {
+                        const startTime = result.data?.[f.start_idx]?.time;
+                        let endTime = result.data?.[f.end_idx]?.time;
                         if (endTime === undefined || endTime > segmentEndTime) {
-                          endTime = segmentEndTime
+                          endTime = segmentEndTime;
                         }
-                        if (startTime === undefined || endTime === undefined) return null
+                        if (startTime === undefined || endTime === undefined) return null;
 
                         return (
                           <ReferenceArea
-                            key={idx}
+                            key={`exit-${idx}`}
                             x1={startTime}
                             x2={endTime}
                             strokeOpacity={0.1}
@@ -377,11 +424,38 @@ export default function UploadIdPage() {
                             onMouseEnter={() => setHoveredExitIndex(idx)}
                             onMouseLeave={() => setHoveredExitIndex(null)}
                           />
-                        )
+                        );
+                      })
+                      }
+
+                      {/* ✅ 브레이킹 모드 → 트레일 브레이킹 강조 */}
+                      {analysisMode === 'braking' && Array.isArray(result?.corner_entry_analysis) && 
+                      result.corner_entry_analysis.map((zone, idx) => {
+                        const startTime = result.data?.[zone.start_idx]?.time;
+                        let endTime = result.data?.[zone.end_idx]?.time;
+
+                        if (endTime === undefined || endTime > segmentEndTime) {
+                          endTime = segmentEndTime;
+                        }
+                        if (startTime === undefined || endTime === undefined) return null;
+
+                        return (
+                          <ReferenceArea
+                            key={`trail-${idx}`}
+                            x1={startTime}
+                            x2={endTime}
+                            strokeOpacity={0.1}
+                            fill="#ffa500"
+                            fillOpacity={0.2}
+                            onMouseEnter={() => setHoveredTrailIndex(idx)}
+                            onMouseLeave={() => setHoveredTrailIndex(null)}
+                          />
+                        );
                       })}
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
+
          
 
               <div className="flex justify-between items-start text-sm mt-2">
@@ -406,7 +480,8 @@ export default function UploadIdPage() {
                   <p className="text-gray-700 dark:text-gray-200 text-xl font-semibold text-center">
                     🛠 주행 라인 시각화 기능은 준비 중입니다.
                   </p>
-                </div>
+                </div>   
+
                 {/* 🏎 주행 정보 박스 */}
                 <div className="relative rounded-xl shadow-md bg-white/80 dark:bg-gray-900/70 backdrop-blur-md border border-gray-300 dark:border-gray-700 p-6 pt-12 min-h-[160px] max-w-[480px]">
                   
@@ -462,8 +537,16 @@ export default function UploadIdPage() {
                     </div>
                   )}
 
+                {/* 📊 데이터 축적 문구 박스 */}
+                <div className="flex-1 flex items-center justify-center rounded-xl border border-dashed border-gray-400 dark:border-gray-600 bg-white/60 dark:bg-gray-800/60 p-4 min-h-[160px] max-w-[445px]">
+                  <p className="text-gray-700 dark:text-gray-200 text-xl font-semibold text-center">
+                    🛠 비교 분석 기능은 준비 중입니다.
+                  </p>
+                </div>                  
+                
                 </div>
-
+                
+ 
               </div>
                   
                 {/* 📉 speed, steerangle */}

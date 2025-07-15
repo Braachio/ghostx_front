@@ -40,19 +40,19 @@ export default function MultisPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">🗓️ 멀티 캘린더</h1>
         <div className="space-x-2">
-          <Link href="/multis/new">
+          {/* <Link href="/multis/new">
             <button className="px-3 py-1.5 rounded-md border border-gray-300 dark:border-gray-600 text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
               📢 공지 등록
             </button>
-          </Link>
+          </Link> */}
 
-          {user && (
+          {/* {user && (
             <Link href="/myposts">
               <button className="px-3 py-1.5 rounded-md border border-gray-300 dark:border-gray-600 text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
                 📂 내 게시글 관리
               </button>
             </Link>
-          )}
+          )} */}
 
           <Link href="/">
             <button className="px-3 py-1.5 rounded-md border border-gray-300 dark:border-gray-600 text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition">

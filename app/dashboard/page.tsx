@@ -39,7 +39,7 @@ export default function DashboardPage() {
       <section className="mb-8">
         <h2 className="text-lg font-semibold mb-1">📊 데이터 상태</h2>
         <p className="text-gray-700 dark:text-gray-300">
-          {hasData ? '✅ 데이터가 업로드되어 있습니다.' : '❌ 아직 주행 데이터가 없습니다.'}
+          {hasData ? '✅ 데이터가 업로드되어 있습니다.' : '❌ 준비 중입니다.'}
         </p>
       </section>
 
