@@ -14,6 +14,7 @@ import GearSpeedCircle from '@/components/GearSpeedCircle'
 import RPMShiftLight from '@/components/RPMShiftLight'
 import TimerDisplay from '@/components/TimerDisplay'
 import { API_URL } from '@/lib/constants'
+import LapBrowser from '@/components/LapBrowser' 
 
 interface CornerEntryFeedback {
   start_idx: number 
@@ -55,7 +56,9 @@ interface LapMeta {
   track: string
   car: string
   created_at: string
+  display_name: string
   hash: string
+  lap_time?: number
 }
 
 function SteeringWheel({ angle = 0 }: { angle: number }) {
@@ -91,8 +94,16 @@ function VerticalBar({ value, color }: { value: number, color: string }) {
   )
 }
 
+function formatLapTime(seconds: number): string {
+  if (!seconds || isNaN(seconds)) return '-';
+  const mins = Math.floor(seconds / 60);
+  const secs = (seconds % 60).toFixed(3); // 소수점 3자리까지
+  return `${mins}:${secs.padStart(6, '0')}`; // 예: 1:46.234
+}
+
 export default function UploadIdPage() {
   const [message, setMessage] = useState('')
+  const [displayName, setDisplayName] = useState('')
   const [result, setResult] = useState<ResultType | null>(null)
   const [userId, setUserId] = useState<string>('')
   const [lapList, setLapList] = useState<LapMeta[]>([])
@@ -103,6 +114,9 @@ export default function UploadIdPage() {
   const [hoveredExitIndex, setHoveredExitIndex] = useState<number | null>(null)
   const [hoveredTrailIndex, setHoveredTrailIndex] = useState<number | null>(null)
   const [analysisMode, setAnalysisMode] = useState<'braking' | 'throttle'>('throttle')
+  const [newName, setNewName] = useState('');
+  const [updating, setUpdating] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const toggleXAxis = () => {
     setXAxisKey(prev => (prev === 'time' ? 'distance' : 'time'))
@@ -130,6 +144,32 @@ export default function UploadIdPage() {
     fetchUserAndLaps()
   }, [])
 
+  const handleSaveName = async (lapId: string, name: string) => {
+    setUpdating(true);
+    try {
+      const res = await fetch('/api/update-lap-name', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lap_id: lapId, display_name: name }),
+      });
+
+      if (!res.ok) {
+        console.error('이름 업데이트 실패');
+        return;
+      }
+
+      setLapList((prev) =>
+        prev.map((lap) => (lap.id === lapId ? { ...lap, display_name: name } : lap))
+      );
+      setIsEditing(false);
+      setNewName('');
+    } catch (err) {
+      console.error('저장 중 오류:', err);
+    } finally {
+      setUpdating(false);
+    }
+  };
+  
   const getSummaryStats = (segment: Array<Record<string, number>>) => {
     if (!Array.isArray(segment) || segment.length === 0) return { duration: '0', maxSpeed: '-', minSpeed: '-' };
 
@@ -167,10 +207,10 @@ export default function UploadIdPage() {
     formData.append('weather', 'sunny')
     formData.append('air_temp', '25')
     formData.append('track_temp', '32')
+    formData.append('display_name', displayName)
 
     try {
       const res = await fetch(`${API_URL}/api/analyze-motec-csv`, {
-      // const res = await fetch(`http://localhost:8000/api/analyze-motec-csv`, {
         method: 'POST',
         body: formData,
       })
@@ -187,6 +227,7 @@ export default function UploadIdPage() {
 
       setResult(data)
       setMessage('✅ 분석 완료')
+      setDisplayName('')
     } catch (err) {
       console.error(err)
       setMessage('❌ 업로드 실패')
@@ -197,7 +238,6 @@ export default function UploadIdPage() {
     setMessage('📦 저장된 랩 데이터 불러오는 중...')
     try {
       const res = await fetch(`${API_URL}/api/lap/${lapId}`)
-      // const res = await fetch(`http://localhost:8000/api/lap/${lapId}`)
       const data = await res.json()
 
       if (!res.ok) {
@@ -244,9 +284,9 @@ export default function UploadIdPage() {
         </Link>
       </div>
 
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        {/* 📤 CSV 업로드 버튼 */}
-        <div>
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        {/* 📤 CSV 업로드 버튼 + 상태 메시지 */}
+        <div className="flex items-center w-full sm:w-auto gap-3">
           <input id="csv-upload" type="file" accept=".csv" onChange={handleUpload} className="hidden" />
           <label
             htmlFor="csv-upload"
@@ -254,45 +294,86 @@ export default function UploadIdPage() {
           >
             📤 CSV 업로드
           </label>
+          <span className="ml-auto text-sm text-gray-600 dark:text-gray-400">{message}</span>
+          <button
+            onClick={toggleXAxis}
+            className="text-sm px-3 py-1 rounded bg-transparent dark:bg-transparent text-transparent dark:text-transparent hover:bg-transparent dark:hover:bg-transparent transition"
+          >
+            X축 전환: {xAxisKey === 'time' ? '⏱ 시간' : '📏 거리'}
+          </button>          
         </div>
+      </div>
 
-        {/* 📜 이전 랩 선택 드롭다운 */}
-        {lapList.length > 0 && (
-          <div className="flex items-center gap-2">
-            <label className="font-medium text-sm">📜 이전 랩 선택:</label>
-            <select
-              className="border rounded px-2 py-1 text-sm bg-white text-gray-800 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
-              value={selectedLapId}
-              onChange={(e) => {
-                const id = e.target.value
-                setSelectedLapId(id)
-                if (id) fetchLapDetail(id)
-              }}
-            >
-              <option value="">선택하세요</option>
-              {lapList.map((lap) => (
-                <option key={lap.id} value={lap.id}>
-                  {lap.track} - {lap.car} ({new Date(lap.created_at).toLocaleString()})
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
+      <div className="flex items-start gap-x-6 flex-wrap">
+        {/* 📋 선택된 랩 정보 카드 */}
+        {lapList.length > 0 && selectedLapId && (() => {
+          const selected = lapList.find(l => l.id === selectedLapId)
+          if (!selected) return null
+
+          return (
+            <div className="border p-4 rounded bg-white dark:bg-gray-800 w-full max-w-lg">
+              {/* 이름 또는 수정 버튼 */}
+              <div className="flex items-center justify-between mb-1">
+                <div className="font-medium text-lg text-gray-900 dark:text-gray-100">
+                  {selected.display_name
+                    ? `${selected.display_name} (${selected.track} - ${selected.car})`
+                    : `${selected.track} - ${selected.car}`}
+                </div>
+                <button
+                  onClick={() => {
+                    setIsEditing(!isEditing)
+                    setNewName(selected.display_name || '')
+                  }}
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  {isEditing ? '취소' : '이름 수정'}
+                </button>
+              </div>
+
+              {/* 이름 수정 입력창 (토글됨) */}
+              {isEditing && (
+                <div className="flex gap-2 mt-2">
+                  <input
+                    type="text"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    placeholder="새 이름 입력"
+                    className="flex-1 border px-2 py-1 rounded text-sm"
+                  />
+                  <button
+                    onClick={() => handleSaveName(selected.id, newName)}
+                    className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded"
+                    disabled={updating}
+                  >
+                    💾 저장
+                  </button>
+                </div>
+              )}
+
+              <div className="flex justify-between items-start flex-wrap gap-2 mt-2">
+                <div className="text-base text-gray-900 dark:text-gray-100">
+                  🕒 랩타임: {formatLapTime(selected.lap_time ?? 0)}
+                </div>
+                <div className="text-sm text-gray-500 dark:text-gray-100">
+                  업로드일: {new Date(selected.created_at).toLocaleString()}
+                </div>
+              </div>
+            </div>
+          )
+        })()}
+        {/* 📂 이전 랩 선택 UI */}
+        <LapBrowser
+          lapList={lapList}
+          onSelect={(lapId) => {
+            setSelectedLapId(lapId)
+            if (lapId) fetchLapDetail(lapId)
+          }}
+        />        
       </div>
 
 
-      <p className="text-sm text-gray-600 dark:text-gray-400">{message}</p>
 
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">📈 주행 시각화</h3>
-        <button
-          onClick={toggleXAxis}
-          className="text-sm px-3 py-1 rounded bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-100 hover:bg-blue-200 dark:hover:bg-blue-700 transition"
-        >
-          X축 전환: {xAxisKey === 'time' ? '⏱ 시간' : '📏 거리'}
-        </button>
-      </div>
-      
+
       {result?.data && (
         <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-4 space-y-6">
           {/* 🧭 구간 선택 + 분석 모드 토글 (한 줄 정렬) */}
@@ -324,14 +405,16 @@ export default function UploadIdPage() {
               </button>              
               <button
                 onClick={() => setAnalysisMode('throttle')}
-                className={`px-3 py-1 rounded text-sm ${analysisMode === 'throttle' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'}`}
+                className={`px-3 py-1 rounded text-sm ${
+                  analysisMode === 'throttle'
+                    ? 'bg-[#82ca9d] text-white'
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
+                }`}
               >
                 스로틀
               </button>
             </div>
           </div>
-
-          
 
           {(() => {
             const segments = splitByTimeGap(result.data)
@@ -372,7 +455,7 @@ export default function UploadIdPage() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">해당 구간에 대한 피드백이 없습니다.</p>
                 )} */}
 
-                
+              
                 {/* 🚦 Throttle + Brake + 말풍선 통합 */}
                 <div className="relative">
                   {/* 💬 Hover된 피드백 말풍선 */}
@@ -464,7 +547,7 @@ export default function UploadIdPage() {
                   </ResponsiveContainer>
                 </div>
 
-         
+     
 
               <div className="flex justify-between items-start text-sm mt-2">
                 {/* 🏁 차량 및 트랙 정보 (왼쪽 정렬) */}
@@ -472,6 +555,7 @@ export default function UploadIdPage() {
                   <p><strong>🏁 트랙:</strong> {result.track}</p>
                   <p><strong>🚗 차량:</strong> {result.car}</p>
                 </div>
+               
 
                 {/* 📊 요약 정보 (오른쪽 정렬) */}
                 <div className="flex gap-2 text-gray-700 dark:text-gray-300">
