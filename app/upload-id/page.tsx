@@ -146,8 +146,16 @@ export default function UploadIdPage() {
   };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file || !userId) return
+    const file = e.target.files?.[0];
+
+    // ✅ 로그인 안 된 경우 안내 후 업로드 차단
+    if (!userId) {
+      setMessage('❌ 로그인 후 이용해주세요');
+      alert('로그인 후 이용해주세요 🔐'); // 또는 toast 사용 가능
+      return;
+    }
+
+    if (!file) return;
 
     setMessage('업로드 중...')
     setResult(null)

@@ -46,8 +46,8 @@ export const TIME_TRIAL_EVENT_TEMPLATE = `🏁 심레이싱 타임트라이얼 �
  • 랭킹 반영 여부:
 `;
 
-export const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  (typeof window !== 'undefined'
-    ? 'http://localhost:8000' // ✅ 클라이언트에서 개발 중
-    : 'https://ghostx-sen7.onrender.com') // ✅ 서버사이드에서 fallback
+
+export const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+
+
+    
