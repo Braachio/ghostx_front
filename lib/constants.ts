@@ -46,8 +46,11 @@ export const TIME_TRIAL_EVENT_TEMPLATE = `🏁 심레이싱 타임트라이얼 �
  • 랭킹 반영 여부:
 `;
 
+export const API_URL =
+  process.env.NODE_ENV === 'development'
+    ? 'http://localhost:8000'
+    : 'https://ghostx-sen7.onrender.com';
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
 
     
