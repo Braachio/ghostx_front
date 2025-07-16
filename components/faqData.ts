@@ -11,6 +11,6 @@ export const FAQ_LIST = [
   },
   {
     question: '어떤 게임을 지원하나요?',
-    answer: 'ACC, AC, GT7, iRacing, rF2, EA WRC, 르망 얼티밋 등을 지원합니다.',
+    answer: '현재는 ACC만 지원하며, 추후 AC, GT7, iRacing, rF2, EA WRC, 르망 얼티밋 등을 지원할 예정입니다.',
   },
 ]
