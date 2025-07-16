@@ -294,6 +294,18 @@ export default function UploadIdPage() {
           >
             📤 CSV 업로드
           </label>
+
+          {/* 📘 MoTeC 변환 가이드 링크 추가 */}
+          <a
+            href="/docs/motec_csv_guide.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-blue-600 hover:underline"
+          >
+            MoTeC 변환 가이드
+          </a>
+
+
           <span className="ml-auto text-sm text-gray-600 dark:text-gray-400">{message}</span>
           <button
             onClick={toggleXAxis}
@@ -305,6 +317,14 @@ export default function UploadIdPage() {
       </div>
 
       <div className="flex items-start gap-x-6 flex-wrap">
+        {/* 📂 이전 랩 선택 UI */}
+        <LapBrowser
+          lapList={lapList}
+          onSelect={(lapId) => {
+            setSelectedLapId(lapId)
+            if (lapId) fetchLapDetail(lapId)
+          }}
+        />        
         {/* 📋 선택된 랩 정보 카드 */}
         {lapList.length > 0 && selectedLapId && (() => {
           const selected = lapList.find(l => l.id === selectedLapId)
@@ -361,18 +381,7 @@ export default function UploadIdPage() {
             </div>
           )
         })()}
-        {/* 📂 이전 랩 선택 UI */}
-        <LapBrowser
-          lapList={lapList}
-          onSelect={(lapId) => {
-            setSelectedLapId(lapId)
-            if (lapId) fetchLapDetail(lapId)
-          }}
-        />        
       </div>
-
-
-
 
       {result?.data && (
         <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-4 space-y-6">
@@ -586,7 +595,13 @@ export default function UploadIdPage() {
                   <div className="flex flex-wrap items-center justify-between gap-4 min-h-[100px]">
                     {/* 🕒 시간 or 거리 */}
                     <div className="text-center text-gray-800 dark:text-gray-100 text-2xl font-semibold min-w-[80px]">
-                      {hoveredData ? <TimerDisplay value={hoveredData?.[xAxisKey] ?? 0} /> : '--:--'}
+                      {hoveredData ? (
+                        xAxisKey === 'distance' ? (
+                          `${(hoveredData.distance).toFixed(1)} m`
+                        ) : (
+                          <TimerDisplay value={hoveredData[xAxisKey] ?? 0} />
+                        )
+                      ) : '--:--'}
                     </div>
 
                     {/* ⚙️ 기어 + 속도 */}
