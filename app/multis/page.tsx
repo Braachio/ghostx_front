@@ -36,31 +36,39 @@ export default function MultisPage() {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900 min-h-screen max-w-screen-2xl mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">🗓️ 멀티 캘린더</h1>
-        <Link href="/">
-          <button className="px-3 py-1.5 rounded-md border border-gray-300 dark:border-gray-600 text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-            🏠 홈으로
-          </button>
-        </Link>        
-        {/* <div className="space-x-2">
-          <Link href="/multis/new">
-            <button className="px-3 py-1.5 rounded-md border border-gray-300 dark:border-gray-600 text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-              📢 공지 등록
+    <div className="bg-white dark:bg-gray-900 min-h-screen">
+      {/* 💡 최상위에서만 너비와 패딩 설정 */}
+      <div className="max-w-screen-2xl mx-auto px-6 py-6">
+        {/* 상단 헤더 */}
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">🗓️ 멀티 캘린더</h1>
+          <Link href="/">
+            <button className="px-3 py-1.5 rounded-md border ...">
+              🏠 홈으로
             </button>
           </Link>
+        </div>
 
-          {user && (
-            <Link href="/myposts">
-              <button className="px-3 py-1.5 rounded-md border border-gray-300 dark:border-gray-600 text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                📂 내 게시글 관리
-              </button>
-            </Link>
-          )}
-        </div> */}
+        {/* 내부 콘텐츠 */}
+        <MultiListPage currentUserId={user?.id ?? null} />
       </div>
-      <MultiListPage currentUserId={user?.id ?? null} />
     </div>
+
   )
 }
+
+          {/* <div className="space-x-2">
+            <Link href="/multis/new">
+              <button className="px-3 py-1.5 rounded-md border border-gray-300 dark:border-gray-600 text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                📢 공지 등록
+              </button>
+            </Link>
+
+            {user && (
+              <Link href="/myposts">
+                <button className="px-3 py-1.5 rounded-md border border-gray-300 dark:border-gray-600 text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                  📂 내 게시글 관리
+                </button>
+              </Link>
+            )}
+          </div> */}

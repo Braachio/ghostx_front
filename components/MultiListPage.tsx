@@ -60,11 +60,11 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
   const startDate = new Date(start)
 
   return (
-    <div className="p-6 max-w-screen-2xl mx-auto transition-colors duration-300 text-black dark:text-white">
+    <div className="transition-colors duration-300 text-black dark:text-white">
       {/* 필터 */}
       <div className="mb-6 border p-4 rounded bg-white dark:bg-gray-900 dark:border-gray-700 shadow-sm">
         <h2 className="font-semibold mb-2">게임 필터</h2>
-        <div className="flex flex-wrap gap-21 ml-8 items-center">
+        <div className="flex flex-wrap gap-6 ml-8 items-center">
           {allGames.map(game => (
             <label key={game} className="flex items-center space-x-1">
               <input
