@@ -278,7 +278,7 @@ export default function UploadIdPage() {
   return (
     <div className="bg-white dark:bg-gray-900 min-h-screen p-6 max-w-5xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">ACC 랩 분석 리포트</h2>
+        <h2 className="text-2xl font-bold">ACC 주행 분석</h2>
         <Link href="/">
           <button className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 transition">홈으로</button>
         </Link>
@@ -304,36 +304,30 @@ export default function UploadIdPage() {
           >
             MoTeC 변환 가이드
           </a>
-
-
-          <span className="ml-auto text-sm text-gray-600 dark:text-gray-400">{message}</span>
-          <button
-            onClick={toggleXAxis}
-            className="text-sm px-3 py-1 rounded bg-transparent dark:bg-transparent text-transparent dark:text-transparent hover:bg-transparent dark:hover:bg-transparent transition"
-          >
-            X축 전환: {xAxisKey === 'time' ? '⏱ 시간' : '📏 거리'}
-          </button>          
         </div>
+        <span className="ml-auto text-sm text-gray-600 dark:text-gray-400">{message}</span>
       </div>
 
       <div className="flex items-start gap-x-6 flex-wrap">
         {/* 📂 이전 랩 선택 UI */}
-        <LapBrowser
-          lapList={lapList}
-          onSelect={(lapId) => {
-            setSelectedLapId(lapId)
-            if (lapId) fetchLapDetail(lapId)
-          }}
-        />        
+        <div className="w-full max-w-md mb-4">
+          <LapBrowser
+            lapList={lapList}
+            onSelect={(lapId) => {
+              setSelectedLapId(lapId)
+              if (lapId) fetchLapDetail(lapId)
+            }}
+          />
+        </div>    
         {/* 📋 선택된 랩 정보 카드 */}
         {lapList.length > 0 && selectedLapId && (() => {
           const selected = lapList.find(l => l.id === selectedLapId)
           if (!selected) return null
 
           return (
-            <div className="border p-4 rounded bg-white dark:bg-gray-800 w-full max-w-lg">
+            <div className="border p-4 rounded bg-white dark:bg-gray-800 w-full max-w-[500px]">
               {/* 이름 또는 수정 버튼 */}
-              <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center justify-between mb-4">
                 <div className="font-medium text-lg text-gray-900 dark:text-gray-100">
                   {selected.display_name
                     ? `${selected.display_name} (${selected.track} - ${selected.car})`
@@ -402,6 +396,12 @@ export default function UploadIdPage() {
                 ))}
               </select>
             </div>
+            <button
+              onClick={toggleXAxis}
+              className="text-sm px-3 py-1 rounded bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+            >
+              X축 전환: {xAxisKey === 'time' ? '⏱ 시간' : '📏 거리'}
+            </button>
 
             {/* 분석 모드 토글 */}
             <div className="flex items-center gap-2">
@@ -431,22 +431,22 @@ export default function UploadIdPage() {
             const stats = getSummaryStats(segment)
 
             // 🕒 현재 구간 시간 범위 계산
-            const segmentStartTime = segment?.[0]?.time ?? 0
-            const segmentEndTime = segment?.[segment.length - 1]?.time ?? 0
+            const segmentStartX = segment?.[0]?.[xAxisKey] ?? 0
+            const segmentEndX = segment?.[segment.length - 1]?.[xAxisKey] ?? 0
 
             // 💬 피드백 필터링: 시간 범위에 해당하는 corner exit 분석만 추출
             const feedbacksInThisSegment = result.corner_exit_analysis?.filter((c) => {
-              const time = result.data?.[c.start_idx]?.time
-              return time !== undefined && time >= segmentStartTime && time <= segmentEndTime
+              const xValue = result.data?.[c.start_idx]?.[xAxisKey]
+              return xValue !== undefined && xValue >= segmentStartX && xValue <= segmentEndX
             }) ?? []
 
             return (
               <div className="bg-white dark:bg-gray-900 shadow-md rounded-xl p-4 space-y-4">
-                <div className="flex items-center justify-between mb-2">
+                {/* <div className="flex items-center justify-between mb-2">
                   <h4 className="text-base font-semibold text-gray-800 dark:text-gray-100">
                     📦 구간 {selectedSegmentIndex + 1}
                   </h4>
-                </div>
+                </div> */}
 
                 {/* 💬 자연어 피드백 */}
                 {/* {feedbacksInThisSegment.length > 0 ? (
@@ -480,7 +480,7 @@ export default function UploadIdPage() {
                     </div>
                   )}
 
-                  <ResponsiveContainer width="100%" height={200}>
+                  <ResponsiveContainer width="100%" height={225}>
                     <LineChart
                       data={segment}
                       syncId="segment-sync"
@@ -506,18 +506,21 @@ export default function UploadIdPage() {
 
                       {/* ✅ 스로틀 모드 → 코너 탈출 강조 */}
                       {analysisMode === 'throttle' && feedbacksInThisSegment.map((f, idx) => {
-                        const startTime = result.data?.[f.start_idx]?.time;
-                        let endTime = result.data?.[f.end_idx]?.time;
-                        if (endTime === undefined || endTime > segmentEndTime) {
-                          endTime = segmentEndTime;
+                        const startX = result.data?.[f.start_idx]?.[xAxisKey];
+                        let endX = result.data?.[f.end_idx]?.[xAxisKey];
+
+                        const lastX = segment.length > 0 ? segment[segment.length - 1]?.[xAxisKey] : undefined;
+                        if (endX === undefined || (lastX !== undefined && endX > lastX)) {
+                          endX = lastX;
                         }
-                        if (startTime === undefined || endTime === undefined) return null;
+
+                        if (startX === undefined || endX === undefined) return null;
 
                         return (
                           <ReferenceArea
                             key={`exit-${idx}`}
-                            x1={startTime}
-                            x2={endTime}
+                            x1={startX}
+                            x2={endX}
                             strokeOpacity={0.1}
                             fill="#aaf"
                             fillOpacity={0.2}
@@ -525,33 +528,35 @@ export default function UploadIdPage() {
                             onMouseLeave={() => setHoveredExitIndex(null)}
                           />
                         );
-                      })
-                      }
+                      })}
 
                       {/* ✅ 브레이킹 모드 → 트레일 브레이킹 강조 */}
-                      {analysisMode === 'braking' && Array.isArray(result?.corner_entry_analysis) && 
-                      result.corner_entry_analysis.map((zone, idx) => {
-                        const startTime = result.data?.[zone.start_idx]?.time;
-                        let endTime = result.data?.[zone.end_idx]?.time;
+                      {analysisMode === 'braking' && Array.isArray(result?.corner_entry_analysis) &&
+                        result.corner_entry_analysis.map((zone, idx) => {
+                          const startX = result.data?.[zone.start_idx]?.[xAxisKey];
+                          let endX = result.data?.[zone.end_idx]?.[xAxisKey];
 
-                        if (endTime === undefined || endTime > segmentEndTime) {
-                          endTime = segmentEndTime;
-                        }
-                        if (startTime === undefined || endTime === undefined) return null;
+                          const lastX = segment.length > 0 ? segment[segment.length - 1]?.[xAxisKey] : undefined;
+                          if (endX === undefined || (lastX !== undefined && endX > lastX)) {
+                            endX = lastX;
+                          }
 
-                        return (
-                          <ReferenceArea
-                            key={`trail-${idx}`}
-                            x1={startTime}
-                            x2={endTime}
-                            strokeOpacity={0.1}
-                            fill="#ffa500"
-                            fillOpacity={0.2}
-                            onMouseEnter={() => setHoveredTrailIndex(idx)}
-                            onMouseLeave={() => setHoveredTrailIndex(null)}
-                          />
-                        );
-                      })}
+                          if (startX === undefined || endX === undefined) return null;
+
+                          return (
+                            <ReferenceArea
+                              key={`trail-${idx}`}
+                              x1={startX}
+                              x2={endX}
+                              strokeOpacity={0.1}
+                              fill="#ffa500"
+                              fillOpacity={0.2}
+                              onMouseEnter={() => setHoveredTrailIndex(idx)}
+                              onMouseLeave={() => setHoveredTrailIndex(null)}
+                            />
+                          );
+                        })}
+
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
