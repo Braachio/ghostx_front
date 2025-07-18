@@ -83,9 +83,9 @@ export default function MultiCard({
         <p className="text-xs sm:text-sm">
           <strong>트랙:</strong> {multi.game_track}
         </p>
-        <p className="text-xs sm:text-sm">
+        {/* <p className="text-xs sm:text-sm">
           <strong>레이스:</strong> {multi.multi_race}
-        </p>
+        </p> */}
         <p className="text-xs sm:text-sm">
           <strong>클래스:</strong> {multi.multi_class}
         </p>
