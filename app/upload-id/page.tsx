@@ -65,19 +65,46 @@ export default function UploadIdPage() {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900 min-h-screen p-6 max-w-5xl mx-auto space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">ACC 주행 분석</h2>
-        <Link href="/">
-          <button className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 transition">
-            홈으로
-          </button>
-        </Link>
+    <div className="bg-black min-h-screen py-6 relative overflow-hidden">
+      {/* 배경 장식 요소 */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+        <div className="absolute top-40 right-20 w-1 h-1 bg-blue-400 rounded-full animate-pulse delay-1000"></div>
+        <div className="absolute bottom-40 left-1/4 w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse delay-500"></div>
+        <div className="absolute top-1/2 right-10 w-1 h-1 bg-pink-400 rounded-full animate-pulse delay-700"></div>
+        
+        {/* 그리드 패턴 */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="grid grid-cols-16 gap-6 h-full">
+            {Array.from({ length: 256 }).map((_, i) => (
+              <div key={i} className="border border-gray-600"></div>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* 📤 업로드 영역 */}
-      <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">CSV 업로드</h3>
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-6 relative z-10">
+        {/* 헤더 */}
+        <div className="flex justify-between items-center border-b border-cyan-500 pb-4 mb-8">
+          <div>
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+              👻 고스트 분석
+            </h2>
+            <p className="text-gray-300 mt-2">당신만의 고스트카를 만들어 랩타임을 단축하세요</p>
+          </div>
+          <Link href="/">
+            <button className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all shadow-lg shadow-cyan-500/25 font-semibold">
+              🏠 홈으로
+            </button>
+          </Link>
+        </div>
+
+        {/* 📤 업로드 영역 */}
+        <div className="bg-gradient-to-br from-gray-900 to-black border-2 border-cyan-500/30 rounded-xl p-6 space-y-4 shadow-2xl shadow-cyan-500/10">
+          <div className="text-center">
+            <h3 className="text-2xl font-bold text-white mb-2">📊 고스트 데이터 업로드</h3>
+            <p className="text-gray-300">MoTeC CSV 파일을 업로드하여 당신만의 고스트카를 만들어보세요</p>
+          </div>
         <div className="flex items-center justify-between flex-wrap gap-4">
           <LapUploadForm
             userId={userId}
@@ -85,13 +112,16 @@ export default function UploadIdPage() {
             setResult={setResult}
             setDisplayName={() => {}} // 사용하지 않음
           />
-          <span className="ml-auto text-sm text-gray-600 dark:text-gray-400">{message}</span>
+          <span className="ml-auto text-sm text-cyan-400 font-semibold">{message}</span>
         </div>
-      </div>
+        </div>
 
-      {/* 🗂 랩 목록 + 상세정보 */}
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">내 주행 목록</h3>
+        {/* 🗂 랩 목록 + 상세정보 */}
+        <div className="bg-gradient-to-br from-gray-900 to-black border-2 border-blue-500/30 rounded-xl p-6 space-y-4 shadow-2xl shadow-blue-500/10">
+          <div className="text-center">
+            <h3 className="text-2xl font-bold text-white mb-2">🏁 나의 고스트카 컬렉션</h3>
+            <p className="text-gray-300">저장된 주행 데이터를 선택하여 상세 분석을 확인해보세요</p>
+          </div>
         <div className="flex items-start gap-x-6 flex-wrap">
           <div className="w-full max-w-md mb-4">
             <LapBrowser
@@ -111,14 +141,20 @@ export default function UploadIdPage() {
             />
           )}
         </div>
+        </div>
+
+        {/* 분석 결과 섹션 */}
+        {result?.data && Array.isArray(result.data) && result.data.length > 0 && (
+          <div className="bg-gradient-to-br from-gray-900 to-black border-2 border-purple-500/30 rounded-xl p-6 shadow-2xl shadow-purple-500/10">
+            <div className="text-center mb-6">
+              <h3 className="text-2xl font-bold text-white mb-2">👻 고스트 분석 결과</h3>
+              <p className="text-gray-300">당신의 고스트카가 발견한 랩타임 단축의 비밀</p>
+            </div>
+            <SegmentAnalysis result={result} />
+          </div>
+        )}
+
       </div>
-
-
-      {/* 분석 결과 섹션 */}
-      {result?.data && Array.isArray(result.data) && result.data.length > 0 && (
-        <SegmentAnalysis result={result} />
-      )}
-
     </div>
   )
 }

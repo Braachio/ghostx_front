@@ -37,10 +37,10 @@ export default function MultiCard({
 
   return (
     <div
-      className={`border rounded shadow overflow-hidden transition-colors duration-200
-        ${isOpen ? 'border-green-400' : 'border-gray-300'}
-        bg-white text-black dark:bg-gray-900 dark:text-white dark:border-gray-700
-        p-3 sm:p-4 min-h-[110px] sm:min-h-[120px]`}
+      className={`border-2 rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1
+        ${isOpen ? 'border-green-400 bg-gradient-to-br from-green-900/20 to-black shadow-green-500/20' : 'border-gray-600'}
+        bg-gradient-to-br from-gray-800 to-black text-white
+        p-3 sm:p-4 min-h-[110px] sm:min-h-[120px] group`}
     >
       {/* 제목 */}
       {multi.link ? (
@@ -48,31 +48,31 @@ export default function MultiCard({
           href={multi.link}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-base sm:text-lg font-semibold hover:underline mb-2 block truncate"
+          className="text-base sm:text-lg font-semibold hover:text-cyan-400 transition-colors mb-2 block truncate"
         >
-          {multi.title}
+          🏁 {multi.title}
         </a>
       ) : (
         <Link href={`/multis/${multi.id}`}>
-          <h2 className="text-base sm:text-lg font-semibold hover:underline mb-2 truncate">
-            {multi.title}
+          <h2 className="text-base sm:text-lg font-semibold hover:text-cyan-400 transition-colors mb-2 truncate">
+            🏁 {multi.title}
           </h2>
         </Link>
       )}
 
       {/* 오픈 시간 + ON/OFF 버튼 */}
       <div className="flex items-center justify-between mb-2">
-        <p className="text-xs sm:text-sm">
-          <strong>오픈:</strong> {multi.multi_time || '미입력'}
+        <p className="text-xs sm:text-sm text-gray-300">
+          <strong className="text-cyan-400">⏰ 오픈:</strong> {multi.multi_time || '미입력'}
         </p>
 
         <button
           onClick={toggleOpen}
           disabled={isLoading}
-          className={`px-2 py-1 rounded text-xs whitespace-nowrap ml-2 transition-colors duration-200
+          className={`px-3 py-1 rounded-lg text-xs whitespace-nowrap ml-2 transition-all duration-200 font-semibold
             ${isOpen
-              ? 'bg-green-100 text-green-800 font-bold dark:bg-green-900 dark:text-green-200'
-              : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'}`}
+              ? 'bg-green-600 text-white hover:bg-green-700 shadow-lg shadow-green-500/25'
+              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
         >
           {isOpen ? '✅ ON' : '❌ OFF'}
         </button>
@@ -80,14 +80,14 @@ export default function MultiCard({
 
       {/* 기타 정보 */}
       <div className="space-y-1">
-        <p className="text-xs sm:text-sm">
-          <strong>트랙:</strong> {multi.game_track}
+        <p className="text-xs sm:text-sm text-gray-300">
+          <strong className="text-blue-400">🏁 트랙:</strong> {multi.game_track}
         </p>
         {/* <p className="text-xs sm:text-sm">
           <strong>레이스:</strong> {multi.multi_race}
         </p> */}
-        <p className="text-xs sm:text-sm">
-          <strong>클래스:</strong> {multi.multi_class}
+        <p className="text-xs sm:text-sm text-gray-300">
+          <strong className="text-purple-400">🚗 클래스:</strong> {multi.multi_class}
         </p>
       </div>
     </div>

@@ -11,7 +11,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="ko">
-      <body>
+      <body className="bg-black">
         <SessionContextProvider supabaseClient={supabase}>
           {children}
         </SessionContextProvider>

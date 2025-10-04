@@ -49,18 +49,18 @@ export default function WeekFilter({
   }, [year, minWeek, maxWeek, currentWeek, currentYear])
 
   return (
-    <div className="flex items-center gap-4 text-black dark:text-white">
-      <div className="text-base font-semibold whitespace-nowrap">
-        {year}년 {week}주차
+    <div className="flex items-center gap-4 text-white bg-gradient-to-r from-purple-900/30 to-blue-900/30 p-4 rounded-lg border border-purple-500/30">
+      <div className="text-base font-semibold whitespace-nowrap text-cyan-400">
+        📅 {year}년 {week}주차
       </div>
 
       <select
         value={`${year}-${week}`}
         onChange={handleChange}
-        className="border p-2 rounded bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+        className="border-2 border-cyan-500/30 p-2 rounded-lg bg-gray-800 text-white focus:border-cyan-400 focus:outline-none transition-colors"
       >
         {options.map(opt => (
-          <option key={opt.value} value={opt.value}>
+          <option key={opt.value} value={opt.value} className="bg-gray-800">
             {opt.label}
           </option>
         ))}

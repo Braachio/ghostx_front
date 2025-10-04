@@ -60,21 +60,21 @@ export default function LapUploadForm({ userId, setMessage, setResult, setDispla
   }
 
   return (
-    <div className="flex items-center w-full sm:w-auto gap-3">
+    <div className="flex items-center w-full sm:w-auto gap-4">
       <input id="csv-upload" type="file" accept=".csv" onChange={handleUpload} className="hidden" />
       <label
         htmlFor="csv-upload"
-        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md border border-gray-300 dark:border-gray-600 text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-cyan-500/30 text-sm text-white bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 transition-all shadow-lg shadow-cyan-500/25 font-semibold cursor-pointer"
       >
-        📤 CSV 업로드
+        📤 고스트 데이터 업로드
       </label>
       <a
         href="/docs/motec_csv_guide.html"
         target="_blank"
         rel="noopener noreferrer"
-        className="text-sm text-blue-600 hover:underline"
+        className="text-sm text-cyan-400 hover:text-cyan-300 hover:underline transition-colors"
       >
-        MoTeC 변환 가이드
+        👻 MoTeC 변환 가이드
       </a>
     </div>
   )

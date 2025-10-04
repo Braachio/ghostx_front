@@ -42,9 +42,9 @@ export default function LapDetailCard({ lapList, selectedLapId, setLapList }: Pr
   if (!selected) return null
 
   return (
-    <div className="border p-4 rounded bg-white dark:bg-gray-800 w-full max-w-[500px]">
+    <div className="border border-gray-600 p-4 rounded bg-gray-800 w-full max-w-[500px]">
       <div className="flex items-center justify-between mb-4">
-        <div className="font-medium text-lg text-gray-900 dark:text-gray-100">
+        <div className="font-medium text-lg text-white">
           {selected.display_name
             ? `${selected.display_name} (${selected.track} - ${selected.car})`
             : `${selected.track} - ${selected.car}`}
@@ -54,7 +54,7 @@ export default function LapDetailCard({ lapList, selectedLapId, setLapList }: Pr
             setIsEditing(!isEditing)
             setNewName(selected.display_name || '')
           }}
-          className="text-sm text-blue-600 hover:underline"
+          className="text-sm text-blue-400 hover:underline"
         >
           {isEditing ? '취소' : '이름 수정'}
         </button>
@@ -67,7 +67,7 @@ export default function LapDetailCard({ lapList, selectedLapId, setLapList }: Pr
             value={newName}
             onChange={e => setNewName(e.target.value)}
             placeholder="새 이름 입력"
-            className="flex-1 border px-2 py-1 rounded text-sm"
+            className="flex-1 border border-gray-600 bg-gray-700 text-white px-2 py-1 rounded text-sm"
           />
           <button
             onClick={() => handleSaveName(selected.id, newName)}
@@ -80,10 +80,10 @@ export default function LapDetailCard({ lapList, selectedLapId, setLapList }: Pr
       )}
 
       <div className="flex justify-between items-start flex-wrap gap-2 mt-2">
-        <div className="text-base text-gray-900 dark:text-gray-100">
+        <div className="text-base text-white">
           🕒 랩타임: {formatLapTime(selected.lap_time ?? 0)}
         </div>
-        <div className="text-sm text-gray-500 dark:text-gray-100">
+        <div className="text-sm text-gray-300">
           업로드일: {new Date(selected.created_at).toLocaleString()}
         </div>
       </div>

@@ -49,31 +49,48 @@ export default function HomePage() {
   }, [])
 
   return (
-    <main className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-4 sm:px-6 py-6 sm:py-8">
-      <div className="max-w-5xl mx-auto space-y-10">
+    <main className="min-h-screen bg-black text-white py-6 sm:py-8 relative overflow-hidden">
+      {/* 배경 장식 요소 */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+        <div className="absolute top-40 right-20 w-1 h-1 bg-blue-400 rounded-full animate-pulse delay-1000"></div>
+        <div className="absolute bottom-40 left-1/4 w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse delay-500"></div>
+        <div className="absolute top-1/2 right-10 w-1 h-1 bg-pink-400 rounded-full animate-pulse delay-700"></div>
+        <div className="absolute bottom-20 right-1/3 w-2 h-2 bg-cyan-300 rounded-full animate-pulse delay-300"></div>
+        
+        {/* 그리드 패턴 */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="grid grid-cols-16 gap-6 h-full">
+            {Array.from({ length: 256 }).map((_, i) => (
+              <div key={i} className="border border-gray-600"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-10 relative z-10">
 
         {/* 헤더 - 브랜드 로고 & 로그인 상태 */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4 border-gray-300 dark:border-gray-700">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4 border-cyan-500">
           <div className="flex items-center space-x-2">
             <Image src="/logo/ghost-x-symbol.svg" alt="logo" width={32} height={32} className="dark:invert" />
-            <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white tracking-tight">Ghost-X</h1>
+            <h1 className="text-lg sm:text-xl font-bold text-white tracking-tight bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Ghost-X</h1>
           </div>
 
           <div className="w-full sm:w-auto">
             {user ? (
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
-                <span className="text-sm text-green-600 dark:text-green-400">
+                <span className="text-sm text-green-400">
                   👤 {user.nickname}님 환영합니다
                 </span>
                 <Link
                   href="/dashboard"
-                  className="w-full sm:w-auto px-3 py-1.5 text-sm rounded-md border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition text-center"
+                  className="w-full sm:w-auto px-3 py-1.5 text-sm rounded-md border border-cyan-500 text-white bg-gray-800 hover:bg-cyan-900 hover:border-cyan-400 transition text-center"
                 >
                   마이페이지
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="w-full sm:w-auto px-3 py-1.5 text-sm rounded-md border border-red-400 text-red-600 dark:text-red-300 bg-white dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-gray-700 transition"
+                  className="w-full sm:w-auto px-3 py-1.5 text-sm rounded-md border border-red-500 text-red-400 bg-gray-800 hover:bg-red-900 hover:border-red-400 transition"
                 >
                   로그아웃
                 </button>
@@ -82,13 +99,13 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 <Link
                   href="/signup"
-                  className="w-full sm:w-auto px-3 py-1.5 rounded-md border border-gray-300 dark:border-gray-600 text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition text-center"
+                  className="w-full sm:w-auto px-3 py-1.5 rounded-md border border-cyan-500 text-sm text-white bg-gray-800 hover:bg-cyan-900 hover:border-cyan-400 transition text-center"
                 >
                   회원가입
                 </Link>
                 <Link
                   href="/login"
-                  className="w-full sm:w-auto px-3 py-1.5 rounded-md bg-blue-600 text-white text-sm hover:bg-blue-700 transition text-center"
+                  className="w-full sm:w-auto px-3 py-1.5 rounded-md bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm hover:from-cyan-700 hover:to-blue-700 transition text-center shadow-lg shadow-cyan-500/25"
                 >
                   로그인
                 </Link>
@@ -97,26 +114,54 @@ export default function HomePage() {
           </div>
         </div>
 
+        {/* 메인 타이틀 */}
+        <div className="text-center py-8">
+          <h1 className="text-4xl md:text-6xl font-bold mb-4">
+            <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
+              GHOST-X
+            </span>
+          </h1>
+          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-white">
+            당신의 <span className="text-cyan-400">고스트카</span>가 되어드립니다
+          </h2>
+          <p className="text-xl text-gray-300 mb-2">
+            👻 데이터 분석으로 랩타임을 단축시켜주는 <span className="text-cyan-400 font-semibold">디지털 고스트카</span>
+          </p>
+          <p className="text-lg text-gray-400 mb-8">
+            항상 당신보다 빠른 고스트처럼, 정확한 데이터로 당신의 한계를 뛰어넘어보세요
+          </p>
+        </div>
+
         {/* 메뉴 카드 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <Link href="/multis">
-            <div className="p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow hover:shadow-lg transition cursor-pointer">
-              <h2 className="text-lg sm:text-xl font-semibold mb-2">🗓️ 멀티 캘린더</h2>
-              {/* <p className="text-sm text-gray-600 dark:text-gray-300">
-                커뮤니티에서 올라온 심레이싱 이벤트 일정을 확인하고 미리 계획해보세요.
-              </p> */}
+            <div className="group p-8 rounded-xl border-2 border-cyan-500/30 bg-gradient-to-br from-gray-900 to-black hover:border-cyan-400 hover:shadow-2xl hover:shadow-cyan-500/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-2">
+              <div className="text-center">
+                <div className="text-6xl mb-4">🗓️</div>
+                <h2 className="text-2xl font-bold mb-4 text-white group-hover:text-cyan-400 transition-colors">
+                  레이싱 커뮤니티
+                </h2>
+                <p className="text-gray-300 group-hover:text-white transition-colors">
+                  다른 고스트카들과 경쟁하고<br />레이싱 이벤트에 참여해보세요
+                </p>
+              </div>
             </div>
           </Link>
 
           <Link href="/upload-id">
-            <div className="p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow hover:shadow-lg transition cursor-pointer">
-              <div className="flex items-center gap-2">
-                <img src="/logo/Logo-acc.png" alt="ACC-Logo" className="w-8 h-8 mb-2" />
-                <span className="text-lg sm:text-xl font-semibold mb-2">ACC 주행 분석</span>
+            <div className="group p-8 rounded-xl border-2 border-blue-500/30 bg-gradient-to-br from-gray-900 to-black hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-2">
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <Image src="/logo/Logo-acc.png" alt="ACC-Logo" width={48} height={48} />
+                  <div className="text-6xl">📊</div>
+                </div>
+                <h2 className="text-2xl font-bold mb-4 text-white group-hover:text-blue-400 transition-colors">
+                  고스트 분석
+                </h2>
+                <p className="text-gray-300 group-hover:text-white transition-colors">
+                  MoTeC 데이터로 당신만의 고스트카를 만들어<br />랩타임 단축의 비밀을 찾아보세요
+                </p>
               </div>
-              {/* <p className="text-sm text-gray-600 dark:text-gray-300">
-                MoTeC CSV 파일을 업로드하면 자동으로 랩 데이터를 분석해드립니다.
-              </p> */}
             </div>
           </Link>
         </div>
@@ -153,11 +198,15 @@ export default function HomePage() {
         </div> */}
 
         {/* Feedback Form Section */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow border border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl sm:text-2xl font-bold mb-2">📩 문의 및 피드백</h2>
-          <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
-            서비스 개선을 위한 의견이나 궁금한 점이 있다면 아래에 남겨주세요.
-          </p>
+        <div className="bg-gradient-to-br from-gray-900 to-black p-8 rounded-xl border-2 border-purple-500/30 shadow-2xl shadow-purple-500/10">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
+              👻 고스트와의 소통
+            </h2>
+            <p className="text-gray-300">
+              더 빠른 고스트카가 되기 위한 피드백이나 궁금한 점을 남겨주세요.
+            </p>
+          </div>
           <form
             onSubmit={async (e) => {
               e.preventDefault()
@@ -184,26 +233,31 @@ export default function HomePage() {
               type="text"
               name="email"
               placeholder="이메일 (선택)"
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-700 text-sm"
+              className="w-full px-4 py-3 border-2 border-purple-500/30 rounded-lg bg-gray-800 text-white placeholder-gray-400 focus:border-purple-400 focus:outline-none transition-colors"
             />
             <textarea
               name="message"
               required
-              placeholder="문의 또는 피드백 내용을 입력해주세요"
+              placeholder="고스트카 개선을 위한 의견이나 궁금한 점을 입력해주세요"
               rows={4}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-700 text-sm"
+              className="w-full px-4 py-3 border-2 border-purple-500/30 rounded-lg bg-gray-800 text-white placeholder-gray-400 focus:border-purple-400 focus:outline-none transition-colors"
             />
             <button
               type="submit"
-              className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+              className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg shadow-purple-500/25 font-semibold"
             >
               보내기
             </button>
           </form>
         </div>
         {/* 방문 수 */}
-        <div className="text-left text-xs text-gray-500 dark:text-gray-400">
-          누적 방문: {views !== null ? views.toLocaleString() : '...'}회
+        <div className="text-center text-sm text-gray-400 border-t border-gray-800 pt-6">
+          <span className="inline-flex items-center gap-2">
+            👻 고스트카를 찾은 레이서: 
+            <span className="text-cyan-400 font-bold">
+              {views !== null ? views.toLocaleString() : '...'}명
+            </span>
+          </span>
         </div>  
 
       </div>

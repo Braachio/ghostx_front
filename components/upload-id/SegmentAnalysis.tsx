@@ -137,7 +137,7 @@ export default function SegmentAnalysis({ result }: { result: ResultType }) {
   }) ?? []
 
   return (
-    <div className="bg-white dark:bg-gray-900 shadow-lg rounded-2xl p-6 space-y-6 border border-gray-200 dark:border-gray-700">
+    <div className="bg-gradient-to-br from-gray-900 to-black shadow-2xl shadow-purple-500/10 rounded-2xl p-6 space-y-6 border-2 border-purple-500/30">
       {/* 구간 전환 및 분석 모드 선택 컨트롤 */}
       <SegmentControls
         segmentCount={segments.length}
@@ -179,21 +179,21 @@ export default function SegmentAnalysis({ result }: { result: ResultType }) {
 
       {/* 🔶 브레이크 분석 피드백 출력 */}
       {segment.brake_feedback && (
-        <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-600 text-yellow-800 dark:text-yellow-100 rounded-lg p-4">
-          <p className="text-sm">{segment.brake_feedback}</p>
+        <div className="bg-gradient-to-r from-yellow-900/30 to-orange-900/30 border-2 border-yellow-500/30 text-yellow-300 rounded-lg p-4 shadow-lg shadow-yellow-500/10">
+          <p className="text-sm font-semibold">👻 고스트카 분석: {segment.brake_feedback}</p>
         </div>
       )}
 
       {/* 🛠 준비 중 기능 안내 */}
       <div className="flex flex-col md:flex-row justify-center items-center gap-4">
-        <div className="flex-1 flex items-center justify-center rounded-xl border border-dashed border-blue-400 dark:border-blue-700 bg-blue-50/60 dark:bg-blue-900/30 p-4 min-h-[160px] max-w-[445px]">
-          <p className="text-blue-700 dark:text-blue-200 text-base font-semibold text-center">
-            🧭 주행 라인 시각화 기능은 준비 중입니다.
+        <div className="flex-1 flex items-center justify-center rounded-xl border-2 border-dashed border-cyan-500/30 bg-gradient-to-br from-cyan-900/20 to-blue-900/20 p-4 min-h-[160px] max-w-[445px]">
+          <p className="text-cyan-300 text-base font-semibold text-center">
+            🧭 고스트카 주행 라인 시각화 기능은 준비 중입니다.
           </p>
         </div>
-        <div className="flex-1 flex items-center justify-center rounded-xl border border-dashed border-gray-400 dark:border-gray-600 bg-white/60 dark:bg-gray-800/60 p-4 min-h-[160px] max-w-[445px]">
-          <p className="text-gray-700 dark:text-gray-200 text-base font-semibold text-center">
-            🛠 비교 분석 기능은 준비 중입니다.
+        <div className="flex-1 flex items-center justify-center rounded-xl border-2 border-dashed border-purple-500/30 bg-gradient-to-br from-purple-900/20 to-gray-900/20 p-4 min-h-[160px] max-w-[445px]">
+          <p className="text-purple-300 text-base font-semibold text-center">
+            🛠 고스트카 비교 분석 기능은 준비 중입니다.
           </p>
         </div>
       </div>

@@ -51,13 +51,21 @@ export default function LapBrowser({ lapList, onSelect }: Props) {
         <div className="flex gap-2">
           <button
             onClick={() => setViewMode('car')}
-            className={`px-3 py-1 text-sm rounded ${viewMode === 'car' ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-100'}`}
+            className={`px-3 py-1 text-sm rounded-lg font-semibold transition-all ${
+              viewMode === 'car' 
+                ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/25' 
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
           >
             🚗 차량별 보기
           </button>
           <button
             onClick={() => setViewMode('track')}
-            className={`px-3 py-1 text-sm rounded ${viewMode === 'track' ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-100'}`}
+            className={`px-3 py-1 text-sm rounded-lg font-semibold transition-all ${
+              viewMode === 'track' 
+                ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/25' 
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
           >
             🛣️ 트랙별 보기
           </button>
@@ -67,7 +75,7 @@ export default function LapBrowser({ lapList, onSelect }: Props) {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="🔍 이름, 트랙, 차량, 날짜"
-          className="border rounded px-2 py-1 text-sm bg-white dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
+          className="border-2 border-cyan-500/30 rounded-lg px-3 py-1 text-sm bg-gray-800 text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none transition-colors"
         />
       </div>
 
@@ -77,19 +85,19 @@ export default function LapBrowser({ lapList, onSelect }: Props) {
             <Disclosure key={group}>
             {({ open }) => (
                 <div> {/* ✅ Fragment 대신 div로 감쌈 */}
-                <Disclosure.Button className="flex justify-between w-full bg-gray-100 dark:bg-gray-700 px-4 py-2 text-left text-sm font-medium text-gray-900 dark:text-gray-100 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition">
-                    <span>{group}</span>
-                    <ChevronUpIcon className={`h-5 w-5 transition-transform ${open ? 'rotate-180' : 'rotate-0'}`} />
+                <Disclosure.Button className="flex justify-between w-full bg-gradient-to-r from-gray-700 to-gray-800 px-4 py-2 text-left text-sm font-medium text-white rounded-lg hover:from-gray-600 hover:to-gray-700 transition-all border border-gray-600">
+                    <span className="text-cyan-400">{group}</span>
+                    <ChevronUpIcon className={`h-5 w-5 transition-transform text-cyan-400 ${open ? 'rotate-180' : 'rotate-0'}`} />
                 </Disclosure.Button>
-                <Disclosure.Panel className="px-4 pt-2 pb-2 text-sm text-gray-800 dark:text-gray-100 space-y-1">
+                <Disclosure.Panel className="px-4 pt-2 pb-2 text-sm text-gray-300 space-y-1">
                     {laps.map(lap => (
                     <button
                         key={lap.id}
                         onClick={() => onSelect(lap.id)}
-                        className="w-full text-left px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+                        className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-700 transition-all border border-gray-600 hover:border-cyan-500/50 group"
                     >
-                        <div className="font-medium">{lap.display_name || `${lap.track} - ${lap.car}`}</div>
-                        <div className="text-xs text-gray-500">
+                        <div className="font-medium text-white group-hover:text-cyan-400 transition-colors">{lap.display_name || `${lap.track} - ${lap.car}`}</div>
+                        <div className="text-xs text-gray-400">
                         🕒 {lap.lap_time ? formatLapTime(lap.lap_time) : '랩타임 없음'} | 📅{' '}
                         {new Date(lap.created_at).toLocaleDateString()}
                         </div>

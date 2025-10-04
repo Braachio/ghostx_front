@@ -60,19 +60,20 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
   const startDate = new Date(start)
 
   return (
-    <div className="transition-colors duration-300 text-black dark:text-white">
+    <div className="text-white">
       {/* 필터 */}
-      <div className="mb-6 border p-4 rounded bg-white dark:bg-gray-900 dark:border-gray-700 shadow-sm">
-        <h2 className="font-semibold mb-2">게임 필터</h2>
-        <div className="flex flex-wrap gap-6 ml-8 items-center">
+      <div className="mb-6 border-2 border-cyan-500/30 p-6 rounded-xl bg-gradient-to-br from-gray-900 to-black shadow-2xl shadow-cyan-500/10">
+        <h2 className="text-xl font-bold mb-4 text-white">🎮 고스트카 게임 필터</h2>
+        <div className="flex flex-wrap gap-4 ml-4 items-center">
           {allGames.map(game => (
-            <label key={game} className="flex items-center space-x-1">
+            <label key={game} className="flex items-center space-x-2 cursor-pointer group">
               <input
                 type="checkbox"
                 checked={selectedGames.includes(game)}
                 onChange={() => toggleGameSelection(game)}
+                className="w-4 h-4 text-cyan-600 bg-gray-800 border-gray-600 rounded focus:ring-cyan-500 focus:ring-2"
               />
-              <span>{game}</span>
+              <span className="text-gray-300 group-hover:text-white transition-colors">{game}</span>
             </label>
           ))}
         </div>
@@ -93,9 +94,9 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
       {Object.entries(groupedByGame).map(([game, gameMultis]) => (
         <div
           key={game}
-          className="mb-10 border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-900 shadow-sm"
+          className="mb-10 border-2 border-blue-500/30 rounded-xl p-6 bg-gradient-to-br from-gray-900 to-black shadow-2xl shadow-blue-500/10"
         >
-          <h2 className="text-xl font-bold mb-3">{game}</h2>
+          <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">{game}</h2>
           {/* 반응형 그리드: 모바일 1열, 태블릿 2열, PC는 7열 */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
             {daysOfWeek.map((day, i) => {
@@ -110,9 +111,9 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
                 >
                   {/* 요일 헤더 */}
                   <div
-                    className={`text-center text-sm font-semibold border-b pb-1 mb-2
-                      ${isToday ? 'border-none bg-green-50 dark:bg-green-900 dark:text-green-300 rounded' : ''}
-                      ${day === '일' ? 'text-red-500' : day === '토' ? 'text-blue-500' : ''}`}
+                    className={`text-center text-sm font-semibold border-b border-gray-600 pb-2 mb-3
+                      ${isToday ? 'border-none bg-cyan-900 text-cyan-300 rounded-lg' : 'text-gray-300'}
+                      ${day === '일' ? 'text-red-400' : day === '토' ? 'text-blue-400' : ''}`}
                   >
                     {day} ({dateStr})
                   </div>
@@ -131,9 +132,14 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
 
 
       {filtered.length === 0 && (
-        <p className="text-gray-500 dark:text-gray-400 mt-6">
-          선택한 게임 및 주차에 해당하는 공지가 없습니다.
-        </p>
+        <div className="text-center mt-8 p-6 bg-gradient-to-br from-gray-900 to-black border-2 border-purple-500/30 rounded-xl shadow-2xl shadow-purple-500/10">
+          <p className="text-gray-300 text-lg">
+            👻 선택한 게임 및 주차에 해당하는 고스트카 레이싱 이벤트가 없습니다.
+          </p>
+          <p className="text-gray-400 text-sm mt-2">
+            다른 주차나 게임을 선택해보세요!
+          </p>
+        </div>
       )}
     </div>
   )
