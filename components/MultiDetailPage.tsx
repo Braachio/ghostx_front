@@ -175,7 +175,7 @@ export default function MultiDetailPage() {
                     ? 'bg-green-600 text-white shadow-lg shadow-green-500/25' 
                     : 'bg-gray-700 text-gray-300'
                 }`}>
-                  {multi.is_open ? '✅ 활성' : '❌ 비활성'}
+                  {multi.is_open ? '✅ ON' : '❌ OFF'}
                 </div>
               </div>
             </div>

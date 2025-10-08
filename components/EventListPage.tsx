@@ -4,7 +4,28 @@ import { useEffect, useState } from 'react'
 import EventCard from './EventCard'
 import type { Database } from '@/lib/database.types'
 
-const allGames = ['컴페티치오네', '아세토코르사', '그란투리스모7', '르망얼티밋','EA WRC', '아이레이싱', '알펙터2']
+// 게임을 카테고리별로 그룹화
+const gameCategories = {
+  '시뮬레이션': {
+    icon: '🏁',
+    games: ['아이레이싱', '알펙터2', '아세토코르사', '그란투리스모7', '오토모빌리스타2']
+  },
+  'GT/스포츠카': {
+    icon: '🏁',
+    games: ['컴페티치오네', '르망얼티밋']
+  },
+  '포뮬러/오픈휠': {
+    icon: '🏎️',
+    games: ['F1 25']
+  },
+  '랠리/오프로드': {
+    icon: '🌲',
+    games: ['EA WRC']
+  }
+}
+
+// 모든 게임 목록 추출
+const allGames = Object.values(gameCategories).flatMap(category => category.games)
 
 type Multi = Database['public']['Tables']['multis']['Row']
 
@@ -19,6 +40,7 @@ export default function EventListPage({ currentUserId }: EventListPageProps) {
   const [timeFilter, setTimeFilter] = useState<'all' | 'today' | 'tomorrow' | 'thisWeek' | 'nextWeek'>('all')
   const [loading, setLoading] = useState(true)
   const [showInactive, setShowInactive] = useState(false)
+  const [collapsedCategories, setCollapsedCategories] = useState<string[]>([])
 
   useEffect(() => {
     const fetchMultis = async () => {
@@ -82,6 +104,36 @@ export default function EventListPage({ currentUserId }: EventListPageProps) {
   const toggleGameSelection = (game: string) => {
     setSelectedGames(prev =>
       prev.includes(game) ? prev.filter(g => g !== game) : [...prev, game]
+    )
+  }
+
+  // 전체 선택/해제 함수
+  const selectAllGames = () => {
+    setSelectedGames(allGames)
+  }
+
+  const deselectAllGames = () => {
+    setSelectedGames([])
+  }
+
+  // 카테고리별 선택/해제 함수
+  const toggleCategorySelection = (categoryGames: string[]) => {
+    const allSelected = categoryGames.every(game => selectedGames.includes(game))
+    if (allSelected) {
+      // 카테고리 전체 해제
+      setSelectedGames(prev => prev.filter(game => !categoryGames.includes(game)))
+    } else {
+      // 카테고리 전체 선택
+      setSelectedGames(prev => [...new Set([...prev, ...categoryGames])])
+    }
+  }
+
+  // 카테고리 접기/펼치기 함수
+  const toggleCategoryCollapse = (categoryName: string) => {
+    setCollapsedCategories(prev =>
+      prev.includes(categoryName)
+        ? prev.filter(name => name !== categoryName)
+        : [...prev, categoryName]
     )
   }
 
@@ -303,21 +355,87 @@ export default function EventListPage({ currentUserId }: EventListPageProps) {
         <div className="flex flex-col lg:flex-row gap-6">
           {/* 게임 필터 */}
           <div className="flex-1">
-            <h3 className="text-lg font-bold mb-4 text-white">🎮 게임 필터</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-              {allGames.map(game => (
-                <label key={game} className="flex items-center space-x-2 cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    checked={selectedGames.includes(game)}
-                    onChange={() => toggleGameSelection(game)}
-                    className="w-4 h-4 text-cyan-600 bg-gray-800 border-gray-600 rounded focus:ring-cyan-500 focus:ring-2"
-                  />
-                  <span className="text-gray-300 group-hover:text-white transition-colors text-sm">
-                    {game}
-                  </span>
-                </label>
-              ))}
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-white">🎮 게임 필터</h3>
+              <div className="flex gap-2">
+                <button
+                  onClick={selectAllGames}
+                  className="px-3 py-1 bg-cyan-600 text-white rounded text-sm hover:bg-cyan-700 transition-colors"
+                >
+                  전체 선택
+                </button>
+                <button
+                  onClick={deselectAllGames}
+                  className="px-3 py-1 bg-gray-600 text-white rounded text-sm hover:bg-gray-700 transition-colors"
+                >
+                  전체 해제
+                </button>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              {Object.entries(gameCategories).map(([categoryName, category]) => {
+                const isCollapsed = collapsedCategories.includes(categoryName)
+                const categorySelectedCount = category.games.filter(game => selectedGames.includes(game)).length
+                const isAllSelected = categorySelectedCount === category.games.length
+                
+                return (
+                  <div key={categoryName} className="border border-gray-600 rounded-lg">
+                    {/* 카테고리 헤더 */}
+                    <div 
+                      className="flex items-center justify-between p-3 bg-gray-800 cursor-pointer hover:bg-gray-700 transition-colors"
+                      onClick={() => toggleCategoryCollapse(categoryName)}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">{category.icon}</span>
+                        <span className="font-medium text-white">{categoryName}</span>
+                        <span className="text-sm text-gray-400">
+                          ({categorySelectedCount}/{category.games.length})
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            toggleCategorySelection(category.games)
+                          }}
+                          className={`px-2 py-1 rounded text-xs ${
+                            isAllSelected 
+                              ? 'bg-red-600 text-white hover:bg-red-700' 
+                              : 'bg-green-600 text-white hover:bg-green-700'
+                          }`}
+                        >
+                          {isAllSelected ? '전체해제' : '전체선택'}
+                        </button>
+                        <span className={`transform transition-transform ${isCollapsed ? 'rotate-180' : ''}`}>
+                          ▼
+                        </span>
+                      </div>
+                    </div>
+                    
+                    {/* 게임 목록 */}
+                    {!isCollapsed && (
+                      <div className="p-3 bg-gray-900">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                          {category.games.map(game => (
+                            <label key={game} className="flex items-center gap-2 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={selectedGames.includes(game)}
+                                onChange={() => toggleGameSelection(game)}
+                                className="w-4 h-4 text-cyan-600 bg-gray-800 border-gray-600 rounded focus:ring-cyan-500"
+                              />
+                              <span className="text-gray-300 text-sm">
+                                {game}
+                              </span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           </div>
 

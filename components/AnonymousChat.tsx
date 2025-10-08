@@ -65,6 +65,7 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
     scrollToBottom()
   }, [messages])
 
+
   const loadMessages = async () => {
     try {
       const response = await fetch(`/api/chat/${eventId}`)
@@ -224,29 +225,43 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
     <div className="bg-gradient-to-br from-gray-900 to-black border border-pink-500/30 rounded-xl p-6 shadow-2xl shadow-pink-500/10">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-bold text-white">💬 익명 채팅</h3>
-        <div className="flex items-center gap-2">
-          <div className={`w-3 h-3 rounded-full ${userColor.replace('text-', 'bg-')}`}></div>
-          <span className={`text-sm font-medium ${userColor}`}>{nickname}</span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <div className={`w-3 h-3 rounded-full ${userColor.replace('text-', 'bg-')}`}></div>
+            <span className={`text-sm font-medium ${userColor}`}>{nickname}</span>
+          </div>
+          <button
+            onClick={() => window.open(`/chat/${eventId}`, '_blank', 'width=1200,height=800')}
+            className="px-3 py-1 bg-cyan-600/20 text-cyan-400 rounded-lg hover:bg-cyan-600/30 transition-all text-sm"
+          >
+            🪟 새 탭
+          </button>
         </div>
       </div>
 
       {/* 채팅 메시지 영역 */}
-      <div className="h-64 overflow-y-auto bg-gray-800/50 rounded-lg p-4 mb-4 space-y-3">
-        {messages.map((msg) => (
-          <div key={msg.id} className="flex flex-col">
-            <div className="flex items-center gap-2 mb-1">
-              <span className={`text-sm font-medium ${msg.color}`}>
-                {msg.nickname}
-              </span>
-              <span className="text-xs text-gray-400">
-                {formatTime(msg.timestamp)}
-              </span>
-            </div>
-            <div className="bg-gray-700/50 rounded-lg p-2 text-white text-sm">
-              {msg.message}
-            </div>
+      <div className="h-48 overflow-y-auto bg-gray-800/50 rounded-lg p-4 mb-4 space-y-3">
+        {messages.length === 0 ? (
+          <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+            아직 메시지가 없습니다. 첫 메시지를 보내보세요!
           </div>
-        ))}
+        ) : (
+          messages.map((msg) => (
+            <div key={msg.id} className="flex flex-col">
+              <div className="flex items-center gap-2 mb-1">
+                <span className={`text-sm font-medium ${msg.color}`}>
+                  {msg.nickname}
+                </span>
+                <span className="text-xs text-gray-400">
+                  {formatTime(msg.timestamp)}
+                </span>
+              </div>
+              <div className="bg-gray-700/50 rounded-lg p-2 text-white text-sm">
+                {msg.message}
+              </div>
+            </div>
+          ))
+        )}
         <div ref={messagesEndRef} />
       </div>
 

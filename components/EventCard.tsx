@@ -44,7 +44,9 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
       '르망얼티밋': '🏁',
       'EA WRC': '🌲',
       '아이레이싱': '🏁',
-      '알펙터2': '🏁'
+      '알펙터2': '🏁',
+      'F1 25': '🏎️',
+      '오토모빌리스타2': '🏁'
     }
     return gameIcons[game] || '🏁'
   }
@@ -271,13 +273,13 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
                 : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
             }`}
           >
-            {isOpen ? '✅ 활성' : '❌ 비활성'}
+            {isOpen ? '✅ ON' : '❌ OFF'}
           </button>
         ) : (
           <div className={`px-3 py-1 rounded-lg text-xs font-semibold ${
             isOpen ? 'bg-green-600/20 text-green-300 border border-green-500/30' : 'bg-gray-700 text-gray-300 border border-gray-600'
           }`}>
-            {isOpen ? '활성' : '비활성'}
+            {isOpen ? 'ON' : 'OFF'}
           </div>
         )}
       </div>

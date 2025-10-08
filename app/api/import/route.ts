@@ -239,6 +239,14 @@ export async function POST(req: NextRequest) {
       '알펙터2': [
         'rfactor2', 'rfactor 2', '알펙터', '알팩터', 'r-factor',
         'rFactor2', 'RFACTOR2', '알팩터2'
+      ],
+      'F1 25': [
+        'f1 25', 'f125', 'f1', 'formula 1 25', 'formula1',
+        'F1 25', 'F125', 'F1', '에프원', 'F1 2025'
+      ],
+      '오토모빌리스타2': [
+        '오토모빌리스타2', 'ams2', 'automobilista 2', '오토모빌리스타',
+        'automobilista', 'AMS2', 'AMS 2', '오토모빌', '오토모'
       ]
     }
 
