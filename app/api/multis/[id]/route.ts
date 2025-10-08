@@ -28,9 +28,10 @@ export async function GET(
 
     console.log(`멀티 조회 성공 - ID: ${id}, Title: ${data?.title}`)
     return NextResponse.json({ data })
-  } catch (e: any) {
-    console.error(`멀티 조회 예외:`, e?.message)
-    return NextResponse.json({ error: e?.message || '서버 오류' }, { status: 500 })
+  } catch (e: unknown) {
+    const error = e as Error
+    console.error(`멀티 조회 예외:`, error?.message)
+    return NextResponse.json({ error: error?.message || '서버 오류' }, { status: 500 })
   }
 }
 
@@ -58,8 +59,9 @@ export async function PATCH(
     }
 
     return NextResponse.json({ success: true, message: '이벤트가 수정되었습니다.' })
-  } catch (e: any) {
-    return NextResponse.json({ error: e?.message || '서버 오류' }, { status: 500 })
+  } catch (e: unknown) {
+    const error = e as Error
+    return NextResponse.json({ error: error?.message || '서버 오류' }, { status: 500 })
   }
 }
 
@@ -83,8 +85,9 @@ export async function DELETE(
     }
 
     return NextResponse.json({ ok: true })
-  } catch (e: any) {
-    return NextResponse.json({ error: e?.message || '서버 오류' }, { status: 500 })
+  } catch (e: unknown) {
+    const error = e as Error
+    return NextResponse.json({ error: error?.message || '서버 오류' }, { status: 500 })
   }
 }
 

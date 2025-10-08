@@ -70,7 +70,7 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
       const response = await fetch(`/api/chat/${eventId}`)
       if (response.ok) {
         const apiMessages = await response.json()
-        const formattedMessages: ChatMessage[] = apiMessages.map((msg: any) => ({
+        const formattedMessages: ChatMessage[] = apiMessages.map((msg: { id: string; nickname: string; message: string; created_at: string; color: string }) => ({
           id: msg.id,
           nickname: msg.nickname,
           message: msg.message,

@@ -42,9 +42,10 @@ export async function GET(
       confirmed: participants.filter(p => p.status === 'confirmed').length,
       pending: participants.filter(p => p.status === 'pending').length
     })
-  } catch (e: any) {
-    console.error('참가자 목록 조회 오류:', e?.message)
-    return NextResponse.json({ error: e?.message || '서버 오류' }, { status: 500 })
+  } catch (e: unknown) {
+    const error = e as Error
+    console.error('참가자 목록 조회 오류:', error?.message)
+    return NextResponse.json({ error: error?.message || '서버 오류' }, { status: 500 })
   }
 }
 
@@ -105,9 +106,10 @@ export async function POST(
       participant: newParticipant,
       message: '참가 신청이 완료되었습니다.'
     })
-  } catch (e: any) {
-    console.error('참가 신청 오류:', e?.message)
-    return NextResponse.json({ error: e?.message || '서버 오류' }, { status: 500 })
+  } catch (e: unknown) {
+    const error = e as Error
+    console.error('참가 신청 오류:', error?.message)
+    return NextResponse.json({ error: error?.message || '서버 오류' }, { status: 500 })
   }
 }
 
@@ -149,8 +151,9 @@ export async function DELETE(
       success: true,
       message: '참가가 취소되었습니다.'
     })
-  } catch (e: any) {
-    console.error('참가 취소 오류:', e?.message)
-    return NextResponse.json({ error: e?.message || '서버 오류' }, { status: 500 })
+  } catch (e: unknown) {
+    const error = e as Error
+    console.error('참가 취소 오류:', error?.message)
+    return NextResponse.json({ error: error?.message || '서버 오류' }, { status: 500 })
   }
 }

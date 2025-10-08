@@ -58,8 +58,9 @@ export default function CreatePostForm() {
       if (data.link) lines.push(`원문: ${data.link}`)
       if (lines.length) setContent(prev => `${lines.join('\n')}\n\n${prev}`)
       alert('불러오기 완료. 내용을 확인하고 수정하세요.')
-    } catch (e: any) {
-      alert(e?.message || '가져오기 실패')
+    } catch (e: unknown) {
+      const error = e as Error
+      alert(error?.message || '가져오기 실패')
     } finally {
       setImporting(false)
     }

@@ -61,7 +61,7 @@ export async function GET(req: NextRequest) {
 
     console.log('실제 Supabase 데이터 반환:', data.length, '개')
     if (data && data.length > 0) {
-      const firstEvent = data[0] as any
+      const firstEvent = data[0]
       console.log('첫 번째 이벤트:', {
         id: firstEvent.id,
         title: firstEvent.title,
