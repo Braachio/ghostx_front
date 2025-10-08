@@ -4,8 +4,9 @@ import { NextResponse } from 'next/server'
 import type { Database } from '@/lib/database.types'
 
 export async function GET() {
+  const cookieStore = await cookies()
   const supabase = createRouteHandlerClient<Database>({
-    cookies: cookies,
+    cookies: () => cookieStore,
   })
 
   const {

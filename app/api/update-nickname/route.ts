@@ -6,8 +6,9 @@ import { NextResponse } from 'next/server'
 import type { Database } from '@/lib/database.types'
 
 export async function POST(req: Request) {
+  const cookieStore = await cookies()
   const supabase = createRouteHandlerClient<Database>({
-    cookies: () => cookies(),
+    cookies: () => cookieStore,
   })
 
   const { data: { user } } = await supabase.auth.getUser()

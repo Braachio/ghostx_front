@@ -48,10 +48,19 @@ export async function GET(): Promise<NextResponse<Data>> {
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse<Data>> {
-  const access_token = req.headers.get('authorization')?.replace('Bearer ', '') ?? null
+  // 쿠키에서 세션 정보 읽기
+  const cookieStore = req.cookies
+  const accessToken = cookieStore.get('sb-access-token')?.value
+  
+  if (!accessToken) {
+    return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+  }
 
-  if (!(await checkAdmin(access_token))) {
-    return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 })
+  // 사용자 인증 확인
+  const { data: { user }, error: authError } = await supabase.auth.getUser(accessToken)
+  
+  if (authError || !user) {
+    return NextResponse.json({ error: '인증에 실패했습니다.' }, { status: 401 })
   }
 
   const body = await req.json()
@@ -63,13 +72,22 @@ export async function POST(req: NextRequest): Promise<NextResponse<Data>> {
   const year = body.year ?? now.getFullYear()
   const week = body.week ?? currentWeek
 
-  const { error } = await supabase.from('multis').insert({
+  // 일반 사용자는 비활성 상태로만 등록 가능, 관리자는 활성 상태로도 등록 가능
+  const isAdmin = await checkAdmin(accessToken)
+  const isOpen = isAdmin ? (body.is_open ?? false) : false
+
+  const { error } = await supabaseAdmin.from('multis').insert({
     ...body,
+    author_id: user.id,
     year,
     week,
+    is_open: isOpen,
     created_at: now.toISOString(),
   })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ success: true }, { status: 201 })
+  return NextResponse.json({ 
+    success: true, 
+    message: isAdmin ? '이벤트가 등록되었습니다.' : '이벤트가 등록되었습니다. 운영자 승인 후 활성화됩니다.'
+  }, { status: 201 })
 }

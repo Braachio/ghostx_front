@@ -92,11 +92,20 @@ export default function UploadIdPage() {
             </h2>
             <p className="text-gray-300 mt-2">당신만의 고스트카를 만들어 랩타임을 단축하세요</p>
           </div>
-          <Link href="/">
-            <button className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all shadow-lg shadow-cyan-500/25 font-semibold">
-              🏠 홈으로
-            </button>
-          </Link>
+          <div className="flex gap-3">
+            {userId && (
+              <Link href="/dashboard">
+                <button className="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg shadow-purple-500/25 font-semibold">
+                  📈 대시보드
+                </button>
+              </Link>
+            )}
+            <Link href="/">
+              <button className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all shadow-lg shadow-cyan-500/25 font-semibold">
+                🏠 홈으로
+              </button>
+            </Link>
+          </div>
         </div>
 
         {/* 📤 업로드 영역 */}

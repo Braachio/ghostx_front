@@ -5,7 +5,8 @@ import { cookies } from 'next/headers'
 import type { Database } from '@/lib/database.types'
 
 export async function POST(req: NextRequest) {
-  const supabase = createRouteHandlerClient<Database>({ cookies: () => cookies() })
+  const cookieStore = await cookies()
+  const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore })
   const { nickname } = await req.json()
 
   const { data, error } = await supabase

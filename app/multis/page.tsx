@@ -1,6 +1,6 @@
 'use client'
 
-import MultiListPage from '@/components/MultiListPage'
+import EventListPage from '@/components/EventListPage'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
@@ -64,19 +64,35 @@ export default function MultisPage() {
         <div className="flex justify-between items-center mb-8 border-b border-cyan-500 pb-4">
           <div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-              🗓️ 레이싱 커뮤니티
+              🗓️ 심레이싱게임갤러리 멀티
             </h1>
             <p className="text-gray-300 mt-2">다른 고스트카들과 경쟁하고 레이싱 이벤트에 참여해보세요</p>
           </div>
-          <Link href="/">
-            <button className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all shadow-lg shadow-cyan-500/25 font-semibold">
-              🏠 홈으로
-            </button>
-          </Link>
+          <div className="flex gap-3">
+            {user && (
+              <Link href="/multis/new">
+                <button className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-lg hover:from-green-700 hover:to-emerald-800 transition-all shadow-lg shadow-emerald-500/25 font-semibold">
+                  ➕ 이벤트 등록
+                </button>
+              </Link>
+            )}
+            {user && (
+              <Link href="/dashboard">
+                <button className="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg shadow-purple-500/25 font-semibold">
+                  📈 대시보드
+                </button>
+              </Link>
+            )}
+            <Link href="/">
+              <button className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all shadow-lg shadow-cyan-500/25 font-semibold">
+                🏠 홈으로
+              </button>
+            </Link>
+          </div>
         </div>
 
         {/* 내부 콘텐츠 */}
-        <MultiListPage currentUserId={user?.id ?? null} />
+        <EventListPage currentUserId={user?.id ?? null} />
       </div>
     </div>
 

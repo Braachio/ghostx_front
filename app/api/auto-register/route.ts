@@ -4,7 +4,8 @@ import { NextResponse } from 'next/server'
 import { parseCsvDateToWeek } from '@/lib/dateParser'
 
 export async function POST(req: Request) {
-  const supabase = createRouteHandlerClient({ cookies: getCookies })
+  const cookieStore = await getCookies()
+  const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
 
   const body = await req.json()
 

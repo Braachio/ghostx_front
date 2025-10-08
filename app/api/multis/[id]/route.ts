@@ -1,74 +1,90 @@
-// app/api/multis/[id]/route.ts
-
 import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import type { Database } from '@/lib/database.types'
 
-function extractIdFromUrl(req: NextRequest): string | null {
-  const urlParts = req.nextUrl.pathname.split('/')
-  return urlParts[urlParts.length - 1] || null
+// GET /api/multis/[id] - 단일 멀티 조회
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const cookieStore = await cookies()
+    const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore })
+    const { id } = await params
+
+    console.log(`단일 멀티 조회 요청 - ID: ${id}`)
+
+    const { data, error } = await supabase
+      .from('multis')
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (error) {
+      console.error(`멀티 조회 실패 - ID: ${id}, Error:`, error.message)
+      return NextResponse.json({ error: error.message }, { status: 404 })
+    }
+
+    console.log(`멀티 조회 성공 - ID: ${id}, Title: ${data?.title}`)
+    return NextResponse.json({ data })
+  } catch (e: any) {
+    console.error(`멀티 조회 예외:`, e?.message)
+    return NextResponse.json({ error: e?.message || '서버 오류' }, { status: 500 })
+  }
 }
 
-export async function GET(req: NextRequest) {
-  const supabase = createRouteHandlerClient<Database>({ cookies }) // ✅ 여기만 변경
-  const id = extractIdFromUrl(req)
-  if (!id) return NextResponse.json({ error: 'ID가 없습니다.' }, { status: 400 })
+// PATCH /api/multis/[id] - 멀티 수정
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const cookieStore = await cookies()
+    const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore })
+    const { id } = await params
+    const body = await req.json()
 
-  const { data, error } = await supabase
-    .from('multis')
-    .select('*')
-    .eq('id', id)
-    .single()
+    const { error } = await supabase
+      .from('multis')
+      .update({
+        ...body,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  if (!data) return NextResponse.json({ error: '찾을 수 없습니다.' }, { status: 404 })
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 400 })
+    }
 
-  return NextResponse.json(data)
+    return NextResponse.json({ success: true, message: '이벤트가 수정되었습니다.' })
+  } catch (e: any) {
+    return NextResponse.json({ error: e?.message || '서버 오류' }, { status: 500 })
+  }
 }
 
-export async function PATCH(req: NextRequest) {
-  const supabase = createRouteHandlerClient<Database>({ cookies }) // ✅
-  const id = extractIdFromUrl(req)
-  if (!id) return NextResponse.json({ error: 'ID가 없습니다.' }, { status: 400 })
+// DELETE /api/multis/[id] - 멀티 삭제
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const cookieStore = await cookies()
+    const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore })
+    const { id } = await params
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+    const { error } = await supabase
+      .from('multis')
+      .delete()
+      .eq('id', id)
 
-  const { data: existing } = await supabase.from('multis').select('author_id').eq('id', id).single()
-  if (!existing) return NextResponse.json({ error: '데이터 없음' }, { status: 404 })
-  if (user.id !== existing.author_id) return NextResponse.json({ error: '권한 없음' }, { status: 403 })
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 400 })
+    }
 
-  const body = await req.json()
-  const { data, error } = await supabase
-    .from('multis')
-    .update({ ...body, updated_at: new Date().toISOString() })
-    .eq('id', id)
-    .select()
-    .single()
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data)
+    return NextResponse.json({ ok: true })
+  } catch (e: any) {
+    return NextResponse.json({ error: e?.message || '서버 오류' }, { status: 500 })
+  }
 }
 
-export async function DELETE(req: NextRequest) {
-  const supabase = createRouteHandlerClient<Database>({ cookies }) // ✅
-  const id = extractIdFromUrl(req)
-  if (!id) return NextResponse.json({ error: 'ID가 없습니다.' }, { status: 400 })
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
-
-  const { data: existing } = await supabase.from('multis').select('author_id').eq('id', id).single()
-  if (!existing) return NextResponse.json({ error: '데이터 없음' }, { status: 404 })
-  if (user.id !== existing.author_id) return NextResponse.json({ error: '권한 없음' }, { status: 403 })
-
-  const { error } = await supabase.from('multis').delete().eq('id', id)
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
-  return NextResponse.json({ success: true })
-}
