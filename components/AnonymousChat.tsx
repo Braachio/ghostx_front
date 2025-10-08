@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 
 interface ChatMessage {
   id: string
@@ -38,35 +38,7 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
     return `ㅇㅇ#${generateTag()}`
   }
 
-  useEffect(() => {
-    // 저장된 닉네임과 색상 확인
-    const savedNickname = localStorage.getItem(`chat_nickname_${eventId}`)
-    const savedColor = localStorage.getItem(`chat_color_${eventId}`)
-    
-    if (savedNickname) {
-      setNickname(savedNickname)
-      setUserColor(savedColor || colors[0])
-      setIsJoined(true)
-    } else {
-      // 자동으로 닉네임 생성
-      setNickname(generateNickname())
-      setUserColor(colors[Math.floor(Math.random() * colors.length)])
-    }
-
-    // 기존 메시지 로드 (실제로는 API에서 가져올 예정)
-    loadMessages()
-  }, [eventId])
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-
-  useEffect(() => {
-    scrollToBottom()
-  }, [messages])
-
-
-  const loadMessages = async () => {
+  const loadMessages = useCallback(async () => {
     try {
       const response = await fetch(`/api/chat/${eventId}`)
       if (response.ok) {
@@ -88,7 +60,45 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
       console.error('메시지 로드 중 오류:', error)
       setMessages([])
     }
+  }, [eventId])
+
+  useEffect(() => {
+    // 저장된 닉네임과 색상 확인
+    const savedNickname = localStorage.getItem(`chat_nickname_${eventId}`)
+    const savedColor = localStorage.getItem(`chat_color_${eventId}`)
+    
+    if (savedNickname) {
+      setNickname(savedNickname)
+      setUserColor(savedColor || colors[0])
+      setIsJoined(true)
+    } else {
+      // 자동으로 닉네임 생성
+      setNickname(generateNickname())
+      setUserColor(colors[Math.floor(Math.random() * colors.length)])
+    }
+
+    // 기존 메시지 로드 (실제로는 API에서 가져올 예정)
+    loadMessages()
+  }, [eventId, loadMessages])
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
+
+  // 실시간 메시지 새로고침 (3초마다)
+  useEffect(() => {
+    if (!isJoined) return
+
+    const interval = setInterval(() => {
+      loadMessages()
+    }, 3000)
+
+    return () => clearInterval(interval)
+  }, [isJoined, eventId, loadMessages])
 
   const joinChat = () => {
     setIsJoined(true)
