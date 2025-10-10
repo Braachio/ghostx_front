@@ -55,9 +55,17 @@ NEXT_PUBLIC_SITE_URL=https://ghostx.site
 # 백엔드 API (FastAPI)
 NEXT_PUBLIC_API_URL=https://your-backend.com
 
+# Steam Web API Key (Steam 로그인용)
+STEAM_WEB_API_KEY=your_steam_web_api_key
+
 # 환경
 NODE_ENV=production
 ```
+
+**Steam API 키 발급 방법**:
+1. [Steam Developer](https://steamcommunity.com/dev/apikey) 접속
+2. Domain Name: `ghostx.site` 입력
+3. API Key 복사하여 환경 변수에 추가
 
 #### 로컬 개발 환경
 
