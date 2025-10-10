@@ -144,7 +144,7 @@ export default function MultiDetailPage() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 lg:px-8 py-6 relative z-10">
+      <div className="max-w-[1600px] mx-auto px-6 lg:px-8 py-6 relative z-10">
         {/* 헤더 */}
         <div className="mb-8">
           <Link href="/multis">
@@ -154,9 +154,9 @@ export default function MultiDetailPage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* 메인 콘텐츠 */}
-          <div className="space-y-6">
+          <div className="lg:col-span-3 space-y-6">
             {/* 이벤트 헤더 */}
             <div className="bg-gradient-to-br from-gray-900 to-black border border-cyan-500/30 rounded-xl p-6 shadow-2xl shadow-cyan-500/10">
               <div className="flex items-start gap-4 mb-4">
@@ -228,6 +228,26 @@ export default function MultiDetailPage() {
               </div>
             </div>
 
+            {/* 운영자 액션 버튼 */}
+            {isAuthor && (
+              <div className="bg-gradient-to-br from-gray-900 to-black border border-orange-500/30 rounded-xl p-6 shadow-2xl shadow-orange-500/10">
+                <h3 className="text-lg font-bold text-white mb-4">⚡ 운영자 메뉴</h3>
+                <div className="flex flex-wrap gap-3">
+                  <Link href={`/multis/${multi.id}/edit`} className="flex-1">
+                    <button className="w-full px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-all font-medium">
+                      ✏️ 수정하기
+                    </button>
+                  </Link>
+                  <button
+                    onClick={handleDelete}
+                    className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all font-medium"
+                  >
+                    🗑️ 삭제하기
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* 갤러리 링크 iframe 미리보기 */}
             {multi.link && (
               <div className="bg-gradient-to-br from-gray-900 to-black border border-blue-500/30 rounded-xl p-6 shadow-2xl shadow-blue-500/10">
@@ -253,56 +273,17 @@ export default function MultiDetailPage() {
                 </div>
               </div>
             )}
-
-            {/* 액션 버튼들 */}
-            <div className="bg-gradient-to-br from-gray-900 to-black border border-orange-500/30 rounded-xl p-6 shadow-2xl shadow-orange-500/10">
-              <h3 className="text-lg font-bold text-white mb-4">⚡ 액션</h3>
-              <div className="flex flex-wrap gap-3">
-                {multi.link ? (
-                  <a
-                    href={multi.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-medium text-center"
-                  >
-                    🔗 참가하기
-                  </a>
-                ) : (
-                  <button className="flex-1 px-4 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all font-medium">
-                    📝 참가 하기
-                  </button>
-                )}
-
-                {isAuthor && (
-                  <>
-                    <Link href={`/multis/${multi.id}/edit`} className="flex-1">
-                      <button className="w-full px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-all font-medium">
-                        ✏️ 수정하기
-                      </button>
-                    </Link>
-                    <button
-                      onClick={handleDelete}
-                      className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all font-medium"
-                    >
-                      🗑️ 삭제하기
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
           </div>
 
-          {/* 하단 - 커뮤니티 섹션 */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* 오른쪽 사이드바 - 커뮤니티 섹션 */}
+          <div className="lg:col-span-2 space-y-6">
             {/* 참가자 정보 */}
             {id && (
               <ParticipantsList eventId={id} />
             )}
 
             {/* 익명 채팅 */}
-            <div className="lg:col-span-1">
-              <AnonymousChat eventId={id || ''} />
-            </div>
+            <AnonymousChat eventId={id || ''} />
           </div>
         </div>
       </div>

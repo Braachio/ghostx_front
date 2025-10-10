@@ -20,16 +20,6 @@ const colors = [
   'text-purple-400', 'text-pink-400', 'text-cyan-400', 'text-orange-400'
 ]
 
-// 4자리 랜덤 태그 생성 함수
-const generateTag = () => {
-  return Math.floor(1000 + Math.random() * 9000).toString()
-}
-
-// 자동 닉네임 생성 함수
-const generateNickname = () => {
-  return `ㅇㅇ#${generateTag()}`
-}
-
 export default function AnonymousChat({ eventId }: AnonymousChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [newMessage, setNewMessage] = useState('')
@@ -71,8 +61,8 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
       setUserColor(savedColor || colors[0])
       setIsJoined(true)
     } else {
-      // 자동으로 닉네임 생성
-      setNickname(generateNickname())
+      // 닉네임을 빈 문자열로 시작 (사용자가 직접 입력)
+      setNickname('')
       setUserColor(colors[Math.floor(Math.random() * colors.length)])
     }
 
@@ -163,7 +153,7 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
     }
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       sendMessage()
@@ -186,12 +176,17 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
             <label className="block text-sm font-medium text-gray-300 mb-2">
               닉네임
             </label>
-            <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg border border-gray-600">
-              <div>
-                <div className={`font-medium ${userColor}`}>{nickname}</div>
-              </div>
-              <div className="text-cyan-400 text-sm">🎮</div>
-            </div>
+            <input
+              type="text"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              placeholder="닉네임을 입력하세요"
+              maxLength={20}
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+            />
+            <p className="mt-1 text-xs text-gray-400">
+              💡 F1 25의 경우 인게임 닉네임과 동일하게 입력하세요
+            </p>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -215,7 +210,8 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
           </div>
           <button
             onClick={joinChat}
-            className="w-full px-4 py-2 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-lg hover:from-pink-700 hover:to-purple-700 transition-all font-medium"
+            disabled={!nickname.trim()}
+            className="w-full px-4 py-2 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-lg hover:from-pink-700 hover:to-purple-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
             🚀 채팅 참여하기
           </button>
@@ -224,10 +220,20 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
     )
   }
 
+  // 채팅 참여자 목록 추출 (중복 제거)
+  const uniqueParticipants = Array.from(
+    new Set(messages.map(msg => msg.nickname).filter(nick => nick !== '시스템'))
+  )
+
   return (
     <div className="bg-gradient-to-br from-gray-900 to-black border border-pink-500/30 rounded-xl p-6 shadow-2xl shadow-pink-500/10">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-white">💬 익명 채팅</h3>
+        <div className="flex items-center gap-3">
+          <h3 className="text-lg font-bold text-white">💬 익명 채팅</h3>
+          <span className="px-2 py-1 bg-pink-600/20 text-pink-300 rounded-full text-xs font-medium">
+            {uniqueParticipants.length}명
+          </span>
+        </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <div className={`w-3 h-3 rounded-full ${userColor.replace('text-', 'bg-')}`}></div>
@@ -242,8 +248,25 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
         </div>
       </div>
 
+      {/* 채팅 참여자 목록 */}
+      {uniqueParticipants.length > 0 && (
+        <div className="mb-3 p-3 bg-gray-800/50 rounded-lg">
+          <div className="text-xs text-gray-400 mb-2">💬 채팅 참여자 ({uniqueParticipants.length}명)</div>
+          <div className="flex flex-wrap gap-2">
+            {uniqueParticipants.map((participantNick, index) => {
+              const participantColor = messages.find(m => m.nickname === participantNick)?.color || 'text-gray-400'
+              return (
+                <span key={index} className={`text-xs px-2 py-1 bg-gray-700/50 rounded ${participantColor}`}>
+                  {participantNick}
+                </span>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
       {/* 채팅 메시지 영역 */}
-      <div className="h-48 overflow-y-auto bg-gray-800/50 rounded-lg p-4 mb-4 space-y-3">
+      <div className="h-96 overflow-y-auto bg-gray-800/50 rounded-lg p-4 mb-4 space-y-3">
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-gray-400 text-sm">
             아직 메시지가 없습니다. 첫 메시지를 보내보세요!
@@ -259,7 +282,7 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
                   {formatTime(msg.timestamp)}
                 </span>
               </div>
-              <div className="bg-gray-700/50 rounded-lg p-2 text-white text-sm">
+              <div className="bg-gray-700/50 rounded-lg p-2 text-white text-sm whitespace-pre-wrap break-words">
                 {msg.message}
               </div>
             </div>
@@ -269,13 +292,13 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
 
       {/* 메시지 입력 영역 */}
       <div className="flex gap-2">
-        <input
-          type="text"
+        <textarea
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyDown}
           placeholder="메시지를 입력하세요..."
-          className="flex-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+          rows={2}
+          className="flex-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none"
           maxLength={200}
         />
         <button

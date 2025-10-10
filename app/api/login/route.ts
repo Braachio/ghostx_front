@@ -28,6 +28,16 @@ export async function POST(req: Request) {
       )
     }
 
+    // 이메일 인증 확인 (개발 환경에서는 우회 가능하도록)
+    if (!user.email_confirmed_at && process.env.NODE_ENV === 'production') {
+      // 세션 삭제
+      await supabase.auth.signOut()
+      return NextResponse.json(
+        { error: '이메일 인증이 필요합니다. 이메일을 확인해주세요.' },
+        { status: 403 }
+      )
+    }
+
     return NextResponse.json({ success: true })
   } catch (error: unknown) {
     console.error('로그인 에러:', error instanceof Error ? error.message : error)

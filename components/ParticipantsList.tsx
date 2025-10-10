@@ -30,6 +30,7 @@ export default function ParticipantsList({ eventId }: ParticipantsListProps) {
   const [joining, setJoining] = useState(false)
   const [isJoined, setIsJoined] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [customNickname, setCustomNickname] = useState('')
 
   // 4자리 랜덤 태그 생성 함수
   const generateTag = () => {
@@ -38,8 +39,8 @@ export default function ParticipantsList({ eventId }: ParticipantsListProps) {
 
   // 사용자 기본 닉네임 가져오기
   const getUserDisplayName = () => {
-    // 항상 'ㅇㅇ'으로 시작
-    return `ㅇㅇ#${generateTag()}`
+    // 사용자가 입력한 닉네임이 있으면 사용, 없으면 'ㅇㅇ'으로 시작
+    return customNickname.trim() || `ㅇㅇ#${generateTag()}`
   }
 
   const fetchParticipants = useCallback(async () => {
@@ -240,12 +241,21 @@ export default function ParticipantsList({ eventId }: ParticipantsListProps) {
             </div>
           ) : (
             <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-gray-700/50 rounded-lg">
-                <div>
-                  <div className="text-sm text-gray-300">참가 닉네임</div>
-                  <div className="text-white font-medium">{getUserDisplayName()}</div>
-                </div>
-                <div className="text-cyan-400 text-sm">🎮</div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  참가 닉네임
+                </label>
+                <input
+                  type="text"
+                  value={customNickname}
+                  onChange={(e) => setCustomNickname(e.target.value)}
+                  placeholder="닉네임 입력 (미입력시 ㅇㅇ#1234)"
+                  maxLength={20}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+                <p className="mt-1 text-xs text-gray-400">
+                  💡 F1 25의 경우 인게임 닉네임과 동일하게 입력하세요
+                </p>
               </div>
               <button
                 onClick={handleJoin}

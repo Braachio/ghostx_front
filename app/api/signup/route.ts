@@ -23,7 +23,7 @@ export async function POST(req: Request) {
       email,
       password,
       options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://ghostx.site'}/auth/callback`,
         data: {
           agreed_terms: !!agreed_terms,
           agreed_privacy: !!agreed_privacy,
@@ -36,6 +36,20 @@ export async function POST(req: Request) {
         { error: signUpError?.message || '회원가입 실패' },
         { status: 400 }
       )
+    }
+
+    // 프로필 자동 생성 (이메일 인증 전에도 생성)
+    try {
+      await supabase.from('profiles').insert({
+        id: user.id,
+        email: user.email,
+        nickname: email.split('@')[0],
+        agreed_terms: !!agreed_terms,
+        agreed_privacy: !!agreed_privacy,
+      })
+    } catch (profileError) {
+      console.error('프로필 생성 에러:', profileError)
+      // 프로필 생성 실패해도 회원가입은 성공으로 처리 (나중에 자동 생성됨)
     }
 
     return NextResponse.json({ success: true })
