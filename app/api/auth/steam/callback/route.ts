@@ -61,64 +61,79 @@ async function getSteamUserInfo(steamId: string) {
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   
-  // OpenID 응답 검증
-  const mode = searchParams.get('openid.mode')
-  const claimedId = searchParams.get('openid.claimed_id')
-  
-  if (mode !== 'id_res' || !claimedId) {
-    return NextResponse.redirect(new URL('/login?error=steam_auth_failed', request.url))
-  }
-  
-  // Steam ID 추출
-  const steamId = extractSteamId(claimedId)
-  
-  if (!steamId) {
-    return NextResponse.redirect(new URL('/login?error=invalid_steam_id', request.url))
-  }
-  
-  // Steam OpenID 검증
-  const isValid = await validateSteamLogin(searchParams)
-  
-  if (!isValid) {
-    return NextResponse.redirect(new URL('/login?error=steam_validation_failed', request.url))
-  }
-  
-  // Steam 사용자 정보 가져오기
-  const steamUser = await getSteamUserInfo(steamId)
-  
-  if (!steamUser) {
-    return NextResponse.redirect(new URL('/login?error=steam_user_info_failed', request.url))
-  }
-  
-  // Supabase에 사용자 생성 또는 로그인
-  const cookieStore = await cookies()
-  const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore })
-  
   try {
+    // OpenID 응답 검증
+    const mode = searchParams.get('openid.mode')
+    const claimedId = searchParams.get('openid.claimed_id')
+    
+    if (mode !== 'id_res' || !claimedId) {
+      console.error('Steam auth failed: invalid mode or claimed_id')
+      return NextResponse.redirect(new URL('/login?error=steam_auth_failed', request.url))
+    }
+    
+    // Steam ID 추출
+    const steamId = extractSteamId(claimedId)
+    
+    if (!steamId) {
+      console.error('Steam auth failed: invalid steam ID format')
+      return NextResponse.redirect(new URL('/login?error=invalid_steam_id', request.url))
+    }
+    
+    console.log('Steam ID extracted:', steamId)
+    
+    // Steam OpenID 검증
+    const isValid = await validateSteamLogin(searchParams)
+    
+    if (!isValid) {
+      console.error('Steam auth failed: validation failed')
+      return NextResponse.redirect(new URL('/login?error=steam_validation_failed', request.url))
+    }
+    
+    // Steam 사용자 정보 가져오기
+    const steamUser = await getSteamUserInfo(steamId)
+    
+    if (!steamUser) {
+      console.error('Steam auth failed: could not fetch user info')
+      return NextResponse.redirect(new URL('/login?error=steam_user_info_failed', request.url))
+    }
+    
+    console.log('Steam user info fetched:', steamUser.personaname)
+    
+    // Supabase에 사용자 생성 또는 로그인
+    const cookieStore = await cookies()
+    const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore })
+    
     // Steam ID를 이메일 형식으로 변환 (Supabase는 이메일이 필수)
     const steamEmail = `steam_${steamId}@ghostx.site`
     
+    console.log('Processing Steam user:', steamEmail)
+    
     // 기존 사용자 확인
-    const { data: existingProfile } = await supabase
+    const { data: existingProfile, error: profileError } = await supabase
       .from('profiles')
       .select('id')
       .eq('steam_id', steamId)
       .single()
     
+    if (profileError && profileError.code !== 'PGRST116') {
+      console.error('Profile lookup error:', profileError)
+      return NextResponse.redirect(new URL('/login?error=database_error', request.url))
+    }
+    
     if (existingProfile) {
+      console.log('Existing user found, signing in...')
       // 기존 사용자 - 로그인 처리
-      // Supabase Auth에 Steam 사용자 연동
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: steamEmail,
-        password: steamId, // Steam ID를 비밀번호로 사용 (보안상 문제 없음 - 외부 노출 안 됨)
+        password: steamId,
       })
       
       if (signInError) {
         console.error('Sign in error:', signInError)
-        // 로그인 실패 시 세션 생성 시도
-        throw signInError
+        return NextResponse.redirect(new URL('/login?error=auth_failed', request.url))
       }
     } else {
+      console.log('New user, signing up...')
       // 새 사용자 - 회원가입
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: steamEmail,
@@ -135,11 +150,11 @@ export async function GET(request: NextRequest) {
       
       if (signUpError || !authData.user) {
         console.error('Sign up error:', signUpError)
-        throw signUpError
+        return NextResponse.redirect(new URL('/login?error=signup_failed', request.url))
       }
       
       // 프로필 생성
-      await supabase.from('profiles').insert({
+      const { error: insertError } = await supabase.from('profiles').insert({
         id: authData.user.id,
         email: steamEmail,
         nickname: steamUser.personaname,
@@ -148,13 +163,19 @@ export async function GET(request: NextRequest) {
         agreed_terms: true,
         agreed_privacy: true,
       })
+      
+      if (insertError) {
+        console.error('Profile insert error:', insertError)
+        return NextResponse.redirect(new URL('/login?error=profile_creation_failed', request.url))
+      }
     }
     
+    console.log('Steam login successful, redirecting to dashboard')
     // 로그인 성공 - 대시보드로 리다이렉트
     return NextResponse.redirect(new URL('/dashboard', request.url))
   } catch (error) {
-    console.error('Supabase error:', error)
-    return NextResponse.redirect(new URL('/login?error=database_error', request.url))
+    console.error('Unexpected error in Steam callback:', error)
+    return NextResponse.redirect(new URL('/login?error=unexpected_error', request.url))
   }
 }
 

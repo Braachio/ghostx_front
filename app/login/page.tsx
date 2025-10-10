@@ -1,14 +1,34 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+
+  // URL 파라미터에서 에러 메시지 읽기
+  useEffect(() => {
+    const errorParam = searchParams.get('error')
+    if (errorParam) {
+      const errorMessages: { [key: string]: string } = {
+        'steam_auth_failed': 'Steam 인증에 실패했습니다.',
+        'invalid_steam_id': '유효하지 않은 Steam ID입니다.',
+        'steam_validation_failed': 'Steam 검증에 실패했습니다.',
+        'steam_user_info_failed': 'Steam 사용자 정보를 가져올 수 없습니다.',
+        'database_error': '데이터베이스 오류가 발생했습니다. Steam API 키가 설정되어 있는지 확인해주세요.',
+        'auth_failed': '인증에 실패했습니다.',
+        'signup_failed': '회원가입에 실패했습니다.',
+        'profile_creation_failed': '프로필 생성에 실패했습니다. 데이터베이스 마이그레이션이 필요할 수 있습니다.',
+        'unexpected_error': '예상치 못한 오류가 발생했습니다.',
+      }
+      setError(errorMessages[errorParam] || '알 수 없는 오류가 발생했습니다.')
+    }
+  }, [searchParams])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
