@@ -154,9 +154,9 @@ export default function MultiDetailPage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-8">
           {/* 메인 콘텐츠 */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-6">
             {/* 이벤트 헤더 */}
             <div className="bg-gradient-to-br from-gray-900 to-black border border-cyan-500/30 rounded-xl p-6 shadow-2xl shadow-cyan-500/10">
               <div className="flex items-start gap-4 mb-4">
@@ -227,53 +227,81 @@ export default function MultiDetailPage() {
                 {multi.description ? linkify(multi.description) : '설명이 없습니다.'}
               </div>
             </div>
+
+            {/* 갤러리 링크 iframe 미리보기 */}
+            {multi.link && (
+              <div className="bg-gradient-to-br from-gray-900 to-black border border-blue-500/30 rounded-xl p-6 shadow-2xl shadow-blue-500/10">
+                <h2 className="text-xl font-bold text-white mb-4">🔗 갤러리 미리보기</h2>
+                <div className="relative w-full bg-gray-800 rounded-lg overflow-hidden" style={{ paddingBottom: '56.25%' }}>
+                  <iframe
+                    src={multi.link}
+                    className="absolute top-0 left-0 w-full h-full border-0"
+                    title="갤러리 미리보기"
+                    sandbox="allow-scripts allow-same-origin"
+                  />
+                </div>
+                <div className="mt-3 flex items-center justify-between">
+                  <span className="text-gray-400 text-sm">원본 링크:</span>
+                  <a
+                    href={multi.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-cyan-400 hover:text-cyan-300 text-sm underline break-all"
+                  >
+                    {multi.link}
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {/* 액션 버튼들 */}
+            <div className="bg-gradient-to-br from-gray-900 to-black border border-orange-500/30 rounded-xl p-6 shadow-2xl shadow-orange-500/10">
+              <h3 className="text-lg font-bold text-white mb-4">⚡ 액션</h3>
+              <div className="flex flex-wrap gap-3">
+                {multi.link ? (
+                  <a
+                    href={multi.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-medium text-center"
+                  >
+                    🔗 참가하기
+                  </a>
+                ) : (
+                  <button className="flex-1 px-4 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all font-medium">
+                    📝 참가 하기
+                  </button>
+                )}
+
+                {isAuthor && (
+                  <>
+                    <Link href={`/multis/${multi.id}/edit`} className="flex-1">
+                      <button className="w-full px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-all font-medium">
+                        ✏️ 수정하기
+                      </button>
+                    </Link>
+                    <button
+                      onClick={handleDelete}
+                      className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all font-medium"
+                    >
+                      🗑️ 삭제하기
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
 
-          {/* 사이드바 - 커뮤니케이션 */}
-          <div className="space-y-6">
+          {/* 하단 - 커뮤니티 섹션 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* 참가자 정보 */}
             {id && (
               <ParticipantsList eventId={id} />
             )}
 
             {/* 익명 채팅 */}
-            <AnonymousChat eventId={id || ''} />
-
-            {/* 액션 버튼들 */}
-            <div className="bg-gradient-to-br from-gray-900 to-black border border-orange-500/30 rounded-xl p-6 shadow-2xl shadow-orange-500/10">
-              <h3 className="text-lg font-bold text-white mb-4">⚡ 액션</h3>
-              <div className="space-y-3">
-                {multi.link ? (
-                  <a
-                    href={multi.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-medium text-center"
-                  >
-                    🔗 참가하기
-                  </a>
-                ) : (
-                  <button className="w-full px-4 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all font-medium">
-                    📝 참가 하기
-                  </button>
-                )}
-
-                {isAuthor && (
-                  <div className="space-y-2 pt-4 border-t border-gray-700">
-                    <Link href={`/multis/${multi.id}/edit`}>
-                      <button className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-all text-sm">
-                        ✏️ 수정하기
-                      </button>
-                    </Link>
-                    <button
-                      onClick={handleDelete}
-                      className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all text-sm"
-                    >
-                      🗑️ 삭제하기
-                    </button>
-                  </div>
-                )}
-              </div>
+            <div className="lg:col-span-1">
+              <AnonymousChat eventId={id || ''} />
             </div>
           </div>
         </div>

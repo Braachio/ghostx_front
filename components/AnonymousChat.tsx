@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 interface ChatMessage {
   id: string
@@ -14,29 +14,28 @@ interface AnonymousChatProps {
   eventId: string
 }
 
+// 사용자 색상 생성 (컴포넌트 외부로 이동)
+const colors = [
+  'text-red-400', 'text-blue-400', 'text-green-400', 'text-yellow-400',
+  'text-purple-400', 'text-pink-400', 'text-cyan-400', 'text-orange-400'
+]
+
+// 4자리 랜덤 태그 생성 함수
+const generateTag = () => {
+  return Math.floor(1000 + Math.random() * 9000).toString()
+}
+
+// 자동 닉네임 생성 함수
+const generateNickname = () => {
+  return `ㅇㅇ#${generateTag()}`
+}
+
 export default function AnonymousChat({ eventId }: AnonymousChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [newMessage, setNewMessage] = useState('')
   const [nickname, setNickname] = useState('')
   const [isJoined, setIsJoined] = useState(false)
   const [userColor, setUserColor] = useState('')
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-
-  // 사용자 색상 생성
-  const colors = [
-    'text-red-400', 'text-blue-400', 'text-green-400', 'text-yellow-400',
-    'text-purple-400', 'text-pink-400', 'text-cyan-400', 'text-orange-400'
-  ]
-
-  // 4자리 랜덤 태그 생성 함수
-  const generateTag = () => {
-    return Math.floor(1000 + Math.random() * 9000).toString()
-  }
-
-  // 자동 닉네임 생성 함수
-  const generateNickname = () => {
-    return `ㅇㅇ#${generateTag()}`
-  }
 
   const loadMessages = useCallback(async () => {
     try {
@@ -81,13 +80,7 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
     loadMessages()
   }, [eventId, loadMessages])
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-
-  useEffect(() => {
-    scrollToBottom()
-  }, [messages])
+  // 자동 스크롤 기능 제거 - 사용자가 직접 스크롤 제어
 
   // 실시간 메시지 새로고침 (3초마다)
   useEffect(() => {
@@ -272,7 +265,6 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
             </div>
           ))
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       {/* 메시지 입력 영역 */}

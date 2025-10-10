@@ -40,7 +40,7 @@ export default function EventListPage({ currentUserId }: EventListPageProps) {
   const [timeFilter, setTimeFilter] = useState<'all' | 'today' | 'tomorrow' | 'thisWeek' | 'nextWeek'>('all')
   const [loading, setLoading] = useState(true)
   const [showInactive, setShowInactive] = useState(false)
-  const [collapsedCategories, setCollapsedCategories] = useState<string[]>([])
+  const [isFilterExpanded, setIsFilterExpanded] = useState(false)
 
   useEffect(() => {
     const fetchMultis = async () => {
@@ -116,26 +116,6 @@ export default function EventListPage({ currentUserId }: EventListPageProps) {
     setSelectedGames([])
   }
 
-  // 카테고리별 선택/해제 함수
-  const toggleCategorySelection = (categoryGames: string[]) => {
-    const allSelected = categoryGames.every(game => selectedGames.includes(game))
-    if (allSelected) {
-      // 카테고리 전체 해제
-      setSelectedGames(prev => prev.filter(game => !categoryGames.includes(game)))
-    } else {
-      // 카테고리 전체 선택
-      setSelectedGames(prev => [...new Set([...prev, ...categoryGames])])
-    }
-  }
-
-  // 카테고리 접기/펼치기 함수
-  const toggleCategoryCollapse = (categoryName: string) => {
-    setCollapsedCategories(prev =>
-      prev.includes(categoryName)
-        ? prev.filter(name => name !== categoryName)
-        : [...prev, categoryName]
-    )
-  }
 
 
 
@@ -350,138 +330,120 @@ export default function EventListPage({ currentUserId }: EventListPageProps) {
 
   return (
     <div className="text-white space-y-8">
-      {/* 필터 및 정렬 */}
-      <div className="bg-gradient-to-br from-gray-900 to-black border border-cyan-500/30 rounded-xl p-6 shadow-2xl shadow-cyan-500/10">
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* 게임 필터 */}
-          <div className="flex-1">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-white">🎮 게임 필터</h3>
-              <div className="flex gap-2">
-                <button
-                  onClick={selectAllGames}
-                  className="px-3 py-1 bg-cyan-600 text-white rounded text-sm hover:bg-cyan-700 transition-colors"
-                >
-                  전체 선택
-                </button>
-                <button
-                  onClick={deselectAllGames}
-                  className="px-3 py-1 bg-gray-600 text-white rounded text-sm hover:bg-gray-700 transition-colors"
-                >
-                  전체 해제
-                </button>
-              </div>
+      {/* 필터 및 정렬 - 접을 수 있는 간단한 버전 */}
+      <div className="bg-gradient-to-br from-gray-900 to-black border border-cyan-500/30 rounded-xl shadow-2xl shadow-cyan-500/10 overflow-hidden">
+        {/* 필터 헤더 (항상 표시) */}
+        <div 
+          className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-800/50 transition-colors"
+          onClick={() => setIsFilterExpanded(!isFilterExpanded)}
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-xl">🔍</span>
+            <h3 className="text-lg font-bold text-white">필터</h3>
+            <span className="text-sm text-gray-400">
+              ({selectedGames.length}개 게임 선택)
+            </span>
+          </div>
+          <div className="flex items-center gap-4">
+            {/* 빠른 필터 버튼들 */}
+            <div className="flex items-center gap-2">
+              <select
+                value={timeFilter}
+                onChange={(e) => {
+                  e.stopPropagation()
+                  setTimeFilter(e.target.value as 'all' | 'today' | 'tomorrow' | 'thisWeek' | 'nextWeek')
+                }}
+                onClick={(e) => e.stopPropagation()}
+                className="px-3 py-1.5 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+              >
+                <option value="all">📅 전체</option>
+                <option value="today">🔥 오늘</option>
+                <option value="tomorrow">⚡ 내일</option>
+                <option value="thisWeek">📅 이번주</option>
+                <option value="nextWeek">📆 다음주</option>
+              </select>
+              
+              <select
+                value={sortBy}
+                onChange={(e) => {
+                  e.stopPropagation()
+                  setSortBy(e.target.value as 'date' | 'game' | 'title')
+                }}
+                onClick={(e) => e.stopPropagation()}
+                className="px-3 py-1.5 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+              >
+                <option value="date">⏰ 시간순</option>
+                <option value="game">🎮 게임순</option>
+                <option value="title">📝 제목순</option>
+              </select>
             </div>
             
-            <div className="space-y-3">
-              {Object.entries(gameCategories).map(([categoryName, category]) => {
-                const isCollapsed = collapsedCategories.includes(categoryName)
-                const categorySelectedCount = category.games.filter(game => selectedGames.includes(game)).length
-                const isAllSelected = categorySelectedCount === category.games.length
-                
-                return (
-                  <div key={categoryName} className="border border-gray-600 rounded-lg">
-                    {/* 카테고리 헤더 */}
-                    <div 
-                      className="flex items-center justify-between p-3 bg-gray-800 cursor-pointer hover:bg-gray-700 transition-colors"
-                      onClick={() => toggleCategoryCollapse(categoryName)}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">{category.icon}</span>
-                        <span className="font-medium text-white">{categoryName}</span>
-                        <span className="text-sm text-gray-400">
-                          ({categorySelectedCount}/{category.games.length})
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            toggleCategorySelection(category.games)
-                          }}
-                          className={`px-2 py-1 rounded text-xs ${
-                            isAllSelected 
-                              ? 'bg-red-600 text-white hover:bg-red-700' 
-                              : 'bg-green-600 text-white hover:bg-green-700'
-                          }`}
-                        >
-                          {isAllSelected ? '전체해제' : '전체선택'}
-                        </button>
-                        <span className={`transform transition-transform ${isCollapsed ? 'rotate-180' : ''}`}>
-                          ▼
-                        </span>
-                      </div>
-                    </div>
-                    
-                    {/* 게임 목록 */}
-                    {!isCollapsed && (
-                      <div className="p-3 bg-gray-900">
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                          {category.games.map(game => (
-                            <label key={game} className="flex items-center gap-2 cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={selectedGames.includes(game)}
-                                onChange={() => toggleGameSelection(game)}
-                                className="w-4 h-4 text-cyan-600 bg-gray-800 border-gray-600 rounded focus:ring-cyan-500"
-                              />
-                              <span className="text-gray-300 text-sm">
-                                {game}
-                              </span>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* 시간 필터 */}
-          <div className="lg:w-48">
-            <h3 className="text-lg font-bold mb-4 text-white">📅 시간 필터</h3>
-            <select
-              value={timeFilter}
-              onChange={(e) => setTimeFilter(e.target.value as 'all' | 'today' | 'tomorrow' | 'thisWeek' | 'nextWeek')}
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-            >
-              <option value="all">전체</option>
-              <option value="today">오늘</option>
-              <option value="tomorrow">내일</option>
-              <option value="thisWeek">이번주</option>
-              <option value="nextWeek">다음주</option>
-            </select>
-          </div>
-
-          {/* 정렬 옵션 */}
-          <div className="lg:w-48">
-            <h3 className="text-lg font-bold mb-4 text-white">📊 정렬</h3>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as 'date' | 'game' | 'title')}
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-            >
-              <option value="date">시간순</option>
-              <option value="game">게임순</option>
-              <option value="title">제목순</option>
-            </select>
-          </div>
-          {/* 비활성 표시 */}
-          <div className="lg:w-48">
-            <h3 className="text-lg font-bold mb-4 text-white">🧹 표시 옵션</h3>
-            <label className="inline-flex items-center gap-2 text-gray-300 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                className="w-4 h-4 text-cyan-600 bg-gray-800 border-gray-600 rounded focus:ring-cyan-500 focus:ring-2"
-                checked={showInactive}
-                onChange={(e) => setShowInactive(e.target.checked)}
-              />
-              비활성 이벤트 포함
-            </label>
+            <button className="text-cyan-400 hover:text-cyan-300 transition-colors">
+              <span className={`transform transition-transform inline-block ${isFilterExpanded ? 'rotate-180' : ''}`}>
+                ▼
+              </span>
+            </button>
           </div>
         </div>
+
+        {/* 확장된 필터 옵션 */}
+        {isFilterExpanded && (
+          <div className="p-6 pt-0 border-t border-gray-700">
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* 게임 선택 - 간단한 버전 */}
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-semibold text-gray-300">🎮 게임</h4>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={selectAllGames}
+                      className="px-2 py-1 bg-cyan-600 text-white rounded text-xs hover:bg-cyan-700 transition-colors"
+                    >
+                      전체
+                    </button>
+                    <button
+                      onClick={deselectAllGames}
+                      className="px-2 py-1 bg-gray-600 text-white rounded text-xs hover:bg-gray-700 transition-colors"
+                    >
+                      해제
+                    </button>
+                  </div>
+                </div>
+                
+                {/* 게임 버튼들 - 카테고리 없이 */}
+                <div className="flex flex-wrap gap-2">
+                  {allGames.map(game => (
+                    <button
+                      key={game}
+                      onClick={() => toggleGameSelection(game)}
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                        selectedGames.includes(game)
+                          ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-500/25'
+                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      }`}
+                    >
+                      {game}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 기타 옵션 */}
+              <div className="lg:w-48">
+                <h4 className="text-sm font-semibold text-gray-300 mb-3">🧹 표시 옵션</h4>
+                <label className="inline-flex items-center gap-2 text-gray-300 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 text-cyan-600 bg-gray-800 border-gray-600 rounded focus:ring-cyan-500 focus:ring-2"
+                    checked={showInactive}
+                    onChange={(e) => setShowInactive(e.target.checked)}
+                  />
+                  <span className="text-sm">비활성 이벤트 포함</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 통계 정보 */}

@@ -284,27 +284,35 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
         )}
       </div>
 
-      {/* 이벤트 정보 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <div className="space-y-3">
+      {/* 이벤트 정보 - 더 디테일하게 */}
+      <div className="mb-6 space-y-4">
+        {/* 레이스 타입 (눈에 띄게) */}
+        {multi.multi_race && (
+          <div className="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/30 rounded-lg py-3 px-4">
+            <span className="text-purple-400 text-lg">🏆</span>
+            <span className="text-gray-300 text-sm">레이스:</span>
+            <span className="text-white font-bold text-lg">{multi.multi_race}</span>
+          </div>
+        )}
+
+        {/* 상세 정보 그리드 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-gray-800/50 rounded-lg p-4">
           <div className="flex items-center gap-2">
             <span className="text-cyan-400">🏁</span>
-            <span className="text-gray-300">트랙:</span>
-            <span className="text-white font-medium">{multi.game_track}</span>
+            <span className="text-gray-400 text-sm">트랙:</span>
+            <span className="text-white font-medium text-sm">{multi.game_track}</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-blue-400">🚗</span>
-            <span className="text-gray-300">클래스:</span>
-            <span className="text-white font-medium">{multi.multi_class}</span>
+            <span className="text-gray-400 text-sm">클래스:</span>
+            <span className="text-white font-medium text-sm">{multi.multi_class}</span>
           </div>
-        </div>
-        <div className="space-y-3">
           <div className="flex items-center gap-2">
             <span className="text-purple-400">📅</span>
-            <span className="text-gray-300">요일:</span>
+            <span className="text-gray-400 text-sm">요일:</span>
             <div className="flex flex-wrap gap-1">
               {multi.multi_day.map(day => (
-                <span key={day} className={`px-2 py-1 rounded-full text-xs font-medium ${getDayColor(day)}`}>
+                <span key={day} className={`px-2 py-0.5 rounded-full text-xs font-medium ${getDayColor(day)}`}>
                   {day}
                 </span>
               ))}
@@ -312,8 +320,8 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
           </div>
           <div className="flex items-center gap-2">
             <span className="text-yellow-400">⏰</span>
-            <span className="text-gray-300">시간:</span>
-            <span className="text-white font-medium">{multi.multi_time || '미정'}</span>
+            <span className="text-gray-400 text-sm">시작 시간:</span>
+            <span className="text-white font-medium text-sm">{multi.multi_time || '미정'}</span>
           </div>
         </div>
       </div>
