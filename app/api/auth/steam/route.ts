@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 
 // Steam OpenID 로그인 시작
-export async function GET(request: NextRequest) {
+export async function GET() {
   const returnUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://ghostx.site'}/api/auth/steam/callback`
   
   const params = new URLSearchParams({
