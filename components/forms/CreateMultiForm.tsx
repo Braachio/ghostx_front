@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import type { Database } from '@/lib/database.types'
+import { getCurrentWeekInfo, getWeekOptions, getDateFromWeekAndDay, getWeekDateRange } from '@/app/utils/weekUtils'
 
 export default function CreateMultiForm() {
   const supabase = createClientComponentClient<Database>()
@@ -17,7 +18,9 @@ export default function CreateMultiForm() {
   const [multiClass, setMultiClass] = useState('')
   const [multiDay, setMultiDay] = useState<string[]>([])
   const [multiTime, setMultiTime] = useState('')
-  const [eventDate, setEventDate] = useState('')
+  const currentWeekInfo = getCurrentWeekInfo()
+  const [week, setWeek] = useState<number>(currentWeekInfo.week)
+  const [year, setYear] = useState<number>(currentWeekInfo.year)
   const [link, setLink] = useState('')
 
   const [anonymousNickname, setAnonymousNickname] = useState('')
@@ -55,7 +58,8 @@ export default function CreateMultiForm() {
       multi_day: multiDay,
       multi_time: multiTime,
       link,
-      event_date: eventDate || null,
+      year,
+      week,
       author_id: userId,
       anonymous_nickname: userId ? null : anonymousNickname,
       anonymous_password: userId ? null : anonymousPassword,
@@ -182,16 +186,39 @@ export default function CreateMultiForm() {
           />
         </label>
 
-        <label className="text-sm text-gray-800 dark:text-gray-200">
-          이벤트 날짜:
-          <input
-            type="date"
-            value={eventDate}
-            onChange={(e) => setEventDate(e.target.value)}
-            className="border p-2 rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            placeholder="날짜를 선택하세요"
-          />
-        </label>
+        <div className="grid grid-cols-2 gap-4">
+          <label className="text-sm text-gray-800 dark:text-gray-200">
+            연도:
+            <select
+              value={year}
+              onChange={(e) => setYear(Number(e.target.value))}
+              className="border p-2 rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            >
+              <option value={currentWeekInfo.year}>{currentWeekInfo.year}년</option>
+              <option value={currentWeekInfo.year + 1}>{currentWeekInfo.year + 1}년</option>
+            </select>
+          </label>
+
+          <label className="text-sm text-gray-800 dark:text-gray-200">
+            주차:
+            <select
+              value={week}
+              onChange={(e) => setWeek(Number(e.target.value))}
+              className="border p-2 rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            >
+              {getWeekOptions(year).map(option => {
+                const { start, end } = getWeekDateRange(year, option.value)
+                const startStr = `${start.getMonth() + 1}/${start.getDate()}`
+                const endStr = `${end.getMonth() + 1}/${end.getDate()}`
+                return (
+                  <option key={option.value} value={option.value}>
+                    {option.label} ({option.value}주차) - {startStr} ~ {endStr}
+                  </option>
+                )
+              })}
+            </select>
+          </label>
+        </div>
 
         <input
           type="url"

@@ -2,18 +2,10 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { getCurrentWeekInfo, getWeekOptions, getWeekDateRange } from '@/app/utils/weekUtils'
 
 const GAME_OPTIONS = ['컴페티치오네','아세토코르사','그란투리스모7','르망얼티밋','EA WRC','아이레이싱','알펙터2', 'F1 25', '오토모빌리스타2']
 const DAY_OPTIONS = ['월','화','수','목','금','토','일']
-
-function getISOWeek(date: Date) {
-  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
-  const dayNum = d.getUTCDay() || 7
-  d.setUTCDate(d.getUTCDate() + 4 - dayNum)
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1))
-  const week = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7)
-  return { year: d.getUTCFullYear(), week }
-}
 
 export default function NewMultiPage() {
   const router = useRouter()
@@ -30,47 +22,13 @@ export default function NewMultiPage() {
   const [link, setLink] = useState('')
   const [description, setDescription] = useState('')
   const [isOpen, setIsOpen] = useState(false)
-  const [year, setYear] = useState<number>(new Date().getFullYear())
-  const [week, setWeek] = useState<number>(getISOWeek(new Date()).week)
+  const currentWeekInfo = getCurrentWeekInfo()
+  const [year, setYear] = useState<number>(currentWeekInfo.year)
+  const [week, setWeek] = useState<number>(currentWeekInfo.week)
   const [submitting, setSubmitting] = useState(false)
 
   const toggleDay = (d: string) => {
     setMultiDay(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d])
-  }
-
-  // 주차별 라벨 생성 함수
-  const getWeekLabel = (weekNum: number, yearNum: number) => {
-    const currentWeek = getISOWeek(new Date()).week
-    const currentYear = new Date().getFullYear()
-    
-    if (yearNum === currentYear) {
-      if (weekNum === currentWeek) return '이번주'
-      if (weekNum === currentWeek + 1) return '다음주'
-      if (weekNum === currentWeek + 2) return '2주 후'
-      if (weekNum === currentWeek + 3) return '3주 후'
-      if (weekNum === currentWeek - 1) return '지난주'
-      if (weekNum === currentWeek - 2) return '2주 전'
-    }
-    
-    return `${weekNum}주차`
-  }
-
-  // 주차 옵션 생성 (이번주부터 3주 후까지)
-  const getWeekOptions = () => {
-    const currentWeek = getISOWeek(new Date()).week
-    const options = []
-    
-    for (let i = 0; i <= 3; i++) {
-      const weekNum = currentWeek + i // 이번주부터 3주 후까지
-      if (weekNum >= 1 && weekNum <= 52) {
-        options.push({
-          value: weekNum,
-          label: getWeekLabel(weekNum, year)
-        })
-      }
-    }
-    
-    return options
   }
 
 
@@ -129,26 +87,33 @@ HTML 길이: ${data.debug.html_length}자
     }
     setSubmitting(true)
     try {
+      // 디버깅: 전송되는 데이터 확인
+      const submitData = {
+        title,
+        game,
+        game_track: gameTrack,
+        multi_class: multiClass,
+        multi_day: multiDay,
+        multi_time: multiTime || null,
+        multi_race: null,
+        is_open: isOpen,
+        description: description || null,
+        link: link || null,
+        year: year ?? null,
+        week: week ?? null,
+      }
+      
+      console.log('등록 시 전송되는 데이터:', submitData)
+      console.log('현재 week 상태:', week)
+      console.log('현재 year 상태:', year)
+      
       // API 라우트를 통해 등록
       const response = await fetch('/api/multis', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          title,
-          game,
-          game_track: gameTrack,
-          multi_class: multiClass,
-          multi_day: multiDay,
-          multi_time: multiTime || null,
-          multi_race: null,
-          is_open: isOpen,
-          description: description || null,
-          link: link || null,
-          year: year ?? null,
-          week: week ?? null,
-        })
+        body: JSON.stringify(submitData)
       })
       
       const result = await response.json()
@@ -312,8 +277,8 @@ HTML 길이: ${data.debug.html_length}자
                   value={year} 
                   onChange={e => setYear(parseInt(e.target.value))}
                 >
-                  <option value={new Date().getFullYear()}>{new Date().getFullYear()}년</option>
-                  <option value={new Date().getFullYear() + 1}>{new Date().getFullYear() + 1}년</option>
+                  <option value={currentWeekInfo.year}>{currentWeekInfo.year}년</option>
+                  <option value={currentWeekInfo.year + 1}>{currentWeekInfo.year + 1}년</option>
                 </select>
               </div>
               <div className="space-y-2">
@@ -321,13 +286,22 @@ HTML 길이: ${data.debug.html_length}자
                 <select 
                   className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all" 
                   value={week} 
-                  onChange={e => setWeek(parseInt(e.target.value))}
+                  onChange={e => {
+                    const newWeek = parseInt(e.target.value)
+                    console.log('주차 변경:', newWeek)
+                    setWeek(newWeek)
+                  }}
                 >
-                  {getWeekOptions().map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label} ({option.value}주차)
-                    </option>
-                  ))}
+                  {getWeekOptions(year).map(option => {
+                    const { start, end } = getWeekDateRange(year, option.value)
+                    const startStr = `${start.getMonth() + 1}/${start.getDate()}`
+                    const endStr = `${end.getMonth() + 1}/${end.getDate()}`
+                    return (
+                      <option key={option.value} value={option.value}>
+                        {option.label} ({option.value}주차) - {startStr} ~ {endStr}
+                      </option>
+                    )
+                  })}
                 </select>
               </div>
             </div>

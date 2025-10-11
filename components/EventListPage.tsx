@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import EventCard from './EventCard'
 import type { Database } from '@/lib/database.types'
+import { getDateFromWeekAndDay } from '@/app/utils/weekUtils'
+import { EventType, EventTypeConfig, MultiWithTemplate } from '@/types/events'
 
 // 게임을 카테고리별로 그룹화
 const gameCategories = {
@@ -31,10 +33,11 @@ type Multi = Database['public']['Tables']['multis']['Row']
 
 interface EventListPageProps {
   currentUserId: string | null
+  eventTypeFilter?: string
 }
 
-export default function EventListPage({ currentUserId }: EventListPageProps) {
-  const [multis, setMultis] = useState<Multi[]>([])
+export default function EventListPage({ currentUserId, eventTypeFilter }: EventListPageProps) {
+  const [multis, setMultis] = useState<MultiWithTemplate[]>([])
   const [selectedGames, setSelectedGames] = useState<string[]>(allGames)
   const [sortBy, setSortBy] = useState<'date' | 'game' | 'title'>('date')
   const [timeFilter, setTimeFilter] = useState<'all' | 'today' | 'tomorrow' | 'thisWeek' | 'nextWeek'>('all')
@@ -55,8 +58,16 @@ export default function EventListPage({ currentUserId }: EventListPageProps) {
           throw new Error(`HTTP ${res.status}: ${res.statusText}`)
         }
         
-        const data: Multi[] = await res.json()
-        console.log('로드된 이벤트 데이터:', data)
+        const rawData: any[] = await res.json()
+        console.log('로드된 이벤트 데이터:', rawData)
+        
+        // 새로운 필드들이 없을 경우 기본값 설정
+        const data: MultiWithTemplate[] = rawData.map(item => ({
+          ...item,
+          event_type: item.event_type || 'flash_event',
+          is_template_based: item.is_template_based || false,
+          template_id: item.template_id || null
+        }))
         
         if (data && data.length > 0) {
           console.log('실제 Supabase 데이터 로드 성공:', data.length, '개')
@@ -69,8 +80,11 @@ export default function EventListPage({ currentUserId }: EventListPageProps) {
         }
       } catch (error) {
         console.error('이벤트 데이터 로드 실패:', error)
+        console.error('에러 타입:', typeof error)
+        console.error('에러 메시지:', error instanceof Error ? error.message : String(error))
+        console.error('에러 스택:', error instanceof Error ? error.stack : 'No stack trace')
         // 에러 시에도 더미 데이터 표시
-        const dummyData: Multi[] = [
+        const dummyData: MultiWithTemplate[] = [
           {
             id: '1',
             title: '🏁 주말 레이싱 이벤트',
@@ -90,7 +104,10 @@ export default function EventListPage({ currentUserId }: EventListPageProps) {
             updated_at: null,
             event_date: null,
             year: new Date().getFullYear(),
-            week: Math.ceil((new Date().getTime() - new Date(new Date().getFullYear(), 0, 1).getTime()) / (1000 * 60 * 60 * 24 * 7))
+            week: Math.ceil((new Date().getTime() - new Date(new Date().getFullYear(), 0, 1).getTime()) / (1000 * 60 * 60 * 24 * 7)),
+            event_type: 'flash_event',
+            is_template_based: false,
+            template_id: null
           }
         ]
         setMultis(dummyData)
@@ -121,7 +138,7 @@ export default function EventListPage({ currentUserId }: EventListPageProps) {
 
 
   // 시간대별 그룹핑 함수 (지난 이벤트와 미래 이벤트 구분)
-  const getTimeGroup = (multi: Multi) => {
+  const getTimeGroup = (multi: MultiWithTemplate) => {
     const { pastDates, futureDates } = getEventDates(multi)
     
     // 미래 이벤트가 있으면 미래 이벤트 기준으로 그룹핑
@@ -172,35 +189,10 @@ export default function EventListPage({ currentUserId }: EventListPageProps) {
     return 'unknown'
   }
 
-  // 특정 연도, 주차, 요일로 정확한 날짜 계산
-  const getDateFromWeekAndDay = (year: number, week: number, dayName: string) => {
-    const dayMap: Record<string, number> = {
-      '월': 1, '화': 2, '수': 3, '목': 4, '금': 5, '토': 6, '일': 0
-    }
-    
-    const dayNum = dayMap[dayName]
-    if (dayNum === undefined) return null
-    
-    // 해당 연도의 1월 1일
-    const jan1 = new Date(year, 0, 1)
-    
-    // 1월 1일이 무슨 요일인지 확인
-    const jan1Day = jan1.getDay()
-    
-    // 첫 번째 주의 월요일 찾기 (ISO 8601 주 표준)
-    const firstMonday = new Date(jan1)
-    const daysToMonday = jan1Day === 0 ? 1 : 8 - jan1Day // 일요일이면 +1, 아니면 다음 월요일까지
-    firstMonday.setDate(jan1.getDate() + daysToMonday)
-    
-    // 해당 주차의 해당 요일 계산
-    const targetDate = new Date(firstMonday)
-    targetDate.setDate(firstMonday.getDate() + (week - 1) * 7 + dayNum)
-    
-    return targetDate
-  }
+  // 주차 계산 함수는 weekUtils에서 import
 
   // 이벤트 날짜 계산 (event_date 필드 우선 사용, 없으면 주차 계산)
-  const getEventDates = (multi: Multi) => {
+  const getEventDates = (multi: MultiWithTemplate) => {
     const now = new Date()
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     
@@ -271,7 +263,7 @@ export default function EventListPage({ currentUserId }: EventListPageProps) {
   }
 
   // 다음 이벤트 날짜 계산 (미래 날짜만)
-  const getNextEventDate = (multi: Multi) => {
+  const getNextEventDate = (multi: MultiWithTemplate) => {
     const { futureDates } = getEventDates(multi)
     
     if (futureDates.length === 0) {
@@ -294,6 +286,7 @@ export default function EventListPage({ currentUserId }: EventListPageProps) {
     .filter(multi => {
       if (!showInactive && !multi.is_open) return false
       if (!selectedGames.includes(multi.game)) return false
+      if (eventTypeFilter && multi.event_type !== eventTypeFilter) return false
       
       if (timeFilter === 'all') return true
       
@@ -339,6 +332,16 @@ export default function EventListPage({ currentUserId }: EventListPageProps) {
           return 0
       }
     })
+
+  // 이벤트 타입별로 그룹화
+  const groupedEvents = filteredAndSorted.reduce((acc, event) => {
+    const eventType = event.event_type || 'flash_event'
+    if (!acc[eventType]) {
+      acc[eventType] = []
+    }
+    acc[eventType].push(event)
+    return acc
+  }, {} as Record<EventType | 'flash_event', MultiWithTemplate[]>)
 
   if (loading) {
     return (
@@ -625,10 +628,27 @@ export default function EventListPage({ currentUserId }: EventListPageProps) {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {filteredAndSorted.map(multi => (
-                <EventCard key={multi.id} multi={multi} currentUserId={currentUserId} />
-              ))}
+            <div className="space-y-8">
+              {Object.entries(groupedEvents).map(([eventType, events]) => {
+                const config = EventTypeConfig[eventType as EventType] || EventTypeConfig.flash_event
+                return (
+                  <div key={eventType} className="bg-gray-800/30 rounded-xl p-6 border border-gray-700">
+                    <div className="flex items-center gap-3 mb-6">
+                      <span className="text-2xl">{config.icon}</span>
+                      <h2 className="text-xl font-bold text-white">{config.label}</h2>
+                      <span className="px-2 py-1 bg-gray-700 text-gray-300 rounded text-sm">
+                        {events.length}개
+                      </span>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {events.map(multi => (
+                        <EventCard key={multi.id} multi={multi} currentUserId={currentUserId} />
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           )}
         </div>

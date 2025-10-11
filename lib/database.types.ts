@@ -779,15 +779,18 @@ export type Database = {
           created_at: string | null
           description: string | null
           event_date: string | null
+          event_type: string
           game: string
           game_track: string
           id: string
           is_open: boolean | null
+          is_template_based: boolean | null
           link: string | null
           multi_class: string
           multi_day: string[]
           multi_race: string | null
           multi_time: string | null
+          template_id: string | null
           title: string
           updated_at: string | null
           week: number | null
@@ -800,15 +803,18 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           event_date?: string | null
+          event_type?: string | null
           game: string
           game_track: string
           id?: string
           is_open?: boolean | null
+          is_template_based?: boolean | null
           link?: string | null
           multi_class: string
           multi_day: string[]
           multi_race?: string | null
           multi_time?: string | null
+          template_id?: string | null
           title: string
           updated_at?: string | null
           week?: number | null
@@ -821,19 +827,64 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           event_date?: string | null
+          event_type?: string | null
           game?: string
           game_track?: string
           id?: string
           is_open?: boolean | null
+          is_template_based?: boolean | null
           link?: string | null
           multi_class?: string
           multi_day?: string[]
           multi_race?: string | null
           multi_time?: string | null
+          template_id?: string | null
           title?: string
           updated_at?: string | null
           week?: number | null
           year?: number | null
+        }
+        Relationships: []
+      }
+      event_templates: {
+        Row: {
+          class: string
+          created_at: string | null
+          days: string[]
+          description: string | null
+          game: string
+          id: string
+          is_active: boolean | null
+          time: string
+          track: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          class: string
+          created_at?: string | null
+          days: string[]
+          description?: string | null
+          game: string
+          id?: string
+          is_active?: boolean | null
+          time: string
+          track: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          class?: string
+          created_at?: string | null
+          days?: string[]
+          description?: string | null
+          game?: string
+          id?: string
+          is_active?: boolean | null
+          time?: string
+          track?: string
+          type?: string
+          updated_at?: string | null
         }
         Relationships: []
       }

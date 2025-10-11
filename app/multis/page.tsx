@@ -2,15 +2,18 @@
 
 import EventListPage from '@/components/EventListPage'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 interface MeResponse {
   id: string
   username: string
 }
 
-export default function MultisPage() {
+function MultisPageContent() {
   const [user, setUser] = useState<MeResponse | null | undefined>(undefined)
+  const searchParams = useSearchParams()
+  const eventTypeFilter = searchParams.get('type')
 
   useEffect(() => {
     const checkLogin = async () => {
@@ -92,9 +95,20 @@ export default function MultisPage() {
         </div>
 
         {/* 내부 콘텐츠 */}
-        <EventListPage currentUserId={user?.id ?? null} />
+        <EventListPage currentUserId={user?.id ?? null} eventTypeFilter={eventTypeFilter || undefined} />
       </div>
     </div>
+  )
+}
 
+export default function MultisPage() {
+  return (
+    <Suspense fallback={
+      <div className="bg-black min-h-screen flex items-center justify-center">
+        <p className="text-cyan-400 text-xl">👻 고스트카를 불러오는 중...</p>
+      </div>
+    }>
+      <MultisPageContent />
+    </Suspense>
   )
 }

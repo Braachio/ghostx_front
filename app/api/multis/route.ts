@@ -13,10 +13,51 @@ export async function GET(req: NextRequest) {
       cookies: () => cookieStore,
     })
 
+    // 이벤트 상태 정리 작업 실행 (백그라운드에서)
+    try {
+      const cleanupResponse = await fetch(`${req.nextUrl.origin}/api/multis/cleanup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      
+      if (cleanupResponse.ok) {
+        const cleanupResult = await cleanupResponse.json()
+        if (cleanupResult.updatedCount > 0) {
+          console.log(`🧹 자동 정리 완료: ${cleanupResult.updatedCount}개 이벤트 종료됨`)
+        }
+      }
+    } catch (cleanupError) {
+      console.error('자동 정리 작업 실패:', cleanupError)
+      // 정리 작업 실패해도 메인 기능은 계속 진행
+    }
+
     const start = req.nextUrl.searchParams.get('start')
     const end = req.nextUrl.searchParams.get('end')
 
-    let query = supabase.from('multis').select('*')
+    // 새로운 컬럼들이 없을 수 있으므로 기존 컬럼들만 선택
+    let query = supabase.from('multis').select(`
+      id,
+      title,
+      game,
+      game_track,
+      multi_class,
+      multi_day,
+      multi_time,
+      multi_race,
+      is_open,
+      description,
+      link,
+      author_id,
+      anonymous_nickname,
+      anonymous_password,
+      created_at,
+      updated_at,
+      year,
+      week,
+      event_date
+    `)
 
     if (start && end) {
       query = query.gte('created_at', start).lte('created_at', end)
@@ -26,6 +67,12 @@ export async function GET(req: NextRequest) {
 
     if (error) {
       console.error('Supabase 에러:', error)
+      console.error('에러 상세:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+      })
       // 에러 시 더미 데이터 반환
       const dummyData = [
         {
@@ -46,7 +93,11 @@ export async function GET(req: NextRequest) {
           created_at: new Date().toISOString(),
           updated_at: null,
           year: new Date().getFullYear(),
-          week: Math.ceil((new Date().getTime() - new Date(new Date().getFullYear(), 0, 1).getTime()) / (1000 * 60 * 60 * 24 * 7))
+          week: Math.ceil((new Date().getTime() - new Date(new Date().getFullYear(), 0, 1).getTime()) / (1000 * 60 * 60 * 24 * 7)),
+          event_date: null,
+          event_type: 'flash_event',
+          is_template_based: false,
+          template_id: null
         }
       ]
       return NextResponse.json(dummyData)
@@ -94,7 +145,11 @@ export async function GET(req: NextRequest) {
         created_at: new Date().toISOString(),
         updated_at: null,
         year: new Date().getFullYear(),
-        week: Math.ceil((new Date().getTime() - new Date(new Date().getFullYear(), 0, 1).getTime()) / (1000 * 60 * 60 * 24 * 7))
+        week: Math.ceil((new Date().getTime() - new Date(new Date().getFullYear(), 0, 1).getTime()) / (1000 * 60 * 60 * 24 * 7)),
+        event_date: null,
+        event_type: 'flash_event',
+        is_template_based: false,
+        template_id: null
       }
     ]
     return NextResponse.json(dummyData)
@@ -117,13 +172,22 @@ export async function POST(req: NextRequest) {
   const body = await req.json()
 
   const now = new Date()
-  const oneJan = new Date(now.getFullYear(), 0, 1)
-  const currentWeek = Math.ceil((((+now - +oneJan) / 86400000) + oneJan.getDay() + 1) / 7)
+
+  // 클라이언트에서 보낸 year와 week 값을 사용 (없으면 현재 값으로 fallback)
+  const year = body.year || now.getFullYear()
+  const week = body.week || Math.ceil((((+now - +new Date(now.getFullYear(), 0, 1)) / 86400000) + new Date(now.getFullYear(), 0, 1).getDay() + 1) / 7)
+
+  console.log('POST /api/multis - 클라이언트 데이터:', {
+    clientYear: body.year,
+    clientWeek: body.week,
+    finalYear: year,
+    finalWeek: week
+  })
 
   const { error: insertError } = await supabase.from('multis').insert({
     ...body,
-    year: now.getFullYear(),
-    week: currentWeek,
+    year: year,
+    week: week,
     author_id: user.id,
     created_at: now.toISOString(),
   })

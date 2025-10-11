@@ -6,6 +6,7 @@ import { useSupabaseClient } from '@supabase/auth-helpers-react'
 import Image from 'next/image'
 import Footer from '@/components/Footer'
 import CookieConsentBanner from '@/components/CookieConsentBanner'
+import { MultiWithTemplate } from '@/types/events'
 
 interface MeResponse {
   id: string
@@ -16,6 +17,8 @@ export default function HomePage() {
   const [user, setUser] = useState<MeResponse | null>(null)
   const [language, setLanguage] = useState<'ko' | 'en'>('ko')
   const [views, setViews] = useState<number | null>(null)
+  const [events, setEvents] = useState<MultiWithTemplate[]>([])
+  const [loading, setLoading] = useState(true)
   const supabase = useSupabaseClient()
 
   // 번역 텍스트
@@ -63,6 +66,20 @@ export default function HomePage() {
     location.reload()
   }
 
+  const fetchEvents = async () => {
+    try {
+      const res = await fetch('/api/multis')
+      if (res.ok) {
+        const data: MultiWithTemplate[] = await res.json()
+        setEvents(data || [])
+      }
+    } catch (error) {
+      console.error('이벤트 데이터 로드 실패:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
     const loadUserAndViews = async () => {
       try {
@@ -81,13 +98,49 @@ export default function HomePage() {
         } else {
           setUser(null)
         }
+
+        // 이벤트 데이터도 함께 로드
+        await fetchEvents()
       } catch (err) {
         console.error('데이터 로드 실패:', err)
+        setLoading(false)
       }
     }
 
     loadUserAndViews()
   }, [])
+
+  // 이벤트 타입별로 분류하는 함수들
+  const getEventsByType = (eventType: string) => {
+    return events.filter(event => event.event_type === eventType).slice(0, 3) // 최대 3개만 표시
+  }
+
+  const eventTypeConfig = {
+    regular_schedule: {
+      title: '📅 정기 멀티',
+      description: '매주 정해진 시간에 열리는 정기 멀티레이스',
+      color: 'from-blue-500 to-cyan-500',
+      borderColor: 'border-blue-500/30 hover:border-blue-400'
+    },
+    always_on_server: {
+      title: '🌐 상시 서버',
+      description: '24시간 운영되는 상시 멀티레이스 서버',
+      color: 'from-green-500 to-emerald-500',
+      borderColor: 'border-green-500/30 hover:border-green-400'
+    },
+    league: {
+      title: '🏆 리그 이벤트',
+      description: '정식 리그 및 대회 이벤트',
+      color: 'from-purple-500 to-pink-500',
+      borderColor: 'border-purple-500/30 hover:border-purple-400'
+    },
+    flash_event: {
+      title: '⚡ 기습갤멀',
+      description: '갑작스럽게 열리는 일회성 이벤트',
+      color: 'from-orange-500 to-red-500',
+      borderColor: 'border-orange-500/30 hover:border-orange-400'
+    }
+  }
 
   return (
     <main className="min-h-screen bg-black text-white py-6 sm:py-8 relative overflow-hidden">
@@ -274,6 +327,129 @@ export default function HomePage() {
             </div>
           </Link>
         </div>
+
+        {/* 이벤트 섹션 */}
+        {!loading && (
+          <div className="space-y-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                🏁 레이싱 이벤트
+              </h2>
+              <p className="text-gray-400">다양한 멀티레이스 이벤트에 참여해보세요</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* 정기 멀티 */}
+              {getEventsByType('regular_schedule').length > 0 && (
+                <div className={`p-6 rounded-xl border-2 ${eventTypeConfig.regular_schedule.borderColor} bg-gradient-to-br from-gray-900 to-black`}>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xl font-bold text-white">{eventTypeConfig.regular_schedule.title}</h3>
+                    <Link href="/multis?type=regular_schedule" className="text-sm text-blue-400 hover:text-blue-300">
+                      전체보기 →
+                    </Link>
+                  </div>
+                  <p className="text-gray-400 text-sm mb-4">{eventTypeConfig.regular_schedule.description}</p>
+                  <div className="space-y-3">
+                    {getEventsByType('regular_schedule').map((event) => (
+                      <Link key={event.id} href={`/multis/${event.id}`}>
+                        <div className="p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors">
+                          <div className="font-medium text-white">{event.title}</div>
+                          <div className="text-sm text-gray-400">
+                            {event.game} | {event.multi_day?.join(', ')} {event.multi_time}
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 상시 서버 */}
+              {getEventsByType('always_on_server').length > 0 && (
+                <div className={`p-6 rounded-xl border-2 ${eventTypeConfig.always_on_server.borderColor} bg-gradient-to-br from-gray-900 to-black`}>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xl font-bold text-white">{eventTypeConfig.always_on_server.title}</h3>
+                    <Link href="/multis?type=always_on_server" className="text-sm text-green-400 hover:text-green-300">
+                      전체보기 →
+                    </Link>
+                  </div>
+                  <p className="text-gray-400 text-sm mb-4">{eventTypeConfig.always_on_server.description}</p>
+                  <div className="space-y-3">
+                    {getEventsByType('always_on_server').map((event) => (
+                      <Link key={event.id} href={`/multis/${event.id}`}>
+                        <div className="p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors">
+                          <div className="font-medium text-white">{event.title}</div>
+                          <div className="text-sm text-gray-400">
+                            {event.game} | {event.game_track}
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 리그 이벤트 */}
+              {getEventsByType('league').length > 0 && (
+                <div className={`p-6 rounded-xl border-2 ${eventTypeConfig.league.borderColor} bg-gradient-to-br from-gray-900 to-black`}>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xl font-bold text-white">{eventTypeConfig.league.title}</h3>
+                    <Link href="/multis?type=league" className="text-sm text-purple-400 hover:text-purple-300">
+                      전체보기 →
+                    </Link>
+                  </div>
+                  <p className="text-gray-400 text-sm mb-4">{eventTypeConfig.league.description}</p>
+                  <div className="space-y-3">
+                    {getEventsByType('league').map((event) => (
+                      <Link key={event.id} href={`/multis/${event.id}`}>
+                        <div className="p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors">
+                          <div className="font-medium text-white">{event.title}</div>
+                          <div className="text-sm text-gray-400">
+                            {event.game} | {event.multi_day?.join(', ')} {event.multi_time}
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 기습갤멀 */}
+              {getEventsByType('flash_event').length > 0 && (
+                <div className={`p-6 rounded-xl border-2 ${eventTypeConfig.flash_event.borderColor} bg-gradient-to-br from-gray-900 to-black`}>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xl font-bold text-white">{eventTypeConfig.flash_event.title}</h3>
+                    <Link href="/multis?type=flash_event" className="text-sm text-orange-400 hover:text-orange-300">
+                      전체보기 →
+                    </Link>
+                  </div>
+                  <p className="text-gray-400 text-sm mb-4">{eventTypeConfig.flash_event.description}</p>
+                  <div className="space-y-3">
+                    {getEventsByType('flash_event').map((event) => (
+                      <Link key={event.id} href={`/multis/${event.id}`}>
+                        <div className="p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors">
+                          <div className="font-medium text-white">{event.title}</div>
+                          <div className="text-sm text-gray-400">
+                            {event.game} | {event.multi_day?.join(', ')} {event.multi_time}
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 모든 이벤트 보기 버튼 */}
+            <div className="text-center">
+              <Link href="/multis">
+                <button className="px-8 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all shadow-lg shadow-cyan-500/25 font-semibold">
+                  🏁 모든 이벤트 보기
+                </button>
+              </Link>
+            </div>
+          </div>
+        )}
 
         {/* About Section */}
         {/* <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow border border-gray-200 dark:border-gray-700">

@@ -4,8 +4,9 @@
 import { useEffect, useState } from 'react'
 import MultiCard from './MultiCard'
 import type { Database } from '@/lib/database.types'
-import { getWeekRange, getCurrentWeekNumber } from '@/app/utils/dateUtils'
+import { getWeekDateRange, getCurrentWeekInfo } from '@/app/utils/weekUtils'
 import WeekFilter from './WeekFilter'
+import { MultiWithTemplate } from '@/types/events'
 
 const daysOfWeek = ['월', '화', '수', '목', '금', '토', '일']
 const allGames = ['컴페티치오네', '아세토코르사', '그란투리스모7', '르망얼티밋','EA WRC', '아이레이싱', '알펙터2']
@@ -14,13 +15,14 @@ type Multi = Database['public']['Tables']['multis']['Row']
 
 type MultiListPageProps = {
   currentUserId: string | null
+  eventTypeFilter?: string
 }
 
-export default function MultiListPage({ currentUserId }: MultiListPageProps) {
-  const [multis, setMultis] = useState<Multi[]>([])
+export default function MultiListPage({ currentUserId, eventTypeFilter }: MultiListPageProps) {
+  const [multis, setMultis] = useState<MultiWithTemplate[]>([])
   const [selectedGames, setSelectedGames] = useState<string[]>(allGames)
 
-  const current = getCurrentWeekNumber()
+  const current = getCurrentWeekInfo()
   const [year, setYear] = useState(current.year)
   const [week, setWeek] = useState(current.week)
 
@@ -43,11 +45,11 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
   }
 
   const filtered = multis.filter(multi => {
-    return (
-      selectedGames.includes(multi.game) &&
-      multi.year === year &&
-      multi.week === week
-    )
+    const matchesGames = selectedGames.includes(multi.game)
+    const matchesWeek = multi.year === year && multi.week === week
+    const matchesEventType = !eventTypeFilter || multi.event_type === eventTypeFilter
+    
+    return matchesGames && matchesWeek && matchesEventType
   })
 
   const groupedByGame = filtered.reduce<Record<string, Multi[]>>((acc, multi) => {
@@ -56,8 +58,8 @@ export default function MultiListPage({ currentUserId }: MultiListPageProps) {
     return acc
   }, {})
 
-  const { start } = getWeekRange(year, week)
-  const startDate = new Date(start)
+  const { start } = getWeekDateRange(year, week)
+  const startDate = start
 
   return (
     <div className="text-white">

@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { getCurrentWeekNumber } from '@/app/utils/dateUtils' // ✅ 수정 필요
+import { getCurrentWeekInfo } from '@/app/utils/weekUtils'
 
 interface WeekFilterProps {
   year: number
@@ -26,7 +26,7 @@ export default function WeekFilter({
     setWeek(Number(w))
   }
 
-  const current = getCurrentWeekNumber() // ✅ 정확한 ISO 주차
+  const current = getCurrentWeekInfo() // ✅ 정확한 주차 계산
   const currentYear = current.year
   const currentWeek = current.week
 

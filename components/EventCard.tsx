@@ -5,11 +5,11 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import type { Database } from '@/lib/database.types'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-
-type Multi = Database['public']['Tables']['multis']['Row']
+import { getDateFromWeekAndDay } from '@/app/utils/weekUtils'
+import { MultiWithTemplate } from '@/types/events'
 
 interface EventCardProps {
-  multi: Multi
+  multi: MultiWithTemplate
   currentUserId: string | null
 }
 
@@ -18,6 +18,28 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(multi.is_open)
   const [isLoading, setIsLoading] = useState(false)
+
+  // 이벤트 시작 날짜 계산
+  const getEventDate = () => {
+    if (multi.event_date) {
+      return new Date(multi.event_date)
+    }
+    
+    if (multi.year && multi.week && multi.multi_day && multi.multi_day.length > 0) {
+      // 첫 번째 요일을 기준으로 날짜 계산
+      return getDateFromWeekAndDay(multi.year, multi.week, multi.multi_day[0])
+    }
+    
+    return null
+  }
+
+  const eventDate = getEventDate()
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  
+  const isToday = eventDate && eventDate.toDateString() === today.toDateString()
+  const isTomorrow = eventDate && eventDate.toDateString() === new Date(today.getTime() + 24 * 60 * 60 * 1000).toDateString()
+  const isPast = eventDate && eventDate < today
 
   const toggleOpen = async () => {
     if (isLoading) return
@@ -76,49 +98,36 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
     return dayColors[day] || 'text-gray-400 bg-gray-500/20'
   }
 
-  // 특정 연도, 주차, 요일로 정확한 날짜 계산
-  const getDateFromWeekAndDay = (year: number, week: number, dayName: string) => {
-    const dayMap: Record<string, number> = {
-      '월': 1, '화': 2, '수': 3, '목': 4, '금': 5, '토': 6, '일': 0
-    }
-    
-    const dayNum = dayMap[dayName]
-    if (dayNum === undefined) return null
-    
-    // 해당 연도의 1월 1일
-    const jan1 = new Date(year, 0, 1)
-    
-    // 1월 1일이 무슨 요일인지 확인
-    const jan1Day = jan1.getDay()
-    
-    // 첫 번째 주의 월요일 찾기 (ISO 8601 주 표준)
-    const firstMonday = new Date(jan1)
-    const daysToMonday = jan1Day === 0 ? 1 : 8 - jan1Day // 일요일이면 +1, 아니면 다음 월요일까지
-    firstMonday.setDate(jan1.getDate() + daysToMonday)
-    
-    // 해당 주차의 해당 요일 계산
-    const targetDate = new Date(firstMonday)
-    targetDate.setDate(firstMonday.getDate() + (week - 1) * 7 + dayNum)
-    
-    return targetDate
-  }
 
-  // 이벤트 날짜 계산 (지난 이벤트와 미래 이벤트 구분)
+  // 이벤트 날짜 계산 (event_date 필드 우선 사용, 없으면 주차 계산)
   const getEventDates = () => {
     const now = new Date()
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     
-    // multi의 week와 year 정보를 활용
+    const pastDates: Date[] = []
+    const futureDates: Date[] = []
+    
+    // event_date가 있으면 해당 날짜 사용 (새 시스템)
+    if (multi.event_date) {
+      const eventDate = new Date(multi.event_date)
+      eventDate.setHours(0, 0, 0, 0) // 시간 제거하고 날짜만 비교
+      
+      if (eventDate < today) {
+        pastDates.push(eventDate)
+      } else {
+        futureDates.push(eventDate)
+      }
+      
+      return { pastDates, futureDates }
+    }
+    
+    // event_date가 없으면 기존 주차 계산 사용 (하위 호환)
     const multiYear = multi.year
     const multiWeek = multi.week
     
-    // multi_week나 multi_year가 null이거나 undefined인 경우 처리
     if (!multiWeek || !multiYear) {
       return { pastDates: [], futureDates: [] }
     }
-    
-    const pastDates: Date[] = []
-    const futureDates: Date[] = []
     
     for (const day of multi.multi_day) {
       const eventDate = getDateFromWeekAndDay(multiYear, multiWeek, day)
@@ -245,6 +254,20 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
       className={`group relative bg-gradient-to-br from-gray-900 to-black border border-gray-700 rounded-xl p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-500/10 hover:-translate-y-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60 ${isOpen ? '' : 'opacity-70'}
       `}
     >
+      {/* 이벤트 시작 날짜 (가장 눈에 띄게) */}
+      {eventDate && (
+        <div className={`mb-4 px-4 py-2 rounded-lg text-center text-base font-bold
+          ${isPast ? 'bg-gray-500 text-white' :
+            isToday ? 'bg-red-500 text-white' : 
+            isTomorrow ? 'bg-orange-500 text-white' : 
+            'bg-blue-500 text-white'}`}>
+          {isPast ? '📅 종료됨' :
+           isToday ? '🔥 오늘' : 
+           isTomorrow ? '⚡ 내일' : 
+           `${eventDate.getMonth() + 1}/${eventDate.getDate()} ${['일', '월', '화', '수', '목', '금', '토'][eventDate.getDay()]}`}
+        </div>
+      )}
+
       {/* 헤더 - 게임 아이콘, 제목, 상태 */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
@@ -265,15 +288,17 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
         {currentUserId && multi.author_id === currentUserId ? (
           <button
             onClick={toggleOpen}
-            disabled={isLoading}
-            title="운영자 전용: 활성/비활성 전환"
+            disabled={isLoading || isPast}
+            title={isPast ? "종료된 이벤트는 상태 변경 불가" : "운영자 전용: 활성/비활성 전환"}
             className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
-              isOpen
+              isPast
+                ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                : isOpen
                 ? 'bg-green-600 text-white hover:bg-green-700 shadow-lg shadow-green-500/25'
                 : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
             }`}
           >
-            {isOpen ? '✅ ON' : '❌ OFF'}
+            {isPast ? '🔒 종료' : isOpen ? '✅ ON' : '❌ OFF'}
           </button>
         ) : (
           <div className={`px-3 py-1 rounded-lg text-xs font-semibold ${

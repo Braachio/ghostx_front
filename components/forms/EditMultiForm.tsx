@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { getCurrentWeekInfo, getWeekOptions, getWeekDateRange } from '@/app/utils/weekUtils'
 
 type MultisType = {
   title: string
@@ -21,14 +22,7 @@ type MultisType = {
 const GAME_OPTIONS = ['컴페티치오네','아세토코르사','그란투리스모7','르망얼티밋','EA WRC','아이레이싱','알펙터2', 'F1 25', '오토모빌리스타2']
 const DAY_OPTIONS = ['월','화','수','목','금','토','일']
 
-function getISOWeek(date: Date) {
-  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
-  const dayNum = d.getUTCDay() || 7
-  d.setUTCDate(d.getUTCDate() + 4 - dayNum)
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1))
-  const week = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7)
-  return { year: d.getUTCFullYear(), week }
-}
+// 주차 계산 함수 제거 (날짜 기반 시스템으로 변경)
 
 export default function EditMultiForm({ id }: { id: string }) {
   const router = useRouter()
@@ -42,48 +36,16 @@ export default function EditMultiForm({ id }: { id: string }) {
   const [link, setLink] = useState('')
   const [description, setDescription] = useState('')
   const [isOpen, setIsOpen] = useState(false)
-  const [year, setYear] = useState<number>(new Date().getFullYear())
-  const [week, setWeek] = useState<number>(getISOWeek(new Date()).week)
+  const currentWeekInfo = getCurrentWeekInfo()
+  const [year, setYear] = useState<number>(currentWeekInfo.year)
+  const [week, setWeek] = useState<number>(currentWeekInfo.week)
   const [submitting, setSubmitting] = useState(false)
 
   const toggleDay = (d: string) => {
     setMultiDay(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d])
   }
 
-  // 주차별 라벨 생성 함수
-  const getWeekLabel = (weekNum: number, yearNum: number) => {
-    const currentWeek = getISOWeek(new Date()).week
-    const currentYear = new Date().getFullYear()
-    
-    if (yearNum === currentYear) {
-      if (weekNum === currentWeek) return '이번주'
-      if (weekNum === currentWeek + 1) return '다음주'
-      if (weekNum === currentWeek + 2) return '2주 후'
-      if (weekNum === currentWeek + 3) return '3주 후'
-      if (weekNum === currentWeek - 1) return '지난주'
-      if (weekNum === currentWeek - 2) return '2주 전'
-    }
-    
-    return `${weekNum}주차`
-  }
-
-  // 주차 옵션 생성 (이번주부터 3주 후까지)
-  const getWeekOptions = () => {
-    const currentWeek = getISOWeek(new Date()).week
-    const options = []
-    
-    for (let i = 0; i <= 3; i++) {
-      const weekNum = currentWeek + i // 이번주부터 3주 후까지
-      if (weekNum >= 1 && weekNum <= 52) {
-        options.push({
-          value: weekNum,
-          label: getWeekLabel(weekNum, year)
-        })
-      }
-    }
-    
-    return options
-  }
+  // 주차 관련 함수들 제거 (날짜 기반 시스템으로 변경)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -103,8 +65,8 @@ export default function EditMultiForm({ id }: { id: string }) {
         setDescription(data.description ?? '')
         setLink(data.link ?? '')
         setIsOpen(data.is_open ?? false)
-        setYear(data.year ?? new Date().getFullYear())
-        setWeek(data.week ?? getISOWeek(new Date()).week)
+        setYear(data.year ?? currentWeekInfo.year)
+        setWeek(data.week ?? currentWeekInfo.week)
       } catch (error) {
         console.error('데이터 불러오기 실패:', error)
         alert('데이터를 불러올 수 없습니다.')
@@ -271,8 +233,8 @@ export default function EditMultiForm({ id }: { id: string }) {
                   value={year} 
                   onChange={e => setYear(parseInt(e.target.value))}
                 >
-                  <option value={new Date().getFullYear()}>{new Date().getFullYear()}년</option>
-                  <option value={new Date().getFullYear() + 1}>{new Date().getFullYear() + 1}년</option>
+                  <option value={currentWeekInfo.year}>{currentWeekInfo.year}년</option>
+                  <option value={currentWeekInfo.year + 1}>{currentWeekInfo.year + 1}년</option>
                 </select>
               </div>
               <div className="space-y-2">
@@ -282,11 +244,16 @@ export default function EditMultiForm({ id }: { id: string }) {
                   value={week} 
                   onChange={e => setWeek(parseInt(e.target.value))}
                 >
-                  {getWeekOptions().map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label} ({option.value}주차)
-                    </option>
-                  ))}
+                  {getWeekOptions(year, week).map(option => {
+                    const { start, end } = getWeekDateRange(year, option.value)
+                    const startStr = `${start.getMonth() + 1}/${start.getDate()}`
+                    const endStr = `${end.getMonth() + 1}/${end.getDate()}`
+                    return (
+                      <option key={option.value} value={option.value}>
+                        {option.label} ({option.value}주차) - {startStr} ~ {endStr}
+                      </option>
+                    )
+                  })}
                 </select>
               </div>
             </div>
