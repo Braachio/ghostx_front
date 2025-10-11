@@ -49,6 +49,14 @@ function LoginForm() {
     setError(null)
     
     try {
+      // 먼저 현재 세션 상태 확인
+      const sessionCheck = await fetch('/api/me')
+      if (sessionCheck.ok) {
+        // 이미 로그인된 상태면 바로 대시보드로 이동
+        router.push('/dashboard')
+        return
+      }
+      
       const response = await fetch('/api/auth/anonymous', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

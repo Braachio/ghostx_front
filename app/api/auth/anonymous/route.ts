@@ -12,7 +12,20 @@ export async function POST() {
     const cookieStore = await cookies()
     const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore })
 
-    console.log('Attempting anonymous login...')
+    // 먼저 기존 세션이 있는지 확인
+    console.log('Checking for existing anonymous session...')
+    const { data: sessionData } = await supabase.auth.getSession()
+    
+    if (sessionData.session && sessionData.session.user) {
+      console.log('Existing session found:', sessionData.session.user.id)
+      return NextResponse.json({ 
+        success: true, 
+        user: sessionData.session.user,
+        message: '기존 익명 세션이 있습니다.' 
+      })
+    }
+    
+    console.log('No existing session, creating new anonymous user...')
     // 익명 로그인 시도
     const { data, error } = await supabase.auth.signInAnonymously()
 
