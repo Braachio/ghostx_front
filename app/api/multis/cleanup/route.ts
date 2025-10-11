@@ -1,13 +1,22 @@
 import { NextResponse } from 'next/server'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { createClient } from '@supabase/supabase-js'
 import { getDateFromWeekAndDay } from '@/app/utils/weekUtils'
 
 export async function POST() {
   try {
     console.log('🧹 이벤트 상태 정리 작업 시작')
     
-    const supabase = createRouteHandlerClient({ cookies })
+    // Service Role Key를 사용하여 관리자 권한으로 연결
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    )
     
     // 현재 시간
     const now = new Date()
@@ -90,16 +99,20 @@ export async function POST() {
     }
     
     // 이벤트 상태를 false로 업데이트
-    const { error: updateError } = await supabase
+    console.log(`업데이트할 이벤트 ID들:`, eventsToClose)
+    
+    const { data: updateData, error: updateError } = await supabase
       .from('multis')
       .update({ is_open: false })
       .in('id', eventsToClose)
+      .select('id, title, is_open')
     
     if (updateError) {
       console.error('이벤트 상태 업데이트 실패:', updateError)
-      return NextResponse.json({ error: '이벤트 상태 업데이트 실패' }, { status: 500 })
+      return NextResponse.json({ error: '이벤트 상태 업데이트 실패', details: updateError }, { status: 500 })
     }
     
+    console.log(`업데이트 결과:`, updateData)
     console.log(`✅ ${eventsToClose.length}개 이벤트 상태 업데이트 완료`)
     
     return NextResponse.json({
