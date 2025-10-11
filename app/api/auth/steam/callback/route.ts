@@ -136,7 +136,7 @@ export async function GET(request: NextRequest) {
     console.log('Checking for existing Steam user...')
     
     // 1. 기존 사용자 확인 (profiles 테이블에서 steam_id로 검색)
-    const { data: existingProfile, error: profileError } = await supabase
+    const { data: existingProfile, error: profileLookupError } = await supabase
       .from('profiles')
       .select('id, email')
       .eq('steam_id', steamId)
@@ -144,7 +144,7 @@ export async function GET(request: NextRequest) {
     
     let finalUser = null
     
-    if (existingProfile && !profileError) {
+    if (existingProfile && !profileLookupError) {
       console.log('Existing Steam user found, attempting sign in...')
       // 기존 사용자 - 로그인 시도
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
