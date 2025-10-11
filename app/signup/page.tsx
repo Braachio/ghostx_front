@@ -1,6 +1,22 @@
-// app/signup/page.tsx
-import SignupPage from '@/components/forms/SignupForm'
+'use client'
+
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function Signup() {
-  return <SignupPage />
+  const router = useRouter()
+
+  useEffect(() => {
+    // 회원가입 페이지에 접근하면 Steam 로그인 페이지로 리다이렉트
+    router.replace('/login')
+  }, [router])
+
+  return (
+    <div className="flex justify-center items-center min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p className="text-gray-600 dark:text-gray-400">리다이렉트 중...</p>
+      </div>
+    </div>
+  )
 }

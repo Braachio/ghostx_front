@@ -61,13 +61,22 @@ async function getSteamUserInfo(steamId: string) {
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   
+  console.log('=== Steam Callback Debug ===')
+  console.log('Request URL:', request.url)
+  console.log('Search params:', Object.fromEntries(searchParams.entries()))
+  
   try {
     // OpenID 응답 검증
     const mode = searchParams.get('openid.mode')
     const claimedId = searchParams.get('openid.claimed_id')
     
+    console.log('Mode:', mode)
+    console.log('Claimed ID:', claimedId)
+    
     if (mode !== 'id_res' || !claimedId) {
       console.error('Steam auth failed: invalid mode or claimed_id')
+      console.error('Expected mode: id_res, got:', mode)
+      console.error('Claimed ID:', claimedId)
       return NextResponse.redirect(new URL('/login?error=steam_auth_failed', request.url))
     }
     
@@ -89,15 +98,30 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL('/login?error=steam_validation_failed', request.url))
     }
     
-    // Steam 사용자 정보 가져오기
-    const steamUser = await getSteamUserInfo(steamId)
+  // Steam 사용자 정보 가져오기
+  const steamUser = await getSteamUserInfo(steamId)
+  
+  if (!steamUser) {
+    console.error('Steam auth failed: could not fetch user info')
+    console.error('Steam ID:', steamId)
+    console.error('Steam API Key configured:', !!process.env.STEAM_WEB_API_KEY)
+    return NextResponse.redirect(new URL('/login?error=steam_user_info_failed', request.url))
+  }
+  
+  console.log('Steam user info fetched:', steamUser.personaname)
+  console.log('Steam user details:', {
+    steamid: steamUser.steamid,
+    personaname: steamUser.personaname,
+    profileurl: steamUser.profileurl,
+    avatarfull: steamUser.avatarfull
+  })
     
-    if (!steamUser) {
-      console.error('Steam auth failed: could not fetch user info')
-      return NextResponse.redirect(new URL('/login?error=steam_user_info_failed', request.url))
-    }
-    
-    console.log('Steam user info fetched:', steamUser.personaname)
+    // Supabase 설정 확인
+    console.log('Supabase configuration check:')
+    console.log('- URL configured:', !!process.env.NEXT_PUBLIC_SUPABASE_URL)
+    console.log('- Anon Key configured:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+    console.log('- Service Role Key configured:', !!process.env.SUPABASE_SERVICE_ROLE_KEY)
+    console.log('- Steam API Key configured:', !!process.env.STEAM_WEB_API_KEY)
     
     // Supabase에 사용자 생성 또는 로그인
     const cookieStore = await cookies()
@@ -108,33 +132,36 @@ export async function GET(request: NextRequest) {
     
     console.log('Processing Steam user:', steamEmail)
     
-    // 기존 사용자 확인
+    // 먼저 기존 사용자 확인 후 처리
+    console.log('Checking for existing Steam user...')
+    
+    // 1. 기존 사용자 확인 (profiles 테이블에서 steam_id로 검색)
     const { data: existingProfile, error: profileError } = await supabase
       .from('profiles')
-      .select('id')
+      .select('id, email')
       .eq('steam_id', steamId)
       .single()
     
-    if (profileError && profileError.code !== 'PGRST116') {
-      console.error('Profile lookup error:', profileError)
-      return NextResponse.redirect(new URL('/login?error=database_error', request.url))
-    }
+    let finalUser = null
     
-    if (existingProfile) {
-      console.log('Existing user found, signing in...')
-      // 기존 사용자 - 로그인 처리
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: steamEmail,
+    if (existingProfile && !profileError) {
+      console.log('Existing Steam user found, attempting sign in...')
+      // 기존 사용자 - 로그인 시도
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: existingProfile.email || steamEmail,
         password: steamId,
       })
       
       if (signInError) {
-        console.error('Sign in error:', signInError)
-        return NextResponse.redirect(new URL('/login?error=auth_failed', request.url))
+        console.error('Sign in failed for existing user:', signInError)
+        return NextResponse.redirect(new URL(`/login?error=auth_failed&details=${encodeURIComponent(signInError.message)}`, request.url))
       }
+      
+      finalUser = signInData?.user
+      console.log('Existing user signed in successfully')
     } else {
-      console.log('New user, signing up...')
-      // 새 사용자 - 회원가입
+      console.log('New Steam user, attempting signup...')
+      // 새 사용자 - 회원가입 시도
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: steamEmail,
         password: steamId,
@@ -148,26 +175,61 @@ export async function GET(request: NextRequest) {
         },
       })
       
-      if (signUpError || !authData.user) {
-        console.error('Sign up error:', signUpError)
-        return NextResponse.redirect(new URL('/login?error=signup_failed', request.url))
+      if (signUpError) {
+        console.error('Signup failed:', signUpError)
+        return NextResponse.redirect(new URL(`/login?error=signup_failed&details=${encodeURIComponent(signUpError.message)}`, request.url))
       }
       
-      // 프로필 생성
-      const { error: insertError } = await supabase.from('profiles').insert({
-        id: authData.user.id,
+      finalUser = authData?.user
+      console.log('New user created successfully')
+    }
+    
+    if (!finalUser) {
+      console.error('No user created or signed in')
+      return NextResponse.redirect(new URL('/login?error=unexpected_error', request.url))
+    }
+    
+    console.log('User authenticated successfully:', finalUser.id)
+    
+    // 2. 프로필 업데이트 (Steam 정보 최신화)
+    console.log('Updating profile with latest Steam info...')
+    const { error: profileError } = await supabase.from('profiles').upsert({
+      id: finalUser.id,
+      email: steamEmail,
+      nickname: steamUser.personaname,
+      steam_id: steamId,
+      steam_avatar: steamUser.avatarfull,
+      agreed_terms: true,
+      agreed_privacy: true,
+    })
+    
+    if (profileError) {
+      console.error('Profile upsert error:', profileError)
+      console.error('Profile error details:', {
+        message: profileError.message,
+        code: profileError.code,
+        details: profileError.details,
+        hint: profileError.hint
+      })
+      
+      // steam_id 컬럼이 없을 수 있으므로 기본 프로필만 업데이트 시도
+      const { error: basicProfileError } = await supabase.from('profiles').upsert({
+        id: finalUser.id,
         email: steamEmail,
         nickname: steamUser.personaname,
-        steam_id: steamId,
-        steam_avatar: steamUser.avatarfull,
         agreed_terms: true,
         agreed_privacy: true,
       })
       
-      if (insertError) {
-        console.error('Profile insert error:', insertError)
-        return NextResponse.redirect(new URL('/login?error=profile_creation_failed', request.url))
+      if (basicProfileError) {
+        console.error('Basic profile update also failed:', basicProfileError)
+        // 프로필 업데이트 실패해도 로그인은 성공으로 처리
+        console.log('Continuing despite profile update failure...')
+      } else {
+        console.log('Basic profile updated successfully (steam_id column may be missing)')
       }
+    } else {
+      console.log('Profile updated successfully with Steam data')
     }
     
     console.log('Steam login successful, redirecting to dashboard')
