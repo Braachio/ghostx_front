@@ -778,6 +778,7 @@ export type Database = {
           author_id: string | null
           created_at: string | null
           description: string | null
+          event_date: string | null
           game: string
           game_track: string
           id: string
@@ -798,6 +799,7 @@ export type Database = {
           author_id?: string | null
           created_at?: string | null
           description?: string | null
+          event_date?: string | null
           game: string
           game_track: string
           id?: string
@@ -818,6 +820,7 @@ export type Database = {
           author_id?: string | null
           created_at?: string | null
           description?: string | null
+          event_date?: string | null
           game?: string
           game_track?: string
           id?: string

@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import type { Database } from '@/lib/database.types'
-import { getWeekRange, getCurrentWeekNumber } from '@/app/utils/dateUtils'
 
 export default function CreateMultiForm() {
   const supabase = createClientComponentClient<Database>()
@@ -18,9 +17,7 @@ export default function CreateMultiForm() {
   const [multiClass, setMultiClass] = useState('')
   const [multiDay, setMultiDay] = useState<string[]>([])
   const [multiTime, setMultiTime] = useState('')
-  const currentWeekInfo = getCurrentWeekNumber()
-  const [week, setWeek] = useState<number>(currentWeekInfo.week)
-  const [year] = useState<number>(currentWeekInfo.year)
+  const [eventDate, setEventDate] = useState('')
   const [link, setLink] = useState('')
 
   const [anonymousNickname, setAnonymousNickname] = useState('')
@@ -58,8 +55,7 @@ export default function CreateMultiForm() {
       multi_day: multiDay,
       multi_time: multiTime,
       link,
-      year,
-      week,
+      event_date: eventDate || null,
       author_id: userId,
       anonymous_nickname: userId ? null : anonymousNickname,
       anonymous_password: userId ? null : anonymousPassword,
@@ -187,23 +183,14 @@ export default function CreateMultiForm() {
         </label>
 
         <label className="text-sm text-gray-800 dark:text-gray-200">
-          주차 선택:
-          <select
-            value={week}
-            onChange={(e) => setWeek(Number(e.target.value))}
+          이벤트 날짜:
+          <input
+            type="date"
+            value={eventDate}
+            onChange={(e) => setEventDate(e.target.value)}
             className="border p-2 rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          >
-            {Array.from({ length: 5 }, (_, i) => {
-              const w = currentWeekInfo.week + i
-              const { start, end } = getWeekRange(currentWeekInfo.year, w)
-              const label = `${w}주차 (${start} ~ ${end})${w === currentWeekInfo.week ? ' (이번주)' : ''}`
-              return (
-                <option key={w} value={w}>
-                  {label}
-                </option>
-              )
-            })}
-          </select>
+            placeholder="날짜를 선택하세요"
+          />
         </label>
 
         <input

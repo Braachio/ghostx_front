@@ -88,6 +88,7 @@ export default function EventListPage({ currentUserId }: EventListPageProps) {
             anonymous_password: null,
             created_at: new Date().toISOString(),
             updated_at: null,
+            event_date: null,
             year: new Date().getFullYear(),
             week: Math.ceil((new Date().getTime() - new Date(new Date().getFullYear(), 0, 1).getTime()) / (1000 * 60 * 60 * 24 * 7))
           }
@@ -198,30 +199,52 @@ export default function EventListPage({ currentUserId }: EventListPageProps) {
     return targetDate
   }
 
-  // 이벤트 날짜 계산 (연도, 주차, 요일로 정확한 날짜 계산)
+  // 이벤트 날짜 계산 (event_date 필드 우선 사용, 없으면 주차 계산)
   const getEventDates = (multi: Multi) => {
     const now = new Date()
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     
-    // multi의 week와 year 정보를 활용
+    const pastDates: Date[] = []
+    const futureDates: Date[] = []
+    const allDates: Date[] = []
+    
+    // event_date가 있으면 해당 날짜 사용 (새 시스템)
+    if (multi.event_date) {
+      const eventDate = new Date(multi.event_date)
+      eventDate.setHours(0, 0, 0, 0) // 시간 제거하고 날짜만 비교
+      
+      allDates.push(eventDate)
+      
+      console.log(`${multi.title} (날짜 기반):`, {
+        eventDate: eventDate.toDateString(),
+        today: today.toDateString(),
+        isPast: eventDate < today,
+        isFuture: eventDate >= today
+      })
+      
+      if (eventDate < today) {
+        pastDates.push(eventDate)
+      } else {
+        futureDates.push(eventDate)
+      }
+      
+      return { pastDates, futureDates, allDates }
+    }
+    
+    // event_date가 없으면 기존 주차 계산 사용 (하위 호환)
     const multiYear = multi.year
     const multiWeek = multi.week
     
-    console.log(`이벤트 ${multi.title}:`, {
+    console.log(`이벤트 ${multi.title} (주차 기반):`, {
       multiYear,
       multiWeek,
       multiDay: multi.multi_day
     })
     
-    // multi_week나 multi_year가 null이거나 undefined인 경우 처리
     if (!multiWeek || !multiYear) {
-      console.log('주차 또는 연도 정보가 없음:', multi.title)
+      console.log('날짜 정보가 없음:', multi.title)
       return { pastDates: [], futureDates: [], allDates: [] }
     }
-    
-    const pastDates: Date[] = []
-    const futureDates: Date[] = []
-    const allDates: Date[] = []
     
     for (const day of multi.multi_day) {
       const eventDate = getDateFromWeekAndDay(multiYear, multiWeek, day)

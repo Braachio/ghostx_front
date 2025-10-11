@@ -88,7 +88,7 @@ export async function POST(request: Request) {
     const { error: profileError } = await supabase.from('profiles').insert({
       id: data.user.id,
       email: `anonymous_${anonymousId}@ghostx.site`,
-      nickname: `ㅇㅇ #${anonymousId}`,
+      nickname: `ㅇㅇ #${Math.floor(Math.random() * 10000)}`,
       agreed_terms: true,
       agreed_privacy: true,
     })
