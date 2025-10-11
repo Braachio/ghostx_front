@@ -132,36 +132,25 @@ export async function GET(request: NextRequest) {
     
     console.log('Processing Steam user:', steamEmail)
     
-    // 먼저 기존 사용자 확인 후 처리
-    console.log('Checking for existing Steam user...')
-    
-    // 1. 기존 사용자 확인 (profiles 테이블에서 steam_id로 검색)
-    const { data: existingProfile, error: profileLookupError } = await supabase
-      .from('profiles')
-      .select('id, email')
-      .eq('steam_id', steamId)
-      .single()
+    // 더 안전한 방식: 항상 로그인 먼저 시도, 실패하면 회원가입
+    console.log('Attempting Steam user login/signup...')
     
     let finalUser = null
     
-    if (existingProfile && !profileLookupError) {
-      console.log('Existing Steam user found, attempting sign in...')
-      // 기존 사용자 - 로그인 시도
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email: existingProfile.email || steamEmail,
-        password: steamId,
-      })
-      
-      if (signInError) {
-        console.error('Sign in failed for existing user:', signInError)
-        return NextResponse.redirect(new URL(`/login?error=auth_failed&details=${encodeURIComponent(signInError.message)}`, request.url))
-      }
-      
-      finalUser = signInData?.user
+    // 1. 먼저 로그인 시도 (기존 사용자)
+    console.log('Attempting login for existing user...')
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email: steamEmail,
+      password: steamId,
+    })
+    
+    if (!signInError && signInData?.user) {
       console.log('Existing user signed in successfully')
+      finalUser = signInData.user
     } else {
-      console.log('New Steam user, attempting signup...')
-      // 새 사용자 - 회원가입 시도
+      console.log('Login failed, attempting signup for new user...', signInError?.message)
+      
+      // 2. 로그인 실패 시 회원가입 시도 (새 사용자)
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: steamEmail,
         password: steamId,
@@ -176,12 +165,30 @@ export async function GET(request: NextRequest) {
       })
       
       if (signUpError) {
-        console.error('Signup failed:', signUpError)
-        return NextResponse.redirect(new URL(`/login?error=signup_failed&details=${encodeURIComponent(signUpError.message)}`, request.url))
+        console.error('Both login and signup failed:', signUpError)
+        // 회원가입도 실패한 경우, 이미 등록된 사용자일 가능성
+        if (signUpError.message?.includes('already registered')) {
+          console.log('User already registered, forcing login attempt...')
+          // 강제로 로그인 재시도
+          const { data: retrySignIn, error: retryError } = await supabase.auth.signInWithPassword({
+            email: steamEmail,
+            password: steamId,
+          })
+          
+          if (retryError || !retrySignIn?.user) {
+            console.error('Final login attempt failed:', retryError)
+            return NextResponse.redirect(new URL(`/login?error=auth_failed&details=${encodeURIComponent(retryError?.message || 'Login failed')}`, request.url))
+          }
+          
+          finalUser = retrySignIn.user
+          console.log('Forced login successful')
+        } else {
+          return NextResponse.redirect(new URL(`/login?error=signup_failed&details=${encodeURIComponent(signUpError.message)}`, request.url))
+        }
+      } else {
+        finalUser = authData?.user
+        console.log('New user created successfully')
       }
-      
-      finalUser = authData?.user
-      console.log('New user created successfully')
     }
     
     if (!finalUser) {
