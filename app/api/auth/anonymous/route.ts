@@ -52,8 +52,8 @@ export async function POST(request: Request) {
             message: '기존 익명 사용자가 복원되었습니다.' 
           })
         }
-      } catch (restoreError) {
-        console.log('Failed to restore anonymous user, creating new one')
+      } catch (err) {
+        console.log('Failed to restore anonymous user, creating new one:', err)
       }
     }
     
@@ -88,7 +88,7 @@ export async function POST(request: Request) {
     const { error: profileError } = await supabase.from('profiles').insert({
       id: data.user.id,
       email: `anonymous_${anonymousId}@ghostx.site`,
-      nickname: `ㅇㅇ#${anonymousId}`,
+      nickname: `ㅇㅇ #${anonymousId}`,
       agreed_terms: true,
       agreed_privacy: true,
     })
