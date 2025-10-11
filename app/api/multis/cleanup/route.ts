@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { getDateFromWeekAndDay } from '@/app/utils/weekUtils'
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     console.log('🧹 이벤트 상태 정리 작업 시작')
     

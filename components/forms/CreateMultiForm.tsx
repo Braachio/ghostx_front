@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import type { Database } from '@/lib/database.types'
-import { getCurrentWeekInfo, getWeekOptions, getDateFromWeekAndDay, getWeekDateRange } from '@/app/utils/weekUtils'
+import { getCurrentWeekInfo, getWeekOptions, getWeekDateRange } from '@/app/utils/weekUtils'
 
 export default function CreateMultiForm() {
   const supabase = createClientComponentClient<Database>()

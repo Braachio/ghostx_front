@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { MultiWithTemplate } from '@/types/events'
+import { getDateFromWeekAndDay } from '@/app/utils/weekUtils'
 
 export default function FlashEventsPage() {
   const [events, setEvents] = useState<MultiWithTemplate[]>([])
@@ -18,7 +19,7 @@ export default function FlashEventsPage() {
       if (response.ok) {
         const data = await response.json()
         // 기습갤멀만 필터링
-        const flashEvents = data.filter((event: any) => 
+        const flashEvents = data.filter((event: MultiWithTemplate) => 
           event.event_type === 'flash_event' || !event.event_type
         )
         setEvents(flashEvents)
@@ -153,7 +154,6 @@ function FlashEventCard({
     
     if (event.year && event.week) {
       // 주차 기반 날짜 계산
-      const { getDateFromWeekAndDay } = require('@/app/utils/weekUtils')
       const firstDay = event.multi_day[0]
       if (firstDay) {
         const eventDate = getDateFromWeekAndDay(event.year, event.week, firstDay)

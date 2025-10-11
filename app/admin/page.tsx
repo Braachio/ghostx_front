@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { EventTemplate, MultiWithTemplate } from '@/types/events'
+import { EventTemplate } from '@/types/events'
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -26,7 +26,7 @@ export default function AdminDashboard() {
       const eventsResponse = await fetch('/api/multis')
       const events = eventsResponse.ok ? await eventsResponse.json() : []
       
-      const flashEvents = events.filter((event: any) => 
+      const flashEvents = events.filter((event: EventTemplate) => 
         event.event_type === 'flash_event' || !event.event_type
       )
       

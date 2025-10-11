@@ -4,7 +4,7 @@ import { useState } from 'react'
 
 export default function CleanupEventsPage() {
   const [isLoading, setIsLoading] = useState(false)
-  const [result, setResult] = useState<any>(null)
+  const [result, setResult] = useState<{ updatedCount?: number; error?: string } | null>(null)
 
   const runCleanup = async () => {
     setIsLoading(true)
@@ -20,7 +20,7 @@ export default function CleanupEventsPage() {
       
       const data = await response.json()
       setResult(data)
-    } catch (error) {
+    } catch {
       setResult({ error: '정리 작업 실행 중 오류 발생' })
     } finally {
       setIsLoading(false)

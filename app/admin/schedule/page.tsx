@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { EventTemplate, MultiWithTemplate } from '@/types/events'
+import { getDateFromWeekAndDay } from '@/app/utils/weekUtils'
 
 export default function SchedulePage() {
   const [templates, setTemplates] = useState<EventTemplate[]>([])
@@ -23,7 +24,7 @@ export default function SchedulePage() {
       const eventsResponse = await fetch('/api/multis')
       const eventsData = eventsResponse.ok ? await eventsResponse.json() : []
       
-      const flashEventsData = eventsData.filter((event: any) => 
+      const flashEventsData = eventsData.filter((event: MultiWithTemplate) => 
         event.event_type === 'flash_event' || !event.event_type
       )
       
@@ -216,7 +217,6 @@ export default function SchedulePage() {
                     const dayEvents = flashEvents.filter(event => {
                       // 주차 기반 날짜 계산
                       if (event.year && event.week) {
-                        const { getDateFromWeekAndDay } = require('@/app/utils/weekUtils')
                         const eventDate = getDateFromWeekAndDay(event.year, event.week, days[index])
                         return eventDate && eventDate.toDateString() === date.toDateString()
                       }

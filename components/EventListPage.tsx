@@ -29,7 +29,6 @@ const gameCategories = {
 // 모든 게임 목록 추출
 const allGames = Object.values(gameCategories).flatMap(category => category.games)
 
-type Multi = Database['public']['Tables']['multis']['Row']
 
 interface EventListPageProps {
   currentUserId: string | null
@@ -58,7 +57,7 @@ export default function EventListPage({ currentUserId, eventTypeFilter }: EventL
           throw new Error(`HTTP ${res.status}: ${res.statusText}`)
         }
         
-        const rawData: any[] = await res.json()
+        const rawData: MultiWithTemplate[] = await res.json()
         console.log('로드된 이벤트 데이터:', rawData)
         
         // 새로운 필드들이 없을 경우 기본값 설정
