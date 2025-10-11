@@ -44,40 +44,51 @@ function LoginForm() {
     window.location.href = '/api/auth/steam'
   }
 
-  const handleAnonymousLogin = async () => {
-    setLoading(true)
-    setError(null)
-    
-    try {
-      // 먼저 현재 세션 상태 확인
-      const sessionCheck = await fetch('/api/me')
-      if (sessionCheck.ok) {
-        // 이미 로그인된 상태면 바로 대시보드로 이동
-        router.push('/dashboard')
-        return
-      }
+        const handleAnonymousLogin = async () => {
+          setLoading(true)
+          setError(null)
+          
+          try {
+            // 먼저 현재 세션 상태 확인
+            const sessionCheck = await fetch('/api/me')
+            if (sessionCheck.ok) {
+              // 이미 로그인된 상태면 바로 대시보드로 이동
+              router.push('/dashboard')
+              return
+            }
+            
+            // 저장된 익명 사용자 ID 가져오기
+            const savedAnonymousId = localStorage.getItem('ghostx_anonymous_id')
+            
+            const response = await fetch('/api/auth/anonymous', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                savedAnonymousId: savedAnonymousId 
+              }),
+            })
       
-      const response = await fetch('/api/auth/anonymous', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        setError(data.error || '익명 로그인에 실패했습니다.')
-        setLoading(false)
-        return
-      }
-
-      // 익명 로그인 성공 - 대시보드로 이동
-      router.push('/dashboard')
-    } catch (err) {
-      console.error('익명 로그인 오류:', err)
-      setError('익명 로그인 중 오류가 발생했습니다.')
-      setLoading(false)
-    }
-  }
+            const data = await response.json()
+      
+            if (!response.ok) {
+              setError(data.error || '익명 로그인에 실패했습니다.')
+              setLoading(false)
+              return
+            }
+      
+            // 새로운 익명 사용자 ID가 반환되면 localStorage에 저장
+            if (data.anonymousId) {
+              localStorage.setItem('ghostx_anonymous_id', data.anonymousId)
+            }
+      
+            // 익명 로그인 성공 - 대시보드로 이동
+            router.push('/dashboard')
+          } catch (err) {
+            console.error('익명 로그인 오류:', err)
+            setError('익명 로그인 중 오류가 발생했습니다.')
+            setLoading(false)
+          }
+        }
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -133,6 +144,9 @@ function LoginForm() {
           <p>
             Steam 로그인으로 모든 기능을 이용하거나<br />
             익명 로그인으로 미리 체험해보세요
+          </p>
+          <p className="mt-2 text-xs text-gray-400">
+            💡 이미 로그인된 상태라면 해당 계정으로 자동 로그인됩니다
           </p>
         </div>
       </div>

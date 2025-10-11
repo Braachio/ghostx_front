@@ -120,7 +120,17 @@ export default function DashboardPage() {
           <div className="mt-8">
             <button
               onClick={async () => {
+                // 현재 사용자가 Steam 사용자인지 확인
+                const meResponse = await fetch('/api/me')
+                const meData = await meResponse.json()
+                
                 await fetch('/api/logout', { method: 'POST' })
+                
+                // Steam 사용자라면 익명 ID 삭제 (Steam 로그인 시 익명 ID와 충돌 방지)
+                if (meData.user?.email && !meData.user.email.includes('anonymous_')) {
+                  localStorage.removeItem('ghostx_anonymous_id')
+                }
+                
                 router.push('/login')
               }}
               className="text-sm text-gray-500 hover:underline"
@@ -196,7 +206,17 @@ export default function DashboardPage() {
               </div>
               <button
                 onClick={async () => {
+                  // 현재 사용자가 Steam 사용자인지 확인
+                  const meResponse = await fetch('/api/me')
+                  const meData = await meResponse.json()
+                  
                   await fetch('/api/logout', { method: 'POST' })
+                  
+                  // Steam 사용자라면 익명 ID 삭제 (Steam 로그인 시 익명 ID와 충돌 방지)
+                  if (meData.user?.email && !meData.user.email.includes('anonymous_')) {
+                    localStorage.removeItem('ghostx_anonymous_id')
+                  }
+                  
                   router.push('/login')
                 }}
                 className="text-sm text-gray-500 hover:underline"

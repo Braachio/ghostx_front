@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import type { Database } from '@/lib/database.types'
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     console.log('=== Anonymous Login Debug ===')
     console.log('Supabase URL configured:', !!process.env.NEXT_PUBLIC_SUPABASE_URL)
@@ -12,20 +12,52 @@ export async function POST() {
     const cookieStore = await cookies()
     const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore })
 
+    // 요청에서 저장된 익명 사용자 ID 확인
+    const body = await request.json().catch(() => ({}))
+    const savedAnonymousId = body.savedAnonymousId
+
     // 먼저 기존 세션이 있는지 확인
-    console.log('Checking for existing anonymous session...')
+    console.log('Checking for existing session...')
     const { data: sessionData } = await supabase.auth.getSession()
     
     if (sessionData.session && sessionData.session.user) {
       console.log('Existing session found:', sessionData.session.user.id)
+      console.log('User email:', sessionData.session.user.email)
+      console.log('Is anonymous:', sessionData.session.user.is_anonymous)
+      
+      // 이미 로그인된 사용자가 있으면 (Steam 또는 익명) 그대로 사용
       return NextResponse.json({ 
         success: true, 
         user: sessionData.session.user,
-        message: '기존 익명 세션이 있습니다.' 
+        message: '이미 로그인된 사용자가 있습니다.' 
       })
     }
     
-    console.log('No existing session, creating new anonymous user...')
+    // 저장된 익명 사용자 ID가 있으면 해당 사용자로 로그인 시도
+    if (savedAnonymousId) {
+      console.log('Attempting to restore saved anonymous user:', savedAnonymousId)
+      
+      // 저장된 익명 사용자 정보로 로그인 시도
+      try {
+        const { data: restoreData, error: restoreError } = await supabase.auth.signInWithPassword({
+          email: `anonymous_${savedAnonymousId}@ghostx.site`,
+          password: savedAnonymousId,
+        })
+        
+        if (!restoreError && restoreData.user) {
+          console.log('Successfully restored anonymous user:', restoreData.user.id)
+          return NextResponse.json({ 
+            success: true, 
+            user: restoreData.user,
+            message: '기존 익명 사용자가 복원되었습니다.' 
+          })
+        }
+      } catch (restoreError) {
+        console.log('Failed to restore anonymous user, creating new one')
+      }
+    }
+    
+    console.log('No existing session or saved user, creating new anonymous user...')
     // 익명 로그인 시도
     const { data, error } = await supabase.auth.signInAnonymously()
 
@@ -49,11 +81,14 @@ export async function POST() {
 
     console.log('Anonymous user created:', data.user.id)
 
+    // 익명 사용자를 위한 고유 ID 생성 (브라우저에 저장할 용도)
+    const anonymousId = data.user.id.substring(0, 8) // UUID의 앞 8자리 사용
+
     // 익명 사용자를 위한 기본 프로필 생성
     const { error: profileError } = await supabase.from('profiles').insert({
       id: data.user.id,
-      email: `anonymous_${Date.now()}@ghostx.site`,
-      nickname: `익명사용자${Math.floor(Math.random() * 10000)}`,
+      email: `anonymous_${anonymousId}@ghostx.site`,
+      nickname: `ㅇㅇ#${anonymousId}`,
       agreed_terms: true,
       agreed_privacy: true,
     })
@@ -66,6 +101,7 @@ export async function POST() {
     return NextResponse.json({ 
       success: true, 
       user: data.user,
+      anonymousId: anonymousId, // 브라우저에 저장할 고유 ID
       message: '익명 로그인에 성공했습니다.' 
     })
   } catch (error) {
