@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import EventCard from './EventCard'
-import type { Database } from '@/lib/database.types'
 import { getDateFromWeekAndDay } from '@/app/utils/weekUtils'
 import { EventType, EventTypeConfig, MultiWithTemplate } from '@/types/events'
 
