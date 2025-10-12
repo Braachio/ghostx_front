@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Image from 'next/image'
 
 interface Achievement {
@@ -27,10 +27,10 @@ interface AchievementData {
 
 interface AchievementProgressProps {
   appId: number
-  gameName: string
+  gameName?: string
 }
 
-export default function AchievementProgress({ appId, gameName }: AchievementProgressProps) {
+export default function AchievementProgress({ appId }: AchievementProgressProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [data, setData] = useState<AchievementData | null>(null)

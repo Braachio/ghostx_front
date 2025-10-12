@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { RACING_GAMES, findRacingGame, isRacingGame } from '@/lib/racingGames'
+import { findRacingGame, isRacingGame } from '@/lib/racingGames'
 import RacingStats from '@/components/RacingStats'
 import AchievementProgress from '@/components/AchievementProgress'
 
@@ -111,7 +111,7 @@ export default function ProfilePage() {
     return null
   }
 
-  const { profile, games, recentGames, totalGames, totalPlaytime } = profileData
+  const { profile, games, totalGames, totalPlaytime } = profileData
 
   // 레이싱 게임만 필터링
   const racingGames = games.filter(game => isRacingGame(game.appId))

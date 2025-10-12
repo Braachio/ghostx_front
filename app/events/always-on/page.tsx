@@ -7,7 +7,6 @@ import { MultiWithTemplate } from '@/types/events'
 export default function AlwaysOnServerPage() {
   const [events, setEvents] = useState<MultiWithTemplate[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedGames, setSelectedGames] = useState<string[]>([])
 
   useEffect(() => {
     const fetchEvents = async () => {

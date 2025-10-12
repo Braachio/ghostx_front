@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
 import EventCard from '@/components/EventCard'
 import { getDateFromWeekAndDay } from '@/app/utils/weekUtils'
 import { MultiWithTemplate } from '@/types/events'
