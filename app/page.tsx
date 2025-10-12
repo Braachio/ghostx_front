@@ -261,66 +261,80 @@ export default function HomePage() {
         </div>
 
         {/* 메뉴 카드 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {/* 대시보드 카드 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Steam 프로필 카드 (로그인 시) */}
           {user ? (
-            <Link href="/dashboard">
-              <div className="group p-8 rounded-xl border-2 border-purple-500/30 bg-gradient-to-br from-gray-900 to-black hover:border-purple-400 hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-2">
+            <Link href="/profile">
+              <div className="group p-6 rounded-xl border-2 border-purple-500/30 bg-gradient-to-br from-gray-900 to-black hover:border-purple-400 hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-2">
                 <div className="text-center">
-                  <div className="text-6xl mb-4">📈</div>
-                  <h2 className="text-2xl font-bold mb-4 text-white group-hover:text-purple-400 transition-colors">
-                    {t[language].dashboard}
+                  <div className="text-5xl mb-3">🎮</div>
+                  <h2 className="text-xl font-bold mb-2 text-white group-hover:text-purple-400 transition-colors">
+                    Steam 프로필
                   </h2>
-                  <p className="text-gray-300 group-hover:text-white transition-colors">
-                    {t[language].dashboardDesc}
+                  <p className="text-sm text-gray-300 group-hover:text-white transition-colors">
+                    레이싱 게임 통계와<br />업적 현황
                   </p>
                 </div>
               </div>
             </Link>
           ) : (
             <Link href="/login">
-              <div className="group p-8 rounded-xl border-2 border-purple-500/30 bg-gradient-to-br from-gray-900 to-black hover:border-purple-400 hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-2">
+              <div className="group p-6 rounded-xl border-2 border-purple-500/30 bg-gradient-to-br from-gray-900 to-black hover:border-purple-400 hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-2">
                 <div className="text-center">
-                  <div className="text-6xl mb-4">📈</div>
-                  <h2 className="text-2xl font-bold mb-4 text-white group-hover:text-purple-400 transition-colors">
-                    {t[language].dashboard}
+                  <div className="text-5xl mb-3">🎮</div>
+                  <h2 className="text-xl font-bold mb-2 text-white group-hover:text-purple-400 transition-colors">
+                    Steam 프로필
                   </h2>
-                  <p className="text-gray-300 group-hover:text-white transition-colors">
-                    {t[language].dashboardDescGuest}
+                  <p className="text-sm text-gray-300 group-hover:text-white transition-colors">
+                    Steam 로그인하고<br />통계 확인
                   </p>
-                  <div className="mt-4 text-sm text-purple-400 group-hover:text-purple-300 transition-colors">
-                    {t[language].clickToLogin}
+                  <div className="mt-2 text-xs text-purple-400 group-hover:text-purple-300 transition-colors">
+                    로그인 필요
                   </div>
                 </div>
               </div>
             </Link>
           )}
 
-          <Link href="/multis">
-            <div className="group p-8 rounded-xl border-2 border-cyan-500/30 bg-gradient-to-br from-gray-900 to-black hover:border-cyan-400 hover:shadow-2xl hover:shadow-cyan-500/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-2">
+          <Link href="/events">
+            <div className="group p-6 rounded-xl border-2 border-cyan-500/30 bg-gradient-to-br from-gray-900 to-black hover:border-cyan-400 hover:shadow-2xl hover:shadow-cyan-500/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-2">
               <div className="text-center">
-                <div className="text-6xl mb-4">🗓️</div>
-                <h2 className="text-2xl font-bold mb-4 text-white group-hover:text-cyan-400 transition-colors">
+                <div className="text-5xl mb-3">🗓️</div>
+                <h2 className="text-xl font-bold mb-2 text-white group-hover:text-cyan-400 transition-colors">
                   {t[language].racingCommunity}
                 </h2>
-                <p className="text-gray-300 group-hover:text-white transition-colors">
+                <p className="text-sm text-gray-300 group-hover:text-white transition-colors">
                   {t[language].racingCommunityDesc}
                 </p>
               </div>
             </div>
           </Link>
 
-          <Link href="/upload-id">
-            <div className="group p-8 rounded-xl border-2 border-blue-500/30 bg-gradient-to-br from-gray-900 to-black hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-2">
+          <Link href="/multis">
+            <div className="group p-6 rounded-xl border-2 border-orange-500/30 bg-gradient-to-br from-gray-900 to-black hover:border-orange-400 hover:shadow-2xl hover:shadow-orange-500/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-2">
               <div className="text-center">
-                <div className="flex items-center justify-center gap-3 mb-4">
-                  <Image src="/logo/Logo-acc.png" alt="ACC-Logo" width={48} height={48} />
-                  <div className="text-6xl">📊</div>
+                <div className="text-5xl mb-3">⚡</div>
+                <h2 className="text-xl font-bold mb-2 text-white group-hover:text-orange-400 transition-colors">
+                  기습 갤멀
+                </h2>
+                <p className="text-sm text-gray-300 group-hover:text-white transition-colors">
+                  예고 없이 갑작스럽게<br />열리는 일회성 이벤트
+                </p>
+              </div>
+            </div>
+          </Link>
+
+          <Link href="/upload-id">
+            <div className="group p-6 rounded-xl border-2 border-blue-500/30 bg-gradient-to-br from-gray-900 to-black hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-2">
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-3 mb-3">
+                  <Image src="/logo/Logo-acc.png" alt="ACC-Logo" width={40} height={40} />
+                  <div className="text-5xl">📊</div>
                 </div>
-                <h2 className="text-2xl font-bold mb-4 text-white group-hover:text-blue-400 transition-colors">
+                <h2 className="text-xl font-bold mb-2 text-white group-hover:text-blue-400 transition-colors">
                   {t[language].ghostAnalysis}
                 </h2>
-                <p className="text-gray-300 group-hover:text-white transition-colors">
+                <p className="text-sm text-gray-300 group-hover:text-white transition-colors">
                   {t[language].ghostAnalysisDesc}
                 </p>
               </div>
@@ -344,11 +358,40 @@ export default function HomePage() {
                 <div className={`p-6 rounded-xl border-2 ${eventTypeConfig.regular_schedule.borderColor} bg-gradient-to-br from-gray-900 to-black`}>
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-xl font-bold text-white">{eventTypeConfig.regular_schedule.title}</h3>
-                    <Link href="/multis?type=regular_schedule" className="text-sm text-blue-400 hover:text-blue-300">
-                      전체보기 →
-                    </Link>
+                    <div className="text-sm text-blue-400">
+                      게임별 보기 →
+                    </div>
                   </div>
                   <p className="text-gray-400 text-sm mb-4">{eventTypeConfig.regular_schedule.description}</p>
+                  
+                  {/* 게임별 버튼들 */}
+                  <div className="grid grid-cols-2 gap-2 mb-4">
+                    <Link href="/events/regular/iracing" className="p-2 bg-blue-900/30 hover:bg-blue-900/50 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-colors">
+                      아이레이싱
+                    </Link>
+                    <Link href="/events/regular/assettocorsa" className="p-2 bg-blue-900/30 hover:bg-blue-900/50 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-colors">
+                      아세토코르사
+                    </Link>
+                    <Link href="/events/regular/gran-turismo7" className="p-2 bg-blue-900/30 hover:bg-blue-900/50 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-colors">
+                      그란투리스모7
+                    </Link>
+                    <Link href="/events/regular/automobilista2" className="p-2 bg-blue-900/30 hover:bg-blue-900/50 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-colors">
+                      오토모빌리스타2
+                    </Link>
+                    <Link href="/events/regular/competizione" className="p-2 bg-blue-900/30 hover:bg-blue-900/50 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-colors">
+                      컴페티치오네
+                    </Link>
+                    <Link href="/events/regular/lemans" className="p-2 bg-blue-900/30 hover:bg-blue-900/50 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-colors">
+                      르망얼티밋
+                    </Link>
+                    <Link href="/events/regular/f1-25" className="p-2 bg-blue-900/30 hover:bg-blue-900/50 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-colors">
+                      F1 25
+                    </Link>
+                    <Link href="/events/regular/ea-wrc" className="p-2 bg-blue-900/30 hover:bg-blue-900/50 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-colors">
+                      EA WRC
+                    </Link>
+                  </div>
+                  
                   <div className="space-y-3">
                     {getEventsByType('regular_schedule').map((event) => (
                       <Link key={event.id} href={`/multis/${event.id}`}>
@@ -369,7 +412,7 @@ export default function HomePage() {
                 <div className={`p-6 rounded-xl border-2 ${eventTypeConfig.always_on_server.borderColor} bg-gradient-to-br from-gray-900 to-black`}>
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-xl font-bold text-white">{eventTypeConfig.always_on_server.title}</h3>
-                    <Link href="/multis?type=always_on_server" className="text-sm text-green-400 hover:text-green-300">
+                    <Link href="/events/always-on" className="text-sm text-green-400 hover:text-green-300">
                       전체보기 →
                     </Link>
                   </div>
@@ -394,7 +437,7 @@ export default function HomePage() {
                 <div className={`p-6 rounded-xl border-2 ${eventTypeConfig.league.borderColor} bg-gradient-to-br from-gray-900 to-black`}>
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-xl font-bold text-white">{eventTypeConfig.league.title}</h3>
-                    <Link href="/multis?type=league" className="text-sm text-purple-400 hover:text-purple-300">
+                    <Link href="/events/league" className="text-sm text-purple-400 hover:text-purple-300">
                       전체보기 →
                     </Link>
                   </div>
@@ -419,7 +462,7 @@ export default function HomePage() {
                 <div className={`p-6 rounded-xl border-2 ${eventTypeConfig.flash_event.borderColor} bg-gradient-to-br from-gray-900 to-black`}>
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-xl font-bold text-white">{eventTypeConfig.flash_event.title}</h3>
-                    <Link href="/multis?type=flash_event" className="text-sm text-orange-400 hover:text-orange-300">
+                    <Link href="/multis" className="text-sm text-orange-400 hover:text-orange-300">
                       전체보기 →
                     </Link>
                   </div>

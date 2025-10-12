@@ -108,13 +108,18 @@ export default function EventListPageSimple({ currentUserId, eventTypeFilter }: 
     return false
   }
 
-  // 필터링 및 정렬
+  // 필터링 및 정렬 (기습갤멀만)
   const filteredAndSorted = multis
     .filter(multi => {
+      // 기습갤멀만 표시
+      if (multi.event_type !== 'flash_event' && multi.event_type !== null && multi.event_type !== undefined) {
+        return false
+      }
+      
       // 게임 필터
       if (!selectedGames.includes(multi.game)) return false
       
-      // 이벤트 타입 필터
+      // 이벤트 타입 필터 (추가 필터링)
       if (eventTypeFilter && multi.event_type !== eventTypeFilter) return false
       
       // 시간 기반 필터 (활성/비활성 관계없이)
@@ -168,7 +173,7 @@ export default function EventListPageSimple({ currentUserId, eventTypeFilter }: 
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">🏁 레이싱 이벤트</h1>
+             <h1 className="text-3xl font-bold text-white mb-2">⚡ 기습 갤멀</h1>
             <p className="text-gray-400">
               {filteredAndSorted.length}개의 이벤트가 있습니다
             </p>
