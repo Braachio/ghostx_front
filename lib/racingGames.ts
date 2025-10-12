@@ -16,15 +16,15 @@ export interface RacingGame {
 export const RACING_GAMES: RacingGame[] = [
   // 시뮬레이션 레이싱 게임
   {
-    appId: 244210,
-    name: 'assetto-corsa-competizione',
-    displayName: 'Assetto Corsa Competizione',
+    appId: 3058630,
+    name: 'assetto-corsa-evo',
+    displayName: 'Assetto Corsa EVO',
     category: 'sim',
     platform: 'pc',
-    releaseYear: 2019,
+    releaseYear: 2025,
   },
   {
-    appId: 287700,
+    appId: 244210,
     name: 'assetto-corsa',
     displayName: 'Assetto Corsa',
     category: 'sim',
@@ -48,7 +48,15 @@ export const RACING_GAMES: RacingGame[] = [
     releaseYear: 2020,
   },
   {
-    appId: 1989900,
+    appId: 365960,
+    name: 'rFactor2',
+    displayName: 'rFactor2',
+    category: 'sim',
+    platform: 'pc',
+    releaseYear: 2020,
+  },  
+  {
+    appId: 2399420,
     name: 'lemans-ultimate',
     displayName: 'Le Mans Ultimate',
     category: 'sim',
@@ -57,11 +65,11 @@ export const RACING_GAMES: RacingGame[] = [
   },
   {
     appId: 805550,
-    name: 'rfactor2',
-    displayName: 'rFactor 2',
+    name: 'assetto-corsa-competizione',
+    displayName: 'Assetto Corsa Competizione',
     category: 'sim',
     platform: 'pc',
-    releaseYear: 2013,
+    releaseYear: 2019,
   },
   {
     appId: 1158310,
