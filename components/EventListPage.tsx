@@ -139,12 +139,18 @@ export default function EventListPageSimple({ currentUserId, eventTypeFilter }: 
     .sort((a, b) => {
       switch (sortBy) {
         case 'date':
-          // 날짜순 정렬 (가까운 날짜가 먼저)
+          // 날짜순 정렬
           const aDate = a.event_date ? new Date(a.event_date) : 
                        (a.year && a.week && a.multi_day ? getDateFromWeekAndDay(a.year, a.week, a.multi_day[0]) : new Date(0))
           const bDate = b.event_date ? new Date(b.event_date) : 
                        (b.year && b.week && b.multi_day ? getDateFromWeekAndDay(b.year, b.week, b.multi_day[0]) : new Date(0))
-          return aDate.getTime() - bDate.getTime()
+          
+          // 지난 이벤트는 최신순 (내림차순), 예정/전체는 오름차순
+          if (timeFilter === 'past') {
+            return bDate.getTime() - aDate.getTime()  // 최신이 먼저
+          } else {
+            return aDate.getTime() - bDate.getTime()  // 가까운 날짜가 먼저
+          }
         case 'game':
           return a.game.localeCompare(b.game)
         case 'title':

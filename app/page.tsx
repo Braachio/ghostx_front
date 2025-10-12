@@ -143,73 +143,59 @@ export default function HomePage() {
   }
 
   return (
-    <main className="min-h-screen bg-black text-white py-6 sm:py-8 relative overflow-hidden">
-      {/* 배경 장식 요소 */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-1 h-1 bg-blue-400 rounded-full animate-pulse delay-1000"></div>
-        <div className="absolute bottom-40 left-1/4 w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse delay-500"></div>
-        <div className="absolute top-1/2 right-10 w-1 h-1 bg-pink-400 rounded-full animate-pulse delay-700"></div>
-        <div className="absolute bottom-20 right-1/3 w-2 h-2 bg-cyan-300 rounded-full animate-pulse delay-300"></div>
-        
-        {/* 그리드 패턴 */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="grid grid-cols-16 gap-6 h-full">
-            {Array.from({ length: 256 }).map((_, i) => (
-              <div key={i} className="border border-gray-600"></div>
-            ))}
-          </div>
-        </div>
-      </div>
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-10 relative z-10">
+    <main className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 text-white py-6 sm:py-8">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-10">
 
-        {/* 헤더 - 브랜드 로고 & 로그인 상태 */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4 border-cyan-500">
-          <div className="flex items-center space-x-2">
-            <Image src="/logo/ghost-x-symbol.svg" alt="logo" width={32} height={32} className="dark:invert" />
-            <h1 className="text-lg sm:text-xl font-bold text-white tracking-tight bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">{t[language].title}</h1>
+        {/* 헤더 - 네비게이션 */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 pt-4">
+          <div className="flex items-center gap-4">
+            <Link href="/" className="flex items-center gap-2">
+              <Image src="/logo/ghost-x-symbol.svg" alt="logo" width={40} height={40} className="dark:invert" />
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent">
+                {t[language].title}
+              </h1>
+            </Link>
+            {views !== null && (
+              <span className="text-gray-500 text-xs bg-gray-800/50 px-3 py-1.5 rounded-full border border-gray-700">
+                👁️ {views.toLocaleString()}
+              </span>
+            )}
           </div>
 
           <div className="w-full sm:w-auto">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
               {/* 언어 전환 버튼 */}
-              <div className="flex bg-gray-800 rounded-lg p-1">
+              <div className="flex bg-gray-800/80 backdrop-blur-sm rounded-lg p-1 border border-gray-700">
                 <button
                   onClick={() => setLanguage('ko')}
-                  className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                  className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${
                     language === 'ko' 
-                      ? 'bg-cyan-600 text-white' 
+                      ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg' 
                       : 'text-gray-400 hover:text-white'
                   }`}
                 >
-                  한국어
+                  🇰🇷 한국어
                 </button>
                 <button
                   onClick={() => setLanguage('en')}
-                  className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                  className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${
                     language === 'en' 
-                      ? 'bg-cyan-600 text-white' 
+                      ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg' 
                       : 'text-gray-400 hover:text-white'
                   }`}
                 >
-                  English
+                  🇺🇸 English
                 </button>
               </div>
 
               {user ? (
                 <>
-                  <span className="text-sm text-green-400">
+                  <span className="text-sm bg-gray-800/50 px-3 py-2 rounded-lg border border-gray-700 text-cyan-400">
                     👤 {t[language].welcome(user.nickname)}
                   </span>
-                  <Link
-                    href="/dashboard"
-                    className="w-full sm:w-auto px-3 py-1.5 text-sm rounded-md border border-cyan-500 text-white bg-gray-800 hover:bg-cyan-900 hover:border-cyan-400 transition text-center"
-                  >
-                    📈 {t[language].dashboard}
-                  </Link>
                   <button
                     onClick={handleLogout}
-                    className="w-full sm:w-auto px-3 py-1.5 text-sm rounded-md border border-red-500 text-red-400 bg-gray-800 hover:bg-red-900 hover:border-red-400 transition"
+                    className="px-4 py-2 rounded-lg bg-gradient-to-r from-red-600 to-red-700 text-white text-sm hover:from-red-700 hover:to-red-800 transition shadow-lg shadow-red-500/30"
                   >
                     {t[language].logout}
                   </button>
@@ -218,13 +204,13 @@ export default function HomePage() {
                 <>
                   <Link
                     href="/signup"
-                    className="w-full sm:w-auto px-3 py-1.5 rounded-md border border-cyan-500 text-sm text-white bg-gray-800 hover:bg-cyan-900 hover:border-cyan-400 transition text-center"
+                    className="px-4 py-2 rounded-lg border border-cyan-500/50 text-sm text-white bg-gray-800/80 hover:bg-cyan-900/30 hover:border-cyan-400 transition backdrop-blur-sm"
                   >
                     {t[language].signup}
                   </Link>
                   <Link
                     href="/login"
-                    className="w-full sm:w-auto px-3 py-1.5 rounded-md bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm hover:from-cyan-700 hover:to-blue-700 transition text-center shadow-lg shadow-cyan-500/25"
+                    className="px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm hover:from-cyan-700 hover:to-blue-700 transition shadow-lg shadow-cyan-500/50"
                   >
                     {t[language].login}
                   </Link>
@@ -234,123 +220,128 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* 메인 타이틀 */}
-        <div className="text-center py-8">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">
+        {/* 메인 타이틀 - 고스트카 테마 */}
+        <div className="text-center py-12 mb-8">
+          <div className="inline-block mb-8">
+            <div className="text-8xl animate-pulse">👻</div>
+          </div>
+          <h1 className="text-5xl md:text-7xl font-bold mb-6">
             <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
               {t[language].title}
             </span>
           </h1>
-          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-white">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
             {language === 'ko' ? (
-              <>당신의 <span className="text-cyan-400">고스트카</span>가 되어드립니다</>
+              <>당신의 <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">고스트카</span>가 되어드립니다</>
             ) : (
-              <>Your <span className="text-cyan-400">Ghost Car</span> Awaits</>
+              <>Your <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Ghost Car</span> Awaits</>
             )}
           </h2>
-          <p className="text-xl text-gray-300 mb-2">
+          <p className="text-xl text-gray-300 mb-4 max-w-3xl mx-auto">
             {language === 'ko' ? (
-              <>👻 데이터 분석으로 랩타임을 단축시켜주는 <span className="text-cyan-400 font-semibold">디지털 고스트카</span></>
+              <>데이터 분석으로 랩타임을 단축시켜주는 <span className="text-cyan-400 font-semibold">디지털 고스트카</span></>
             ) : (
-              <>👻 <span className="text-cyan-400 font-semibold">Digital Ghost Car</span> powered by data analysis to reduce lap times</>
+              <><span className="text-cyan-400 font-semibold">Digital Ghost Car</span> powered by data analysis to reduce lap times</>
             )}
           </p>
-          <p className="text-lg text-gray-400 mb-8">
+          <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
             {t[language].description2}
           </p>
+          <div className="h-px w-96 mx-auto bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
         </div>
 
-        {/* 메뉴 카드 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Steam 프로필 카드 (로그인 시) */}
+        {/* 메뉴 카드 - 네온 효과 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-12">
+          {/* Steam 프로필 카드 */}
           {user ? (
-            <Link href="/profile">
-              <div className="group p-6 rounded-xl border-2 border-purple-500/30 bg-gradient-to-br from-gray-900 to-black hover:border-purple-400 hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-2">
+            <Link href="/profile" className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
+              <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-purple-500/40 rounded-2xl p-10 backdrop-blur-sm hover:border-purple-400/60 transition-all duration-300 hover:scale-105 cursor-pointer">
                 <div className="text-center">
-                  <div className="text-5xl mb-3">🎮</div>
-                  <h2 className="text-xl font-bold mb-2 text-white group-hover:text-purple-400 transition-colors">
+                  <div className="text-7xl mb-6">🎮</div>
+                  <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                     Steam 프로필
                   </h2>
-                  <p className="text-sm text-gray-300 group-hover:text-white transition-colors">
+                  <p className="text-gray-300 text-lg leading-relaxed">
                     레이싱 게임 통계와<br />업적 현황
                   </p>
                 </div>
               </div>
             </Link>
           ) : (
-            <Link href="/login">
-              <div className="group p-6 rounded-xl border-2 border-purple-500/30 bg-gradient-to-br from-gray-900 to-black hover:border-purple-400 hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-2">
+            <Link href="/login" className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
+              <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-purple-500/40 rounded-2xl p-10 backdrop-blur-sm hover:border-purple-400/60 transition-all duration-300 hover:scale-105 cursor-pointer">
                 <div className="text-center">
-                  <div className="text-5xl mb-3">🎮</div>
-                  <h2 className="text-xl font-bold mb-2 text-white group-hover:text-purple-400 transition-colors">
+                  <div className="text-7xl mb-6">🎮</div>
+                  <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                     Steam 프로필
                   </h2>
-                  <p className="text-sm text-gray-300 group-hover:text-white transition-colors">
+                  <p className="text-gray-300 text-lg mb-4 leading-relaxed">
                     Steam 로그인하고<br />통계 확인
                   </p>
-                  <div className="mt-2 text-xs text-purple-400 group-hover:text-purple-300 transition-colors">
-                    로그인 필요
+                  <div className="inline-block px-4 py-2 bg-purple-900/30 rounded-full border border-purple-500/30">
+                    <span className="text-purple-300 text-sm font-semibold">로그인 필요</span>
                   </div>
                 </div>
               </div>
             </Link>
           )}
 
-          <Link href="/events">
-            <div className="group p-6 rounded-xl border-2 border-cyan-500/30 bg-gradient-to-br from-gray-900 to-black hover:border-cyan-400 hover:shadow-2xl hover:shadow-cyan-500/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-2">
+          <Link href="/events" className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-br from-cyan-600/20 to-blue-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
+            <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-cyan-500/40 rounded-2xl p-10 backdrop-blur-sm hover:border-cyan-400/60 transition-all duration-300 hover:scale-105 cursor-pointer">
               <div className="text-center">
-                <div className="text-5xl mb-3">🗓️</div>
-                <h2 className="text-xl font-bold mb-2 text-white group-hover:text-cyan-400 transition-colors">
+                <div className="text-7xl mb-6">🗓️</div>
+                <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
                   {t[language].racingCommunity}
                 </h2>
-                <p className="text-sm text-gray-300 group-hover:text-white transition-colors">
+                <p className="text-gray-300 text-lg leading-relaxed">
                   {t[language].racingCommunityDesc}
                 </p>
               </div>
             </div>
           </Link>
 
-          <Link href="/multis">
-            <div className="group p-6 rounded-xl border-2 border-orange-500/30 bg-gradient-to-br from-gray-900 to-black hover:border-orange-400 hover:shadow-2xl hover:shadow-orange-500/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-2">
+          {/* 기습 갤멀, 대시보드 & 고스트 분석 - 임시 비활성화 */}
+          {/* 
+          <Link href="/dashboard">
+            <div className="group p-8 rounded-xl border-2 border-purple-500/30 bg-gradient-to-br from-gray-900 to-black hover:border-purple-400 hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-2">
               <div className="text-center">
-                <div className="text-5xl mb-3">⚡</div>
-                <h2 className="text-xl font-bold mb-2 text-white group-hover:text-orange-400 transition-colors">
-                  기습 갤멀
+                <div className="text-6xl mb-4">📈</div>
+                <h2 className="text-2xl font-bold mb-4 text-white group-hover:text-purple-400 transition-colors">
+                  {t[language].dashboard}
                 </h2>
-                <p className="text-sm text-gray-300 group-hover:text-white transition-colors">
-                  예고 없이 갑작스럽게<br />열리는 일회성 이벤트
+                <p className="text-gray-300 group-hover:text-white transition-colors">
+                  {t[language].dashboardDesc}
                 </p>
               </div>
             </div>
           </Link>
 
           <Link href="/upload-id">
-            <div className="group p-6 rounded-xl border-2 border-blue-500/30 bg-gradient-to-br from-gray-900 to-black hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-2">
+            <div className="group p-8 rounded-xl border-2 border-blue-500/30 bg-gradient-to-br from-gray-900 to-black hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-2">
               <div className="text-center">
-                <div className="flex items-center justify-center gap-3 mb-3">
-                  <Image src="/logo/Logo-acc.png" alt="ACC-Logo" width={40} height={40} />
-                  <div className="text-5xl">📊</div>
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <Image src="/logo/Logo-acc.png" alt="ACC-Logo" width={48} height={48} />
+                  <div className="text-6xl">📊</div>
                 </div>
-                <h2 className="text-xl font-bold mb-2 text-white group-hover:text-blue-400 transition-colors">
+                <h2 className="text-2xl font-bold mb-4 text-white group-hover:text-blue-400 transition-colors">
                   {t[language].ghostAnalysis}
                 </h2>
-                <p className="text-sm text-gray-300 group-hover:text-white transition-colors">
+                <p className="text-gray-300 group-hover:text-white transition-colors">
                   {t[language].ghostAnalysisDesc}
                 </p>
               </div>
             </div>
           </Link>
+          */}
         </div>
 
         {/* 이벤트 섹션 */}
         {!loading && (
           <div className="space-y-8">
-            <div className="text-center">
-              <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                🏁 레이싱 이벤트
-              </h2>
-              <p className="text-gray-400">다양한 멀티레이스 이벤트에 참여해보세요</p>
-            </div>
+
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* 정기 멀티 */}
@@ -481,15 +472,6 @@ export default function HomePage() {
                   </div>
                 </div>
               )}
-            </div>
-
-            {/* 모든 이벤트 보기 버튼 */}
-            <div className="text-center">
-              <Link href="/multis">
-                <button className="px-8 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all shadow-lg shadow-cyan-500/25 font-semibold">
-                  🏁 모든 이벤트 보기
-                </button>
-              </Link>
             </div>
           </div>
         )}

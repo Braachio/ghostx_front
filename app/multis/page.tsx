@@ -36,65 +36,78 @@ function MultisPageContent() {
 
   if (user === undefined) {
     return (
-      <div className="bg-black min-h-screen flex items-center justify-center">
-        <p className="text-cyan-400 text-xl">👻 고스트카를 불러오는 중...</p>
+      <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="relative w-16 h-16 mx-auto mb-4">
+            <div className="absolute inset-0 border-4 border-orange-500/30 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-orange-500 rounded-full border-t-transparent animate-spin"></div>
+          </div>
+          <p className="text-gray-400 text-lg">기습 갤멀을 불러오는 중...</p>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="bg-black min-h-screen relative overflow-hidden">
-      {/* 배경 장식 요소 */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-1 h-1 bg-blue-400 rounded-full animate-pulse delay-1000"></div>
-        <div className="absolute bottom-40 left-1/4 w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse delay-500"></div>
-        <div className="absolute top-1/2 right-10 w-1 h-1 bg-pink-400 rounded-full animate-pulse delay-700"></div>
-        
-        {/* 그리드 패턴 */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="grid grid-cols-16 gap-6 h-full">
-            {Array.from({ length: 256 }).map((_, i) => (
-              <div key={i} className="border border-gray-600"></div>
-            ))}
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900">
+      <div className="max-w-7xl mx-auto p-6">
+        {/* 헤더 - 고스트카 테마 */}
+        <div className="mb-12 text-center">
+          <div className="inline-block mb-6">
+            <div className="text-7xl animate-pulse">⚡</div>
           </div>
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-orange-400 via-red-400 to-orange-400 bg-clip-text text-transparent mb-4">
+            FLASH EVENTS
+          </h1>
+          <div className="text-2xl font-semibold text-orange-400 mb-2">기습 갤멀</div>
+          <p className="text-gray-400 text-lg">
+            예고 없이 갑작스럽게 열리는 일회성 레이싱 이벤트
+          </p>
+          <div className="mt-6 h-px w-96 mx-auto bg-gradient-to-r from-transparent via-orange-500 to-transparent"></div>
         </div>
-      </div>
 
-      {/* 💡 최상위에서만 너비와 패딩 설정 */}
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-6 relative z-10">
-        {/* 상단 헤더 */}
-        <div className="flex justify-between items-center mb-8 border-b border-cyan-500 pb-4">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-              🗓️ 심레이싱게임갤러리 멀티
-            </h1>
-            <p className="text-gray-300 mt-2">다른 고스트카들과 경쟁하고 레이싱 이벤트에 참여해보세요</p>
-          </div>
-          <div className="flex gap-3">
-            {user && (
-              <Link href="/multis/new">
-                <button className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-lg hover:from-green-700 hover:to-emerald-800 transition-all shadow-lg shadow-emerald-500/25 font-semibold">
-                  ➕ 이벤트 등록
-                </button>
-              </Link>
-            )}
-            {user && (
-              <Link href="/dashboard">
-                <button className="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg shadow-purple-500/25 font-semibold">
-                  📈 대시보드
-                </button>
-              </Link>
-            )}
-            <Link href="/">
-              <button className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all shadow-lg shadow-cyan-500/25 font-semibold">
-                🏠 홈으로
+        {/* 액션 버튼 */}
+        <div className="mb-8 flex justify-center gap-3">
+          {user && (
+            <Link href="/multis/new">
+              <button className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg shadow-green-500/50 font-semibold">
+                ➕ 이벤트 등록
               </button>
             </Link>
+          )}
+          <Link href="/events">
+            <button className="px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all shadow-lg shadow-cyan-500/50 font-semibold">
+              🏁 다른 이벤트 보기
+            </button>
+          </Link>
+          <Link href="/">
+            <button className="px-6 py-3 bg-gray-800 border border-gray-700 text-white rounded-lg hover:bg-gray-700 transition-all font-semibold">
+              🏠 홈으로
+            </button>
+          </Link>
+        </div>
+
+        {/* 기습 갤멀 설명 카드 */}
+        <div className="relative mb-12">
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-600/10 to-red-600/10 rounded-2xl blur-xl"></div>
+          <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-orange-500/40 rounded-2xl p-8 backdrop-blur-sm">
+            <div className="flex items-start gap-4">
+              <div className="text-4xl">💡</div>
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent mb-3">
+                  기습 갤멀이란?
+                </h2>
+                <p className="text-gray-300 leading-relaxed">
+                  예고 없이 갑작스럽게 열리는 일회성 레이싱 이벤트입니다. 
+                  정해진 일정 없이 언제든지 새로운 이벤트가 열릴 수 있으며,
+                  다양한 게임과 트랙에서 즉흥적인 레이싱을 즐길 수 있습니다.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* 내부 콘텐츠 */}
+        {/* 이벤트 목록 */}
         <EventListPage currentUserId={user?.id ?? null} eventTypeFilter={eventTypeFilter || undefined} />
       </div>
     </div>
@@ -104,8 +117,14 @@ function MultisPageContent() {
 export default function MultisPage() {
   return (
     <Suspense fallback={
-      <div className="bg-black min-h-screen flex items-center justify-center">
-        <p className="text-cyan-400 text-xl">👻 고스트카를 불러오는 중...</p>
+      <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="relative w-16 h-16 mx-auto mb-4">
+            <div className="absolute inset-0 border-4 border-orange-500/30 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-orange-500 rounded-full border-t-transparent animate-spin"></div>
+          </div>
+          <p className="text-gray-400 text-lg">기습 갤멀을 불러오는 중...</p>
+        </div>
       </div>
     }>
       <MultisPageContent />
