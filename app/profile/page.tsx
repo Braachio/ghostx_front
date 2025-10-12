@@ -408,11 +408,17 @@ export default function ProfilePage() {
                                 <div className="font-semibold text-white">
                                   {racingGame?.displayName || game.name}
                                 </div>
-                                {racingGame && (
-                                  <div className="text-xs text-gray-500">
-                                    App ID: {game.appId}
-                                  </div>
-                                )}
+                                <div className="text-xs text-gray-500 space-y-1">
+                                  <div>App ID: {game.appId}</div>
+                                  {racingGame ? (
+                                    <div className="text-green-400">✅ 레이싱 게임 매핑됨</div>
+                                  ) : (
+                                    <div className="text-gray-600">❌ 레이싱 게임 아님</div>
+                                  )}
+                                  {!racingGame && (
+                                    <div className="text-gray-600 italic">원본: {game.name}</div>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           </td>
