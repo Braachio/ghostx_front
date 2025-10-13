@@ -56,7 +56,13 @@ export async function GET(req: NextRequest) {
       updated_at,
       year,
       week,
-      event_date
+      event_date,
+      event_type,
+      is_template_based,
+      template_id,
+      duration_hours,
+      max_participants,
+      gallery_link
     `)
 
     if (start && end) {

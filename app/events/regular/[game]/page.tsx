@@ -45,14 +45,30 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
         const response = await fetch('/api/multis')
         if (response.ok) {
           const data: MultiWithTemplate[] = await response.json()
+          console.log('전체 이벤트 데이터:', data)
+          
+          // 디버깅: event_type별로 데이터 확인
+          const eventTypes = data.reduce((acc, item) => {
+            acc[item.event_type] = (acc[item.event_type] || 0) + 1
+            return acc
+          }, {} as Record<string, number>)
+          console.log('이벤트 타입별 개수:', eventTypes)
           
           // 해당 게임의 정기 갤멀만 필터링
           const gameName = gameNames[game]
-          const regularEvents = data.filter(event => 
-            event.game === gameName && 
-            event.event_type === 'regular_schedule'
-          )
+          console.log('찾는 게임명:', gameName)
           
+          const regularEvents = data.filter(event => {
+            console.log('이벤트 확인:', {
+              game: event.game,
+              gameName,
+              event_type: event.event_type,
+              matches: event.game === gameName && event.event_type === 'regular_schedule'
+            })
+            return event.game === gameName && event.event_type === 'regular_schedule'
+          })
+          
+          console.log('필터링된 정기 이벤트:', regularEvents)
           setEvents(regularEvents)
         }
       } catch (error) {

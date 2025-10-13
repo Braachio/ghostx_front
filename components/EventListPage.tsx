@@ -60,10 +60,17 @@ export default function EventListPageSimple({ currentUserId, eventTypeFilter }: 
         // 새로운 필드들이 없을 경우 기본값 설정
         const data: MultiWithTemplate[] = rawData.map(item => ({
           ...item,
-          event_type: item.event_type || 'flash_event',
+          event_type: item.event_type || 'flash_event', // null/undefined인 경우 flash_event로 설정
           is_template_based: item.is_template_based || false,
           template_id: item.template_id || null
         }))
+        
+        // 디버깅: event_type별로 데이터 확인
+        const eventTypes = data.reduce((acc, item) => {
+          acc[item.event_type] = (acc[item.event_type] || 0) + 1
+          return acc
+        }, {} as Record<string, number>)
+        console.log('이벤트 타입별 개수:', eventTypes)
         
         if (data && data.length > 0) {
           console.log('실제 Supabase 데이터 로드 성공:', data.length, '개')
