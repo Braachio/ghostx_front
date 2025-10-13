@@ -100,7 +100,7 @@ export default function VotingPanel({ regularEventId, weekNumber, year }: Voting
       const response = await fetch('/api/multis')
       if (response.ok) {
         const events = await response.json()
-        const event = events.find((e: any) => e.id === regularEventId)
+        const event = events.find((e: { id: string; author_id: string }) => e.id === regularEventId)
         setIsEventOwner(event && user && event.author_id === user.id)
       }
     } catch (error) {
