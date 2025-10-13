@@ -29,10 +29,12 @@ CREATE INDEX IF NOT EXISTS idx_voting_schedules_processed ON voting_schedules(is
 ALTER TABLE voting_schedules ENABLE ROW LEVEL SECURITY;
 
 -- 투표 스케줄 조회 정책
+DROP POLICY IF EXISTS "Anyone can view voting schedules" ON voting_schedules;
 CREATE POLICY "Anyone can view voting schedules" ON voting_schedules
   FOR SELECT USING (true);
 
 -- 투표 스케줄 생성/수정 정책 (이벤트 작성자만)
+DROP POLICY IF EXISTS "Event creators can manage voting schedules" ON voting_schedules;
 CREATE POLICY "Event creators can manage voting schedules" ON voting_schedules
   FOR ALL USING (
     EXISTS (
