@@ -787,6 +787,7 @@ export type Database = {
           is_open: boolean | null
           is_template_based: boolean | null
           link: string | null
+          max_participants: number | null
           multi_class: string
           multi_day: string[]
           multi_race: string | null
@@ -812,6 +813,7 @@ export type Database = {
           is_open?: boolean | null
           is_template_based?: boolean | null
           link?: string | null
+          max_participants?: number | null
           multi_class: string
           multi_day: string[]
           multi_race?: string | null
@@ -837,6 +839,7 @@ export type Database = {
           is_open?: boolean | null
           is_template_based?: boolean | null
           link?: string | null
+          max_participants?: number | null
           multi_class?: string
           multi_day?: string[]
           multi_race?: string | null
