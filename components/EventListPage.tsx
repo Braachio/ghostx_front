@@ -35,11 +35,90 @@ interface EventListPageProps {
 
 export default function EventListPageSimple({ currentUserId, eventTypeFilter }: EventListPageProps) {
   const [multis, setMultis] = useState<MultiWithTemplate[]>([])
-  const [selectedGames, setSelectedGames] = useState<string[]>(allGames)
+  const [selectedGames, setSelectedGames] = useState<string[]>([])
   const [sortBy, setSortBy] = useState<'date' | 'game' | 'title'>('date')
   const [timeFilter, setTimeFilter] = useState<'upcoming' | 'all' | 'past'>('upcoming')
   const [loading, setLoading] = useState(true)
-  const [isFilterExpanded, setIsFilterExpanded] = useState(false)
+  const [isFilterExpanded, setIsFilterExpanded] = useState(true)
+
+  // 필터 설정 키 생성 (사용자별로 구분)
+  const getFilterKey = (key: string) => {
+    const userId = currentUserId || 'anonymous'
+    return `event_filter_${key}_${userId}`
+  }
+
+  // 필터 설정 로드
+  const loadFilterSettings = () => {
+    try {
+      // 게임 필터 로드
+      const savedGames = localStorage.getItem(getFilterKey('selectedGames'))
+      if (savedGames) {
+        setSelectedGames(JSON.parse(savedGames))
+      }
+
+      // 정렬 설정 로드
+      const savedSortBy = localStorage.getItem(getFilterKey('sortBy'))
+      if (savedSortBy) {
+        setSortBy(savedSortBy as 'date' | 'game' | 'title')
+      }
+
+      // 시간 필터 로드
+      const savedTimeFilter = localStorage.getItem(getFilterKey('timeFilter'))
+      if (savedTimeFilter) {
+        setTimeFilter(savedTimeFilter as 'upcoming' | 'all' | 'past')
+      }
+
+      // 필터 확장 상태 로드
+      const savedFilterExpanded = localStorage.getItem(getFilterKey('isFilterExpanded'))
+      if (savedFilterExpanded) {
+        setIsFilterExpanded(JSON.parse(savedFilterExpanded))
+      }
+    } catch (error) {
+      console.error('필터 설정 로드 실패:', error)
+    }
+  }
+
+  // 필터 설정 저장
+  const saveFilterSettings = () => {
+    try {
+      localStorage.setItem(getFilterKey('selectedGames'), JSON.stringify(selectedGames))
+      localStorage.setItem(getFilterKey('sortBy'), sortBy)
+      localStorage.setItem(getFilterKey('timeFilter'), timeFilter)
+      localStorage.setItem(getFilterKey('isFilterExpanded'), JSON.stringify(isFilterExpanded))
+    } catch (error) {
+      console.error('필터 설정 저장 실패:', error)
+    }
+  }
+
+  // 필터 초기화
+  const resetFilterSettings = () => {
+    try {
+      setSelectedGames([])
+      setSortBy('date')
+      setTimeFilter('upcoming')
+      setIsFilterExpanded(true)
+      
+      // localStorage에서도 삭제
+      localStorage.removeItem(getFilterKey('selectedGames'))
+      localStorage.removeItem(getFilterKey('sortBy'))
+      localStorage.removeItem(getFilterKey('timeFilter'))
+      localStorage.removeItem(getFilterKey('isFilterExpanded'))
+    } catch (error) {
+      console.error('필터 설정 초기화 실패:', error)
+    }
+  }
+
+  // 컴포넌트 마운트 시 필터 설정 로드
+  useEffect(() => {
+    loadFilterSettings()
+  }, [currentUserId])
+
+  // 필터 설정이 변경될 때마다 저장
+  useEffect(() => {
+    if (selectedGames.length > 0 || sortBy !== 'date' || timeFilter !== 'upcoming' || !isFilterExpanded) {
+      saveFilterSettings()
+    }
+  }, [selectedGames, sortBy, timeFilter, isFilterExpanded, currentUserId])
 
   useEffect(() => {
     const fetchMultis = async () => {
@@ -228,7 +307,12 @@ export default function EventListPageSimple({ currentUserId, eventTypeFilter }: 
         {/* 필터 섹션 */}
         <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-4">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-white">🎮 게임 필터</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-white">🎮 게임 필터</h3>
+              <span className="px-2 py-1 bg-blue-900/30 border border-blue-500/30 rounded text-xs text-blue-300">
+                개인화됨
+              </span>
+            </div>
             <button
               onClick={() => setIsFilterExpanded(!isFilterExpanded)}
               className="text-cyan-400 hover:text-cyan-300 text-sm"
@@ -238,26 +322,52 @@ export default function EventListPageSimple({ currentUserId, eventTypeFilter }: 
           </div>
           
           {isFilterExpanded && (
-            <div className="flex flex-wrap gap-2">
-              {allGames.map(game => (
+            <div className="space-y-4">
+              <div className="flex flex-wrap gap-2">
+                {allGames.map(game => (
+                  <button
+                    key={game}
+                    onClick={() => {
+                      setSelectedGames(prev => 
+                        prev.includes(game) 
+                          ? prev.filter(g => g !== game)
+                          : [...prev, game]
+                      )
+                    }}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                      selectedGames.includes(game)
+                        ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-500/25'
+                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    }`}
+                  >
+                    {game}
+                  </button>
+                ))}
+              </div>
+              
+              {/* 필터 제어 버튼들 */}
+              <div className="flex items-center justify-between pt-2 border-t border-gray-700">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setSelectedGames(allGames)}
+                    className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded text-sm transition-colors"
+                  >
+                    전체 선택
+                  </button>
+                  <button
+                    onClick={() => setSelectedGames([])}
+                    className="px-3 py-1.5 bg-gray-600 hover:bg-gray-700 text-white rounded text-sm transition-colors"
+                  >
+                    전체 해제
+                  </button>
+                </div>
                 <button
-                  key={game}
-                  onClick={() => {
-                    setSelectedGames(prev => 
-                      prev.includes(game) 
-                        ? prev.filter(g => g !== game)
-                        : [...prev, game]
-                    )
-                  }}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                    selectedGames.includes(game)
-                      ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-500/25'
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                  }`}
+                  onClick={resetFilterSettings}
+                  className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded text-sm transition-colors"
                 >
-                  {game}
+                  🔄 초기화
                 </button>
-              ))}
+              </div>
             </div>
           )}
         </div>

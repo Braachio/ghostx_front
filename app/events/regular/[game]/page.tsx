@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import EventCard from '@/components/EventCard'
-import { getDateFromWeekAndDay } from '@/app/utils/weekUtils'
+import WeeklyCalendar from '@/components/WeeklyCalendar'
 import { MultiWithTemplate } from '@/types/events'
 
 // 게임 이름 매핑
@@ -26,7 +25,6 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
   const [game, setGame] = useState<string>('')
   const [events, setEvents] = useState<MultiWithTemplate[]>([])
   const [loading, setLoading] = useState(true)
-  const [timeFilter, setTimeFilter] = useState<'upcoming' | 'all' | 'past'>('upcoming')
 
   useEffect(() => {
     const loadParams = async () => {
@@ -70,6 +68,7 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
           })
           
           console.log('필터링된 정기 이벤트:', regularEvents)
+          console.log('WeeklyCalendar에 전달할 이벤트 데이터:', regularEvents)
           setEvents(regularEvents)
         }
       } catch (error) {
@@ -83,45 +82,6 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
     fetchEvents()
   }, [game])
 
-  // 이벤트가 과거인지 미래인지 판단하는 함수
-  const isEventPast = (multi: MultiWithTemplate) => {
-    const now = new Date()
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-    
-    // event_date가 있으면 해당 날짜 사용
-    if (multi.event_date) {
-      const eventDate = new Date(multi.event_date)
-      eventDate.setHours(0, 0, 0, 0)
-      return eventDate < today
-    }
-    
-    // event_date가 없으면 주차 계산 사용
-    if (multi.year && multi.week && multi.multi_day && multi.multi_day.length > 0) {
-      const eventDate = getDateFromWeekAndDay(multi.year, multi.week, multi.multi_day[0])
-      if (eventDate) {
-        const eventDay = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate())
-        return eventDay < today
-      }
-    }
-    
-    return false
-  }
-
-  // 필터링
-  const filteredEvents = events.filter(event => {
-    if (timeFilter === 'all') return true
-    
-    const isPast = isEventPast(event)
-    
-    switch (timeFilter) {
-      case 'upcoming':
-        return !isPast
-      case 'past':
-        return isPast
-      default:
-        return true
-    }
-  })
 
   if (loading) {
     return (
@@ -156,7 +116,7 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
           </h1>
           <div className="text-2xl font-semibold text-cyan-400 mb-2">REGULAR SCHEDULE</div>
           <p className="text-gray-400 text-lg">
-            {filteredEvents.length}개의 정기 이벤트 • 매주 정해진 시간
+            {events.length}개의 정기 이벤트 • 매주 정해진 시간
           </p>
           <div className="mt-6 h-px w-96 mx-auto bg-gradient-to-r from-transparent via-blue-500 to-transparent"></div>
         </div>
@@ -175,41 +135,6 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
           </Link>
         </div>
 
-        {/* 필터 */}
-        <div className="mb-8 flex justify-center">
-          <div className="inline-flex gap-2 p-1.5 bg-gray-900/90 border border-blue-500/30 rounded-xl backdrop-blur-sm">
-            <button
-              onClick={() => setTimeFilter('upcoming')}
-              className={`px-6 py-2.5 rounded-lg font-semibold transition-all ${
-                timeFilter === 'upcoming'
-                  ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/50'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              🚀 예정된 이벤트
-            </button>
-            <button
-              onClick={() => setTimeFilter('all')}
-              className={`px-6 py-2.5 rounded-lg font-semibold transition-all ${
-                timeFilter === 'all'
-                  ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/50'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              📅 전체
-            </button>
-            <button
-              onClick={() => setTimeFilter('past')}
-              className={`px-6 py-2.5 rounded-lg font-semibold transition-all ${
-                timeFilter === 'past'
-                  ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/50'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              📜 지난 이벤트
-            </button>
-          </div>
-        </div>
 
         {/* 정기 갤멀 설명 카드 */}
         <div className="relative mb-12">
@@ -231,14 +156,20 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
           </div>
         </div>
 
-        {/* 이벤트 목록 */}
-        {filteredEvents.length > 0 ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {filteredEvents.map(event => (
-              <EventCard key={event.id} multi={event} currentUserId={null} />
-            ))}
+        {/* 주간 캘린더 */}
+        {events.length > 0 && (
+          <div className="mb-12">
+            <WeeklyCalendar 
+              events={events} 
+              gameName={gameName} 
+              gameSlug={game}
+            />
           </div>
-        ) : (
+        )}
+
+
+        {/* 이벤트가 없을 때 */}
+        {events.length === 0 && (
           <div className="text-center py-20">
             <div className="inline-block mb-6">
               <div className="text-8xl opacity-50">🏁</div>
@@ -247,10 +178,15 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
               {gameName} 정기 갤멀이 없습니다
             </h3>
             <p className="text-gray-500 text-lg">
-              {timeFilter === 'upcoming' ? '예정된 정기 갤멀이 없습니다' :
-               timeFilter === 'past' ? '지난 정기 갤멀이 없습니다' :
-               '등록된 정기 갤멀이 없습니다'}
+              아직 등록된 정기 갤멀이 없습니다. 첫 번째 이벤트를 만들어보세요!
             </p>
+            <div className="mt-8">
+              <Link href={`/events/regular/${game}/new`}>
+                <button className="px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg shadow-green-500/50 font-semibold text-lg">
+                  ➕ 첫 번째 정기 이벤트 만들기
+                </button>
+              </Link>
+            </div>
           </div>
         )}
       </div>

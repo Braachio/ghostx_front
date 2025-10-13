@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import EventCard from '@/components/EventCard'
 import VotingPanel from '@/components/VotingPanel'
 import ParticipantButton from '@/components/ParticipantButton'
 import { MultiWithTemplate } from '@/types/events'
@@ -133,11 +132,136 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* 이벤트 정보 */}
           <div className="lg:col-span-2">
-            <EventCard multi={event} currentUserId={null} />
+            <div className="bg-gradient-to-br from-gray-900/95 to-black/95 border border-blue-500/40 rounded-2xl p-8 backdrop-blur-sm">
+              {/* 정기 이벤트 헤더 */}
+              <div className="mb-6">
+                <div className="bg-blue-600 text-white px-4 py-2 rounded-lg text-center font-semibold mb-2">
+                  매주 {event.multi_day?.join(', ')}요일
+                </div>
+                <div className="bg-green-600 text-white px-4 py-2 rounded-lg text-center font-semibold flex items-center justify-center gap-2">
+                  🔄 매주 반복
+                </div>
+              </div>
+
+              {/* 이벤트 제목과 상태 */}
+              <div className="flex items-start justify-between mb-6">
+                <div>
+                  <h2 className="text-3xl font-bold text-white mb-2">{event.title}</h2>
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg text-cyan-400">🏁 {event.game}</span>
+                    <span className="px-3 py-1 bg-gray-700 text-gray-300 rounded-full text-sm">
+                      날짜 미정
+                    </span>
+                  </div>
+                </div>
+                <div className={`px-4 py-2 rounded-lg text-sm font-semibold ${
+                  event.is_open 
+                    ? 'bg-green-600 text-white' 
+                    : 'bg-gray-600 text-gray-300'
+                }`}>
+                  {event.is_open ? 'ON' : 'OFF'}
+                </div>
+              </div>
+
+              {/* 상세 정보 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div className="flex items-center gap-3 bg-gray-800/50 rounded-lg p-4">
+                  <span className="text-cyan-400 text-xl">🏁</span>
+                  <div>
+                    <span className="text-gray-400 text-sm">트랙:</span>
+                    <span className="text-white font-medium ml-2">{event.game_track}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 bg-gray-800/50 rounded-lg p-4">
+                  <span className="text-blue-400 text-xl">🚗</span>
+                  <div>
+                    <span className="text-gray-400 text-sm">클래스:</span>
+                    <span className="text-white font-medium ml-2">{event.multi_class}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 bg-gray-800/50 rounded-lg p-4">
+                  <span className="text-purple-400 text-xl">📅</span>
+                  <div>
+                    <span className="text-gray-400 text-sm">요일:</span>
+                    <span className="text-white font-medium ml-2">{event.multi_day?.join(', ')}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 bg-gray-800/50 rounded-lg p-4">
+                  <span className="text-yellow-400 text-xl">⏰</span>
+                  <div>
+                    <span className="text-gray-400 text-sm">시작 시간:</span>
+                    <span className="text-white font-medium ml-2">{event.multi_time}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 설명 */}
+              {event.description && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-white mb-2">📝 설명</h3>
+                  <p className="text-gray-300 leading-relaxed">{event.description}</p>
+                </div>
+              )}
+
+              {/* 추가 정보 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                {event.duration_hours && (
+                  <div className="flex items-center gap-3 bg-gray-800/30 rounded-lg p-3">
+                    <span className="text-orange-400">⏱️</span>
+                    <span className="text-gray-400 text-sm">지속시간:</span>
+                    <span className="text-white font-medium">{event.duration_hours}시간</span>
+                  </div>
+                )}
+                {event.max_participants && (
+                  <div className="flex items-center gap-3 bg-gray-800/30 rounded-lg p-3">
+                    <span className="text-green-400">👥</span>
+                    <span className="text-gray-400 text-sm">최대 참가자:</span>
+                    <span className="text-white font-medium">{event.max_participants}명</span>
+                  </div>
+                )}
+              </div>
+
+              {/* 액션 버튼들 */}
+              <div className="flex items-center justify-between pt-6 border-t border-gray-700">
+                <div className="flex items-center gap-2 text-sm text-gray-400">
+                  <span>📅</span>
+                  <span>{new Date(event.created_at || '').toLocaleDateString('ko-KR')}</span>
+                </div>
+                
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => window.open(`/events/regular/${game}/${eventId}/chat`, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes')}
+                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all font-medium shadow-lg shadow-purple-500/25"
+                  >
+                    💬 익명채팅
+                  </button>
+                  {event.link && (
+                    <a
+                      href={event.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all font-medium shadow-lg shadow-blue-500/25"
+                    >
+                      🔗 참가하기
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* 투표 패널 */}
-          <div className="lg:col-span-1">
+          {/* 사이드바 - 참가신청과 투표 */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* 참가신청 섹션 */}
+            <div className="bg-gray-800/30 rounded-xl p-6 border border-gray-700">
+              <h3 className="text-xl font-bold text-white mb-4">👥 참가신청</h3>
+              <p className="text-gray-400 mb-4 text-sm">
+                참가신청을 완료한 사용자만 투표할 수 있습니다.
+              </p>
+              <ParticipantButton eventId={event.id} />
+            </div>
+
+            {/* 투표 패널 */}
             <VotingPanel 
               regularEventId={event.id}
               weekNumber={undefined} // 현재 주차 자동 계산
@@ -146,14 +270,6 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
           </div>
         </div>
 
-        {/* 참가신청 섹션 */}
-        <div className="mt-8 bg-gray-800/30 rounded-xl p-6 border border-gray-700">
-          <h3 className="text-xl font-bold text-white mb-4">👥 참가신청</h3>
-          <p className="text-gray-400 mb-4">
-            Steam 로그인 후 참가신청을 완료한 사용자만 투표할 수 있습니다.
-          </p>
-          <ParticipantButton eventId={event.id} />
-        </div>
       </div>
     </div>
   )

@@ -20,66 +20,81 @@ export default function EventsPage() {
           <div className="mt-6 h-px w-96 mx-auto bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
         </div>
 
-        {/* 이벤트 타입 선택 - 네온 효과 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* 정기 멀티 */}
+        {/* 정기 멀티 - 상단 전체 폭 */}
+        <div className="mb-12">
           <div className="relative group">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-cyan-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
-            <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-blue-500/40 rounded-2xl p-8 backdrop-blur-sm hover:border-blue-400/60 transition-all duration-300 hover:scale-105">
-              <div className="text-center">
-                <div className="text-5xl mb-4">📅</div>
-                <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-3">
+            <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-blue-500/40 rounded-2xl p-8 backdrop-blur-sm hover:border-blue-400/60 transition-all duration-300">
+              <div className="text-center mb-8">
+                <div className="text-6xl mb-4">📅</div>
+                <h3 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-3">
                   정기 멀티
                 </h3>
-                <p className="text-gray-300 text-sm mb-6 leading-relaxed">
-                  매주 정해진 시간에 열리는<br />정규 레이싱 이벤트
+                <p className="text-gray-300 text-lg mb-6 leading-relaxed">
+                  매주 정해진 시간에 열리는 정규 레이싱 이벤트
                 </p>
-                <div className="inline-block mb-4 px-3 py-1 bg-blue-900/30 rounded-full border border-blue-500/30">
-                  <span className="text-blue-300 text-xs font-semibold">게임별 전용 페이지</span>
+                <div className="inline-block mb-6 px-4 py-2 bg-blue-900/30 rounded-full border border-blue-500/30">
+                  <span className="text-blue-300 text-sm font-semibold">게임별 전용 페이지</span>
                 </div>
-                
-                {/* 게임별 버튼 - 개선된 스타일 */}
-                <div className="grid grid-cols-2 gap-2">
-                  <Link 
-                    href="/events/regular/iracing" 
-                    className="relative group/btn overflow-hidden p-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-xs text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40"
-                  >
-                    <span className="relative z-10">아이레이싱</span>
-                  </Link>
-                  <Link 
-                    href="/events/regular/assettocorsa" 
-                    className="relative group/btn overflow-hidden p-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-xs text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40"
-                  >
-                    <span className="relative z-10">아세토코르사</span>
-                  </Link>
-                  <Link 
-                    href="/events/regular/gran-turismo7" 
-                    className="relative group/btn overflow-hidden p-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-xs text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40"
-                  >
-                    <span className="relative z-10">그란투리스모7</span>
-                  </Link>
-                  <Link 
-                    href="/events/regular/competizione" 
-                    className="relative group/btn overflow-hidden p-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-xs text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40"
-                  >
-                    <span className="relative z-10">컴페티치오네</span>
-                  </Link>
-                  <Link 
-                    href="/events/regular/lemans" 
-                    className="relative group/btn overflow-hidden p-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-xs text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40"
-                  >
-                    <span className="relative z-10">르망얼티밋</span>
-                  </Link>
-                  <Link 
-                    href="/events/regular/f1-25" 
-                    className="relative group/btn overflow-hidden p-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-xs text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40"
-                  >
-                    <span className="relative z-10">F1 25</span>
-                  </Link>
-                </div>
+              </div>
+              
+              {/* 게임별 버튼 - 가로 한줄 */}
+              <div className="flex flex-wrap justify-center gap-3">
+                <Link 
+                  href="/events/regular/iracing" 
+                  className="relative group/btn overflow-hidden px-6 py-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40 hover:scale-105"
+                >
+                  <span className="relative z-10">🏁 아이레이싱</span>
+                </Link>
+                <Link 
+                  href="/events/regular/assettocorsa" 
+                  className="relative group/btn overflow-hidden px-6 py-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40 hover:scale-105"
+                >
+                  <span className="relative z-10">🏎️ 아세토코르사</span>
+                </Link>
+                <Link 
+                  href="/events/regular/gran-turismo7" 
+                  className="relative group/btn overflow-hidden px-6 py-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40 hover:scale-105"
+                >
+                  <span className="relative z-10">🏆 그란투리스모7</span>
+                </Link>
+                <Link 
+                  href="/events/regular/competizione" 
+                  className="relative group/btn overflow-hidden px-6 py-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40 hover:scale-105"
+                >
+                  <span className="relative z-10">🏁 컴페티치오네</span>
+                </Link>
+                <Link 
+                  href="/events/regular/lemans" 
+                  className="relative group/btn overflow-hidden px-6 py-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40 hover:scale-105"
+                >
+                  <span className="relative z-10">🏁 르망얼티밋</span>
+                </Link>
+                <Link 
+                  href="/events/regular/f1-25" 
+                  className="relative group/btn overflow-hidden px-6 py-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40 hover:scale-105"
+                >
+                  <span className="relative z-10">🏎️ F1 25</span>
+                </Link>
+                <Link 
+                  href="/events/regular/automobilista2" 
+                  className="relative group/btn overflow-hidden px-6 py-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40 hover:scale-105"
+                >
+                  <span className="relative z-10">🏁 오토모빌리스타2</span>
+                </Link>
+                <Link 
+                  href="/events/regular/ea-wrc" 
+                  className="relative group/btn overflow-hidden px-6 py-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40 hover:scale-105"
+                >
+                  <span className="relative z-10">🏎️ EA WRC</span>
+                </Link>
               </div>
             </div>
           </div>
+        </div>
+
+        {/* 다른 이벤트 타입들 - 하단 3개 */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
           {/* 상시 서버 */}
           <Link href="/events/always-on" className="relative group">
