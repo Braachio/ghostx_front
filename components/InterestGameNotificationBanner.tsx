@@ -115,15 +115,28 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
             start_time: e.start_time
           })))
           
-          const todayRegular = eventsData.filter((event: { id: string; title: string; game: string; day_of_week: string; start_time: string; event_type: string }) => {
+          const todayRegular = eventsData.filter((event: { id: string; title: string; game: string; day_of_week?: string; multi_day?: string | string[]; start_time: string; event_type: string }) => {
             const isRegularEvent = event.event_type === 'regular_schedule'
-            const isToday = event.day_of_week === todayName
+            
+            // multi_day 필드에서 오늘 요일 확인 (정기 멀티 이벤트는 multi_day에 배열로 저장됨)
+            let isToday = false
+            if (event.multi_day) {
+              if (Array.isArray(event.multi_day)) {
+                isToday = event.multi_day.includes(todayName)
+              } else {
+                isToday = event.multi_day === todayName
+              }
+            } else if (event.day_of_week) {
+              isToday = event.day_of_week === todayName
+            }
+            
             const isInterestGame = interestGamesList.includes(event.game)
             
             console.log('🔔 Banner: 정기 이벤트 체크:', {
               title: event.title,
               game: event.game,
               day_of_week: event.day_of_week,
+              multi_day: event.multi_day,
               event_type: event.event_type,
               isRegularEvent,
               isToday,
