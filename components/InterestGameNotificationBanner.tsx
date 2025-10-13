@@ -103,7 +103,7 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
           
           console.log('🔔 Banner: 오늘 요일:', todayName)
           
-          const todayRegular = eventsData.filter((event: any) => {
+          const todayRegular = eventsData.filter((event: { id: string; title: string; game: string; day_of_week: string; start_time: string; event_type: string }) => {
             const isRegularEvent = event.event_type === 'regular_schedule'
             const isToday = event.day_of_week === todayName
             const isInterestGame = interestGamesList.includes(event.game)
