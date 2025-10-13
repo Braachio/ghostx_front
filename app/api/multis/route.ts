@@ -36,40 +36,20 @@ export async function GET(req: NextRequest) {
     const start = req.nextUrl.searchParams.get('start')
     const end = req.nextUrl.searchParams.get('end')
 
-    // 새로운 컬럼들이 없을 수 있으므로 기존 컬럼들만 선택
-    let query = supabase.from('multis').select(`
-      id,
-      title,
-      game,
-      game_track,
-      multi_class,
-      multi_day,
-      multi_time,
-      multi_race,
-      is_open,
-      description,
-      link,
-      author_id,
-      anonymous_nickname,
-      anonymous_password,
-      created_at,
-      updated_at,
-      year,
-      week,
-      event_date,
-      event_type,
-      is_template_based,
-      template_id,
-      duration_hours,
-      max_participants,
-      gallery_link
-    `)
+    // 간단한 쿼리로 시작 (모든 컬럼 선택)
+    let query = supabase.from('multis').select('*')
 
     if (start && end) {
       query = query.gte('created_at', start).lte('created_at', end)
     }
 
     const { data, error } = await query.order('created_at', { ascending: false })
+
+    console.log('GET /api/multis - 쿼리 결과:', {
+      dataLength: data?.length || 0,
+      error: error?.message || null,
+      firstItem: data?.[0] || null
+    })
 
     if (error) {
       console.error('Supabase 에러:', error)
