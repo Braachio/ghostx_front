@@ -42,10 +42,10 @@ export default function EventListPageSimple({ currentUserId, eventTypeFilter }: 
   const [isFilterExpanded, setIsFilterExpanded] = useState(true)
 
   // 필터 설정 키 생성 (사용자별로 구분)
-  const getFilterKey = (key: string) => {
+  const getFilterKey = useCallback((key: string) => {
     const userId = currentUserId || 'anonymous'
     return `event_filter_${key}_${userId}`
-  }
+  }, [currentUserId])
 
   // 필터 설정 로드
   const loadFilterSettings = useCallback(() => {
@@ -76,7 +76,7 @@ export default function EventListPageSimple({ currentUserId, eventTypeFilter }: 
     } catch (error) {
       console.error('필터 설정 로드 실패:', error)
     }
-  }, [currentUserId])
+  }, [getFilterKey])
 
   // 필터 설정 저장
   const saveFilterSettings = useCallback(() => {
@@ -88,7 +88,7 @@ export default function EventListPageSimple({ currentUserId, eventTypeFilter }: 
     } catch (error) {
       console.error('필터 설정 저장 실패:', error)
     }
-  }, [selectedGames, sortBy, timeFilter, isFilterExpanded, currentUserId])
+  }, [selectedGames, sortBy, timeFilter, isFilterExpanded, getFilterKey])
 
   // 필터 초기화
   const resetFilterSettings = () => {
@@ -111,14 +111,14 @@ export default function EventListPageSimple({ currentUserId, eventTypeFilter }: 
   // 컴포넌트 마운트 시 필터 설정 로드
   useEffect(() => {
     loadFilterSettings()
-  }, [currentUserId])
+  }, [loadFilterSettings])
 
   // 필터 설정이 변경될 때마다 저장
   useEffect(() => {
     if (selectedGames.length > 0 || sortBy !== 'date' || timeFilter !== 'upcoming' || !isFilterExpanded) {
       saveFilterSettings()
     }
-  }, [selectedGames, sortBy, timeFilter, isFilterExpanded, currentUserId])
+  }, [selectedGames, sortBy, timeFilter, isFilterExpanded, saveFilterSettings])
 
   useEffect(() => {
     const fetchMultis = async () => {

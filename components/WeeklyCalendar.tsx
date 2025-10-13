@@ -91,13 +91,13 @@ export default function WeeklyCalendar({ events, gameSlug }: WeeklyCalendarProps
   }
 
   // 날짜가 과거인지 확인
-  const isPast = (date: Date) => {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const checkDate = new Date(date)
-    checkDate.setHours(0, 0, 0, 0)
-    return checkDate < today
-  }
+  // const isPast = (date: Date) => {
+  //   const today = new Date()
+  //   today.setHours(0, 0, 0, 0)
+  //   const checkDate = new Date(date)
+  //   checkDate.setHours(0, 0, 0, 0)
+  //   return checkDate < today
+  // }
 
   const weekDates = getCurrentWeekDates()
 
