@@ -79,6 +79,7 @@ export default function VotingResultsPanel({ eventId }: VotingResultsPanelProps)
 
   useEffect(() => {
     fetchResults()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventId, currentWeek, currentYear])
 
   if (loading) {
@@ -116,8 +117,8 @@ export default function VotingResultsPanel({ eventId }: VotingResultsPanelProps)
     )
   }
 
-  const winningTrack = results.tracks[0]
-  const winningCarClass = results.carClasses[0]
+  // const winningTrack = results.tracks[0]
+  // const winningCarClass = results.carClasses[0]
 
   return (
     <div className="bg-gray-800/30 rounded-xl p-6 border border-gray-700">
