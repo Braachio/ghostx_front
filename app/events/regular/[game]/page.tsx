@@ -58,14 +58,15 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
           const gameName = gameNames[game]
           console.log('찾는 게임명:', gameName)
           
+          // 임시: 모든 정기 이벤트를 표시 (디버깅용)
           const regularEvents = data.filter(event => {
             console.log('이벤트 확인:', {
               game: event.game,
               gameName,
               event_type: event.event_type,
-              matches: event.game === gameName && event.event_type === 'regular_schedule'
+              matches: event.event_type === 'regular_schedule'
             })
-            return event.game === gameName && event.event_type === 'regular_schedule'
+            return event.event_type === 'regular_schedule'
           })
           
           console.log('필터링된 정기 이벤트:', regularEvents)

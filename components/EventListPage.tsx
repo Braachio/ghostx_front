@@ -118,7 +118,7 @@ export default function EventListPageSimple({ currentUserId, eventTypeFilter }: 
   // 필터링 및 정렬 (기습갤멀만)
   const filteredAndSorted = multis
     .filter(multi => {
-      // 기습갤멀만 표시
+      // 기습갤멀만 표시 (event_type이 flash_event이거나 null/undefined인 경우)
       if (multi.event_type !== 'flash_event' && multi.event_type !== null && multi.event_type !== undefined) {
         return false
       }
