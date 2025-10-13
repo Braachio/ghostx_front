@@ -22,55 +22,102 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
   const [dismissed, setDismissed] = useState(false)
 
   useEffect(() => {
+    console.log('🔔 Banner: useEffect 시작, userId:', userId)
+    
     if (!userId) {
+      console.log('🔔 Banner: userId가 없음, 종료')
       setLoading(false)
       return
     }
 
     const fetchData = async () => {
       try {
+        console.log('🔔 Banner: fetchData 시작')
+        
         // 관심 게임 로드
+        console.log('🔔 Banner: 관심 게임 API 호출 중...')
         const interestResponse = await fetch('/api/user/interest-games')
+        console.log('🔔 Banner: 관심 게임 응답 상태:', interestResponse.status)
+        
         if (interestResponse.ok) {
           const interestData = await interestResponse.json()
+          console.log('🔔 Banner: 관심 게임 데이터:', interestData)
           setInterestGames(interestData.games || [])
+        } else {
+          console.error('🔔 Banner: 관심 게임 로드 실패:', interestResponse.status)
         }
 
         // 최근 이벤트 로드 (관심 게임 관련)
+        console.log('🔔 Banner: 이벤트 API 호출 중...')
         const eventsResponse = await fetch('/api/multis')
+        console.log('🔔 Banner: 이벤트 응답 상태:', eventsResponse.status)
+        
         if (eventsResponse.ok) {
           const eventsData = await eventsResponse.json()
+          console.log('🔔 Banner: 전체 이벤트 수:', eventsData.length)
+          
           const now = new Date()
           const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000)
+          console.log('🔔 Banner: 24시간 전 시간:', oneDayAgo.toISOString())
           
           const recent = eventsData.filter((event: { created_at: string; game: string; event_type: string }) => {
             const eventDate = new Date(event.created_at)
-            return eventDate > oneDayAgo && 
-                   interestData.games?.includes(event.game) &&
-                   event.event_type === 'flash_event'
+            const isRecent = eventDate > oneDayAgo
+            const isInterestGame = interestData.games?.includes(event.game)
+            const isFlashEvent = event.event_type === 'flash_event'
+            
+            console.log('🔔 Banner: 이벤트 체크:', {
+              title: event.title,
+              game: event.game,
+              event_type: event.event_type,
+              created_at: event.created_at,
+              isRecent,
+              isInterestGame,
+              isFlashEvent,
+              interestGames: interestData.games
+            })
+            
+            return isRecent && isInterestGame && isFlashEvent
           }).slice(0, 3) // 최대 3개
 
+          console.log('🔔 Banner: 매칭된 최근 이벤트:', recent)
           setRecentEvents(recent)
+        } else {
+          console.error('🔔 Banner: 이벤트 로드 실패:', eventsResponse.status)
         }
       } catch (error) {
-        console.error('알림 배너 데이터 로드 실패:', error)
+        console.error('🔔 Banner: 데이터 로드 실패:', error)
       } finally {
         setLoading(false)
+        console.log('🔔 Banner: fetchData 완료')
       }
     }
 
     fetchData()
   }, [userId])
 
+  // 렌더링 조건 체크
+  console.log('🔔 Banner: 렌더링 조건 체크:', {
+    userId: !!userId,
+    interestGamesLength: interestGames.length,
+    dismissed,
+    loading,
+    recentEventsLength: recentEvents.length
+  })
+
   // 로그인하지 않았거나 관심 게임이 없으면 표시하지 않음
   if (!userId || interestGames.length === 0 || dismissed || loading) {
+    console.log('🔔 Banner: 조건 미충족으로 배너 숨김')
     return null
   }
 
   // 최근 이벤트가 없으면 표시하지 않음
   if (recentEvents.length === 0) {
+    console.log('🔔 Banner: 최근 이벤트 없음으로 배너 숨김')
     return null
   }
+
+  console.log('🔔 Banner: 배너 표시!')
 
   return (
     <div className="relative mb-8 group">
