@@ -181,6 +181,8 @@ export async function POST(req: NextRequest) {
       title: body.title,
       description: body.description,
       game: body.game,
+      game_track: 'TBD', // 투표로 결정될 예정
+      multi_class: 'TBD', // 투표로 결정될 예정
       multi_day: [body.day_of_week],
       multi_time: body.start_time,
       max_participants: body.max_participants,
