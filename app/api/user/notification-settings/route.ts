@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabaseClient'
+import { createClient } from '@/lib/supabaseClient'
 import { NextRequest, NextResponse } from 'next/server'
 
 // GET - 사용자의 알림 설정 조회
