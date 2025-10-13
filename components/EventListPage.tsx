@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import EventCard from './EventCard'
 import { getDateFromWeekAndDay } from '@/app/utils/weekUtils'
 import { MultiWithTemplate } from '@/types/events'
@@ -48,7 +48,7 @@ export default function EventListPageSimple({ currentUserId, eventTypeFilter }: 
   }
 
   // 필터 설정 로드
-  const loadFilterSettings = () => {
+  const loadFilterSettings = useCallback(() => {
     try {
       // 게임 필터 로드
       const savedGames = localStorage.getItem(getFilterKey('selectedGames'))
@@ -76,10 +76,10 @@ export default function EventListPageSimple({ currentUserId, eventTypeFilter }: 
     } catch (error) {
       console.error('필터 설정 로드 실패:', error)
     }
-  }
+  }, [currentUserId])
 
   // 필터 설정 저장
-  const saveFilterSettings = () => {
+  const saveFilterSettings = useCallback(() => {
     try {
       localStorage.setItem(getFilterKey('selectedGames'), JSON.stringify(selectedGames))
       localStorage.setItem(getFilterKey('sortBy'), sortBy)
@@ -88,7 +88,7 @@ export default function EventListPageSimple({ currentUserId, eventTypeFilter }: 
     } catch (error) {
       console.error('필터 설정 저장 실패:', error)
     }
-  }
+  }, [selectedGames, sortBy, timeFilter, isFilterExpanded, currentUserId])
 
   // 필터 초기화
   const resetFilterSettings = () => {

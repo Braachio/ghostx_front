@@ -21,7 +21,7 @@ const dayColors = [
   'text-blue-400', // 토요일
 ]
 
-export default function WeeklyCalendar({ events, gameName, gameSlug }: WeeklyCalendarProps) {
+export default function WeeklyCalendar({ events, gameSlug }: WeeklyCalendarProps) {
   // 현재 날짜 기준으로 이번 주 계산
   const getCurrentWeekDates = () => {
     const now = new Date()
@@ -125,7 +125,7 @@ export default function WeeklyCalendar({ events, gameName, gameSlug }: WeeklyCal
         {weekDates.map((date, index) => {
           const dayEvents = getEventsForDay(date)
           const today = isToday(date)
-          const past = isPast(date)
+          // const past = isPast(date)
           
           return (
             <div

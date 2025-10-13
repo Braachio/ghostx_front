@@ -16,7 +16,6 @@ export default function HomePage() {
   const [user, setUser] = useState<MeResponse | null>(null)
   const [language, setLanguage] = useState<'ko' | 'en'>('ko')
   const [views, setViews] = useState<number | null>(null)
-  const [loading, setLoading] = useState(true)
   const supabase = useSupabaseClient()
 
   // 번역 텍스트

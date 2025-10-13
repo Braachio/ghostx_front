@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { initializeGameNickname, getGameNickname, setGameNickname } from '@/lib/steamProfile'
 
@@ -54,9 +54,9 @@ export default function ChatPage({ params }: ChatPageProps) {
       const savedColor = localStorage.getItem('chat_color')
       if (savedColor) setColor(savedColor)
     }
-  }, [eventId, game])
+  }, [eventId, game, loadEventInfo, loadMessages, initializeNickname])
 
-  const initializeNickname = async () => {
+  const initializeNickname = useCallback(async () => {
     if (!game) return
     
     try {
@@ -66,7 +66,7 @@ export default function ChatPage({ params }: ChatPageProps) {
       console.error('닉네임 초기화 실패:', error)
       setNickname(`게스트_${Math.floor(Math.random() * 9999)}`)
     }
-  }
+  }, [game])
 
   // 로컬 스토리지 변경 감지 (다른 탭에서 메시지 전송 시)
   useEffect(() => {
@@ -78,14 +78,14 @@ export default function ChatPage({ params }: ChatPageProps) {
 
     window.addEventListener('storage', handleStorageChange)
     return () => window.removeEventListener('storage', handleStorageChange)
-  }, [eventId])
+  }, [eventId, loadMessages])
 
-  const loadEventInfo = async () => {
+  const loadEventInfo = useCallback(async () => {
     try {
       const response = await fetch('/api/multis')
       if (response.ok) {
         const data = await response.json()
-        const event = data.find((e: any) => e.id === eventId)
+        const event = data.find((e: { id: string }) => e.id === eventId)
         if (event) {
           setEventTitle(event.title)
           setGameDisplayName(event.game)
@@ -96,9 +96,9 @@ export default function ChatPage({ params }: ChatPageProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [eventId])
 
-  const loadMessages = () => {
+  const loadMessages = useCallback(() => {
     try {
       const savedMessages = localStorage.getItem(`chat_${eventId}`)
       if (savedMessages) {
@@ -111,7 +111,7 @@ export default function ChatPage({ params }: ChatPageProps) {
       console.error('메시지 로드 중 오류:', error)
       setMessages([])
     }
-  }
+  }, [eventId])
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault()
