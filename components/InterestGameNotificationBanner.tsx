@@ -15,9 +15,19 @@ interface InterestEvent {
   created_at: string
 }
 
+interface RegularEvent {
+  id: string
+  title: string
+  game: string
+  day_of_week: string
+  start_time: string
+  event_type: string
+}
+
 export default function InterestGameNotificationBanner({ userId }: InterestGameNotificationBannerProps) {
   const [interestGames, setInterestGames] = useState<string[]>([])
   const [recentEvents, setRecentEvents] = useState<InterestEvent[]>([])
+  const [todayRegularEvents, setTodayRegularEvents] = useState<RegularEvent[]>([])
   const [loading, setLoading] = useState(true)
   const [dismissed, setDismissed] = useState(false)
 
@@ -85,6 +95,34 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
 
           console.log('🔔 Banner: 매칭된 최근 이벤트:', recent)
           setRecentEvents(recent)
+
+          // 오늘의 정기 멀티 이벤트 찾기
+          const today = new Date().getDay() // 0=일요일, 1=월요일, ...
+          const dayNames = ['일', '월', '화', '수', '목', '금', '토']
+          const todayName = dayNames[today]
+          
+          console.log('🔔 Banner: 오늘 요일:', todayName)
+          
+          const todayRegular = eventsData.filter((event: any) => {
+            const isRegularEvent = event.event_type === 'regular_schedule'
+            const isToday = event.day_of_week === todayName
+            const isInterestGame = interestGamesList.includes(event.game)
+            
+            console.log('🔔 Banner: 정기 이벤트 체크:', {
+              title: event.title,
+              game: event.game,
+              day_of_week: event.day_of_week,
+              event_type: event.event_type,
+              isRegularEvent,
+              isToday,
+              isInterestGame
+            })
+            
+            return isRegularEvent && isToday && isInterestGame
+          })
+
+          console.log('🔔 Banner: 오늘의 정기 멀티 이벤트:', todayRegular)
+          setTodayRegularEvents(todayRegular)
         } else {
           console.error('🔔 Banner: 이벤트 로드 실패:', eventsResponse.status)
         }
@@ -105,7 +143,8 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
     interestGamesLength: interestGames.length,
     dismissed,
     loading,
-    recentEventsLength: recentEvents.length
+    recentEventsLength: recentEvents.length,
+    todayRegularEventsLength: todayRegularEvents.length
   })
 
   // 로그인하지 않았거나 관심 게임이 없으면 표시하지 않음
@@ -114,9 +153,9 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
     return null
   }
 
-  // 최근 이벤트가 없으면 표시하지 않음
-  if (recentEvents.length === 0) {
-    console.log('🔔 Banner: 최근 이벤트 없음으로 배너 숨김')
+  // 최근 이벤트나 오늘의 정기 멀티가 없으면 표시하지 않음
+  if (recentEvents.length === 0 && todayRegularEvents.length === 0) {
+    console.log('🔔 Banner: 표시할 이벤트 없음으로 배너 숨김')
     return null
   }
 
@@ -131,7 +170,12 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
             <div className="flex items-center gap-3 mb-3">
               <div className="text-2xl animate-pulse">🔔</div>
               <h3 className="text-xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
-                관심 게임 새 이벤트!
+                {recentEvents.length > 0 && todayRegularEvents.length > 0 
+                  ? '관심 게임 새 이벤트!' 
+                  : recentEvents.length > 0 
+                    ? '관심 게임 기습 갤멀!'
+                    : '관심 게임 정기 멀티!'
+                }
               </h3>
               <button
                 onClick={() => setDismissed(true)}
@@ -142,20 +186,38 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
             </div>
             
             <p className="text-gray-300 mb-4">
-              관심 게임에 새로운 기습 갤멀이 열렸습니다!
+              관심 게임에 새로운 이벤트가 있습니다!
             </p>
             
             <div className="space-y-2">
+              {/* 기습 갤멀 이벤트 */}
               {recentEvents.map(event => (
                 <div key={event.id} className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg border border-gray-700/50">
                   <div className="text-blue-400">⚡</div>
                   <div className="flex-1">
                     <div className="text-white font-medium">{event.title}</div>
-                    <div className="text-gray-400 text-sm">{event.game}</div>
+                    <div className="text-gray-400 text-sm">{event.game} • 기습 갤멀</div>
                   </div>
                   <Link
                     href={`/multis?id=${event.id}`}
                     className="px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded text-sm transition-colors"
+                  >
+                    참여하기
+                  </Link>
+                </div>
+              ))}
+              
+              {/* 오늘의 정기 멀티 이벤트 */}
+              {todayRegularEvents.map(event => (
+                <div key={event.id} className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg border border-gray-700/50">
+                  <div className="text-green-400">📅</div>
+                  <div className="flex-1">
+                    <div className="text-white font-medium">{event.title}</div>
+                    <div className="text-gray-400 text-sm">{event.game} • 정기 멀티 • {event.start_time}</div>
+                  </div>
+                  <Link
+                    href={`/events/regular/${encodeURIComponent(event.game)}/${event.id}`}
+                    className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm transition-colors"
                   >
                     참여하기
                   </Link>
