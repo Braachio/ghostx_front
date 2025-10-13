@@ -170,14 +170,95 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json()
-
   const now = new Date()
 
+  console.log('POST /api/multis - 클라이언트 데이터:', body)
+
+  // 정기 이벤트인 경우
+  if (body.event_type === 'regular_schedule') {
+    // 정기 이벤트 등록
+    const { data: eventData, error: insertError } = await supabase.from('multis').insert({
+      title: body.title,
+      description: body.description,
+      game: body.game,
+      multi_day: [body.day_of_week],
+      multi_time: body.start_time,
+      max_participants: body.max_participants,
+      duration_hours: body.duration_hours,
+      gallery_link: body.gallery_link,
+      event_type: 'regular_schedule',
+      is_template_based: false,
+      is_open: true,
+      author_id: user.id,
+      created_at: now.toISOString(),
+      // 정기 이벤트는 year, week를 null로 설정
+      year: null,
+      week: null,
+      event_date: null
+    }).select().single()
+
+    if (insertError) {
+      console.error('정기 이벤트 등록 실패:', insertError)
+      console.error('이벤트 데이터:', {
+        title: body.title,
+        game: body.game,
+        day_of_week: body.day_of_week,
+        start_time: body.start_time,
+        event_type: 'regular_schedule'
+      })
+      return NextResponse.json({ error: insertError.message }, { status: 500 })
+    }
+
+    // 투표 옵션 저장
+    if (body.voting_enabled && body.track_options && body.car_class_options) {
+      const currentYear = now.getFullYear()
+      const currentWeek = Math.ceil((((+now - +new Date(now.getFullYear(), 0, 1)) / 86400000) + new Date(now.getFullYear(), 0, 1).getDay() + 1) / 7)
+
+      // 트랙 옵션들 저장
+      const trackOptions = body.track_options.map(track => ({
+        regular_event_id: eventData.id,
+        week_number: currentWeek,
+        year: currentYear,
+        option_type: 'track',
+        option_value: track,
+        votes_count: 0
+      }))
+
+      // 차량 클래스 옵션들 저장
+      const carClassOptions = body.car_class_options.map(carClass => ({
+        regular_event_id: eventData.id,
+        week_number: currentWeek,
+        year: currentYear,
+        option_type: 'car_class',
+        option_value: carClass,
+        votes_count: 0
+      }))
+
+      const { error: optionsError } = await supabase
+        .from('regular_event_vote_options')
+        .insert([...trackOptions, ...carClassOptions])
+
+      if (optionsError) {
+        console.error('투표 옵션 저장 실패:', optionsError)
+        console.error('투표 옵션 데이터:', {
+          trackOptions: trackOptions.length,
+          carClassOptions: carClassOptions.length
+        })
+        // 투표 옵션 저장 실패해도 이벤트는 생성된 상태
+      } else {
+        console.log('투표 옵션 저장 성공:', trackOptions.length + carClassOptions.length, '개')
+      }
+    }
+
+    return NextResponse.json({ success: true, eventId: eventData.id })
+  }
+
+  // 기존 로직 (일반 이벤트)
   // 클라이언트에서 보낸 year와 week 값을 사용 (없으면 현재 값으로 fallback)
   const year = body.year || now.getFullYear()
   const week = body.week || Math.ceil((((+now - +new Date(now.getFullYear(), 0, 1)) / 86400000) + new Date(now.getFullYear(), 0, 1).getDay() + 1) / 7)
 
-  console.log('POST /api/multis - 클라이언트 데이터:', {
+  console.log('POST /api/multis - 일반 이벤트 데이터:', {
     clientYear: body.year,
     clientWeek: body.week,
     finalYear: year,

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import EventCard from '@/components/EventCard'
 import { getDateFromWeekAndDay } from '@/app/utils/weekUtils'
 import { MultiWithTemplate } from '@/types/events'
@@ -141,6 +142,20 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
             {filteredEvents.length}개의 정기 이벤트 • 매주 정해진 시간
           </p>
           <div className="mt-6 h-px w-96 mx-auto bg-gradient-to-r from-transparent via-blue-500 to-transparent"></div>
+        </div>
+
+        {/* 액션 버튼들 */}
+        <div className="flex justify-center gap-4 mb-8">
+          <Link href={`/events/regular/${game}/new`}>
+            <button className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg shadow-green-500/50 font-semibold">
+              ➕ 정기 이벤트 추가
+            </button>
+          </Link>
+          <Link href="/events">
+            <button className="px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all shadow-lg shadow-cyan-500/50 font-semibold">
+              🗓️ 다른 이벤트 보기
+            </button>
+          </Link>
         </div>
 
         {/* 필터 */}

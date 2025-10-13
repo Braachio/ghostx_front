@@ -79,6 +79,14 @@ export const RACING_GAMES: RacingGame[] = [
     platform: 'pc',
     releaseYear: 2020,
   },
+  {
+    appId: 365960,
+    name: 'rfactor2',
+    displayName: 'rFactor 2',
+    category: 'sim',
+    platform: 'pc',
+    releaseYear: 2013,
+  },
   
   // F1 시리즈
   {

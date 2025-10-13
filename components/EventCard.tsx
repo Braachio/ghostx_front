@@ -25,6 +25,29 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
       return new Date(multi.event_date)
     }
     
+    // 정기 이벤트인 경우 (year, week가 null)
+    if (!multi.year && !multi.week && multi.multi_day && multi.multi_day.length > 0) {
+      // 정기 이벤트는 다음에 올 해당 요일을 계산
+      const dayNames = ['일', '월', '화', '수', '목', '금', '토']
+      const targetDay = dayNames.indexOf(multi.multi_day[0])
+      
+      if (targetDay !== -1) {
+        const today = new Date()
+        const todayDay = today.getDay()
+        let daysUntilTarget = targetDay - todayDay
+        
+        // 오늘 이후의 해당 요일 찾기
+        if (daysUntilTarget <= 0) {
+          daysUntilTarget += 7
+        }
+        
+        const nextEventDate = new Date(today)
+        nextEventDate.setDate(today.getDate() + daysUntilTarget)
+        return nextEventDate
+      }
+    }
+    
+    // 일반 이벤트인 경우
     if (multi.year && multi.week && multi.multi_day && multi.multi_day.length > 0) {
       // 첫 번째 요일을 기준으로 날짜 계산
       return getDateFromWeekAndDay(multi.year, multi.week, multi.multi_day[0])
@@ -261,10 +284,25 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
             isToday ? 'bg-red-500 text-white' : 
             isTomorrow ? 'bg-orange-500 text-white' : 
             'bg-blue-500 text-white'}`}>
-          {isPast ? '📅 종료됨' :
-           isToday ? '🔥 오늘' : 
-           isTomorrow ? '⚡ 내일' : 
-           `${eventDate.getMonth() + 1}/${eventDate.getDate()} ${['일', '월', '화', '수', '목', '금', '토'][eventDate.getDay()]}`}
+          {multi.event_type === 'regular_schedule' ? (
+            // 정기 이벤트
+            isToday ? '🔥 오늘' : 
+            isTomorrow ? '⚡ 내일' : 
+            `매주 ${multi.multi_day && multi.multi_day[0]}요일`
+          ) : (
+            // 일반 이벤트
+            isPast ? '📅 종료됨' :
+            isToday ? '🔥 오늘' : 
+            isTomorrow ? '⚡ 내일' : 
+            `${eventDate.getMonth() + 1}/${eventDate.getDate()} ${['일', '월', '화', '수', '목', '금', '토'][eventDate.getDay()]}`
+          )}
+        </div>
+      )}
+
+      {/* 정기 이벤트 표시 */}
+      {multi.event_type === 'regular_schedule' && (
+        <div className="mb-4 px-3 py-1 bg-green-500/20 text-green-400 text-sm font-semibold rounded-full text-center border border-green-500/30">
+          🔄 매주 반복
         </div>
       )}
 
