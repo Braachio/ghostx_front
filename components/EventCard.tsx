@@ -237,6 +237,21 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
     return { label: '날짜 미정', color: 'text-gray-400 bg-gray-500/20' }
   }
 
+  // 게임 이름을 URL용으로 변환
+  const getGameSlug = (gameName: string) => {
+    const gameSlugs: Record<string, string> = {
+      '아이레이싱': 'iracing',
+      '아세토코르사': 'assettocorsa',
+      '그란투리스모7': 'gran-turismo7',
+      '오토모빌리스타2': 'automobilista2',
+      '컴페티치오네': 'competizione',
+      '르망얼티밋': 'lemans',
+      'F1 25': 'f1-25',
+      'EA WRC': 'ea-wrc'
+    }
+    return gameSlugs[gameName] || gameName.toLowerCase().replace(/\s+/g, '-')
+  }
+
   const handleCardClick = (e: React.MouseEvent) => {
     // 버튼이나 링크 클릭 시에는 카드 클릭 이벤트를 방지
     const target = e.target as HTMLElement
@@ -244,8 +259,13 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
       return
     }
     
-    // 카드 클릭 시 상세 페이지로 이동
-    router.push(`/multis/${multi.id}`)
+    // 정기 이벤트인 경우 정기 이벤트 상세 페이지로, 그 외는 일반 상세 페이지로
+    if (multi.event_type === 'regular_schedule') {
+      const gameSlug = getGameSlug(multi.game)
+      router.push(`/events/regular/${gameSlug}/${multi.id}`)
+    } else {
+      router.push(`/multis/${multi.id}`)
+    }
   }
 
   const handleKeyOpen: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
