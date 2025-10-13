@@ -182,7 +182,11 @@ export async function POST(req: NextRequest) {
       // 정기 이벤트는 year, week를 null로 설정
       year: null,
       week: null,
-      event_date: null
+      event_date: null,
+      // 자동 투표 설정
+      auto_voting_enabled: body.auto_voting_enabled || false,
+      voting_start_offset_days: body.voting_start_offset_days || 1,
+      voting_duration_days: body.voting_duration_days || 3
     }).select().single()
 
     if (insertError) {

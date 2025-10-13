@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import VotingPanel from '@/components/VotingPanel'
 import ParticipantButton from '@/components/ParticipantButton'
+import VotingResultsPanel from '@/components/VotingResultsPanel'
 import { MultiWithTemplate } from '@/types/events'
 
 // 게임 이름 매핑
@@ -319,6 +320,11 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
               weekNumber={undefined} // 현재 주차 자동 계산
               year={undefined} // 현재 연도 자동 계산
             />
+
+            {/* 투표 결과 적용 섹션 (이벤트 작성자만) */}
+            {user && event.author_id === user.id && (
+              <VotingResultsPanel eventId={event.id} />
+            )}
           </div>
         </div>
 

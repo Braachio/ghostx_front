@@ -29,6 +29,9 @@ interface RegularEventFormData {
   car_class_options: string[]
   voting_enabled: boolean
   voting_duration_days: number
+  // 자동 투표 설정
+  auto_voting_enabled: boolean
+  voting_start_offset_days: number
 }
 
 interface RegularEventPageProps {
@@ -50,7 +53,9 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
     track_options: [],
     car_class_options: [],
     voting_enabled: true,
-    voting_duration_days: 3
+    voting_duration_days: 3,
+    auto_voting_enabled: false,
+    voting_start_offset_days: 1
   })
 
   // 임시 입력값들
@@ -113,6 +118,33 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
       })
 
       if (response.ok) {
+        const result = await response.json()
+        const eventId = result.eventId
+        
+        // 자동 투표가 활성화된 경우 투표 스케줄 설정
+        if (formData.auto_voting_enabled && eventId) {
+          try {
+            const scheduleResponse = await fetch(`/api/regular-events/${eventId}/voting-schedule`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                auto_voting_enabled: formData.auto_voting_enabled,
+                voting_start_offset_days: formData.voting_start_offset_days,
+                voting_duration_days: formData.voting_duration_days,
+                weeks_ahead: 4 // 4주 앞까지 스케줄 생성
+              }),
+            })
+            
+            if (!scheduleResponse.ok) {
+              console.warn('자동 투표 스케줄 설정 실패 (이벤트는 생성됨)')
+            }
+          } catch (scheduleError) {
+            console.warn('자동 투표 스케줄 설정 중 오류 (이벤트는 생성됨):', scheduleError)
+          }
+        }
+        
         router.push(`/events/regular/${game}`)
       } else {
         const errorData = await response.json()
@@ -489,6 +521,100 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
                       <option value={24}>24시간</option>
                     </select>
                   </div>
+                </div>
+              </div>
+
+              {/* 자동 투표 설정 */}
+              <div className="border-t border-gray-700 pt-8">
+                <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                  <span>🤖</span>
+                  자동 투표 스케줄
+                </h3>
+                
+                <div className="space-y-6">
+                  <div className="flex items-center gap-4">
+                    <input
+                      type="checkbox"
+                      id="auto_voting_enabled"
+                      checked={formData.auto_voting_enabled}
+                      onChange={(e) => handleInputChange('auto_voting_enabled', e.target.checked)}
+                      className="w-5 h-5 text-blue-600 bg-gray-800 border-gray-600 rounded focus:ring-blue-500"
+                    />
+                    <label htmlFor="auto_voting_enabled" className="text-white font-medium">
+                      자동 투표 스케줄 사용
+                    </label>
+                  </div>
+                  
+                  <div className="text-sm text-gray-400 bg-gray-800/50 p-4 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <span>💡</span>
+                      <div>
+                        <p className="font-semibold text-gray-300 mb-2">자동 투표 스케줄이란?</p>
+                        <ul className="space-y-1 text-gray-400">
+                          <li>• 이벤트 시작 전 자동으로 투표가 재개됩니다</li>
+                          <li>• 설정된 기간 후 자동으로 투표가 종료됩니다</li>
+                          <li>• 매주 반복되는 정기 이벤트에 최적화된 기능입니다</li>
+                          <li>• 예: 월요일 멀티 → 화요일 00:00 투표 시작 → 목요일 23:59 투표 종료</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {formData.auto_voting_enabled && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">
+                          투표 시작 시점 (이벤트 시작 전)
+                        </label>
+                        <select
+                          value={formData.voting_start_offset_days}
+                          onChange={(e) => handleInputChange('voting_start_offset_days', parseInt(e.target.value))}
+                          className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
+                        >
+                          <option value={1}>1일 전 (00:00)</option>
+                          <option value={2}>2일 전 (00:00)</option>
+                          <option value={3}>3일 전 (00:00)</option>
+                          <option value={4}>4일 전 (00:00)</option>
+                          <option value={5}>5일 전 (00:00)</option>
+                          <option value={6}>6일 전 (00:00)</option>
+                          <option value={7}>1주 전 (00:00)</option>
+                        </select>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">
+                          투표 지속 기간
+                        </label>
+                        <select
+                          value={formData.voting_duration_days}
+                          onChange={(e) => handleInputChange('voting_duration_days', parseInt(e.target.value))}
+                          className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
+                        >
+                          <option value={1}>1일</option>
+                          <option value={2}>2일</option>
+                          <option value={3}>3일</option>
+                          <option value={4}>4일</option>
+                          <option value={5}>5일</option>
+                          <option value={6}>6일</option>
+                          <option value={7}>1주</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {formData.auto_voting_enabled && (
+                    <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-blue-400">📅</span>
+                        <span className="text-blue-300 font-semibold">투표 스케줄 예시</span>
+                      </div>
+                      <div className="text-sm text-blue-200 space-y-1">
+                        <p>• <strong>{formData.day_of_week}요일</strong> 이벤트 기준</p>
+                        <p>• 투표 시작: <strong>이벤트 {formData.voting_start_offset_days}일 전 00:00</strong></p>
+                        <p>• 투표 종료: <strong>투표 시작 후 {formData.voting_duration_days}일 후 23:59</strong></p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 

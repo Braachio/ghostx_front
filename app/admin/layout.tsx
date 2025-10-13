@@ -34,6 +34,12 @@ export default function AdminLayout({
       label: '이벤트 정리',
       icon: '🧹',
       description: '종료된 이벤트 상태 자동 정리'
+    },
+    {
+      href: '/admin/voting-schedules',
+      label: '자동 투표 스케줄',
+      icon: '🤖',
+      description: '정기 이벤트 자동 투표 관리'
     }
   ]
 

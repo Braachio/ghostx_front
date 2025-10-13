@@ -1007,6 +1007,9 @@ export type Database = {
           updated_at: string | null
           week: number | null
           year: number | null
+          auto_voting_enabled: boolean | null
+          voting_start_offset_days: number | null
+          voting_duration_days: number | null
         }
         Insert: {
           anonymous_nickname?: string | null
@@ -1033,6 +1036,9 @@ export type Database = {
           updated_at?: string | null
           week?: number | null
           year?: number | null
+          auto_voting_enabled?: boolean | null
+          voting_start_offset_days?: number | null
+          voting_duration_days?: number | null
         }
         Update: {
           anonymous_nickname?: string | null
@@ -1059,8 +1065,55 @@ export type Database = {
           updated_at?: string | null
           week?: number | null
           year?: number | null
+          auto_voting_enabled?: boolean | null
+          voting_start_offset_days?: number | null
+          voting_duration_days?: number | null
         }
         Relationships: []
+      }
+      voting_schedules: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_processed: boolean | null
+          regular_event_id: string | null
+          updated_at: string | null
+          voting_end_time: string | null
+          voting_start_time: string | null
+          week_number: number
+          year: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_processed?: boolean | null
+          regular_event_id?: string | null
+          updated_at?: string | null
+          voting_end_time?: string | null
+          voting_start_time?: string | null
+          week_number: number
+          year: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_processed?: boolean | null
+          regular_event_id?: string | null
+          updated_at?: string | null
+          voting_end_time?: string | null
+          voting_start_time?: string | null
+          week_number?: number
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voting_schedules_regular_event_id_fkey"
+            columns: ["regular_event_id"]
+            isOneToOne: false
+            referencedRelation: "multis"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       event_templates: {
         Row: {
