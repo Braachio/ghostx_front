@@ -41,7 +41,7 @@ export async function POST(
     }
 
     // 2. 이미 투표한 사용자인지 확인
-    const { data: existingVote, error: voteCheckError } = await supabase
+    const { data: existingVote } = await supabase
       .from('regular_event_votes')
       .select('id, track_option, car_class_option')
       .eq('regular_event_id', id)
@@ -170,7 +170,7 @@ export async function GET(
     }
 
     // 2. 사용자의 현재 투표 확인
-    const { data: userVote, error: voteError } = await supabase
+    const { data: userVote } = await supabase
       .from('regular_event_votes')
       .select('track_option, car_class_option')
       .eq('regular_event_id', id)
@@ -180,7 +180,7 @@ export async function GET(
       .single()
 
     // 3. 참가자 수 확인
-    const { data: participantCount, error: participantError } = await supabase
+    const { data: participantCount } = await supabase
       .from('multi_participants')
       .select('id', { count: 'exact' })
       .eq('multi_id', id)
