@@ -176,13 +176,13 @@ export async function POST(req: NextRequest) {
 
   // 정기 이벤트인 경우
   if (body.event_type === 'regular_schedule') {
-    // 정기 이벤트 등록
+    // 1. 먼저 multis 테이블에 기본 이벤트 정보 등록
     const { data: eventData, error: insertError } = await supabase.from('multis').insert({
       title: body.title,
       description: body.description,
       game: body.game,
-      game_track: 'TBD', // 투표로 결정될 예정
-      multi_class: 'TBD', // 투표로 결정될 예정
+      game_track: 'TBD', // 정기 이벤트는 주차별로 다름
+      multi_class: 'TBD', // 정기 이벤트는 주차별로 다름
       multi_day: [body.day_of_week],
       multi_time: body.start_time,
       max_participants: body.max_participants,
@@ -200,18 +200,13 @@ export async function POST(req: NextRequest) {
     }).select().single()
 
     if (insertError) {
-      console.error('정기 이벤트 등록 실패:', insertError)
-      console.error('이벤트 데이터:', {
-        title: body.title,
-        game: body.game,
-        day_of_week: body.day_of_week,
-        start_time: body.start_time,
-        event_type: 'regular_schedule'
-      })
+      console.error('정기 이벤트 기본 정보 등록 실패:', insertError)
       return NextResponse.json({ error: insertError.message }, { status: 500 })
     }
 
-    // 투표 옵션 저장
+    console.log('정기 이벤트 기본 정보 등록 성공:', eventData.id)
+
+    // 2. 투표 옵션 저장 (투표가 활성화된 경우)
     if (body.voting_enabled && body.track_options && body.car_class_options) {
       const currentYear = now.getFullYear()
       const currentWeek = Math.ceil((((+now - +new Date(now.getFullYear(), 0, 1)) / 86400000) + new Date(now.getFullYear(), 0, 1).getDay() + 1) / 7)
@@ -242,14 +237,34 @@ export async function POST(req: NextRequest) {
 
       if (optionsError) {
         console.error('투표 옵션 저장 실패:', optionsError)
-        console.error('투표 옵션 데이터:', {
-          trackOptions: trackOptions.length,
-          carClassOptions: carClassOptions.length
-        })
         // 투표 옵션 저장 실패해도 이벤트는 생성된 상태
       } else {
         console.log('투표 옵션 저장 성공:', trackOptions.length + carClassOptions.length, '개')
       }
+    }
+
+    // 3. 첫 번째 주차 스케줄 생성 (투표가 비활성화된 경우 기본값으로)
+    const currentYear = now.getFullYear()
+    const currentWeek = Math.ceil((((+now - +new Date(now.getFullYear(), 0, 1)) / 86400000) + new Date(now.getFullYear(), 0, 1).getDay() + 1) / 7)
+
+    const { error: scheduleError } = await supabase
+      .from('regular_event_schedules')
+      .insert({
+        regular_event_id: eventData.id,
+        week_number: currentWeek,
+        year: currentYear,
+        track: body.voting_enabled ? 'TBD (투표 예정)' : (body.track_options && body.track_options[0] ? body.track_options[0] : 'TBD'),
+        car_class: body.voting_enabled ? 'TBD (투표 예정)' : (body.car_class_options && body.car_class_options[0] ? body.car_class_options[0] : 'TBD'),
+        start_time: body.start_time,
+        duration_hours: body.duration_hours,
+        is_active: true
+      })
+
+    if (scheduleError) {
+      console.error('정기 이벤트 스케줄 생성 실패:', scheduleError)
+      // 스케줄 생성 실패해도 기본 이벤트는 생성된 상태
+    } else {
+      console.log('정기 이벤트 스케줄 생성 성공')
     }
 
     return NextResponse.json({ success: true, eventId: eventData.id })

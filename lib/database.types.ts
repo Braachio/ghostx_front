@@ -207,6 +207,145 @@ export type Database = {
           },
         ]
       }
+      regular_event_schedules: {
+        Row: {
+          car_class: string
+          created_at: string | null
+          duration_hours: number
+          id: string
+          is_active: boolean | null
+          regular_event_id: string | null
+          start_time: string
+          track: string
+          updated_at: string | null
+          week_number: number
+          year: number
+        }
+        Insert: {
+          car_class: string
+          created_at?: string | null
+          duration_hours: number
+          id?: string
+          is_active?: boolean | null
+          regular_event_id?: string | null
+          start_time: string
+          track: string
+          updated_at?: string | null
+          week_number: number
+          year: number
+        }
+        Update: {
+          car_class?: string
+          created_at?: string | null
+          duration_hours?: number
+          id?: string
+          is_active?: boolean | null
+          regular_event_id?: string | null
+          start_time?: string
+          track?: string
+          updated_at?: string | null
+          week_number?: number
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "regular_event_schedules_regular_event_id_fkey"
+            columns: ["regular_event_id"]
+            isOneToOne: false
+            referencedRelation: "multis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      regular_event_votes: {
+        Row: {
+          car_class_option: string
+          created_at: string | null
+          id: string
+          regular_event_id: string | null
+          track_option: string
+          voter_id: string | null
+          week_number: number
+          year: number
+        }
+        Insert: {
+          car_class_option: string
+          created_at?: string | null
+          id?: string
+          regular_event_id?: string | null
+          track_option: string
+          voter_id?: string | null
+          week_number: number
+          year: number
+        }
+        Update: {
+          car_class_option?: string
+          created_at?: string | null
+          id?: string
+          regular_event_id?: string | null
+          track_option?: string
+          voter_id?: string | null
+          week_number?: number
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "regular_event_votes_regular_event_id_fkey"
+            columns: ["regular_event_id"]
+            isOneToOne: false
+            referencedRelation: "multis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "regular_event_votes_voter_id_fkey"
+            columns: ["voter_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      regular_event_vote_options: {
+        Row: {
+          created_at: string | null
+          id: string
+          option_type: string
+          option_value: string
+          regular_event_id: string | null
+          votes_count: number | null
+          week_number: number
+          year: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          option_type: string
+          option_value: string
+          regular_event_id?: string | null
+          votes_count?: number | null
+          week_number: number
+          year: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          option_type?: string
+          option_value?: string
+          regular_event_id?: string | null
+          votes_count?: number | null
+          week_number?: number
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "regular_event_vote_options_regular_event_id_fkey"
+            columns: ["regular_event_id"]
+            isOneToOne: false
+            referencedRelation: "multis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           description: string | null
