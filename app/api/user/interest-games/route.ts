@@ -1,10 +1,11 @@
-import { createClient } from '@/lib/supabaseServerClient'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 
 // GET - 사용자의 관심 게임 목록 조회
 export async function GET() {
   try {
-    const supabase = createClient()
+    const supabase = createRouteHandlerClient({ cookies })
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
@@ -43,7 +44,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('🔐 Supabase 클라이언트 생성 중...')
-    const supabase = createClient()
+    const supabase = createRouteHandlerClient({ cookies })
     console.log('✅ Supabase 클라이언트 생성 완료')
 
     console.log('👤 사용자 인증 확인 중...')
@@ -89,7 +90,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: '게임명이 필요합니다' }, { status: 400 })
     }
 
-    const supabase = createClient()
+    const supabase = createRouteHandlerClient({ cookies })
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {

@@ -1,10 +1,11 @@
-import { createClient } from '@/lib/supabaseServerClient'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 
 // GET - 사용자의 알림 설정 조회
 export async function GET() {
   try {
-    const supabase = createClient()
+    const supabase = createRouteHandlerClient({ cookies })
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
@@ -42,7 +43,7 @@ export async function PUT(request: NextRequest) {
     const body = await request.json()
     const { flash_event_notifications, regular_event_notifications, email_notifications, push_notifications } = body
 
-    const supabase = createClient()
+    const supabase = createRouteHandlerClient({ cookies })
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {

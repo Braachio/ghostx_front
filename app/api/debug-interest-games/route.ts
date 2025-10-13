@@ -1,4 +1,5 @@
-import { createClient } from '@/lib/supabaseServerClient'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
 export async function GET() {
@@ -6,7 +7,7 @@ export async function GET() {
     console.log('🔧 Debug: 관심 게임 API 테스트 시작')
     
     // Supabase 클라이언트 생성
-    const supabase = createClient()
+    const supabase = createRouteHandlerClient({ cookies })
     console.log('✅ Supabase 클라이언트 생성 완료')
 
     // 사용자 인증 확인
