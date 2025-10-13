@@ -282,3 +282,53 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ success: true })
 }
+
+// PATCH - 이벤트 수정 (ON/OFF 토글 등)
+export async function PATCH(request: Request) {
+  try {
+    const body = await request.json()
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+
+    if (!id) {
+      return NextResponse.json({ error: '이벤트 ID가 필요합니다' }, { status: 400 })
+    }
+
+    const supabase = createClient()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 })
+    }
+
+    // 이벤트 소유자 확인
+    const { data: event, error: fetchError } = await supabase
+      .from('multis')
+      .select('user_id')
+      .eq('id', id)
+      .single()
+
+    if (fetchError || !event) {
+      return NextResponse.json({ error: '이벤트를 찾을 수 없습니다' }, { status: 404 })
+    }
+
+    if (event.user_id !== user.id) {
+      return NextResponse.json({ error: '권한이 없습니다' }, { status: 403 })
+    }
+
+    // 이벤트 업데이트
+    const { error: updateError } = await supabase
+      .from('multis')
+      .update(body)
+      .eq('id', id)
+
+    if (updateError) {
+      return NextResponse.json({ error: updateError.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('PATCH /api/multis 오류:', error)
+    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 })
+  }
+}

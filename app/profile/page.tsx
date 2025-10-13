@@ -8,6 +8,12 @@ import { findRacingGame, isRacingGame } from '@/lib/racingGames'
 import RacingStats from '@/components/RacingStats'
 import AchievementProgress from '@/components/AchievementProgress'
 
+// 게임 목록 (관심 게임 선택용)
+const availableGames = [
+  '아이레이싱', '알펙터2', '아세토코르사', '그란투리스모7', '오토모빌리스타2',
+  '컴페티치오네', '르망얼티밋', 'F1 25', 'EA WRC'
+]
+
 interface SteamProfile {
   steamId: string
   username: string
@@ -40,9 +46,20 @@ export default function ProfilePage() {
   const [error, setError] = useState<string | null>(null)
   const [profileData, setProfileData] = useState<ProfileData | null>(null)
   const [filter, setFilter] = useState<'all' | 'racing'>('racing')
+  const [interestGames, setInterestGames] = useState<string[]>([])
+  const [notificationSettings, setNotificationSettings] = useState({
+    flash_event_notifications: true,
+    regular_event_notifications: true,
+    email_notifications: false,
+    push_notifications: true
+  })
+  const [savingInterestGames, setSavingInterestGames] = useState(false)
+  const [savingNotifications, setSavingNotifications] = useState(false)
 
   useEffect(() => {
     fetchProfile()
+    fetchInterestGames()
+    fetchNotificationSettings()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -75,6 +92,83 @@ export default function ProfilePage() {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
+    }
+  }
+
+  // 관심 게임 로드
+  async function fetchInterestGames() {
+    try {
+      const response = await fetch('/api/user/interest-games')
+      if (response.ok) {
+        const data = await response.json()
+        setInterestGames(data.games || [])
+      }
+    } catch (error) {
+      console.error('관심 게임 로드 실패:', error)
+    }
+  }
+
+  // 알림 설정 로드
+  async function fetchNotificationSettings() {
+    try {
+      const response = await fetch('/api/user/notification-settings')
+      if (response.ok) {
+        const data = await response.json()
+        setNotificationSettings(data.settings || notificationSettings)
+      }
+    } catch (error) {
+      console.error('알림 설정 로드 실패:', error)
+    }
+  }
+
+  // 관심 게임 토글
+  const toggleInterestGame = async (gameName: string) => {
+    setSavingInterestGames(true)
+    try {
+      const isSelected = interestGames.includes(gameName)
+      
+      if (isSelected) {
+        // 제거
+        const response = await fetch(`/api/user/interest-games?gameName=${encodeURIComponent(gameName)}`, {
+          method: 'DELETE'
+        })
+        if (response.ok) {
+          setInterestGames(prev => prev.filter(game => game !== gameName))
+        }
+      } else {
+        // 추가
+        const response = await fetch('/api/user/interest-games', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ gameName })
+        })
+        if (response.ok) {
+          setInterestGames(prev => [...prev, gameName])
+        }
+      }
+    } catch (error) {
+      console.error('관심 게임 토글 실패:', error)
+    } finally {
+      setSavingInterestGames(false)
+    }
+  }
+
+  // 알림 설정 업데이트
+  const updateNotificationSettings = async (newSettings: typeof notificationSettings) => {
+    setSavingNotifications(true)
+    try {
+      const response = await fetch('/api/user/notification-settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newSettings)
+      })
+      if (response.ok) {
+        setNotificationSettings(newSettings)
+      }
+    } catch (error) {
+      console.error('알림 설정 업데이트 실패:', error)
+    } finally {
+      setSavingNotifications(false)
     }
   }
 
@@ -243,6 +337,125 @@ export default function ProfilePage() {
             <div className="relative bg-gray-900/90 border border-orange-500/30 rounded-xl p-6 backdrop-blur-sm">
               <div className="text-orange-400 text-sm mb-2 font-semibold">🔥 레이싱 플레이</div>
               <div className="text-3xl font-bold text-white">{formatPlaytime(totalRacingPlaytime)}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* 관심 게임 설정 */}
+        <div className="relative mb-8 group">
+          <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
+          <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-green-500/40 rounded-2xl p-8 backdrop-blur-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="text-3xl">🎯</div>
+              <h3 className="text-2xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+                관심 게임 설정
+              </h3>
+            </div>
+            <p className="text-gray-400 mb-6">
+              관심 있는 게임을 선택하면 새로운 이벤트가 열릴 때 알림을 받을 수 있습니다.
+            </p>
+            
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {availableGames.map(game => {
+                const isSelected = interestGames.includes(game)
+                return (
+                  <button
+                    key={game}
+                    onClick={() => toggleInterestGame(game)}
+                    disabled={savingInterestGames}
+                    className={`px-4 py-3 rounded-lg text-sm font-medium transition-all ${
+                      isSelected
+                        ? 'bg-green-600 text-white shadow-lg shadow-green-500/25 hover:bg-green-700'
+                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    } ${savingInterestGames ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}`}
+                  >
+                    {game}
+                  </button>
+                )
+              })}
+            </div>
+            
+            {interestGames.length > 0 && (
+              <div className="mt-4 p-3 bg-green-900/30 border border-green-500/30 rounded-lg">
+                <p className="text-green-300 text-sm">
+                  📢 선택된 게임: {interestGames.join(', ')}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 알림 설정 */}
+        <div className="relative mb-8 group">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
+          <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-blue-500/40 rounded-2xl p-8 backdrop-blur-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="text-3xl">🔔</div>
+              <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                알림 설정
+              </h3>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg border border-gray-700/50">
+                <div>
+                  <h4 className="text-white font-semibold">⚡ 기습 갤멀 알림</h4>
+                  <p className="text-gray-400 text-sm">관심 게임의 기습 갤멀이 열릴 때 알림</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={notificationSettings.flash_event_notifications}
+                    onChange={(e) => updateNotificationSettings({
+                      ...notificationSettings,
+                      flash_event_notifications: e.target.checked
+                    })}
+                    disabled={savingNotifications}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg border border-gray-700/50">
+                <div>
+                  <h4 className="text-white font-semibold">📅 정기 멀티 알림</h4>
+                  <p className="text-gray-400 text-sm">관심 게임의 정기 멀티가 시작될 때 알림</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={notificationSettings.regular_event_notifications}
+                    onChange={(e) => updateNotificationSettings({
+                      ...notificationSettings,
+                      regular_event_notifications: e.target.checked
+                    })}
+                    disabled={savingNotifications}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg border border-gray-700/50">
+                <div>
+                  <h4 className="text-white font-semibold">📧 이메일 알림</h4>
+                  <p className="text-gray-400 text-sm">이메일로 알림 받기 (추후 구현)</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={notificationSettings.email_notifications}
+                    onChange={(e) => updateNotificationSettings({
+                      ...notificationSettings,
+                      email_notifications: e.target.checked
+                    })}
+                    disabled={savingNotifications}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
             </div>
           </div>
         </div>

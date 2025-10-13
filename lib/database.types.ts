@@ -14,6 +14,25 @@ export type Profiles = {
   agreed_privacy: boolean | null  // ✅ 개인정보처리방침 동의
 }
 
+export type UserInterestGames = {
+  id: string
+  user_id: string
+  game_name: string
+  created_at: string
+  updated_at: string
+}
+
+export type UserNotificationSettings = {
+  id: string
+  user_id: string
+  flash_event_notifications: boolean
+  regular_event_notifications: boolean
+  email_notifications: boolean
+  push_notifications: boolean
+  created_at: string
+  updated_at: string
+}
+
 
 export type Database = {
   public: {
@@ -22,6 +41,16 @@ export type Database = {
         Row: Profiles
         Insert: Partial<Profiles>
         Update: Partial<Profiles>
+      }
+      user_interest_games: {
+        Row: UserInterestGames
+        Insert: Partial<UserInterestGames>
+        Update: Partial<UserInterestGames>
+      }
+      user_notification_settings: {
+        Row: UserNotificationSettings
+        Insert: Partial<UserNotificationSettings>
+        Update: Partial<UserNotificationSettings>
       }
       analysis_results: {
         Row: {

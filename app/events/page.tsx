@@ -1,8 +1,27 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import InterestGameNotificationBanner from '@/components/InterestGameNotificationBanner'
 
 export default function EventsPage() {
+  const [user, setUser] = useState<any>(null)
+
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const response = await fetch('/api/me')
+        if (response.ok) {
+          const data = await response.json()
+          setUser(data.user)
+        }
+      } catch (error) {
+        console.error('사용자 정보 확인 실패:', error)
+      }
+    }
+    checkUser()
+  }, [])
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900">
       <div className="max-w-7xl mx-auto p-6">
@@ -19,6 +38,9 @@ export default function EventsPage() {
           </p>
           <div className="mt-6 h-px w-96 mx-auto bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
         </div>
+
+        {/* 관심 게임 알림 배너 */}
+        <InterestGameNotificationBanner userId={user?.id} />
 
         {/* 정기 멀티 - 상단 전체 폭 */}
         <div className="mb-12">

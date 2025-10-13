@@ -28,6 +28,8 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
   const [event, setEvent] = useState<MultiWithTemplate | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [user, setUser] = useState<any>(null)
+  const [toggling, setToggling] = useState(false)
 
   useEffect(() => {
     const loadParams = async () => {
@@ -37,6 +39,22 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
     }
     loadParams()
   }, [params])
+
+  // 사용자 정보 로드
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const response = await fetch('/api/me')
+        if (response.ok) {
+          const data = await response.json()
+          setUser(data.user)
+        }
+      } catch (error) {
+        console.error('사용자 정보 로드 실패:', error)
+      }
+    }
+    loadUser()
+  }, [])
 
   useEffect(() => {
     if (!eventId) return
@@ -69,6 +87,34 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
 
     fetchEvent()
   }, [eventId])
+
+  // ON/OFF 토글 함수
+  const handleToggle = async () => {
+    if (!event || !user || event.user_id !== user.id) return
+
+    setToggling(true)
+    try {
+      const response = await fetch(`/api/multis?id=${eventId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          is_open: !event.is_open
+        })
+      })
+
+      if (response.ok) {
+        setEvent(prev => prev ? { ...prev, is_open: !prev.is_open } : null)
+      } else {
+        console.error('토글 업데이트 실패')
+      }
+    } catch (error) {
+      console.error('토글 업데이트 중 오류:', error)
+    } finally {
+      setToggling(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -133,15 +179,6 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
           {/* 이벤트 정보 */}
           <div className="lg:col-span-2">
             <div className="bg-gradient-to-br from-gray-900/95 to-black/95 border border-blue-500/40 rounded-2xl p-8 backdrop-blur-sm">
-              {/* 정기 이벤트 헤더 */}
-              <div className="mb-6">
-                <div className="bg-blue-600 text-white px-4 py-2 rounded-lg text-center font-semibold mb-2">
-                  매주 {event.multi_day?.join(', ')}요일
-                </div>
-                <div className="bg-green-600 text-white px-4 py-2 rounded-lg text-center font-semibold flex items-center justify-center gap-2">
-                  🔄 매주 반복
-                </div>
-              </div>
 
               {/* 이벤트 제목과 상태 */}
               <div className="flex items-start justify-between mb-6">
@@ -154,13 +191,28 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
                     </span>
                   </div>
                 </div>
-                <div className={`px-4 py-2 rounded-lg text-sm font-semibold ${
-                  event.is_open 
-                    ? 'bg-green-600 text-white' 
-                    : 'bg-gray-600 text-gray-300'
-                }`}>
-                  {event.is_open ? 'ON' : 'OFF'}
-                </div>
+                {/* ON/OFF 토글 - 작성자만 변경 가능 */}
+                {user && event.user_id === user.id ? (
+                  <button
+                    onClick={handleToggle}
+                    disabled={toggling}
+                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:scale-105 disabled:opacity-50 ${
+                      event.is_open 
+                        ? 'bg-green-600 text-white hover:bg-green-700' 
+                        : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+                    }`}
+                  >
+                    {toggling ? '변경중...' : (event.is_open ? 'ON' : 'OFF')}
+                  </button>
+                ) : (
+                  <div className={`px-4 py-2 rounded-lg text-sm font-semibold ${
+                    event.is_open 
+                      ? 'bg-green-600 text-white' 
+                      : 'bg-gray-600 text-gray-300'
+                  }`}>
+                    {event.is_open ? 'ON' : 'OFF'}
+                  </div>
+                )}
               </div>
 
               {/* 상세 정보 */}

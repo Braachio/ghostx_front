@@ -83,10 +83,8 @@ export default function HomePage() {
           setUser(null)
         }
 
-        setLoading(false)
       } catch (err) {
         console.error('데이터 로드 실패:', err)
-        setLoading(false)
       }
     }
 
