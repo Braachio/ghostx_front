@@ -27,14 +27,22 @@ export async function POST(
     const currentWeek = week_number || Math.ceil((((+new Date() - +new Date(new Date().getFullYear(), 0, 1)) / 86400000) + new Date(new Date().getFullYear(), 0, 1).getDay() + 1) / 7)
 
     // 1. 해당 정기 이벤트에 참가신청한 사용자인지 확인
+    console.log('투표 권한 확인:', { regularEventId: id, userId: user.id })
+    
     const { data: participant, error: participantError } = await supabase
       .from('multi_participants')
-      .select('id')
+      .select('id, multi_id, user_id')
       .eq('multi_id', id)
       .eq('user_id', user.id)
       .single()
 
+    console.log('참가자 확인 결과:', { participant, participantError })
+
     if (participantError || !participant) {
+      console.log('투표 권한 없음:', { 
+        hasParticipant: !!participant, 
+        error: participantError?.message 
+      })
       return NextResponse.json({ 
         error: '해당 이벤트에 참가신청한 사용자만 투표할 수 있습니다.' 
       }, { status: 403 })

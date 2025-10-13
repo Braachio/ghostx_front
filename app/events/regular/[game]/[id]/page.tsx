@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import EventCard from '@/components/EventCard'
 import VotingPanel from '@/components/VotingPanel'
+import ParticipantButton from '@/components/ParticipantButton'
 import { MultiWithTemplate } from '@/types/events'
 
 // 게임 이름 매핑
@@ -145,12 +146,13 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
           </div>
         </div>
 
-        {/* 참가자 정보 */}
+        {/* 참가신청 섹션 */}
         <div className="mt-8 bg-gray-800/30 rounded-xl p-6 border border-gray-700">
-          <h3 className="text-xl font-bold text-white mb-4">👥 참가자 정보</h3>
-          <p className="text-gray-400">
+          <h3 className="text-xl font-bold text-white mb-4">👥 참가신청</h3>
+          <p className="text-gray-400 mb-4">
             Steam 로그인 후 참가신청을 완료한 사용자만 투표할 수 있습니다.
           </p>
+          <ParticipantButton eventId={event.id} />
         </div>
       </div>
     </div>
