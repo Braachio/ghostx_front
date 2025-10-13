@@ -778,6 +778,7 @@ export type Database = {
           author_id: string | null
           created_at: string | null
           description: string | null
+          duration_hours: number | null
           event_date: string | null
           event_type: string
           game: string
@@ -802,6 +803,7 @@ export type Database = {
           author_id?: string | null
           created_at?: string | null
           description?: string | null
+          duration_hours?: number | null
           event_date?: string | null
           event_type?: string | null
           game: string
@@ -826,6 +828,7 @@ export type Database = {
           author_id?: string | null
           created_at?: string | null
           description?: string | null
+          duration_hours?: number | null
           event_date?: string | null
           event_type?: string | null
           game?: string
