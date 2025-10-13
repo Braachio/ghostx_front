@@ -102,6 +102,18 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
           const todayName = dayNames[today]
           
           console.log('🔔 Banner: 오늘 요일:', todayName)
+          console.log('🔔 Banner: 관심 게임 목록:', interestGamesList)
+          
+          // 정기 멀티 이벤트만 먼저 필터링
+          const regularEvents = eventsData.filter((event: any) => event.event_type === 'regular_schedule')
+          console.log('🔔 Banner: 모든 정기 멀티 이벤트:', regularEvents.map(e => ({
+            title: e.title,
+            game: e.game,
+            day_of_week: e.day_of_week,
+            event_type: e.event_type,
+            multi_day: e.multi_day,
+            start_time: e.start_time
+          })))
           
           const todayRegular = eventsData.filter((event: { id: string; title: string; game: string; day_of_week: string; start_time: string; event_type: string }) => {
             const isRegularEvent = event.event_type === 'regular_schedule'
