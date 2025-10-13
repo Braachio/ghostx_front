@@ -43,7 +43,7 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
           const now = new Date()
           const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000)
           
-          const recent = eventsData.filter((event: any) => {
+          const recent = eventsData.filter((event: { created_at: string; game: string; event_type: string }) => {
             const eventDate = new Date(event.created_at)
             return eventDate > oneDayAgo && 
                    interestData.games?.includes(event.game) &&

@@ -28,7 +28,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
   const [event, setEvent] = useState<MultiWithTemplate | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<{ id: string } | null>(null)
   const [toggling, setToggling] = useState(false)
 
   useEffect(() => {

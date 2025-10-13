@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import InterestGameNotificationBanner from '@/components/InterestGameNotificationBanner'
 
 export default function EventsPage() {
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<{ id: string } | null>(null)
 
   useEffect(() => {
     const checkUser = async () => {
