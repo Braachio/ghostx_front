@@ -54,7 +54,8 @@ export default function ChatPage({ params }: ChatPageProps) {
       const savedColor = localStorage.getItem('chat_color')
       if (savedColor) setColor(savedColor)
     }
-  }, [eventId, game, loadEventInfo, loadMessages, initializeNickname])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [eventId, game])
 
   const initializeNickname = useCallback(async () => {
     if (!game) return
@@ -78,7 +79,8 @@ export default function ChatPage({ params }: ChatPageProps) {
 
     window.addEventListener('storage', handleStorageChange)
     return () => window.removeEventListener('storage', handleStorageChange)
-  }, [eventId, loadMessages])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [eventId])
 
   const loadEventInfo = useCallback(async () => {
     try {
