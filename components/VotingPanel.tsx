@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useUser } from '@/hooks/useUser'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import type { User } from '@supabase/supabase-js'
 
 interface VoteOption {
   option_type: string
@@ -32,7 +33,7 @@ interface VoteData {
 }
 
 export default function VotingPanel({ regularEventId, weekNumber, year }: VotingPanelProps) {
-  const { user } = useUser()
+  const [user, setUser] = useState<User | null>(null)
   const [voteData, setVoteData] = useState<VoteData | null>(null)
   const [loading, setLoading] = useState(true)
   const [voting, setVoting] = useState(false)
@@ -41,8 +42,21 @@ export default function VotingPanel({ regularEventId, weekNumber, year }: Voting
   const [error, setError] = useState('')
 
   useEffect(() => {
+    // 사용자 인증 상태 확인
+    const checkUser = async () => {
+      const supabase = createClientComponentClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+    }
+    
+    checkUser()
+  }, [])
+
+  useEffect(() => {
     if (user) {
       fetchVoteData()
+    } else {
+      setLoading(false)
     }
   }, [user, regularEventId, weekNumber, year])
 
