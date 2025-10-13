@@ -58,7 +58,22 @@ export async function POST(
       .eq('year', currentYear)
       .single()
 
-    // 3. 투표 옵션이 유효한지 확인
+    // 3. 투표가 종료되었는지 확인
+    const { data: votingStatus, error: votingStatusError } = await supabase
+      .from('regular_event_vote_options')
+      .select('voting_closed')
+      .eq('regular_event_id', id)
+      .eq('week_number', currentWeek)
+      .eq('year', currentYear)
+      .limit(1)
+
+    if (!votingStatusError && votingStatus && votingStatus.length > 0 && votingStatus[0].voting_closed) {
+      return NextResponse.json({ 
+        error: '투표가 종료되어 더 이상 투표할 수 없습니다.' 
+      }, { status: 403 })
+    }
+
+    // 4. 투표 옵션이 유효한지 확인
     const { data: trackOption, error: trackError } = await supabase
       .from('regular_event_vote_options')
       .select('id')
@@ -193,6 +208,15 @@ export async function GET(
       .select('id', { count: 'exact' })
       .eq('multi_id', id)
 
+    // 투표 종료 상태 확인
+    const { data: votingStatus } = await supabase
+      .from('regular_event_vote_options')
+      .select('voting_closed')
+      .eq('regular_event_id', id)
+      .eq('week_number', currentWeek)
+      .eq('year', currentYear)
+      .limit(1)
+
     // 옵션들을 타입별로 그룹화
     const trackOptions = voteOptions?.filter(option => option.option_type === 'track') || []
     const carClassOptions = voteOptions?.filter(option => option.option_type === 'car_class') || []
@@ -205,6 +229,7 @@ export async function GET(
       },
       userVote: userVote || null,
       participantCount: participantCount?.length || 0,
+      votingClosed: votingStatus && votingStatus.length > 0 ? votingStatus[0].voting_closed : false,
       weekInfo: {
         week: currentWeek,
         year: currentYear

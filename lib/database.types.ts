@@ -381,6 +381,7 @@ export type Database = {
           option_value: string
           regular_event_id: string | null
           votes_count: number | null
+          voting_closed: boolean | null
           week_number: number
           year: number
         }
@@ -391,6 +392,7 @@ export type Database = {
           option_value: string
           regular_event_id?: string | null
           votes_count?: number | null
+          voting_closed?: boolean | null
           week_number: number
           year: number
         }
@@ -401,6 +403,7 @@ export type Database = {
           option_value?: string
           regular_event_id?: string | null
           votes_count?: number | null
+          voting_closed?: boolean | null
           week_number?: number
           year?: number
         }
