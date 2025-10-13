@@ -207,6 +207,45 @@ export type Database = {
           },
         ]
       }
+      multi_participants: {
+        Row: {
+          created_at: string | null
+          id: string
+          joined_at: string | null
+          multi_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          joined_at?: string | null
+          multi_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          joined_at?: string | null
+          multi_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "multi_participants_multi_id_fkey"
+            columns: ["multi_id"]
+            isOneToOne: false
+            referencedRelation: "multis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "multi_participants_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       regular_event_schedules: {
         Row: {
           car_class: string
