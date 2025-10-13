@@ -39,10 +39,13 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
         const interestResponse = await fetch('/api/user/interest-games')
         console.log('🔔 Banner: 관심 게임 응답 상태:', interestResponse.status)
         
+        let interestGamesList: string[] = []
+        
         if (interestResponse.ok) {
           const interestData = await interestResponse.json()
           console.log('🔔 Banner: 관심 게임 데이터:', interestData)
-          setInterestGames(interestData.games || [])
+          interestGamesList = interestData.games || []
+          setInterestGames(interestGamesList)
         } else {
           console.error('🔔 Banner: 관심 게임 로드 실패:', interestResponse.status)
         }
@@ -63,7 +66,7 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
           const recent = eventsData.filter((event: { created_at: string; game: string; event_type: string }) => {
             const eventDate = new Date(event.created_at)
             const isRecent = eventDate > oneDayAgo
-            const isInterestGame = interestData.games?.includes(event.game)
+            const isInterestGame = interestGamesList.includes(event.game)
             const isFlashEvent = event.event_type === 'flash_event'
             
             console.log('🔔 Banner: 이벤트 체크:', {
@@ -74,7 +77,7 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
               isRecent,
               isInterestGame,
               isFlashEvent,
-              interestGames: interestData.games
+              interestGames: interestGamesList
             })
             
             return isRecent && isInterestGame && isFlashEvent
