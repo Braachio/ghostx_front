@@ -123,33 +123,51 @@ export default function ProfilePage() {
 
   // 관심 게임 토글
   const toggleInterestGame = async (gameName: string) => {
+    console.log('🎮 관심 게임 토글 시작:', gameName)
     setSavingInterestGames(true)
     try {
       const isSelected = interestGames.includes(gameName)
+      console.log('현재 선택 상태:', isSelected)
       
       if (isSelected) {
         // 제거
+        console.log('관심 게임 제거 요청...')
         const response = await fetch(`/api/user/interest-games?gameName=${encodeURIComponent(gameName)}`, {
           method: 'DELETE'
         })
+        console.log('제거 응답:', response.status, response.ok)
         if (response.ok) {
           setInterestGames(prev => prev.filter(game => game !== gameName))
+          console.log('✅ 관심 게임 제거 완료')
+        } else {
+          const errorData = await response.json()
+          console.error('❌ 제거 실패:', errorData)
+          alert(`제거 실패: ${errorData.error || '알 수 없는 오류'}`)
         }
       } else {
         // 추가
+        console.log('관심 게임 추가 요청...')
         const response = await fetch('/api/user/interest-games', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ gameName })
         })
+        console.log('추가 응답:', response.status, response.ok)
         if (response.ok) {
           setInterestGames(prev => [...prev, gameName])
+          console.log('✅ 관심 게임 추가 완료')
+        } else {
+          const errorData = await response.json()
+          console.error('❌ 추가 실패:', errorData)
+          alert(`추가 실패: ${errorData.error || '알 수 없는 오류'}`)
         }
       }
     } catch (error) {
-      console.error('관심 게임 토글 실패:', error)
+      console.error('❌ 관심 게임 토글 실패:', error)
+      alert(`오류가 발생했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`)
     } finally {
       setSavingInterestGames(false)
+      console.log('토글 작업 완료')
     }
   }
 
