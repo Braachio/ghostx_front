@@ -5,6 +5,8 @@ import Link from 'next/link'
 import VotingPanel from '@/components/VotingPanel'
 import ParticipantButton from '@/components/ParticipantButton'
 import VotingResultsPanel from '@/components/VotingResultsPanel'
+import EventInfoEditor from '@/components/EventInfoEditor'
+import VoteOptionsManager from '@/components/VoteOptionsManager'
 import { MultiWithTemplate } from '@/types/events'
 
 // 게임 이름 매핑
@@ -115,6 +117,11 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
     } finally {
       setToggling(false)
     }
+  }
+
+  // 이벤트 정보 업데이트 핸들러
+  const handleEventUpdate = (updatedEvent: any) => {
+    setEvent(prev => prev ? { ...prev, ...updatedEvent } : null)
   }
 
   if (loading) {
@@ -324,6 +331,23 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
             {/* 투표 결과 적용 섹션 (이벤트 작성자만) */}
             {user && event.author_id === user.id && (
               <VotingResultsPanel eventId={event.id} />
+            )}
+
+            {/* 관리자 섹션 (이벤트 작성자만) */}
+            {user && event.author_id === user.id && (
+              <div className="space-y-6">
+                <EventInfoEditor 
+                  event={event} 
+                  isAuthor={true} 
+                  onUpdate={handleEventUpdate}
+                />
+                <VoteOptionsManager 
+                  eventId={event.id}
+                  weekNumber={undefined}
+                  year={undefined}
+                  isAuthor={true}
+                />
+              </div>
             )}
           </div>
         </div>
