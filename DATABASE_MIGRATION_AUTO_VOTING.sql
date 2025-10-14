@@ -101,7 +101,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 투표 결과를 이벤트에 적용하는 함수
+-- 투표 결과를 정기 이벤트에 적용하는 함수
 CREATE OR REPLACE FUNCTION apply_voting_results_to_event(
   p_regular_event_id UUID,
   p_week_number INTEGER,
@@ -134,71 +134,15 @@ BEGIN
   ORDER BY votes_count DESC, created_at ASC
   LIMIT 1;
   
-  -- 투표 결과가 있는 경우에만 이벤트 정보 업데이트
+  -- 투표 결과가 있는 경우에만 정기 이벤트 정보 업데이트
   IF winning_track IS NOT NULL AND winning_car_class IS NOT NULL THEN
-    -- multis 테이블에서 해당 주차의 이벤트 정보 업데이트
-    -- 정기 이벤트의 경우, 해당 주차에 대한 임시 이벤트 생성 또는 업데이트
-    INSERT INTO multis (
-      title,
-      description,
-      game,
-      game_track,
-      multi_class,
-      multi_day,
-      multi_time,
-      max_participants,
-      duration_hours,
-      gallery_link,
-      event_type,
-      is_template_based,
-      is_open,
-      author_id,
-      week,
-      year,
-      event_date,
-      auto_voting_enabled,
-      voting_start_offset_days,
-      voting_duration_days
-    )
-    SELECT 
-      m.title || ' (' || p_year || '년 ' || p_week_number || '주차)',
-      m.description,
-      m.game,
-      winning_track,
-      winning_car_class,
-      m.multi_day,
-      m.multi_time,
-      m.max_participants,
-      m.duration_hours,
-      m.gallery_link,
-      'flash_event', -- 투표 결과가 적용된 이벤트는 플래시 이벤트로 분류
-      false,
-      true,
-      m.author_id,
-      p_week_number,
-      p_year,
-      -- 해당 주차의 해당 요일 날짜 계산
-      date_trunc('week', make_date(p_year, 1, 1) + (p_week_number - 1) * interval '7 days')::date + 
-      CASE m.multi_day[1]
-        WHEN '일' THEN 0
-        WHEN '월' THEN 1
-        WHEN '화' THEN 2
-        WHEN '수' THEN 3
-        WHEN '목' THEN 4
-        WHEN '금' THEN 5
-        WHEN '토' THEN 6
-        ELSE 1
-      END,
-      false, -- 투표 결과 이벤트는 자동 투표 비활성화
-      NULL,
-      NULL
-    FROM multis m
-    WHERE m.id = p_regular_event_id
-    ON CONFLICT (title, week, year, event_type) 
-    DO UPDATE SET
-      game_track = EXCLUDED.game_track,
-      multi_class = EXCLUDED.multi_class,
-      updated_at = NOW();
+    -- 정기 이벤트의 game_track과 multi_class를 투표 결과로 업데이트
+    UPDATE multis 
+    SET 
+      game_track = winning_track,
+      multi_class = winning_car_class,
+      updated_at = NOW()
+    WHERE id = p_regular_event_id;
     
     RETURN true;
   ELSE
@@ -208,6 +152,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 자동 투표 처리 함수 (크론잡에서 호출)
+DROP FUNCTION IF EXISTS process_voting_schedules();
 CREATE OR REPLACE FUNCTION process_voting_schedules()
 RETURNS TABLE(processed_count INTEGER, opened_count INTEGER, closed_count INTEGER, applied_results INTEGER) AS $$
 DECLARE

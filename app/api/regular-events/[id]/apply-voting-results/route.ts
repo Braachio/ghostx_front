@@ -77,65 +77,22 @@ export async function POST(
     const trackVotes = trackResults[0].votes_count
     const carClassVotes = carClassResults[0].votes_count
 
-    // 3. 투표 결과를 이벤트에 직접 적용 (데이터베이스 함수 대신 직접 처리)
+    // 3. 정기 이벤트에 투표 결과 적용 (TBD를 실제 값으로 업데이트)
     try {
-      // 기존 정기 이벤트 정보 조회
-      const { data: originalEvent, error: originalEventError } = await supabase
+      // 정기 이벤트의 game_track과 multi_class를 투표 결과로 업데이트
+      const { data: updatedEvent, error: updateError } = await supabase
         .from('multis')
-        .select('*')
-        .eq('id', id)
-        .single()
-
-      if (originalEventError || !originalEvent) {
-        console.error('원본 이벤트 조회 실패:', originalEventError)
-        return NextResponse.json({ error: '원본 이벤트를 찾을 수 없습니다.' }, { status: 404 })
-      }
-
-      // 해당 주차의 요일 날짜 계산
-      const dayMapping: { [key: string]: number } = {
-        '일': 0, '월': 1, '화': 2, '수': 3, '목': 4, '금': 5, '토': 6
-      }
-      
-      const dayName = originalEvent.multi_day?.[0] || '월'
-      const dayNumber = dayMapping[dayName] || 1
-      
-      // 해당 주차의 해당 요일 날짜 계산
-      const eventDate = new Date(year, 0, 1)
-      const firstDayOfYear = new Date(eventDate.getFullYear(), 0, 1)
-      const daysToFirstMonday = (8 - firstDayOfYear.getDay()) % 7
-      const firstMonday = new Date(firstDayOfYear.getTime() + daysToFirstMonday * 24 * 60 * 60 * 1000)
-      const targetDate = new Date(firstMonday.getTime() + (week_number - 1) * 7 * 24 * 60 * 60 * 1000 + dayNumber * 24 * 60 * 60 * 1000)
-
-      // 투표 결과가 적용된 이벤트 생성
-      const { data: newEvent, error: insertError } = await supabase
-        .from('multis')
-        .insert({
-          title: `${originalEvent.title} (${year}년 ${week_number}주차)`,
-          description: originalEvent.description,
-          game: originalEvent.game,
+        .update({
           game_track: winningTrack,
           multi_class: winningCarClass,
-          multi_day: originalEvent.multi_day,
-          multi_time: originalEvent.multi_time,
-          max_participants: originalEvent.max_participants,
-          duration_hours: originalEvent.duration_hours,
-          gallery_link: originalEvent.gallery_link,
-          event_type: 'flash_event',
-          is_template_based: false,
-          is_open: true,
-          author_id: originalEvent.author_id,
-          week: week_number,
-          year: year,
-          event_date: targetDate.toISOString().split('T')[0],
-          auto_voting_enabled: false,
-          voting_start_offset_days: null,
-          voting_duration_days: null
+          updated_at: new Date().toISOString()
         })
+        .eq('id', id)
         .select()
         .single()
 
-      if (insertError) {
-        console.error('투표 결과 이벤트 생성 실패:', insertError)
+      if (updateError) {
+        console.error('투표 결과 적용 실패:', updateError)
         return NextResponse.json({ error: '투표 결과 적용에 실패했습니다.' }, { status: 500 })
       }
 
@@ -145,7 +102,7 @@ export async function POST(
         year,
         winningTrack,
         winningCarClass,
-        newEventId: newEvent?.id
+        updatedEvent: updatedEvent?.title
       })
 
     } catch (applyError) {

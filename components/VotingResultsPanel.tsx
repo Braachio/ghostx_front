@@ -196,7 +196,7 @@ export default function VotingResultsPanel({ eventId }: VotingResultsPanelProps)
             {applying ? '적용 중...' : '🏆 투표 결과를 이벤트에 적용하기'}
           </button>
           <p className="text-xs text-gray-500 mt-2 text-center">
-            승리한 트랙과 차량 클래스가 TBD 부분에 자동으로 입력됩니다
+            승리한 트랙과 차량 클래스가 정기 이벤트의 TBD 부분에 자동으로 입력됩니다
           </p>
         </div>
       </div>
