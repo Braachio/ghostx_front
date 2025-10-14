@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import type { User } from '@supabase/supabase-js'
 
@@ -21,32 +21,25 @@ export default function ParticipantButton({ eventId }: ParticipantButtonProps) {
       setUser(user)
       
       if (user) {
-        await checkParticipation(user.id)
-      } else {
-        setLoading(false)
+        try {
+          const { data, error } = await supabase
+            .from('multi_participants')
+            .select('id')
+            .eq('multi_id', eventId)
+            .eq('user_id', user.id)
+            .single()
+
+          setIsParticipant(!!data && !error)
+        } catch (error) {
+          console.error('참가 상태 확인 실패:', error)
+          setIsParticipant(false)
+        }
       }
+      
+      setLoading(false)
     }
     
     checkUser()
-  }, [eventId, checkParticipation])
-
-  const checkParticipation = useCallback(async (userId: string) => {
-    try {
-      const supabase = createClientComponentClient()
-      const { data, error } = await supabase
-        .from('multi_participants')
-        .select('id')
-        .eq('multi_id', eventId)
-        .eq('user_id', userId)
-        .single()
-
-      setIsParticipant(!!data && !error)
-    } catch (error) {
-      console.error('참가 상태 확인 실패:', error)
-      setIsParticipant(false)
-    } finally {
-      setLoading(false)
-    }
   }, [eventId])
 
   const handleJoin = async () => {

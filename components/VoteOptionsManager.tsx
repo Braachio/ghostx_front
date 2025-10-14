@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 
 interface VoteOption {
   id: string
@@ -36,28 +36,28 @@ export default function VoteOptionsManager({
   const currentYear = year || new Date().getFullYear()
 
   useEffect(() => {
+    const fetchVoteOptions = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch(`/api/regular-events/${eventId}/vote-options`)
+        if (response.ok) {
+          const data = await response.json()
+          setVoteOptions(data.voteOptions || [])
+        } else {
+          throw new Error('투표 후보를 불러올 수 없습니다.')
+        }
+      } catch (err) {
+        console.error('Failed to fetch vote options:', err)
+        setError('투표 후보를 불러오는 데 실패했습니다.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
     if (isAuthor) {
       fetchVoteOptions()
     }
-  }, [eventId, isAuthor, fetchVoteOptions])
-
-  const fetchVoteOptions = useCallback(async () => {
-    try {
-      setLoading(true)
-      const response = await fetch(`/api/regular-events/${eventId}/vote-options`)
-      if (response.ok) {
-        const data = await response.json()
-        setVoteOptions(data.voteOptions || [])
-      } else {
-        throw new Error('투표 후보를 불러올 수 없습니다.')
-      }
-    } catch (err) {
-      console.error('Failed to fetch vote options:', err)
-      setError('투표 후보를 불러오는 데 실패했습니다.')
-    } finally {
-      setLoading(false)
-    }
-  }, [eventId])
+  }, [eventId, isAuthor])
 
   const addVoteOption = async () => {
     if (!newOptionValue.trim()) return
