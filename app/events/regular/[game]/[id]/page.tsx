@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-// import VotingPanel from '@/components/VotingPanel'
-// import ParticipantButton from '@/components/ParticipantButton'
+import VotingPanel from '@/components/VotingPanel'
+import ParticipantButton from '@/components/ParticipantButton'
 import { MultiWithTemplate } from '@/types/events'
 
 // Temporarily disabled problematic components
@@ -332,18 +332,16 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
               <p className="text-gray-400 mb-4 text-sm">
                 참가신청을 완료한 사용자만 투표할 수 있습니다.
               </p>
-              {/* ParticipantButton - 임시 비활성화 */}
-              <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
-                <p className="text-gray-400 text-sm">참가 기능이 임시로 비활성화되었습니다.</p>
-              </div>
+              <ParticipantButton eventId={event.id} />
             </div>
 
             {/* 투표 패널 */}
-            {/* 투표 섹션 - 임시 비활성화 */}
-            <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
-              <h3 className="text-xl font-bold text-white mb-4">🗳️ 투표</h3>
-              <p className="text-gray-400">투표 기능이 임시로 비활성화되었습니다.</p>
-            </div>
+            {/* 투표 섹션 */}
+            <VotingPanel 
+              regularEventId={event.id}
+              weekNumber={undefined} // 현재 주차 자동 계산
+              year={undefined} // 현재 연도 자동 계산
+            />
 
             {/* 투표 결과 적용 섹션 (이벤트 작성자만) - 임시 비활성화 */}
             {user && event.author_id === user.id && componentsLoaded && (
