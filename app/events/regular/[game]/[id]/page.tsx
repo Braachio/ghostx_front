@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-// import VotingPanel from '@/components/VotingPanel'
-// import ParticipantButton from '@/components/ParticipantButton'
+import VotingPanel from '@/components/VotingPanel'
+import ParticipantButton from '@/components/ParticipantButton'
 import { MultiWithTemplate } from '@/types/events'
 
-// Test EventInfoEditor instead
+// Test VoteOptionsManager instead
 // import VotingResultsPanel from '@/components/VotingResultsPanel'
-import EventInfoEditor from '@/components/EventInfoEditor'
-// const VoteOptionsManager = lazy(() => import('@/components/VoteOptionsManager'))
+// import EventInfoEditor from '@/components/EventInfoEditor'
+import VoteOptionsManager from '@/components/VoteOptionsManager'
 
 // 게임 이름 매핑
 const gameNames: Record<string, string> = {
@@ -202,19 +202,30 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
                     </span>
                   </div>
                 </div>
-                {/* ON/OFF 토글 - 작성자만 변경 가능 */}
+                {/* ON/OFF 토글 및 수정 버튼 - 작성자만 변경 가능 */}
                 {user && event.user_id === user.id ? (
-                  <button
-                    onClick={handleToggle}
-                    disabled={toggling}
-                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:scale-105 disabled:opacity-50 ${
-                      event.is_open 
-                        ? 'bg-green-600 text-white hover:bg-green-700' 
-                        : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
-                    }`}
-                  >
-                    {toggling ? '변경중...' : (event.is_open ? 'ON' : 'OFF')}
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleToggle}
+                      disabled={toggling}
+                      className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:scale-105 disabled:opacity-50 ${
+                        event.is_open 
+                          ? 'bg-green-600 text-white hover:bg-green-700' 
+                          : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+                      }`}
+                    >
+                      {toggling ? '변경중...' : (event.is_open ? 'ON' : 'OFF')}
+                    </button>
+                    <button
+                      onClick={() => {
+                        // TODO: 수정 모달 또는 페이지로 이동
+                        alert('이벤트 수정 기능은 곧 추가될 예정입니다.')
+                      }}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-all hover:scale-105"
+                    >
+                      ✏️ 수정
+                    </button>
+                  </div>
                 ) : (
                   <div className={`px-4 py-2 rounded-lg text-sm font-semibold ${
                     event.is_open 
@@ -321,18 +332,16 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
               <p className="text-gray-400 mb-4 text-sm">
                 참가신청을 완료한 사용자만 투표할 수 있습니다.
               </p>
-              {/* ParticipantButton - 임시 비활성화 */}
-              <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
-                <p className="text-gray-400 text-sm">참가 기능이 임시로 비활성화되었습니다.</p>
-              </div>
+              <ParticipantButton eventId={event.id} />
             </div>
 
             {/* 투표 패널 */}
-            {/* 투표 섹션 - 임시 비활성화 */}
-            <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
-              <h3 className="text-xl font-bold text-white mb-4">🗳️ 투표</h3>
-              <p className="text-gray-400">투표 기능이 임시로 비활성화되었습니다.</p>
-            </div>
+            {/* 투표 섹션 */}
+            <VotingPanel 
+              regularEventId={event.id}
+              weekNumber={undefined} // 현재 주차 자동 계산
+              year={undefined} // 현재 연도 자동 계산
+            />
 
             {/* 투표 결과 적용 섹션 (이벤트 작성자만) - 임시 비활성화 */}
             {user && event.author_id === user.id && (
@@ -342,19 +351,14 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
               </div>
             )}
 
-            {/* 관리자 섹션 (이벤트 작성자만) - EventInfoEditor 테스트 */}
+            {/* 투표 후보 관리 섹션 (이벤트 작성자만) */}
             {user && event.author_id === user.id && (
-              <div className="space-y-6">
-                <EventInfoEditor 
-                  event={event} 
-                  isAuthor={true} 
-                  onUpdate={() => {}} // 임시 빈 함수
-                />
-                <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
-                  <h3 className="text-xl font-bold text-white mb-4">🎛️ 투표 후보 관리</h3>
-                  <p className="text-gray-400">투표 후보 관리 기능이 임시로 비활성화되었습니다.</p>
-                </div>
-              </div>
+              <VoteOptionsManager 
+                eventId={event.id}
+                weekNumber={undefined}
+                year={undefined}
+                isAuthor={true}
+              />
             )}
           </div>
         </div>
