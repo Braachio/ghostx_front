@@ -1,15 +1,15 @@
 'use client'
 
-import { useEffect, useState, Suspense, lazy } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import VotingPanel from '@/components/VotingPanel'
-import ParticipantButton from '@/components/ParticipantButton'
+// import VotingPanel from '@/components/VotingPanel'
+// import ParticipantButton from '@/components/ParticipantButton'
 import { MultiWithTemplate } from '@/types/events'
 
-// Lazy load potentially problematic components
-const VotingResultsPanel = lazy(() => import('@/components/VotingResultsPanel'))
-const EventInfoEditor = lazy(() => import('@/components/EventInfoEditor'))
-const VoteOptionsManager = lazy(() => import('@/components/VoteOptionsManager'))
+// Temporarily disabled problematic components
+// const VotingResultsPanel = lazy(() => import('@/components/VotingResultsPanel'))
+// const EventInfoEditor = lazy(() => import('@/components/EventInfoEditor'))
+// const VoteOptionsManager = lazy(() => import('@/components/VoteOptionsManager'))
 
 // 게임 이름 매핑
 const gameNames: Record<string, string> = {
@@ -332,41 +332,38 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
               <p className="text-gray-400 mb-4 text-sm">
                 참가신청을 완료한 사용자만 투표할 수 있습니다.
               </p>
-              <ParticipantButton eventId={event.id} />
+              {/* ParticipantButton - 임시 비활성화 */}
+              <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
+                <p className="text-gray-400 text-sm">참가 기능이 임시로 비활성화되었습니다.</p>
+              </div>
             </div>
 
             {/* 투표 패널 */}
-            <VotingPanel 
-              regularEventId={event.id}
-              weekNumber={undefined} // 현재 주차 자동 계산
-              year={undefined} // 현재 연도 자동 계산
-            />
+            {/* 투표 섹션 - 임시 비활성화 */}
+            <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
+              <h3 className="text-xl font-bold text-white mb-4">🗳️ 투표</h3>
+              <p className="text-gray-400">투표 기능이 임시로 비활성화되었습니다.</p>
+            </div>
 
-            {/* 투표 결과 적용 섹션 (이벤트 작성자만) */}
+            {/* 투표 결과 적용 섹션 (이벤트 작성자만) - 임시 비활성화 */}
             {user && event.author_id === user.id && componentsLoaded && (
-              <Suspense fallback={<div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700"><p className="text-gray-400">투표 결과 로딩 중...</p></div>}>
-                <VotingResultsPanel eventId={event.id} />
-              </Suspense>
+              <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
+                <h3 className="text-xl font-bold text-white mb-4">🏆 투표 결과</h3>
+                <p className="text-gray-400">투표 결과 기능이 임시로 비활성화되었습니다.</p>
+              </div>
             )}
 
-            {/* 관리자 섹션 (이벤트 작성자만) */}
+            {/* 관리자 섹션 (이벤트 작성자만) - 임시 비활성화 */}
             {user && event.author_id === user.id && componentsLoaded && (
               <div className="space-y-6">
-                <Suspense fallback={<div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700"><p className="text-gray-400">이벤트 편집기 로딩 중...</p></div>}>
-                  <EventInfoEditor 
-                    event={event} 
-                    isAuthor={true} 
-                    onUpdate={handleEventUpdate}
-                  />
-                </Suspense>
-                <Suspense fallback={<div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700"><p className="text-gray-400">투표 후보 관리 로딩 중...</p></div>}>
-                  <VoteOptionsManager 
-                    eventId={event.id}
-                    weekNumber={undefined}
-                    year={undefined}
-                    isAuthor={true}
-                  />
-                </Suspense>
+                <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
+                  <h3 className="text-xl font-bold text-white mb-4">✏️ 이벤트 정보 관리</h3>
+                  <p className="text-gray-400">이벤트 편집 기능이 임시로 비활성화되었습니다.</p>
+                </div>
+                <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
+                  <h3 className="text-xl font-bold text-white mb-4">🎛️ 투표 후보 관리</h3>
+                  <p className="text-gray-400">투표 후보 관리 기능이 임시로 비활성화되었습니다.</p>
+                </div>
               </div>
             )}
           </div>
