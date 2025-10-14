@@ -6,10 +6,10 @@ import VotingPanel from '@/components/VotingPanel'
 import ParticipantButton from '@/components/ParticipantButton'
 import { MultiWithTemplate } from '@/types/events'
 
-// Test VoteOptionsManager instead
-// import VotingResultsPanel from '@/components/VotingResultsPanel'
+// VoteOptionsManager causes ReferenceError, test VotingResultsPanel instead
+import VotingResultsPanel from '@/components/VotingResultsPanel'
 // import EventInfoEditor from '@/components/EventInfoEditor'
-import VoteOptionsManager from '@/components/VoteOptionsManager'
+// import VoteOptionsManager from '@/components/VoteOptionsManager'
 
 // 게임 이름 매핑
 const gameNames: Record<string, string> = {
@@ -343,22 +343,17 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
               year={undefined} // 현재 연도 자동 계산
             />
 
-            {/* 투표 결과 적용 섹션 (이벤트 작성자만) - 임시 비활성화 */}
+            {/* 투표 결과 적용 섹션 (이벤트 작성자만) */}
             {user && event.author_id === user.id && (
-              <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
-                <h3 className="text-xl font-bold text-white mb-4">🏆 투표 결과</h3>
-                <p className="text-gray-400">투표 결과 기능이 임시로 비활성화되었습니다.</p>
-              </div>
+              <VotingResultsPanel eventId={event.id} />
             )}
 
-            {/* 투표 후보 관리 섹션 (이벤트 작성자만) */}
+            {/* 투표 후보 관리 섹션 (이벤트 작성자만) - VoteOptionsManager 비활성화 */}
             {user && event.author_id === user.id && (
-              <VoteOptionsManager 
-                eventId={event.id}
-                weekNumber={undefined}
-                year={undefined}
-                isAuthor={true}
-              />
+              <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
+                <h3 className="text-xl font-bold text-white mb-4">🎛️ 투표 후보 관리</h3>
+                <p className="text-gray-400">투표 후보 관리 기능이 임시로 비활성화되었습니다.</p>
+              </div>
             )}
           </div>
         </div>
