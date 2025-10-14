@@ -122,10 +122,10 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
     }
   }
 
-  // 이벤트 정보 업데이트 핸들러
-  const handleEventUpdate = (updatedEvent: Partial<MultiWithTemplate>) => {
-    setEvent(prev => prev ? { ...prev, ...updatedEvent } : null)
-  }
+  // 이벤트 정보 업데이트 핸들러 (임시 비활성화)
+  // const handleEventUpdate = (updatedEvent: Partial<MultiWithTemplate>) => {
+  //   setEvent(prev => prev ? { ...prev, ...updatedEvent } : null)
+  // }
 
   // 컴포넌트 로드 지연
   useEffect(() => {

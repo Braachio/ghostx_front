@@ -93,7 +93,7 @@ export default function VotingPanel({ regularEventId, weekNumber, year }: Voting
     } else {
       setLoading(false)
     }
-  }, [user, regularEventId, weekNumber, year])
+  }, [user, regularEventId, weekNumber, year, checkEventOwnership])
 
   const checkEventOwnership = async () => {
     try {

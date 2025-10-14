@@ -21,34 +21,35 @@ export default function TrackHistoryPanel({ gameName }: TrackHistoryPanelProps) 
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    const fetchTrackHistory = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        
+        console.log('트랙 히스토리 요청:', gameName)
+        
+        const response = await fetch(`/api/track-history?game=${encodeURIComponent(gameName)}`)
+        
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
+        }
+        
+        const data = await response.json()
+        console.log('트랙 히스토리 응답:', data)
+        
+        setTrackHistory(data.data || [])
+      } catch (err) {
+        console.error('Failed to fetch track history:', err)
+        setError(err instanceof Error ? err.message : '트랙 히스토리를 불러오는데 실패했습니다.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
     fetchTrackHistory()
   }, [gameName])
 
-  const fetchTrackHistory = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      
-      console.log('트랙 히스토리 요청:', gameName)
-      
-      const response = await fetch(`/api/track-history?game=${encodeURIComponent(gameName)}`)
-      
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
-      }
-      
-      const data = await response.json()
-      console.log('트랙 히스토리 응답:', data)
-      
-      setTrackHistory(data.data || [])
-    } catch (err) {
-      console.error('Failed to fetch track history:', err)
-      setError(err instanceof Error ? err.message : '트랙 히스토리를 불러오는데 실패했습니다.')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const getTimeAgoText = (week: number, year: number) => {
     const now = new Date()
