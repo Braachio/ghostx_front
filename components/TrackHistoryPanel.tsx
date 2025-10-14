@@ -55,11 +55,20 @@ export default function TrackHistoryPanel({ gameName }: TrackHistoryPanelProps) 
   useEffect(() => {
     const fetchTrackHistory = async () => {
       try {
+        console.log('트랙 히스토리 요청:', { gameName, encodedUrl: `/api/track-history/${encodeURIComponent(gameName)}` })
         const response = await fetch(`/api/track-history/${encodeURIComponent(gameName)}`)
         if (!response.ok) {
+          const errorText = await response.text()
+          console.error('트랙 히스토리 API 에러:', { 
+            status: response.status, 
+            statusText: response.statusText, 
+            errorText,
+            gameName 
+          })
           throw new Error(`HTTP error! status: ${response.status}`)
         }
         const trackData: TrackHistoryData = await response.json()
+        console.log('트랙 히스토리 데이터 수신:', trackData)
         setData(trackData)
       } catch (err) {
         console.error('Failed to fetch track history:', err)

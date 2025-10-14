@@ -12,6 +12,12 @@ export async function GET(
 
     // URL 디코딩
     const gameName = decodeURIComponent(game)
+    
+    console.log('트랙 히스토리 API 호출:', { 
+      originalGame: game, 
+      decodedGameName: gameName,
+      url: req.url 
+    })
 
     // 해당 게임의 트랙 히스토리 조회
     const { data: trackHistory, error } = await supabase
@@ -30,11 +36,18 @@ export async function GET(
       .limit(50) // 최근 50개 기록
 
     if (error) {
-      console.error('트랙 히스토리 조회 실패:', error)
+      console.error('트랙 히스토리 조회 실패:', { 
+        error, 
+        gameName, 
+        errorCode: error.code,
+        errorMessage: error.message 
+      })
       
       // 테이블이 존재하지 않는 경우 빈 데이터 반환
       if (error.code === 'PGRST116' || error.message.includes('relation "regular_multi_track_history" does not exist')) {
+        console.log('테이블이 존재하지 않음 - 빈 데이터 반환')
         return NextResponse.json({
+          gameName,
           trackHistory: [],
           recommendations: [],
           summary: {
