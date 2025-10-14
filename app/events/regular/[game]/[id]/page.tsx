@@ -6,9 +6,9 @@ import Link from 'next/link'
 // import ParticipantButton from '@/components/ParticipantButton'
 import { MultiWithTemplate } from '@/types/events'
 
-// Temporarily disabled problematic components
-// const VotingResultsPanel = lazy(() => import('@/components/VotingResultsPanel'))
-// const EventInfoEditor = lazy(() => import('@/components/EventInfoEditor'))
+// Test EventInfoEditor instead
+// import VotingResultsPanel from '@/components/VotingResultsPanel'
+import EventInfoEditor from '@/components/EventInfoEditor'
 // const VoteOptionsManager = lazy(() => import('@/components/VoteOptionsManager'))
 
 // 게임 이름 매핑
@@ -342,13 +342,14 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
               </div>
             )}
 
-            {/* 관리자 섹션 (이벤트 작성자만) - 임시 비활성화 */}
+            {/* 관리자 섹션 (이벤트 작성자만) - EventInfoEditor 테스트 */}
             {user && event.author_id === user.id && (
               <div className="space-y-6">
-                <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
-                  <h3 className="text-xl font-bold text-white mb-4">✏️ 이벤트 정보 관리</h3>
-                  <p className="text-gray-400">이벤트 편집 기능이 임시로 비활성화되었습니다.</p>
-                </div>
+                <EventInfoEditor 
+                  event={event} 
+                  isAuthor={true} 
+                  onUpdate={() => {}} // 임시 빈 함수
+                />
                 <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
                   <h3 className="text-xl font-bold text-white mb-4">🎛️ 투표 후보 관리</h3>
                   <p className="text-gray-400">투표 후보 관리 기능이 임시로 비활성화되었습니다.</p>
