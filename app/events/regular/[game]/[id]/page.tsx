@@ -35,7 +35,6 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
   const [error, setError] = useState('')
   const [user, setUser] = useState<{ id: string } | null>(null)
   const [toggling, setToggling] = useState(false)
-  const [componentsLoaded, setComponentsLoaded] = useState(false)
 
   useEffect(() => {
     const loadParams = async () => {
@@ -127,16 +126,6 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
   //   setEvent(prev => prev ? { ...prev, ...updatedEvent } : null)
   // }
 
-  // 컴포넌트 로드 지연
-  useEffect(() => {
-    if (event && user) {
-      const timer = setTimeout(() => {
-        setComponentsLoaded(true)
-      }, 500) // 500ms 지연
-      
-      return () => clearTimeout(timer)
-    }
-  }, [event, user])
 
   if (loading) {
     return (
@@ -344,7 +333,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
             />
 
             {/* 투표 결과 적용 섹션 (이벤트 작성자만) - 임시 비활성화 */}
-            {user && event.author_id === user.id && componentsLoaded && (
+            {user && event.author_id === user.id && (
               <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
                 <h3 className="text-xl font-bold text-white mb-4">🏆 투표 결과</h3>
                 <p className="text-gray-400">투표 결과 기능이 임시로 비활성화되었습니다.</p>
@@ -352,7 +341,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
             )}
 
             {/* 관리자 섹션 (이벤트 작성자만) - 임시 비활성화 */}
-            {user && event.author_id === user.id && componentsLoaded && (
+            {user && event.author_id === user.id && (
               <div className="space-y-6">
                 <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
                   <h3 className="text-xl font-bold text-white mb-4">✏️ 이벤트 정보 관리</h3>
