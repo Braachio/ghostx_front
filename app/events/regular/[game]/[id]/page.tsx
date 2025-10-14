@@ -1,13 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense, lazy } from 'react'
 import Link from 'next/link'
 import VotingPanel from '@/components/VotingPanel'
 import ParticipantButton from '@/components/ParticipantButton'
-import VotingResultsPanel from '@/components/VotingResultsPanel'
-import EventInfoEditor from '@/components/EventInfoEditor'
-import VoteOptionsManager from '@/components/VoteOptionsManager'
 import { MultiWithTemplate } from '@/types/events'
+
+// Lazy load potentially problematic components
+const VotingResultsPanel = lazy(() => import('@/components/VotingResultsPanel'))
+const EventInfoEditor = lazy(() => import('@/components/EventInfoEditor'))
+const VoteOptionsManager = lazy(() => import('@/components/VoteOptionsManager'))
 
 // 게임 이름 매핑
 const gameNames: Record<string, string> = {
@@ -33,6 +35,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
   const [error, setError] = useState('')
   const [user, setUser] = useState<{ id: string } | null>(null)
   const [toggling, setToggling] = useState(false)
+  const [componentsLoaded, setComponentsLoaded] = useState(false)
 
   useEffect(() => {
     const loadParams = async () => {
@@ -123,6 +126,17 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
   const handleEventUpdate = (updatedEvent: Partial<MultiWithTemplate>) => {
     setEvent(prev => prev ? { ...prev, ...updatedEvent } : null)
   }
+
+  // 컴포넌트 로드 지연
+  useEffect(() => {
+    if (event && user) {
+      const timer = setTimeout(() => {
+        setComponentsLoaded(true)
+      }, 500) // 500ms 지연
+      
+      return () => clearTimeout(timer)
+    }
+  }, [event, user])
 
   if (loading) {
     return (
@@ -329,24 +343,30 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
             />
 
             {/* 투표 결과 적용 섹션 (이벤트 작성자만) */}
-            {user && event.author_id === user.id && (
-              <VotingResultsPanel eventId={event.id} />
+            {user && event.author_id === user.id && componentsLoaded && (
+              <Suspense fallback={<div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700"><p className="text-gray-400">투표 결과 로딩 중...</p></div>}>
+                <VotingResultsPanel eventId={event.id} />
+              </Suspense>
             )}
 
             {/* 관리자 섹션 (이벤트 작성자만) */}
-            {user && event.author_id === user.id && (
+            {user && event.author_id === user.id && componentsLoaded && (
               <div className="space-y-6">
-                <EventInfoEditor 
-                  event={event} 
-                  isAuthor={true} 
-                  onUpdate={handleEventUpdate}
-                />
-                <VoteOptionsManager 
-                  eventId={event.id}
-                  weekNumber={undefined}
-                  year={undefined}
-                  isAuthor={true}
-                />
+                <Suspense fallback={<div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700"><p className="text-gray-400">이벤트 편집기 로딩 중...</p></div>}>
+                  <EventInfoEditor 
+                    event={event} 
+                    isAuthor={true} 
+                    onUpdate={handleEventUpdate}
+                  />
+                </Suspense>
+                <Suspense fallback={<div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700"><p className="text-gray-400">투표 후보 관리 로딩 중...</p></div>}>
+                  <VoteOptionsManager 
+                    eventId={event.id}
+                    weekNumber={undefined}
+                    year={undefined}
+                    isAuthor={true}
+                  />
+                </Suspense>
               </div>
             )}
           </div>

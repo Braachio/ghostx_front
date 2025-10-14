@@ -78,7 +78,12 @@ export default function VotingResultsPanel({ eventId }: VotingResultsPanelProps)
   }
 
   useEffect(() => {
-    fetchResults()
+    // 지연 실행으로 초기화 문제 방지
+    const timer = setTimeout(() => {
+      fetchResults()
+    }, 100)
+    
+    return () => clearTimeout(timer)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventId, currentWeek, currentYear])
 
