@@ -105,6 +105,47 @@ export async function POST(
         updatedEvent: updatedEvent?.title
       })
 
+      // 4. 트랙 히스토리에 기록 추가 (표준화된 트랙 명 사용)
+      try {
+        // 표준화된 트랙 명 가져오기
+        const { data: trackMapping } = await supabase
+          .from('track_name_mapping')
+          .select('standardized_name')
+          .eq('game_name', updatedEvent?.game || '')
+          .eq('original_name', winningTrack)
+          .single()
+
+        const standardizedTrackName = trackMapping?.standardized_name || winningTrack
+
+        const { error: historyError } = await supabase
+          .from('regular_multi_track_history')
+          .insert({
+            regular_event_id: id,
+            week_number,
+            year,
+            selected_track: winningTrack,
+            selected_car_class: winningCarClass,
+            game_name: updatedEvent?.game || '',
+            standardized_track_name: standardizedTrackName
+          })
+
+        if (historyError) {
+          console.error('트랙 히스토리 기록 실패:', historyError)
+        } else {
+          console.log('트랙 히스토리 기록 성공:', {
+            eventId: id,
+            track: winningTrack,
+            standardizedTrack: standardizedTrackName,
+            carClass: winningCarClass,
+            week: week_number,
+            year
+          })
+        }
+      } catch (historyError) {
+        console.error('트랙 히스토리 기록 중 오류:', historyError)
+      }
+
+
     } catch (applyError) {
       console.error('투표 결과 적용 중 오류:', applyError)
       return NextResponse.json({ error: '투표 결과 적용 중 오류가 발생했습니다.' }, { status: 500 })

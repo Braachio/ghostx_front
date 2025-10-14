@@ -16,6 +16,7 @@ export default function HomePage() {
   const [user, setUser] = useState<MeResponse | null>(null)
   const [language, setLanguage] = useState<'ko' | 'en'>('ko')
   const [views, setViews] = useState<number | null>(null)
+  const [mounted, setMounted] = useState(false)
   const supabase = useSupabaseClient()
 
   // 번역 텍스트
@@ -65,6 +66,12 @@ export default function HomePage() {
 
 
   useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!mounted) return
+
     const loadUserAndViews = async () => {
       try {
         await fetch('/api/incrementView', { method: 'POST' })
@@ -89,7 +96,7 @@ export default function HomePage() {
     }
 
     loadUserAndViews()
-  }, [])
+  }, [mounted])
 
 
   return (
@@ -105,7 +112,7 @@ export default function HomePage() {
                 {t[language].title}
               </h1>
             </Link>
-            {views !== null && (
+            {mounted && views !== null && (
               <span className="text-gray-500 text-xs bg-gray-800/50 px-3 py-1.5 rounded-full border border-gray-700">
                 👁️ {views.toLocaleString()}
               </span>
@@ -378,7 +385,7 @@ export default function HomePage() {
           <span className="inline-flex items-center gap-2">
             👻 고스트카를 찾은 레이서: 
             <span className="text-cyan-400 font-bold">
-              {views !== null ? views.toLocaleString() : '...'}명
+              {mounted && views !== null ? views.toLocaleString() : '...'}명
             </span>
           </span>
         </div>  

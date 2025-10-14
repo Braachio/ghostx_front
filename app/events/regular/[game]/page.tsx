@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import WeeklyCalendar from '@/components/WeeklyCalendar'
+import TrackHistoryPanel from '@/components/TrackHistoryPanel'
 import { MultiWithTemplate } from '@/types/events'
 
 // 게임 이름 매핑
@@ -157,7 +158,7 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
         </div>
 
         {/* 주간 캘린더 */}
-        {events.length > 0 && (
+        {events.length > 0 ? (
           <div className="mb-12">
             <WeeklyCalendar 
               events={events} 
@@ -165,30 +166,25 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
               gameSlug={game}
             />
           </div>
-        )}
-
-
-        {/* 이벤트가 없을 때 */}
-        {events.length === 0 && (
-          <div className="text-center py-20">
-            <div className="inline-block mb-6">
-              <div className="text-8xl opacity-50">🏁</div>
-            </div>
-            <h3 className="text-2xl font-bold text-gray-300 mb-3">
-              {gameName} 정기 갤멀이 없습니다
-            </h3>
-            <p className="text-gray-500 text-lg">
-              아직 등록된 정기 갤멀이 없습니다. 첫 번째 이벤트를 만들어보세요!
-            </p>
-            <div className="mt-8">
-              <Link href={`/events/regular/${game}/new`}>
-                <button className="px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg shadow-green-500/50 font-semibold text-lg">
-                  ➕ 첫 번째 정기 이벤트 만들기
-                </button>
-              </Link>
-            </div>
+        ) : (
+          <div className="bg-gray-800/50 rounded-xl p-8 border border-gray-700 text-center mb-12">
+            <div className="text-6xl mb-4">📅</div>
+            <h3 className="text-xl font-bold text-white mb-2">등록된 정기 이벤트가 없습니다</h3>
+            <p className="text-gray-400 mb-6">새로운 정기 이벤트를 등록해보세요!</p>
+            <Link
+              href={`/events/regular/${game}/new`}
+              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all font-semibold"
+            >
+              ➕ 정기 이벤트 추가
+            </Link>
           </div>
         )}
+
+        {/* 트랙 히스토리 패널 */}
+        <div className="mb-12">
+          <TrackHistoryPanel gameName={gameName} />
+        </div>
+
       </div>
     </div>
   )

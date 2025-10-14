@@ -33,6 +33,28 @@ export type UserNotificationSettings = {
   updated_at: string
 }
 
+export type TrackNameMapping = {
+  id: string
+  game_name: string
+  original_name: string
+  standardized_name: string
+  created_at: string
+  updated_at: string
+}
+
+export type RegularMultiTrackHistory = {
+  id: string
+  regular_event_id: string
+  week_number: number
+  year: number
+  selected_track: string
+  selected_car_class: string
+  game_name: string
+  standardized_track_name: string
+  created_at: string
+}
+
+
 
 export type Database = {
   public: {
@@ -51,6 +73,16 @@ export type Database = {
         Row: UserNotificationSettings
         Insert: Partial<UserNotificationSettings>
         Update: Partial<UserNotificationSettings>
+      }
+      track_name_mapping: {
+        Row: TrackNameMapping
+        Insert: Partial<TrackNameMapping>
+        Update: Partial<TrackNameMapping>
+      }
+      regular_multi_track_history: {
+        Row: RegularMultiTrackHistory
+        Insert: Partial<RegularMultiTrackHistory>
+        Update: Partial<RegularMultiTrackHistory>
       }
       analysis_results: {
         Row: {
