@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import type { User } from '@supabase/supabase-js'
 
@@ -61,9 +61,9 @@ export default function VotingPanel({ regularEventId, weekNumber, year }: Voting
     } else {
       setLoading(false)
     }
-  }, [user, regularEventId, weekNumber, year])
+  }, [user, fetchVoteData])
 
-  const fetchVoteData = async () => {
+  const fetchVoteData = useCallback(async () => {
     try {
       setLoading(true)
       const params = new URLSearchParams()
@@ -93,7 +93,7 @@ export default function VotingPanel({ regularEventId, weekNumber, year }: Voting
     } finally {
       setLoading(false)
     }
-  }
+  }, [regularEventId, weekNumber, year, user])
 
   const checkEventOwnership = async () => {
     try {

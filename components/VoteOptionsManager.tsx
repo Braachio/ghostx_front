@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 
 interface VoteOption {
   id: string
@@ -39,9 +39,9 @@ export default function VoteOptionsManager({
     if (isAuthor) {
       fetchVoteOptions()
     }
-  }, [eventId, isAuthor])
+  }, [eventId, isAuthor, fetchVoteOptions])
 
-  const fetchVoteOptions = async () => {
+  const fetchVoteOptions = useCallback(async () => {
     try {
       setLoading(true)
       const response = await fetch(`/api/regular-events/${eventId}/vote-options`)
@@ -57,7 +57,7 @@ export default function VoteOptionsManager({
     } finally {
       setLoading(false)
     }
-  }
+  }, [eventId])
 
   const addVoteOption = async () => {
     if (!newOptionValue.trim()) return

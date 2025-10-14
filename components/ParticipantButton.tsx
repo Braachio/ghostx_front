@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import type { User } from '@supabase/supabase-js'
 
@@ -28,9 +28,9 @@ export default function ParticipantButton({ eventId }: ParticipantButtonProps) {
     }
     
     checkUser()
-  }, [eventId])
+  }, [eventId, checkParticipation])
 
-  const checkParticipation = async (userId: string) => {
+  const checkParticipation = useCallback(async (userId: string) => {
     try {
       const supabase = createClientComponentClient()
       const { data, error } = await supabase
@@ -47,7 +47,7 @@ export default function ParticipantButton({ eventId }: ParticipantButtonProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [eventId])
 
   const handleJoin = async () => {
     if (!user) return

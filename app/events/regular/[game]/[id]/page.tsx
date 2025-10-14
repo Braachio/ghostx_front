@@ -120,7 +120,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
   }
 
   // 이벤트 정보 업데이트 핸들러
-  const handleEventUpdate = (updatedEvent: any) => {
+  const handleEventUpdate = (updatedEvent: Partial<MultiWithTemplate>) => {
     setEvent(prev => prev ? { ...prev, ...updatedEvent } : null)
   }
 
