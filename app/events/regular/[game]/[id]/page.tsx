@@ -459,6 +459,8 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
                 weekNumber={undefined} // 현재 주차 자동 계산
                 year={undefined} // 현재 연도 자동 계산
                 voteType="track" // 트랙 투표만 표시
+                game={game}
+                isOwner={user && event && event.author_id === user.id}
               />
             </div>
             
@@ -473,6 +475,8 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
                 weekNumber={undefined} // 현재 주차 자동 계산
                 year={undefined} // 현재 연도 자동 계산
                 voteType="class" // 클래스 투표만 표시
+                game={game}
+                isOwner={user && event && event.author_id === user.id}
               />
             </div>
           </div>

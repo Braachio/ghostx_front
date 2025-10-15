@@ -4,6 +4,70 @@ import { useEffect, useState } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import type { User } from '@supabase/supabase-js'
 
+// 게임별 트랙 옵션
+const gameTracks: Record<string, string[]> = {
+  'iracing': [
+    'Spa-Francorchamps', 'Silverstone', 'Nürburgring', 'Monza', 'Suzuka',
+    'Watkins Glen', 'Road America', 'Laguna Seca', 'Sebring', 'Daytona',
+    'Talladega', 'Charlotte', 'Bristol', 'Martinsville', 'Phoenix',
+    'Las Vegas', 'Homestead', 'Texas', 'Kansas', 'Atlanta'
+  ],
+  'assettocorsa': [
+    'Spa-Francorchamps', 'Silverstone', 'Nürburgring', 'Monza', 'Suzuka',
+    'Imola', 'Mugello', 'Brands Hatch', 'Donington Park', 'Oulton Park',
+    'Snetterton', 'Knockhill', 'Zandvoort', 'Red Bull Ring', 'Paul Ricard',
+    'Barcelona', 'Valencia', 'Jerez', 'Portimão', 'Estoril'
+  ],
+  'gran-turismo7': [
+    'Spa-Francorchamps', 'Silverstone', 'Nürburgring', 'Monza', 'Suzuka',
+    'Fuji Speedway', 'Autopolis', 'Twin Ring Motegi', 'Tsukuba', 'Deep Forest',
+    'Trial Mountain', 'High Speed Ring', 'Grand Valley', 'Laguna Seca', 'Watkins Glen',
+    'Road Atlanta', 'Daytona', 'Le Mans', 'Sardegna', 'Tokyo Expressway'
+  ],
+  'automobilista2': [
+    'Spa-Francorchamps', 'Silverstone', 'Nürburgring', 'Monza', 'Suzuka',
+    'Imola', 'Mugello', 'Brands Hatch', 'Donington Park', 'Oulton Park',
+    'Snetterton', 'Knockhill', 'Zandvoort', 'Red Bull Ring', 'Paul Ricard',
+    'Barcelona', 'Valencia', 'Jerez', 'Portimão', 'Estoril'
+  ],
+  'competizione': [
+    'Spa-Francorchamps', 'Silverstone', 'Nürburgring', 'Monza', 'Suzuka',
+    'Imola', 'Mugello', 'Brands Hatch', 'Donington Park', 'Oulton Park',
+    'Snetterton', 'Knockhill', 'Zandvoort', 'Red Bull Ring', 'Paul Ricard',
+    'Barcelona', 'Valencia', 'Jerez', 'Portimão', 'Estoril'
+  ],
+  'lemans': [
+    'Spa-Francorchamps', 'Silverstone', 'Nürburgring', 'Monza', 'Suzuka',
+    'Imola', 'Mugello', 'Brands Hatch', 'Donington Park', 'Oulton Park',
+    'Snetterton', 'Knockhill', 'Zandvoort', 'Red Bull Ring', 'Paul Ricard',
+    'Barcelona', 'Valencia', 'Jerez', 'Portimão', 'Estoril'
+  ],
+  'f1-25': [
+    'Spa-Francorchamps', 'Silverstone', 'Nürburgring', 'Monza', 'Suzuka',
+    'Imola', 'Mugello', 'Brands Hatch', 'Donington Park', 'Oulton Park',
+    'Snetterton', 'Knockhill', 'Zandvoort', 'Red Bull Ring', 'Paul Ricard',
+    'Barcelona', 'Valencia', 'Jerez', 'Portimão', 'Estoril'
+  ],
+  'ea-wrc': [
+    'Spa-Francorchamps', 'Silverstone', 'Nürburgring', 'Monza', 'Suzuka',
+    'Imola', 'Mugello', 'Brands Hatch', 'Donington Park', 'Oulton Park',
+    'Snetterton', 'Knockhill', 'Zandvoort', 'Red Bull Ring', 'Paul Ricard',
+    'Barcelona', 'Valencia', 'Jerez', 'Portimão', 'Estoril'
+  ]
+}
+
+// 게임별 차량 클래스 옵션
+const gameCarClasses: Record<string, string[]> = {
+  'iracing': ['F1', 'F2', 'F3', 'GT3', 'GT4', 'LMP1', 'LMP2', 'LMP3', 'GTE', 'GT4'],
+  'assettocorsa': ['F1', 'F2', 'F3', 'GT3', 'GT4', 'LMP1', 'LMP2', 'LMP3', 'GTE', 'GT4'],
+  'gran-turismo7': ['F1', 'F2', 'F3', 'GT3', 'GT4', 'LMP1', 'LMP2', 'LMP3', 'GTE', 'GT4'],
+  'automobilista2': ['F1', 'F2', 'F3', 'GT3', 'GT4', 'LMP1', 'LMP2', 'LMP3', 'GTE', 'GT4'],
+  'competizione': ['F1', 'F2', 'F3', 'GT3', 'GT4', 'LMP1', 'LMP2', 'LMP3', 'GTE', 'GT4'],
+  'lemans': ['F1', 'F2', 'F3', 'GT3', 'GT4', 'LMP1', 'LMP2', 'LMP3', 'GTE', 'GT4'],
+  'f1-25': ['F1', 'F2', 'F3', 'GT3', 'GT4', 'LMP1', 'LMP2', 'LMP3', 'GTE', 'GT4'],
+  'ea-wrc': ['F1', 'F2', 'F3', 'GT3', 'GT4', 'LMP1', 'LMP2', 'LMP3', 'GTE', 'GT4']
+}
+
 interface VoteOption {
   option_type: string
   option_value: string
@@ -15,6 +79,8 @@ interface VotingPanelProps {
   weekNumber?: number
   year?: number
   voteType?: 'track' | 'class' | 'all' // 투표 타입 추가
+  game?: string
+  isOwner?: boolean
 }
 
 interface VoteData {
@@ -34,7 +100,7 @@ interface VoteData {
   }
 }
 
-export default function VotingPanel({ regularEventId, weekNumber, year, voteType = 'all' }: VotingPanelProps) {
+export default function VotingPanel({ regularEventId, weekNumber, year, voteType = 'all', game, isOwner = false }: VotingPanelProps) {
   const [user, setUser] = useState<User | null>(null)
   const [userInfo, setUserInfo] = useState<{ is_steam_user: boolean } | null>(null)
   const [voteData, setVoteData] = useState<VoteData | null>(null)
@@ -45,6 +111,10 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
   const [error, setError] = useState('')
   const [isEventOwner, setIsEventOwner] = useState(false)
   const [togglingVoteStatus, setTogglingVoteStatus] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
+  const [newTrackOption, setNewTrackOption] = useState('')
+  const [newCarClassOption, setNewCarClassOption] = useState('')
+  const [addingOption, setAddingOption] = useState(false)
 
   // 투표 종료까지 남은 일수 계산
   const getDaysLeft = () => {
@@ -140,6 +210,48 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
       console.error('참가자 상태 확인 실패:', error)
     }
     return false
+  }
+
+  // 투표 옵션 추가 함수
+  const addVoteOption = async (optionType: 'track' | 'car_class', optionValue: string) => {
+    if (!optionValue.trim()) {
+      alert('옵션 값을 입력해주세요.')
+      return
+    }
+
+    try {
+      setAddingOption(true)
+      const currentWeek = weekNumber || Math.ceil((((+new Date() - +new Date(new Date().getFullYear(), 0, 1)) / 86400000) + new Date(new Date().getFullYear(), 0, 1).getDay() + 1) / 7)
+      const currentYear = year || new Date().getFullYear()
+
+      const response = await fetch(`/api/regular-events/${regularEventId}/vote-options`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          optionType,
+          optionValue: optionValue.trim(),
+          weekNumber: currentWeek,
+          year: currentYear
+        })
+      })
+
+      if (response.ok) {
+        await fetchVoteData()
+        if (optionType === 'track') {
+          setNewTrackOption('')
+        } else {
+          setNewCarClassOption('')
+        }
+      } else {
+        const errorData = await response.json()
+        alert(errorData.error || '옵션 추가에 실패했습니다.')
+      }
+    } catch (error) {
+      console.error('투표 옵션 추가 실패:', error)
+      alert('투표 옵션 추가 중 오류가 발생했습니다.')
+    } finally {
+      setAddingOption(false)
+    }
   }
 
   useEffect(() => {
@@ -363,10 +475,20 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
               <span className="text-sm text-gray-300">
                 <span className="font-semibold text-blue-400">{participantCount}</span>명 참여
               </span>
-              <button className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1">
-                결과 미리보기
-                <span className="text-xs">▶</span>
-              </button>
+              <div className="flex items-center gap-2">
+                {isOwner && (
+                  <button 
+                    onClick={() => setShowSettings(!showSettings)}
+                    className="text-sm text-gray-400 hover:text-gray-300 flex items-center gap-1 px-2 py-1 rounded border border-gray-600 hover:border-gray-500"
+                  >
+                    ⚙️ 설정
+                  </button>
+                )}
+                <button className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                  결과 미리보기
+                  <span className="text-xs">▶</span>
+                </button>
+              </div>
             </div>
             
             <div className="space-y-3 mb-6">
@@ -433,6 +555,37 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
                 </button>
               </div>
             )}
+
+            {/* 트랙 옵션 설정 패널 */}
+            {showSettings && isOwner && (
+              <div className="mt-6 p-4 bg-gray-700/30 rounded-lg border border-gray-600">
+                <h4 className="text-md font-semibold text-white mb-3">🏁 트랙 옵션 관리</h4>
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <select
+                      value={newTrackOption}
+                      onChange={(e) => setNewTrackOption(e.target.value)}
+                      className="flex-1 px-3 py-2 bg-gray-600 border border-gray-500 rounded text-white text-sm"
+                    >
+                      <option value="">트랙 선택</option>
+                      {game && gameTracks[game]?.map((track) => (
+                        <option key={track} value={track}>{track}</option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={() => addVoteOption('track', newTrackOption)}
+                      disabled={addingOption || !newTrackOption}
+                      className="px-4 py-2 bg-green-600 text-white rounded text-sm hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {addingOption ? '추가 중...' : '추가'}
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-400">
+                    게임별 트랙 목록에서 선택하여 추가할 수 있습니다.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -455,10 +608,20 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
               <span className="text-sm text-gray-300">
                 <span className="font-semibold text-blue-400">{participantCount}</span>명 참여
               </span>
-              <button className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1">
-                결과 미리보기
-                <span className="text-xs">▶</span>
-              </button>
+              <div className="flex items-center gap-2">
+                {isOwner && (
+                  <button 
+                    onClick={() => setShowSettings(!showSettings)}
+                    className="text-sm text-gray-400 hover:text-gray-300 flex items-center gap-1 px-2 py-1 rounded border border-gray-600 hover:border-gray-500"
+                  >
+                    ⚙️ 설정
+                  </button>
+                )}
+                <button className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                  결과 미리보기
+                  <span className="text-xs">▶</span>
+                </button>
+              </div>
             </div>
             
             <div className="space-y-3 mb-6">
@@ -523,6 +686,37 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
                 >
                   {voting ? '투표 중...' : '클래스 투표하기'}
                 </button>
+              </div>
+            )}
+
+            {/* 차량 클래스 옵션 설정 패널 */}
+            {showSettings && isOwner && (
+              <div className="mt-6 p-4 bg-gray-700/30 rounded-lg border border-gray-600">
+                <h4 className="text-md font-semibold text-white mb-3">🚗 차량 클래스 옵션 관리</h4>
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <select
+                      value={newCarClassOption}
+                      onChange={(e) => setNewCarClassOption(e.target.value)}
+                      className="flex-1 px-3 py-2 bg-gray-600 border border-gray-500 rounded text-white text-sm"
+                    >
+                      <option value="">차량 클래스 선택</option>
+                      {game && gameCarClasses[game]?.map((carClass) => (
+                        <option key={carClass} value={carClass}>{carClass}</option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={() => addVoteOption('car_class', newCarClassOption)}
+                      disabled={addingOption || !newCarClassOption}
+                      className="px-4 py-2 bg-green-600 text-white rounded text-sm hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {addingOption ? '추가 중...' : '추가'}
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-400">
+                    게임별 차량 클래스 목록에서 선택하여 추가할 수 있습니다.
+                  </p>
+                </div>
               </div>
             )}
           </div>
