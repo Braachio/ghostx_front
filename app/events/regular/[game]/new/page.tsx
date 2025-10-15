@@ -16,6 +16,410 @@ const gameNames: Record<string, string> = {
   'ea-wrc': 'EA WRC'
 }
 
+// 게임별 트랙 옵션
+const gameTracks: Record<string, string[]> = {
+  'iracing': [
+    'Spa-Francorchamps',
+    'Silverstone',
+    'Nürburgring',
+    'Monza',
+    'Suzuka',
+    'Watkins Glen',
+    'Road America',
+    'Laguna Seca',
+    'Sebring',
+    'Daytona',
+    'Talladega',
+    'Charlotte',
+    'Bristol',
+    'Martinsville',
+    'Phoenix',
+    'Las Vegas',
+    'Homestead',
+    'Texas',
+    'Kansas',
+    'Atlanta'
+  ],
+  'assettocorsa': [
+    'Spa-Francorchamps',
+    'Silverstone',
+    'Nürburgring',
+    'Monza',
+    'Suzuka',
+    'Imola',
+    'Mugello',
+    'Brands Hatch',
+    'Donington Park',
+    'Oulton Park',
+    'Snetterton',
+    'Knockhill',
+    'Zandvoort',
+    'Red Bull Ring',
+    'Paul Ricard',
+    'Barcelona',
+    'Valencia',
+    'Jerez',
+    'Portimão',
+    'Estoril'
+  ],
+  'gran-turismo7': [
+    'Spa-Francorchamps',
+    'Silverstone',
+    'Nürburgring',
+    'Monza',
+    'Suzuka',
+    'Fuji Speedway',
+    'Autopolis',
+    'Twin Ring Motegi',
+    'Tsukuba',
+    'Deep Forest',
+    'Trial Mountain',
+    'High Speed Ring',
+    'Grand Valley',
+    'Laguna Seca',
+    'Watkins Glen',
+    'Road Atlanta',
+    'Daytona',
+    'Le Mans',
+    'Sardegna',
+    'Catalunya'
+  ],
+  'automobilista2': [
+    'Spa-Francorchamps',
+    'Silverstone',
+    'Nürburgring',
+    'Monza',
+    'Suzuka',
+    'Imola',
+    'Mugello',
+    'Brands Hatch',
+    'Donington Park',
+    'Oulton Park',
+    'Snetterton',
+    'Knockhill',
+    'Zandvoort',
+    'Red Bull Ring',
+    'Paul Ricard',
+    'Barcelona',
+    'Valencia',
+    'Jerez',
+    'Portimão',
+    'Estoril',
+    'Interlagos',
+    'Buenos Aires',
+    'Cascavel',
+    'Velopark',
+    'Goiânia'
+  ],
+  'competizione': [
+    'Spa-Francorchamps',
+    'Silverstone',
+    'Nürburgring',
+    'Monza',
+    'Suzuka',
+    'Imola',
+    'Mugello',
+    'Brands Hatch',
+    'Donington Park',
+    'Oulton Park',
+    'Snetterton',
+    'Knockhill',
+    'Zandvoort',
+    'Red Bull Ring',
+    'Paul Ricard',
+    'Barcelona',
+    'Valencia',
+    'Jerez',
+    'Portimão',
+    'Estoril',
+    'Kyalami',
+    'Misano',
+    'Hungaroring',
+    'Zolder',
+    'Oschersleben'
+  ],
+  'lemans': [
+    'Le Mans',
+    'Spa-Francorchamps',
+    'Silverstone',
+    'Nürburgring',
+    'Monza',
+    'Suzuka',
+    'Imola',
+    'Mugello',
+    'Brands Hatch',
+    'Donington Park',
+    'Oulton Park',
+    'Snetterton',
+    'Knockhill',
+    'Zandvoort',
+    'Red Bull Ring',
+    'Paul Ricard',
+    'Barcelona',
+    'Valencia',
+    'Jerez',
+    'Portimão',
+    'Estoril',
+    'Kyalami',
+    'Misano',
+    'Hungaroring',
+    'Zolder'
+  ],
+  'f1-25': [
+    'Spa-Francorchamps',
+    'Silverstone',
+    'Monza',
+    'Suzuka',
+    'Imola',
+    'Mugello',
+    'Red Bull Ring',
+    'Paul Ricard',
+    'Barcelona',
+    'Valencia',
+    'Jerez',
+    'Portimão',
+    'Estoril',
+    'Kyalami',
+    'Misano',
+    'Hungaroring',
+    'Zolder',
+    'Bahrain',
+    'Saudi Arabia',
+    'Australia',
+    'Azerbaijan',
+    'Miami',
+    'Monaco',
+    'Canada',
+    'Austria',
+    'Great Britain',
+    'Hungary',
+    'Belgium',
+    'Netherlands',
+    'Italy',
+    'Singapore',
+    'Japan',
+    'Qatar',
+    'United States',
+    'Mexico',
+    'Brazil',
+    'Las Vegas',
+    'Abu Dhabi'
+  ],
+  'ea-wrc': [
+    'Monte Carlo',
+    'Sweden',
+    'Mexico',
+    'Croatia',
+    'Portugal',
+    'Sardinia',
+    'Kenya',
+    'Estonia',
+    'Finland',
+    'Greece',
+    'Chile',
+    'Central Europe',
+    'Japan',
+    'Rally GB',
+    'Spain',
+    'Australia',
+    'New Zealand',
+    'Argentina',
+    'Turkey',
+    'Germany'
+  ]
+}
+
+// 게임별 차량 클래스 옵션
+const gameCarClasses: Record<string, string[]> = {
+  'iracing': [
+    'GT3',
+    'GT4',
+    'LMP2',
+    'LMP3',
+    'GTE',
+    'Formula 1',
+    'Formula 2',
+    'Formula 3',
+    'IndyCar',
+    'NASCAR Cup',
+    'NASCAR Xfinity',
+    'NASCAR Truck',
+    'ARCA',
+    'Dirt Late Model',
+    'Dirt Sprint Car',
+    'Dirt Midget',
+    'Dirt Street Stock',
+    'Dirt UMP Modified',
+    'Dirt 305 Sprint Car',
+    'Dirt 360 Sprint Car'
+  ],
+  'assettocorsa': [
+    'GT3',
+    'GT4',
+    'GTE',
+    'LMP1',
+    'LMP2',
+    'LMP3',
+    'Formula 1',
+    'Formula 2',
+    'Formula 3',
+    'IndyCar',
+    'NASCAR',
+    'Touring Car',
+    'Classic F1',
+    'Classic GT',
+    'Classic Touring',
+    'Classic Prototype',
+    'Classic Endurance',
+    'Classic Rally',
+    'Classic Rally Cross',
+    'Classic Hill Climb'
+  ],
+  'gran-turismo7': [
+    'GT3',
+    'GT4',
+    'GTE',
+    'LMP1',
+    'LMP2',
+    'LMP3',
+    'Formula 1',
+    'Formula 2',
+    'Formula 3',
+    'IndyCar',
+    'NASCAR',
+    'Touring Car',
+    'Classic F1',
+    'Classic GT',
+    'Classic Touring',
+    'Classic Prototype',
+    'Classic Endurance',
+    'Classic Rally',
+    'Classic Rally Cross',
+    'Classic Hill Climb',
+    'Gr.1',
+    'Gr.2',
+    'Gr.3',
+    'Gr.4',
+    'Gr.B',
+    'Gr.X'
+  ],
+  'automobilista2': [
+    'GT3',
+    'GT4',
+    'GTE',
+    'LMP1',
+    'LMP2',
+    'LMP3',
+    'Formula 1',
+    'Formula 2',
+    'Formula 3',
+    'IndyCar',
+    'NASCAR',
+    'Touring Car',
+    'Classic F1',
+    'Classic GT',
+    'Classic Touring',
+    'Classic Prototype',
+    'Classic Endurance',
+    'Classic Rally',
+    'Classic Rally Cross',
+    'Classic Hill Climb',
+    'Stock Car Brasil',
+    'Copa Truck',
+    'Formula Vee',
+    'Formula Truck',
+    'Formula 3 Brasil'
+  ],
+  'competizione': [
+    'GT3',
+    'GT4',
+    'GTE',
+    'LMP2',
+    'LMP3',
+    'Touring Car',
+    'Classic GT',
+    'Classic Touring',
+    'Classic Prototype',
+    'Classic Endurance',
+    'Classic Rally',
+    'Classic Rally Cross',
+    'Classic Hill Climb',
+    'Cup Car',
+    'Challenge Car',
+    'Super Trofeo',
+    'GT World Challenge',
+    'GT World Challenge Europe',
+    'GT World Challenge America',
+    'GT World Challenge Asia'
+  ],
+  'lemans': [
+    'Hypercar',
+    'LMP2',
+    'LMP3',
+    'GT3',
+    'GT4',
+    'GTE',
+    'Touring Car',
+    'Classic GT',
+    'Classic Touring',
+    'Classic Prototype',
+    'Classic Endurance',
+    'Classic Rally',
+    'Classic Rally Cross',
+    'Classic Hill Climb',
+    'Cup Car',
+    'Challenge Car',
+    'Super Trofeo',
+    'GT World Challenge',
+    'GT World Challenge Europe',
+    'GT World Challenge America'
+  ],
+  'f1-25': [
+    'Formula 1',
+    'Formula 2',
+    'Formula 3',
+    'IndyCar',
+    'NASCAR',
+    'Touring Car',
+    'Classic F1',
+    'Classic GT',
+    'Classic Touring',
+    'Classic Prototype',
+    'Classic Endurance',
+    'Classic Rally',
+    'Classic Rally Cross',
+    'Classic Hill Climb',
+    'Cup Car',
+    'Challenge Car',
+    'Super Trofeo',
+    'GT World Challenge',
+    'GT World Challenge Europe',
+    'GT World Challenge America'
+  ],
+  'ea-wrc': [
+    'WRC',
+    'WRC2',
+    'WRC3',
+    'Junior WRC',
+    'Rally2',
+    'Rally3',
+    'Rally4',
+    'Rally5',
+    'Classic Rally',
+    'Classic Rally Cross',
+    'Classic Hill Climb',
+    'Cup Car',
+    'Challenge Car',
+    'Super Trofeo',
+    'GT World Challenge',
+    'GT World Challenge Europe',
+    'GT World Challenge America',
+    'GT World Challenge Asia',
+    'GT World Challenge Australia',
+    'GT World Challenge Japan'
+  ]
+}
+
 interface RegularEventFormData {
   title: string
   description: string
@@ -354,18 +758,23 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
                       </label>
                       <div className="space-y-3">
                         <div className="flex gap-2">
-                          <input
-                            type="text"
+                          <select
                             value={tempTrack}
                             onChange={(e) => setTempTrack(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTrackOption())}
                             className="flex-1 px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
-                            placeholder="예: Spa-Francorchamps"
-                          />
+                          >
+                            <option value="">트랙을 선택하세요</option>
+                            {gameTracks[game]?.map((track) => (
+                              <option key={track} value={track}>
+                                {track}
+                              </option>
+                            ))}
+                          </select>
                           <button
                             type="button"
                             onClick={addTrackOption}
-                            className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            disabled={!tempTrack}
+                            className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             추가
                           </button>
@@ -399,18 +808,23 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
                       </label>
                       <div className="space-y-3">
                         <div className="flex gap-2">
-                          <input
-                            type="text"
+                          <select
                             value={tempCarClass}
                             onChange={(e) => setTempCarClass(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCarClassOption())}
                             className="flex-1 px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
-                            placeholder="예: GT3, LMP2, Formula 1"
-                          />
+                          >
+                            <option value="">차량 클래스를 선택하세요</option>
+                            {gameCarClasses[game]?.map((carClass) => (
+                              <option key={carClass} value={carClass}>
+                                {carClass}
+                              </option>
+                            ))}
+                          </select>
                           <button
                             type="button"
                             onClick={addCarClassOption}
-                            className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            disabled={!tempCarClass}
+                            className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             추가
                           </button>
