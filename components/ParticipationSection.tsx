@@ -42,28 +42,37 @@ export default function ParticipationSection({ eventId, isOwner = false }: Parti
     }
   }
 
-  // 현재 사용자의 참가 상태 확인
+  // 현재 사용자의 참가 상태 확인 (Supabase 직접 사용)
   const checkParticipationStatus = async () => {
     if (!user) return false
     
     try {
-      const response = await fetch(`/api/multis/${eventId}/participants`)
-      if (response.ok) {
-        const data = await response.json()
-        const participants = data.participants || []
-        console.log('참가자 목록:', participants)
-        console.log('현재 사용자 ID:', user.id)
-        console.log('사용자 ID 타입:', typeof user.id)
-        
-        const isParticipant = participants.some((p: Participant) => {
-          console.log('비교 중:', { participantId: p.user_id, currentUserId: user.id, match: p.user_id === user.id })
-          return p.user_id === user.id
-        })
-        console.log('참가 상태:', isParticipant)
-        return isParticipant
-      } else {
-        console.error('참가자 목록 조회 실패:', response.status, response.statusText)
+      const supabase = createClientComponentClient()
+      
+      const { data: participant, error } = await supabase
+        .from('participants')
+        .select('id, user_id, status')
+        .eq('event_id', eventId)
+        .eq('user_id', user.id)
+        .single()
+
+      console.log('Supabase 참가 상태 확인:', { 
+        eventId, 
+        userId: user.id, 
+        participant, 
+        error: error?.message,
+        errorCode: error?.code 
+      })
+      
+      if (error && error.code !== 'PGRST116') { // PGRST116은 "no rows returned" 오류
+        console.error('참가 상태 확인 오류:', error)
+        return false
       }
+      
+      const isParticipant = !!participant
+      console.log('최종 참가 상태:', isParticipant)
+      return isParticipant
+      
     } catch (error) {
       console.error('참가 상태 확인 실패:', error)
     }
@@ -257,6 +266,27 @@ export default function ParticipationSection({ eventId, isOwner = false }: Parti
           </div>
         )}
       </div>
+
+      {/* 디버그 버튼 (개발 환경에서만) */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="mb-4 p-2 bg-yellow-900/30 border border-yellow-600 rounded">
+          <button
+            onClick={async () => {
+              try {
+                const response = await fetch(`/api/debug-participants?eventId=${eventId}`)
+                const data = await response.json()
+                console.log('디버그 정보:', data)
+                alert(`디버그 정보가 콘솔에 출력되었습니다.\n참가 상태: ${data.isParticipant ? '참가함' : '참가 안함'}\n총 참가자: ${data.totalParticipants}명`)
+              } catch (error) {
+                console.error('디버그 정보 가져오기 실패:', error)
+              }
+            }}
+            className="text-xs text-yellow-400 hover:text-yellow-300 underline"
+          >
+            🔍 디버그 정보 확인
+          </button>
+        </div>
+      )}
 
       {/* 참가신청/취소 버튼 */}
       <div className="text-center">

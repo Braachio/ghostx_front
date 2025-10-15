@@ -29,8 +29,8 @@ export default function HomePage() {
       login: '로그인',
       title: 'GHOST-X',
       subtitle: '당신의 고스트카가 되어드립니다',
-      description: '데이터 분석으로 랩타임을 단축시켜주는 디지털 고스트카',
-      description2: '항상 당신보다 빠른 고스트처럼, 정확한 데이터로 당신의 한계를 뛰어넘어보세요',
+      // description: '데이터 분석으로 랩타임을 단축시켜주는 디지털 고스트카',
+      // description2: '항상 당신보다 빠른 고스트처럼, 정확한 데이터로 당신의 한계를 뛰어넘어보세요',
       racingCommunity: '레이싱 커뮤니티',
       racingCommunityDesc: '다른 고스트카들과 경쟁하고\n레이싱 이벤트에 참여해보세요',
       ghostAnalysis: '고스트 분석',
@@ -218,7 +218,7 @@ export default function HomePage() {
             )}
           </p>
           <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
-            {t[language].description2}
+            {/* {t[language].description2} */}
           </p>
           <div className="h-px w-96 mx-auto bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
         </div>
