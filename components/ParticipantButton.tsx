@@ -10,6 +10,7 @@ interface ParticipantButtonProps {
 
 export default function ParticipantButton({ eventId }: ParticipantButtonProps) {
   const [user, setUser] = useState<User | null>(null)
+  const [userInfo, setUserInfo] = useState<{ is_steam_user: boolean } | null>(null)
   const [isParticipant, setIsParticipant] = useState(false)
   const [loading, setLoading] = useState(true)
   const [joining, setJoining] = useState(false)
@@ -20,7 +21,18 @@ export default function ParticipantButton({ eventId }: ParticipantButtonProps) {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
       
+      // 사용자 정보 가져오기 (Steam 사용자 여부 확인)
       if (user) {
+        try {
+          const response = await fetch('/api/me')
+          if (response.ok) {
+            const data = await response.json()
+            setUserInfo(data.user)
+          }
+        } catch (error) {
+          console.error('사용자 정보 가져오기 실패:', error)
+        }
+        
         try {
           const { data, error } = await supabase
             .from('multi_participants')
@@ -109,7 +121,7 @@ export default function ParticipantButton({ eventId }: ParticipantButtonProps) {
     )
   }
 
-  if (!user) {
+  if (!user || (userInfo && !userInfo.is_steam_user)) {
     return (
       <div className="text-center">
         <p className="text-gray-400 mb-4">Steam 로그인이 필요합니다.</p>

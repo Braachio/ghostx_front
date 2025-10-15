@@ -171,6 +171,22 @@ export default function HomePage() {
                   >
                     {t[language].login}
                   </Link>
+                  {process.env.NODE_ENV !== 'production' && (
+                    <>
+                      <Link
+                        href="/admin-login"
+                        className="px-4 py-2 rounded-lg bg-gradient-to-r from-red-600 to-orange-600 text-white text-sm hover:from-red-700 hover:to-orange-700 transition shadow-lg shadow-red-500/50"
+                      >
+                        관리자 로그인
+                      </Link>
+                      <Link
+                        href="/debug-user"
+                        className="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm hover:from-purple-700 hover:to-pink-700 transition shadow-lg shadow-purple-500/50"
+                      >
+                        사용자 ID 확인
+                      </Link>
+                    </>
+                  )}
                 </>
               )}
             </div>

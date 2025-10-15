@@ -66,7 +66,10 @@ export async function PATCH(
       'multi_time',
       'duration_hours',
       'max_participants',
-      'is_open'
+      'is_open',
+      'link',
+      'game_track',
+      'multi_class'
     ]
 
     const updateData: Record<string, unknown> = {

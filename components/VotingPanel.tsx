@@ -36,6 +36,7 @@ interface VoteData {
 
 export default function VotingPanel({ regularEventId, weekNumber, year, voteType = 'all' }: VotingPanelProps) {
   const [user, setUser] = useState<User | null>(null)
+  const [userInfo, setUserInfo] = useState<{ is_steam_user: boolean } | null>(null)
   const [voteData, setVoteData] = useState<VoteData | null>(null)
   const [loading, setLoading] = useState(true)
   const [voting, setVoting] = useState(false)
@@ -51,6 +52,19 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
       const supabase = createClientComponentClient()
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
+      
+      // 사용자 정보 가져오기 (Steam 사용자 여부 확인)
+      if (user) {
+        try {
+          const response = await fetch('/api/me')
+          if (response.ok) {
+            const data = await response.json()
+            setUserInfo(data.user)
+          }
+        } catch (error) {
+          console.error('사용자 정보 가져오기 실패:', error)
+        }
+      }
     }
     
     checkUser()
@@ -207,7 +221,7 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
     }
   }
 
-  if (!user) {
+  if (!user || (userInfo && !userInfo.is_steam_user)) {
     return (
       <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
         <h3 className="text-xl font-bold text-white mb-4">🗳️ 투표</h3>

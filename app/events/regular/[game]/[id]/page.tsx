@@ -39,6 +39,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
     duration_hours?: number
     is_open: boolean
     author_id: string
+    link?: string
   } | null>(null)
   const [eventLoading, setEventLoading] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -46,7 +47,10 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
     title: '',
     description: '',
     start_time: '',
-    duration_hours: 1
+    duration_hours: 1,
+    link: '',
+    game_track: '',
+    multi_class: ''
   })
 
   useEffect(() => {
@@ -122,7 +126,10 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
         title: event.title || '',
         description: event.description || '',
         start_time: event.start_time || '',
-        duration_hours: event.duration_hours || 1
+        duration_hours: event.duration_hours || 1,
+        link: event.link || '',
+        game_track: event.game_track || '',
+        multi_class: event.multi_class || ''
       })
       setIsEditing(true)
     }
@@ -262,7 +269,18 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
                 {event.description && (
                   <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
                     <p className="text-gray-400 text-sm mb-2">설명</p>
-                    <p className="text-gray-200 leading-relaxed">{event.description}</p>
+                    {event.link ? (
+                      <a 
+                        href={event.link} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-400 hover:text-blue-300 underline leading-relaxed transition-colors"
+                      >
+                        {event.description}
+                      </a>
+                    ) : (
+                      <p className="text-gray-200 leading-relaxed">{event.description}</p>
+                    )}
                   </div>
                 )}
               </div>
@@ -334,6 +352,20 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
                     className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none"
                     placeholder="이벤트에 대한 상세 설명을 입력하세요"
                   />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">링크 (참여/원문)</label>
+                  <input
+                    type="url"
+                    value={editForm.link}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, link: e.target.value }))}
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                    placeholder="https://gall.dcinside.com/..."
+                  />
+                  <p className="text-gray-400 text-sm mt-1">
+                    링크가 있으면 설명이 클릭 가능한 링크로 표시됩니다.
+                  </p>
                 </div>
               </div>
             )}

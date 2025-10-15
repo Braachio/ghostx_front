@@ -4,6 +4,23 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
+// 다음 요일 계산 함수
+const getNextDay = (currentDay: string): string => {
+  const days = ['월', '화', '수', '목', '금', '토', '일']
+  const currentIndex = days.indexOf(currentDay)
+  const nextIndex = (currentIndex + 1) % 7
+  return days[nextIndex]
+}
+
+// 투표 종료 요일 계산 함수 (이벤트 다음날 + 투표 지속 기간)
+const getVotingEndDay = (eventDay: string, durationDays: number): string => {
+  const days = ['월', '화', '수', '목', '금', '토', '일']
+  const eventIndex = days.indexOf(eventDay)
+  // 이벤트 다음날(투표 시작일) + 투표 지속 기간 - 1일
+  const endIndex = (eventIndex + 1 + durationDays - 1) % 7
+  return days[endIndex]
+}
+
 // 게임 이름 매핑
 const gameNames: Record<string, string> = {
   'iracing': '아이레이싱',
@@ -434,7 +451,9 @@ interface RegularEventFormData {
   voting_duration_days: number
   // 자동 투표 설정
   auto_voting_enabled: boolean
-  voting_start_offset_days: number
+  // 고정 트랙/차량 클래스 (투표 비활성화 시)
+  fixed_track: string
+  fixed_car_class: string
 }
 
 interface RegularEventPageProps {
@@ -456,8 +475,9 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
     car_class_options: [],
     voting_enabled: true,
     voting_duration_days: 3,
-    auto_voting_enabled: false,
-    voting_start_offset_days: 1
+    auto_voting_enabled: true, // 투표 활성화 시 자동 투표 스케줄 기본 활성화
+    fixed_track: '',
+    fixed_car_class: ''
   })
 
   // 임시 입력값들
@@ -489,6 +509,18 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
         setLoading(false)
         return
       }
+    } else {
+      // 투표가 비활성화된 경우 고정 트랙/차량 클래스 검증
+      if (!formData.fixed_track) {
+        alert('트랙을 선택해주세요.')
+        setLoading(false)
+        return
+      }
+      if (!formData.fixed_car_class) {
+        alert('차량 클래스를 선택해주세요.')
+        setLoading(false)
+        return
+      }
     }
 
     try {
@@ -506,6 +538,8 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
         car_class_options: formData.car_class_options,
         voting_enabled: formData.voting_enabled,
         voting_duration_days: formData.voting_duration_days,
+        fixed_track: formData.fixed_track,
+        fixed_car_class: formData.fixed_car_class,
         event_type: 'regular_schedule',
         is_template_based: false
       }
@@ -532,7 +566,7 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
               },
               body: JSON.stringify({
                 auto_voting_enabled: formData.auto_voting_enabled,
-                voting_start_offset_days: formData.voting_start_offset_days,
+                voting_start_offset_days: 1, // 고정: 이벤트 다음날 00:00
                 voting_duration_days: formData.voting_duration_days,
                 weeks_ahead: 4 // 4주 앞까지 스케줄 생성
               }),
@@ -560,10 +594,16 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
   }
 
   const handleInputChange = (field: keyof RegularEventFormData, value: string | number | boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }))
+    setFormData(prev => {
+      const newData = { ...prev, [field]: value }
+      
+      // 투표 활성화/비활성화 시 자동 투표 스케줄도 함께 제어
+      if (field === 'voting_enabled' && typeof value === 'boolean') {
+        newData.auto_voting_enabled = value // 투표 활성화 시 자동 투표 스케줄도 활성화
+      }
+      
+      return newData
+    })
   }
 
   const addTrackOption = () => {
@@ -698,6 +738,72 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
                   className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white resize-none"
                   placeholder="이벤트에 대한 자세한 설명을 입력하세요..."
                 />
+              </div>
+
+              {/* 정기 일정 */}
+              <div className="border-t border-gray-700 pt-8">
+                <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                  <span>🔄</span>
+                  정기 일정 설정
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">
+                      요일 *
+                    </label>
+                    <select
+                      required
+                      value={formData.day_of_week}
+                      onChange={(e) => handleInputChange('day_of_week', e.target.value)}
+                      className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
+                    >
+                      <option value="월">월요일</option>
+                      <option value="화">화요일</option>
+                      <option value="수">수요일</option>
+                      <option value="목">목요일</option>
+                      <option value="금">금요일</option>
+                      <option value="토">토요일</option>
+                      <option value="일">일요일</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">
+                      시작 시간 *
+                    </label>
+                    <input
+                      type="time"
+                      required
+                      value={formData.start_time}
+                      onChange={(e) => handleInputChange('start_time', e.target.value)}
+                      className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">
+                      진행 시간 (시간) *
+                    </label>
+                    <select
+                      required
+                      value={formData.duration_hours}
+                      onChange={(e) => handleInputChange('duration_hours', parseInt(e.target.value))}
+                      className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
+                    >
+                      <option value={1}>1시간</option>
+                      <option value={1.5}>1.5시간</option>
+                      <option value={2}>2시간</option>
+                      <option value={2.5}>2.5시간</option>
+                      <option value={3}>3시간</option>
+                      <option value={4}>4시간</option>
+                      <option value={6}>6시간</option>
+                      <option value={8}>8시간</option>
+                      <option value={12}>12시간</option>
+                      <option value={24}>24시간</option>
+                    </select>
+                  </div>
+                </div>
               </div>
 
               {/* 투표 설정 */}
@@ -857,74 +963,72 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
                 </div>
               )}
 
-              {/* 정기 일정 */}
-              <div className="border-t border-gray-700 pt-8">
-                <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                  <span>🔄</span>
-                  정기 일정 설정
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">
-                      요일 *
-                    </label>
-                    <select
-                      required
-                      value={formData.day_of_week}
-                      onChange={(e) => handleInputChange('day_of_week', e.target.value)}
-                      className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
-                    >
-                      <option value="월">월요일</option>
-                      <option value="화">화요일</option>
-                      <option value="수">수요일</option>
-                      <option value="목">목요일</option>
-                      <option value="금">금요일</option>
-                      <option value="토">토요일</option>
-                      <option value="일">일요일</option>
-                    </select>
+              {/* 고정 트랙/차량 클래스 선택 (투표 비활성화 시) */}
+              {!formData.voting_enabled && (
+                <div className="border-t border-gray-700 pt-8">
+                  <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                    <span>🎯</span>
+                    트랙 및 차량 클래스 선택
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* 고정 트랙 선택 */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-300 mb-2">
+                        트랙 *
+                      </label>
+                      <select
+                        value={formData.fixed_track}
+                        onChange={(e) => handleInputChange('fixed_track', e.target.value)}
+                        className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
+                        required
+                      >
+                        <option value="">트랙을 선택하세요</option>
+                        {gameTracks[game]?.map((track) => (
+                          <option key={track} value={track}>
+                            {track}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* 고정 차량 클래스 선택 */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-300 mb-2">
+                        차량 클래스 *
+                      </label>
+                      <select
+                        value={formData.fixed_car_class}
+                        onChange={(e) => handleInputChange('fixed_car_class', e.target.value)}
+                        className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
+                        required
+                      >
+                        <option value="">차량 클래스를 선택하세요</option>
+                        {gameCarClasses[game]?.map((carClass) => (
+                          <option key={carClass} value={carClass}>
+                            {carClass}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                   
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">
-                      시작 시간 *
-                    </label>
-                    <input
-                      type="time"
-                      required
-                      value={formData.start_time}
-                      onChange={(e) => handleInputChange('start_time', e.target.value)}
-                      className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">
-                      진행 시간 (시간) *
-                    </label>
-                    <select
-                      required
-                      value={formData.duration_hours}
-                      onChange={(e) => handleInputChange('duration_hours', parseInt(e.target.value))}
-                      className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
-                    >
-                      <option value={1}>1시간</option>
-                      <option value={1.5}>1.5시간</option>
-                      <option value={2}>2시간</option>
-                      <option value={2.5}>2.5시간</option>
-                      <option value={3}>3시간</option>
-                      <option value={4}>4시간</option>
-                      <option value={6}>6시간</option>
-                      <option value={8}>8시간</option>
-                      <option value={12}>12시간</option>
-                      <option value={24}>24시간</option>
-                    </select>
+                  <div className="mt-4 p-4 bg-blue-900/20 border border-blue-500/30 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <span className="text-blue-400">💡</span>
+                      <div className="text-sm text-blue-200">
+                        <p className="font-semibold text-blue-300 mb-1">고정 트랙/차량 클래스 모드</p>
+                        <p>투표가 비활성화되어 이벤트 작성자가 직접 트랙과 차량 클래스를 선택합니다. 매주 동일한 트랙과 차량 클래스로 이벤트가 진행됩니다.</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
-              {/* 자동 투표 설정 */}
-              <div className="border-t border-gray-700 pt-8">
+
+              {/* 자동 투표 설정 (투표 활성화 시에만 표시) */}
+              {formData.voting_enabled && (
+                <div className="border-t border-gray-700 pt-8">
                 <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
                   <span>🤖</span>
                   자동 투표 스케줄
@@ -932,16 +1036,12 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
                 
                 <div className="space-y-6">
                   <div className="flex items-center gap-4">
-                    <input
-                      type="checkbox"
-                      id="auto_voting_enabled"
-                      checked={formData.auto_voting_enabled}
-                      onChange={(e) => handleInputChange('auto_voting_enabled', e.target.checked)}
-                      className="w-5 h-5 text-blue-600 bg-gray-800 border-gray-600 rounded focus:ring-blue-500"
-                    />
-                    <label htmlFor="auto_voting_enabled" className="text-white font-medium">
-                      자동 투표 스케줄 사용
-                    </label>
+                    <div className="w-5 h-5 bg-blue-600 rounded flex items-center justify-center">
+                      <span className="text-white text-xs">✓</span>
+                    </div>
+                    <span className="text-white font-medium">
+                      자동 투표 스케줄 활성화 (기본값)
+                    </span>
                   </div>
                   
                   <div className="text-sm text-gray-400 bg-gray-800/50 p-4 rounded-lg">
@@ -950,37 +1050,31 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
                       <div>
                         <p className="font-semibold text-gray-300 mb-2">자동 투표 스케줄이란?</p>
                         <ul className="space-y-1 text-gray-400">
-                          <li>• 이벤트 시작 전 자동으로 투표가 재개됩니다</li>
+                          <li>• 투표 활성화 시 자동으로 활성화되는 기능입니다</li>
+                          <li>• 이벤트 다음날 00:00에 자동으로 투표가 시작됩니다</li>
                           <li>• 설정된 기간 후 자동으로 투표가 종료됩니다</li>
                           <li>• 매주 반복되는 정기 이벤트에 최적화된 기능입니다</li>
-                          <li>• 자동 스케줄 사용 시 위의 &quot;투표 기간&quot; 설정은 무시됩니다</li>
-                          <li>• 예: 월요일 멀티 → 화요일 00:00 투표 시작 → 목요일 23:59 투표 종료</li>
+                          <li>• 예: 월요일 멀티 → 화요일 00:00 투표 시작 → 목요일 23:59 투표 종료 (3일간)</li>
                         </ul>
                       </div>
                     </div>
                   </div>
                   
-                  {formData.auto_voting_enabled && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-6">
+                      {/* 투표 시작 시점 - 고정 */}
                       <div>
                         <label className="block text-sm font-semibold text-gray-300 mb-2">
-                          투표 시작 시점 (이벤트 시작 전)
+                          투표 시작 시점
                         </label>
-                        <select
-                          value={formData.voting_start_offset_days}
-                          onChange={(e) => handleInputChange('voting_start_offset_days', parseInt(e.target.value))}
-                          className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
-                        >
-                          <option value={1}>1일 전 (00:00)</option>
-                          <option value={2}>2일 전 (00:00)</option>
-                          <option value={3}>3일 전 (00:00)</option>
-                          <option value={4}>4일 전 (00:00)</option>
-                          <option value={5}>5일 전 (00:00)</option>
-                          <option value={6}>6일 전 (00:00)</option>
-                          <option value={7}>1주 전 (00:00)</option>
-                        </select>
+                        <div className="px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white">
+                          <span className="text-blue-400 font-medium">고정: 이벤트 다음날 00:00</span>
+                          <p className="text-gray-400 text-sm mt-1">
+                            예: {formData.day_of_week}요일 이벤트 → {getNextDay(formData.day_of_week)}요일 00:00 투표 시작
+                          </p>
+                        </div>
                       </div>
                       
+                      {/* 투표 지속 기간 */}
                       <div>
                         <label className="block text-sm font-semibold text-gray-300 mb-2">
                           투표 지속 기간 (일)
@@ -996,27 +1090,25 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
                           <option value={4}>4일</option>
                           <option value={5}>5일</option>
                           <option value={6}>6일</option>
-                          <option value={7}>1주</option>
+                          
                         </select>
                       </div>
                     </div>
-                  )}
                   
-                  {formData.auto_voting_enabled && (
-                    <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
+                  <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-blue-400">📅</span>
                         <span className="text-blue-300 font-semibold">투표 스케줄 예시</span>
                       </div>
                       <div className="text-sm text-blue-200 space-y-1">
                         <p>• <strong>{formData.day_of_week}요일</strong> 이벤트 기준</p>
-                        <p>• 투표 시작: <strong>이벤트 {formData.voting_start_offset_days}일 전 00:00</strong></p>
-                        <p>• 투표 종료: <strong>투표 시작 후 {formData.voting_duration_days}일 후 23:59</strong></p>
+                        <p>• 투표 시작: <strong>{getNextDay(formData.day_of_week)}요일 00:00</strong></p>
+                        <p>• 투표 종료: <strong>{getVotingEndDay(formData.day_of_week, formData.voting_duration_days)}요일 23:59</strong></p>
                       </div>
                     </div>
-                  )}
                 </div>
               </div>
+              )}
 
               {/* 추가 정보 */}
               <div className="border-t border-gray-700 pt-8">
