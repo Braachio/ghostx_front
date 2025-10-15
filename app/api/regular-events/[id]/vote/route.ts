@@ -7,7 +7,10 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    console.log('=== 투표 API 시작 ===')
     const { id } = await params
+    console.log('정기 이벤트 ID:', id)
+    
     const supabase = createRouteHandlerClient({ cookies })
     
     // 사용자 인증 확인
@@ -16,11 +19,15 @@ export async function POST(
     } = await supabase.auth.getUser()
 
     if (!user) {
+      console.log('사용자 인증 실패')
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
+    console.log('사용자 ID:', user.id)
+
     const body = await req.json()
     const { track_option, car_class_option, week_number, year } = body
+    console.log('요청 데이터:', { track_option, car_class_option, week_number, year })
 
     // 현재 주차 정보 확인 (요청에서 받지 않은 경우)
     const currentYear = year || new Date().getFullYear()
@@ -218,9 +225,13 @@ export async function POST(
       car_class_option
     }
 
+    console.log('투표 데이터:', voteData)
+    console.log('기존 투표 존재 여부:', !!existingVote)
+
     let result
     if (existingVote) {
       // 기존 투표 업데이트
+      console.log('기존 투표 업데이트 시작:', existingVote.id)
       const { data, error } = await supabase
         .from('regular_event_votes')
         .update(voteData)
@@ -228,22 +239,39 @@ export async function POST(
         .select()
         .single()
 
+      console.log('투표 업데이트 결과:', { data, error })
+
       result = data
       if (error) {
         console.error('투표 업데이트 실패:', error)
+        console.error('투표 업데이트 실패 상세:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        })
         return NextResponse.json({ error: '투표 업데이트에 실패했습니다.' }, { status: 500 })
       }
     } else {
       // 새로운 투표 생성
+      console.log('새로운 투표 생성 시작')
       const { data, error } = await supabase
         .from('regular_event_votes')
         .insert(voteData)
         .select()
         .single()
 
+      console.log('투표 생성 결과:', { data, error })
+
       result = data
       if (error) {
         console.error('투표 생성 실패:', error)
+        console.error('투표 생성 실패 상세:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        })
         return NextResponse.json({ error: '투표 생성에 실패했습니다.' }, { status: 500 })
       }
     }
@@ -251,35 +279,66 @@ export async function POST(
     // 5. 투표 수 업데이트
     console.log('투표 수 업데이트 시작')
     
-    // 트랙 투표 수 업데이트
-    const { data: trackVoteCount } = await supabase
-      .from('regular_event_votes')
-      .select('id', { count: 'exact' })
-      .eq('regular_event_id', id)
-      .eq('track_option', track_option)
-      .eq('week_number', currentWeek)
-      .eq('year', currentYear)
+    try {
+      // 트랙 투표 수 업데이트
+      if (trackOption && track_option) {
+        console.log('트랙 투표 수 업데이트:', track_option)
+        const { data: trackVoteCount, error: trackCountError } = await supabase
+          .from('regular_event_votes')
+          .select('id', { count: 'exact' })
+          .eq('regular_event_id', id)
+          .eq('track_option', track_option)
+          .eq('week_number', currentWeek)
+          .eq('year', currentYear)
 
-    await supabase
-      .from('regular_event_vote_options')
-      .update({ votes_count: trackVoteCount?.length || 0 })
-      .eq('id', trackOption.id)
+        console.log('트랙 투표 수 조회 결과:', { trackVoteCount, trackCountError })
 
-    // 차량 클래스 투표 수 업데이트
-    const { data: carClassVoteCount } = await supabase
-      .from('regular_event_votes')
-      .select('id', { count: 'exact' })
-      .eq('regular_event_id', id)
-      .eq('car_class_option', car_class_option)
-      .eq('week_number', currentWeek)
-      .eq('year', currentYear)
+        if (!trackCountError) {
+          const { error: updateTrackError } = await supabase
+            .from('regular_event_vote_options')
+            .update({ votes_count: trackVoteCount?.length || 0 })
+            .eq('id', trackOption.id)
 
-    await supabase
-      .from('regular_event_vote_options')
-      .update({ votes_count: carClassVoteCount?.length || 0 })
-      .eq('id', carClassOption.id)
+          if (updateTrackError) {
+            console.error('트랙 투표 수 업데이트 실패:', updateTrackError)
+          } else {
+            console.log('트랙 투표 수 업데이트 성공:', trackVoteCount?.length || 0)
+          }
+        }
+      }
 
-    console.log('투표 수 업데이트 완료')
+      // 차량 클래스 투표 수 업데이트
+      if (carClassOption && car_class_option) {
+        console.log('차량 클래스 투표 수 업데이트:', car_class_option)
+        const { data: carClassVoteCount, error: carClassCountError } = await supabase
+          .from('regular_event_votes')
+          .select('id', { count: 'exact' })
+          .eq('regular_event_id', id)
+          .eq('car_class_option', car_class_option)
+          .eq('week_number', currentWeek)
+          .eq('year', currentYear)
+
+        console.log('차량 클래스 투표 수 조회 결과:', { carClassVoteCount, carClassCountError })
+
+        if (!carClassCountError) {
+          const { error: updateCarClassError } = await supabase
+            .from('regular_event_vote_options')
+            .update({ votes_count: carClassVoteCount?.length || 0 })
+            .eq('id', carClassOption.id)
+
+          if (updateCarClassError) {
+            console.error('차량 클래스 투표 수 업데이트 실패:', updateCarClassError)
+          } else {
+            console.log('차량 클래스 투표 수 업데이트 성공:', carClassVoteCount?.length || 0)
+          }
+        }
+      }
+
+      console.log('투표 수 업데이트 완료')
+    } catch (updateError) {
+      console.error('투표 수 업데이트 중 오류:', updateError)
+      // 투표 수 업데이트 실패는 투표 자체의 성공을 막지 않음
+    }
 
     return NextResponse.json({ 
       success: true, 
@@ -288,9 +347,15 @@ export async function POST(
     })
 
   } catch (error) {
-    console.error('투표 API 오류:', error)
+    console.error('=== 투표 API 오류 ===')
+    console.error('오류 타입:', typeof error)
+    console.error('오류 객체:', error)
+    console.error('오류 메시지:', error instanceof Error ? error.message : 'Unknown error')
+    console.error('오류 스택:', error instanceof Error ? error.stack : 'No stack trace')
+    
     return NextResponse.json({ 
-      error: error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.' 
+      error: error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.',
+      details: process.env.NODE_ENV === 'development' ? error : undefined
     }, { status: 500 })
   }
 }
