@@ -55,46 +55,6 @@ export default function VotingPanel({ regularEventId, weekNumber, year }: Voting
     checkUser()
   }, [])
 
-  useEffect(() => {
-    const fetchVoteData = async () => {
-      try {
-        setLoading(true)
-        const params = new URLSearchParams()
-        if (weekNumber) params.append('week_number', weekNumber.toString())
-        if (year) params.append('year', year.toString())
-
-        const response = await fetch(`/api/regular-events/${regularEventId}/vote?${params}`)
-        if (response.ok) {
-          const data = await response.json()
-          setVoteData(data)
-          
-          // 사용자의 기존 투표가 있으면 선택
-          if (data.userVote) {
-            setSelectedTrack(data.userVote.track_option)
-            setSelectedCarClass(data.userVote.car_class_option)
-          }
-          
-          // 이벤트 소유자인지 확인
-          await checkEventOwnership()
-        } else {
-          const errorData = await response.json()
-          setError(errorData.error)
-        }
-      } catch (error) {
-        console.error('투표 데이터 로드 실패:', error)
-        setError('투표 데이터를 불러오는데 실패했습니다.')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    if (user) {
-      fetchVoteData()
-    } else {
-      setLoading(false)
-    }
-  }, [user, regularEventId, weekNumber, year, checkEventOwnership])
-
   const checkEventOwnership = async () => {
     try {
       const response = await fetch('/api/multis')
@@ -107,6 +67,46 @@ export default function VotingPanel({ regularEventId, weekNumber, year }: Voting
       console.error('이벤트 소유자 확인 실패:', error)
     }
   }
+
+  const fetchVoteData = async () => {
+    try {
+      setLoading(true)
+      const params = new URLSearchParams()
+      if (weekNumber) params.append('week_number', weekNumber.toString())
+      if (year) params.append('year', year.toString())
+
+      const response = await fetch(`/api/regular-events/${regularEventId}/vote?${params}`)
+      if (response.ok) {
+        const data = await response.json()
+        setVoteData(data)
+        
+        // 사용자의 기존 투표가 있으면 선택
+        if (data.userVote) {
+          setSelectedTrack(data.userVote.track_option)
+          setSelectedCarClass(data.userVote.car_class_option)
+        }
+        
+        // 이벤트 소유자인지 확인
+        await checkEventOwnership()
+      } else {
+        const errorData = await response.json()
+        setError(errorData.error)
+      }
+    } catch (error) {
+      console.error('투표 데이터 로드 실패:', error)
+      setError('투표 데이터를 불러오는데 실패했습니다.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (user) {
+      fetchVoteData()
+    } else {
+      setLoading(false)
+    }
+  }, [user, regularEventId, weekNumber, year])
 
   const toggleVotingStatus = async () => {
     if (!voteData) return
