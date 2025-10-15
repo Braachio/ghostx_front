@@ -19,7 +19,6 @@ const gameNames: Record<string, string> = {
 interface RegularEventFormData {
   title: string
   description: string
-  max_participants: number
   day_of_week: string
   start_time: string
   duration_hours: number
@@ -45,7 +44,6 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
   const [formData, setFormData] = useState<RegularEventFormData>({
     title: '',
     description: '',
-    max_participants: 20,
     day_of_week: '일',
     start_time: '20:00',
     duration_hours: 2,
@@ -96,7 +94,6 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
         title: formData.title,
         description: formData.description,
         game: gameName,
-        max_participants: formData.max_participants,
         day_of_week: formData.day_of_week,
         start_time: formData.start_time,
         duration_hours: formData.duration_hours,
@@ -268,7 +265,7 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
           <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-gray-700 rounded-2xl p-8 backdrop-blur-sm">
             <form onSubmit={handleSubmit} className="space-y-8">
               {/* 기본 정보 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-300 mb-2">
                     이벤트 제목 *
@@ -280,21 +277,6 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
                     onChange={(e) => handleInputChange('title', e.target.value)}
                     className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
                     placeholder="예: 매주 일요일 GT3 챔피언십"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">
-                    최대 참가자 수 *
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="2"
-                    max="100"
-                    value={formData.max_participants}
-                    onChange={(e) => handleInputChange('max_participants', parseInt(e.target.value))}
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
                   />
                 </div>
               </div>
@@ -619,17 +601,27 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
               </div>
 
               {/* 추가 정보 */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-2">
-                  갤러리 링크
-                </label>
-                <input
-                  type="url"
-                  value={formData.gallery_link}
-                  onChange={(e) => handleInputChange('gallery_link', e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
-                  placeholder="https://..."
-                />
+              <div className="border-t border-gray-700 pt-8">
+                <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                  <span>🔗</span>
+                  추가 정보
+                </h3>
+                
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">
+                    링크 (참여/원문)
+                  </label>
+                  <input
+                    type="url"
+                    value={formData.gallery_link}
+                    onChange={(e) => handleInputChange('gallery_link', e.target.value)}
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
+                    placeholder="https://gall.dcinside.com/..."
+                  />
+                  <p className="text-gray-400 text-sm mt-2">
+                    심레이싱게임 갤러리 등 참여 링크를 입력하세요. 입력된 링크는 이벤트 상세 페이지에서 클릭할 수 있습니다.
+                  </p>
+                </div>
               </div>
 
               {/* 버튼들 */}
