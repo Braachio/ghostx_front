@@ -90,7 +90,7 @@ export default function VotingResultsPanel({ eventId }: VotingResultsPanelProps)
   if (loading) {
     return (
       <div className="bg-gray-800/30 rounded-xl p-6 border border-gray-700">
-        <h3 className="text-xl font-bold text-white mb-4">🏆 투표 결과 적용</h3>
+        <h3 className="text-lg font-bold text-white mb-4">투표 결과</h3>
         <div className="text-gray-400 text-center py-4">투표 결과를 불러오는 중...</div>
       </div>
     )
@@ -99,7 +99,7 @@ export default function VotingResultsPanel({ eventId }: VotingResultsPanelProps)
   if (error) {
     return (
       <div className="bg-gray-800/30 rounded-xl p-6 border border-gray-700">
-        <h3 className="text-xl font-bold text-white mb-4">🏆 투표 결과 적용</h3>
+        <h3 className="text-lg font-bold text-white mb-4">투표 결과</h3>
         <div className="text-red-400 text-center py-4">{error}</div>
         <button
           onClick={fetchResults}
@@ -114,7 +114,7 @@ export default function VotingResultsPanel({ eventId }: VotingResultsPanelProps)
   if (!results || (results.tracks.length === 0 && results.carClasses.length === 0)) {
     return (
       <div className="bg-gray-800/30 rounded-xl p-6 border border-gray-700">
-        <h3 className="text-xl font-bold text-white mb-4">🏆 투표 결과 적용</h3>
+        <h3 className="text-lg font-bold text-white mb-4">투표 결과</h3>
         <div className="text-gray-400 text-center py-4">
           {currentYear}년 {currentWeek}주차 투표 결과가 없습니다.
         </div>
@@ -124,21 +124,28 @@ export default function VotingResultsPanel({ eventId }: VotingResultsPanelProps)
 
   return (
     <div className="bg-gray-800/30 rounded-xl p-6 border border-gray-700">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold text-white">🏆 투표 결과 적용</h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-bold text-white">투표 결과</h3>
         <div className="text-sm text-gray-400">
           {results.year}년 {results.week_number}주차
         </div>
       </div>
+
+      <p className="text-sm text-gray-400 mb-4">투표 결과를 이벤트에 적용할 수 있습니다.</p>
 
       {/* 투표 결과 적용 버튼 */}
       <div>
         <button
           onClick={applyResults}
           disabled={applying}
-          className="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-semibold"
+          className="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-semibold flex items-center justify-center gap-2"
         >
-          {applying ? '적용 중...' : '🏆 투표 결과를 이벤트에 적용하기'}
+          {applying ? '적용 중...' : (
+            <>
+              <span>🏆</span>
+              <span>투표 결과를 이벤트에 적용하기</span>
+            </>
+          )}
         </button>
         <p className="text-xs text-gray-500 mt-2 text-center">
           승리한 트랙과 차량 클래스가 정기 이벤트의 TBD 부분에 자동으로 입력됩니다

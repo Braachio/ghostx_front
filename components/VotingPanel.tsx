@@ -313,7 +313,8 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
         {(voteType === 'track' || voteType === 'all') && (
           <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
             <div className="mb-4">
-              <h3 className="text-xl font-bold text-gray-900 mb-2">트랙</h3>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">※ 트랙 투표</h3>
+              <p className="text-sm text-gray-600 mb-3">이벤트에서 사용할 트랙을 선택해주세요.</p>
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 <span>1개 선택</span>
                 <span>|</span>
@@ -365,17 +366,19 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
                     </div>
                     
                     {/* 가로 바차트 */}
-                    {track.votes_count > 0 && (
-                      <div className="mt-3 relative w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-gradient-to-r from-orange-400 to-red-500 h-2 rounded-full transition-all duration-500"
-                          style={{ width: `${percentage}%` }}
-                        ></div>
-                        <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-600 font-medium">
-                          {Math.round(percentage)}%
-                        </div>
+                    <div className="mt-3 relative w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className={`h-2 rounded-full transition-all duration-500 ${
+                          track.votes_count > 0 
+                            ? 'bg-gradient-to-r from-orange-400 to-red-500' 
+                            : 'bg-gray-300'
+                        }`}
+                        style={{ width: `${Math.max(percentage, 2)}%` }}
+                      ></div>
+                      <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-600 font-medium">
+                        {track.votes_count > 0 ? `${Math.round(percentage)}%` : '0%'}
                       </div>
-                    )}
+                    </div>
                   </label>
                 )
               })}
@@ -402,7 +405,8 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
         {(voteType === 'class' || voteType === 'all') && (
           <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
             <div className="mb-4">
-              <h3 className="text-xl font-bold text-gray-900 mb-2">클래스</h3>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">클래스 투표</h3>
+              <p className="text-sm text-gray-600 mb-3">이벤트에서 사용할 차량 클래스를 선택해주세요.</p>
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 <span>1개 선택</span>
                 <span>|</span>
@@ -454,17 +458,19 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
                     </div>
                     
                     {/* 가로 바차트 */}
-                    {carClass.votes_count > 0 && (
-                      <div className="mt-3 relative w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-gradient-to-r from-green-400 to-emerald-500 h-2 rounded-full transition-all duration-500"
-                          style={{ width: `${percentage}%` }}
-                        ></div>
-                        <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-600 font-medium">
-                          {Math.round(percentage)}%
-                        </div>
+                    <div className="mt-3 relative w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className={`h-2 rounded-full transition-all duration-500 ${
+                          carClass.votes_count > 0 
+                            ? 'bg-gradient-to-r from-green-400 to-emerald-500' 
+                            : 'bg-gray-300'
+                        }`}
+                        style={{ width: `${Math.max(percentage, 2)}%` }}
+                      ></div>
+                      <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-600 font-medium">
+                        {carClass.votes_count > 0 ? `${Math.round(percentage)}%` : '0%'}
                       </div>
-                    )}
+                    </div>
                   </label>
                 )
               })}
@@ -514,16 +520,16 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
 
         {/* 현재 투표 상태 */}
         {userVote && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="text-sm text-blue-800 text-center">
+          <div className="bg-gray-100 border border-gray-300 rounded-lg p-3">
+            <div className="text-sm text-gray-700 text-center">
               {voteType === 'track' && (
-                <>현재 트랙 투표: <span className="font-semibold">{userVote.track_option}</span></>
+                <>현재 트랙 투표: <span className="font-semibold text-blue-600">{userVote.track_option}</span></>
               )}
               {voteType === 'class' && (
-                <>현재 클래스 투표: <span className="font-semibold">{userVote.car_class_option}</span></>
+                <>현재 클래스 투표: <span className="font-semibold text-blue-600">{userVote.car_class_option}</span></>
               )}
               {voteType === 'all' && (
-                <>현재 투표: <span className="font-semibold">{userVote.track_option}</span> + <span className="font-semibold">{userVote.car_class_option}</span></>
+                <>현재 투표: <span className="font-semibold text-blue-600">{userVote.track_option}</span> + <span className="font-semibold text-blue-600">{userVote.car_class_option}</span></>
               )}
             </div>
           </div>
