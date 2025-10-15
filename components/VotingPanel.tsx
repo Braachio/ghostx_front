@@ -207,20 +207,39 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
     }
   }
 
-  // 참가자 상태 확인 함수
+  // 참가자 상태 확인 함수 (Supabase 직접 사용)
   const checkParticipationStatus = async () => {
     if (!user) return false
     
     try {
-      // 참가자 목록에서 현재 사용자 확인
-      const participantsResponse = await fetch(`/api/multis/${regularEventId}/participants`)
-      if (participantsResponse.ok) {
-        const data = await participantsResponse.json()
-        const participants = data.participants || []
-        return participants.some((p: { user_id: string }) => p.user_id === user.id)
+      const supabase = createClientComponentClient()
+      
+      const { data: participant, error } = await supabase
+        .from('participants')
+        .select('id, user_id, status')
+        .eq('event_id', regularEventId)
+        .eq('user_id', user.id)
+        .single()
+
+      console.log('VotingPanel - Supabase 참가 상태 확인:', { 
+        regularEventId, 
+        userId: user.id, 
+        participant, 
+        error: error?.message,
+        errorCode: error?.code 
+      })
+      
+      if (error && error.code !== 'PGRST116') { // PGRST116은 "no rows returned" 오류
+        console.error('VotingPanel - 참가 상태 확인 오류:', error)
+        return false
       }
+      
+      const isParticipant = !!participant
+      console.log('VotingPanel - 최종 참가 상태:', isParticipant)
+      return isParticipant
+      
     } catch (error) {
-      console.error('참가자 상태 확인 실패:', error)
+      console.error('VotingPanel - 참가 상태 확인 실패:', error)
     }
     return false
   }

@@ -16,9 +16,10 @@ interface Participant {
 interface ParticipationSectionProps {
   eventId: string
   isOwner?: boolean
+  onParticipationChange?: () => void // 참가 상태 변경 시 콜백
 }
 
-export default function ParticipationSection({ eventId, isOwner = false }: ParticipationSectionProps) {
+export default function ParticipationSection({ eventId, isOwner = false, onParticipationChange }: ParticipationSectionProps) {
   const [user, setUser] = useState<User | null>(null)
   const [userInfo, setUserInfo] = useState<{ is_steam_user: boolean } | null>(null)
   const [isParticipant, setIsParticipant] = useState(false)
@@ -149,6 +150,10 @@ export default function ParticipationSection({ eventId, isOwner = false }: Parti
         setIsParticipant(isParticipant)
         console.log('참가 상태 업데이트 완료:', isParticipant)
         alert('참가신청이 완료되었습니다! 이제 투표할 수 있습니다.')
+        // 참가 상태 변경 알림
+        if (onParticipationChange) {
+          onParticipationChange()
+        }
       } else {
         const errorData = await response.json()
         console.error('참가신청 실패:', errorData)
@@ -162,6 +167,10 @@ export default function ParticipationSection({ eventId, isOwner = false }: Parti
           setIsParticipant(isParticipant)
           console.log('참가 상태 업데이트 완료:', isParticipant)
           alert('이미 참가신청이 완료되어 있습니다.')
+          // 참가 상태 변경 알림
+          if (onParticipationChange) {
+            onParticipationChange()
+          }
         } else {
           alert(`참가신청 실패: ${errorData.error}`)
         }
@@ -192,6 +201,10 @@ export default function ParticipationSection({ eventId, isOwner = false }: Parti
         setIsParticipant(isParticipant)
         console.log('참가 취소 후 상태 업데이트 완료:', isParticipant)
         alert('참가가 취소되었습니다.')
+        // 참가 상태 변경 알림
+        if (onParticipationChange) {
+          onParticipationChange()
+        }
       } else {
         const errorData = await response.json()
         console.error('참가 취소 실패:', errorData)

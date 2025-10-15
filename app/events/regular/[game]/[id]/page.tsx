@@ -43,6 +43,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
   } | null>(null)
   const [eventLoading, setEventLoading] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
+  const [votingRefreshKey, setVotingRefreshKey] = useState(0) // 투표 컴포넌트 새로고침용
   const [editForm, setEditForm] = useState({
     title: '',
     description: '',
@@ -201,6 +202,12 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
       console.error('이벤트 삭제 실패:', error)
       alert('이벤트 삭제 중 오류가 발생했습니다.')
     }
+  }
+
+  // 참가 상태 변경 시 투표 컴포넌트 새로고침
+  const handleParticipationChange = () => {
+    console.log('참가 상태 변경됨, 투표 컴포넌트 새로고침')
+    setVotingRefreshKey(prev => prev + 1)
   }
 
   if (loading) {
@@ -431,6 +438,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
           <ParticipationSection 
             eventId={eventId} 
             isOwner={user && event && event.author_id === user.id}
+            onParticipationChange={handleParticipationChange}
           />
           
           {/* 투표 섹션들 */}
@@ -442,6 +450,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
                 이벤트에서 사용할 트랙을 선택해주세요.
               </p>
               <VotingPanel 
+                key={`track-${votingRefreshKey}`}
                 regularEventId={eventId}
                 weekNumber={undefined} // 현재 주차 자동 계산
                 year={undefined} // 현재 연도 자동 계산
@@ -458,6 +467,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
                 이벤트에서 사용할 차량 클래스를 선택해주세요.
               </p>
               <VotingPanel 
+                key={`class-${votingRefreshKey}`}
                 regularEventId={eventId}
                 weekNumber={undefined} // 현재 주차 자동 계산
                 year={undefined} // 현재 연도 자동 계산
