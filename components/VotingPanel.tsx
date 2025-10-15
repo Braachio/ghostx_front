@@ -46,6 +46,15 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
   const [isEventOwner, setIsEventOwner] = useState(false)
   const [togglingVoteStatus, setTogglingVoteStatus] = useState(false)
 
+  // 투표 종료까지 남은 일수 계산
+  const getDaysLeft = () => {
+    const now = new Date()
+    const votingEndDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 3) // 예시: 3일 후
+    const diffTime = votingEndDate.getTime() - now.getTime()
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    return Math.max(0, diffDays)
+  }
+
   useEffect(() => {
     // 사용자 인증 상태 확인
     const checkUser = async () => {
@@ -232,10 +241,10 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+      <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-500">투표 데이터를 불러오는 중...</p>
+          <p className="text-gray-300">투표 데이터를 불러오는 중...</p>
         </div>
       </div>
     )
@@ -243,8 +252,8 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
 
   if (error) {
     return (
-      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-        <div className="text-red-500 text-center">
+      <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
+        <div className="text-red-400 text-center">
           <p className="mb-4">{error}</p>
           <button 
             onClick={fetchVoteData}
@@ -259,8 +268,8 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
 
   if (!voteData) {
     return (
-      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-        <div className="text-gray-500 text-center">
+      <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
+        <div className="text-gray-300 text-center">
           <p>투표 데이터를 불러올 수 없습니다.</p>
         </div>
       </div>
@@ -311,24 +320,24 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
       <div className="space-y-4">
         {/* 트랙 선택 (voteType이 'track' 또는 'all'일 때만 표시) */}
         {(voteType === 'track' || voteType === 'all') && (
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+          <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
             <div className="mb-4">
-              <h3 className="text-lg font-bold text-gray-900 mb-2">※ 트랙 투표</h3>
-              <p className="text-sm text-gray-600 mb-3">이벤트에서 사용할 트랙을 선택해주세요.</p>
-              <div className="flex items-center gap-2 text-sm text-gray-500">
+              <h3 className="text-lg font-bold text-white mb-2">※ 트랙 투표</h3>
+              <p className="text-sm text-gray-300 mb-3">이벤트에서 사용할 트랙을 선택해주세요.</p>
+              <div className="flex items-center gap-2 text-sm text-gray-400">
                 <span>1개 선택</span>
                 <span>|</span>
                 <span>모두 가능</span>
                 <span>|</span>
-                <span>{weekInfo.year}.{String(weekInfo.week).padStart(2, '0')}.17 22:30 까지</span>
+                <span>투표 종료까지 {getDaysLeft()}일 남음</span>
               </div>
             </div>
             
             <div className="mb-4 flex items-center justify-between">
-              <span className="text-sm text-gray-600">
-                <span className="font-semibold text-blue-600">{participantCount}</span>명 참여
+              <span className="text-sm text-gray-300">
+                <span className="font-semibold text-blue-400">{participantCount}</span>명 참여
               </span>
-              <button className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1">
+              <button className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1">
                 결과 미리보기
                 <span className="text-xs">▶</span>
               </button>
@@ -345,14 +354,14 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
                     key={track.option_value} 
                     className={`block p-4 border rounded-lg cursor-pointer transition-all ${
                       isSelected 
-                        ? 'border-blue-500 bg-blue-50' 
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'border-blue-500 bg-blue-900/20' 
+                        : 'border-gray-600 hover:border-gray-500 bg-gray-700/50'
                     } ${votingClosed ? 'cursor-not-allowed opacity-60' : ''}`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-medium text-gray-900">{track.option_value}</span>
+                      <span className="font-medium text-white">{track.option_value}</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-500">({track.votes_count}표)</span>
+                        <span className="text-sm text-gray-300">({track.votes_count}표)</span>
                         <input
                           type="radio"
                           name="track"
@@ -360,22 +369,22 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
                           checked={isSelected}
                           onChange={(e) => setSelectedTrack(e.target.value)}
                           disabled={votingClosed}
-                          className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                          className="w-4 h-4 text-blue-500 border-gray-400 focus:ring-blue-500"
                         />
                       </div>
                     </div>
                     
                     {/* 가로 바차트 */}
-                    <div className="mt-3 relative w-full bg-gray-200 rounded-full h-2">
+                    <div className="mt-3 relative w-full bg-gray-600 rounded-full h-2">
                       <div 
                         className={`h-2 rounded-full transition-all duration-500 ${
                           track.votes_count > 0 
                             ? 'bg-gradient-to-r from-orange-400 to-red-500' 
-                            : 'bg-gray-300'
+                            : 'bg-gray-500'
                         }`}
                         style={{ width: `${Math.max(percentage, 2)}%` }}
                       ></div>
-                      <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-600 font-medium">
+                      <div className="absolute right-0 top-1/2 transform -translate-y-1/2 text-xs text-gray-300 font-medium bg-gray-800 px-1 rounded">
                         {track.votes_count > 0 ? `${Math.round(percentage)}%` : '0%'}
                       </div>
                     </div>
@@ -386,8 +395,8 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
             
             {voteType === 'track' && (
               <div className="flex justify-end gap-2">
-                <button className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
-                  <span className="text-gray-600">↗</span>
+                <button className="p-2 bg-gray-600 hover:bg-gray-500 rounded-lg transition-colors">
+                  <span className="text-gray-300">↗</span>
                 </button>
                 <button
                   onClick={handleVote}
@@ -403,24 +412,24 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
 
         {/* 차량 클래스 선택 (voteType이 'class' 또는 'all'일 때만 표시) */}
         {(voteType === 'class' || voteType === 'all') && (
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+          <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
             <div className="mb-4">
-              <h3 className="text-lg font-bold text-gray-900 mb-2">클래스 투표</h3>
-              <p className="text-sm text-gray-600 mb-3">이벤트에서 사용할 차량 클래스를 선택해주세요.</p>
-              <div className="flex items-center gap-2 text-sm text-gray-500">
+              <h3 className="text-lg font-bold text-white mb-2">클래스 투표</h3>
+              <p className="text-sm text-gray-300 mb-3">이벤트에서 사용할 차량 클래스를 선택해주세요.</p>
+              <div className="flex items-center gap-2 text-sm text-gray-400">
                 <span>1개 선택</span>
                 <span>|</span>
                 <span>모두 가능</span>
                 <span>|</span>
-                <span>{weekInfo.year}.{String(weekInfo.week).padStart(2, '0')}.17 22:30 까지</span>
+                <span>투표 종료까지 {getDaysLeft()}일 남음</span>
               </div>
             </div>
             
             <div className="mb-4 flex items-center justify-between">
-              <span className="text-sm text-gray-600">
-                <span className="font-semibold text-blue-600">{participantCount}</span>명 참여
+              <span className="text-sm text-gray-300">
+                <span className="font-semibold text-blue-400">{participantCount}</span>명 참여
               </span>
-              <button className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1">
+              <button className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1">
                 결과 미리보기
                 <span className="text-xs">▶</span>
               </button>
@@ -437,14 +446,14 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
                     key={carClass.option_value} 
                     className={`block p-4 border rounded-lg cursor-pointer transition-all ${
                       isSelected 
-                        ? 'border-blue-500 bg-blue-50' 
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'border-blue-500 bg-blue-900/20' 
+                        : 'border-gray-600 hover:border-gray-500 bg-gray-700/50'
                     } ${votingClosed ? 'cursor-not-allowed opacity-60' : ''}`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-medium text-gray-900">{carClass.option_value}</span>
+                      <span className="font-medium text-white">{carClass.option_value}</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-500">({carClass.votes_count}표)</span>
+                        <span className="text-sm text-gray-300">({carClass.votes_count}표)</span>
                         <input
                           type="radio"
                           name="carClass"
@@ -452,22 +461,22 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
                           checked={isSelected}
                           onChange={(e) => setSelectedCarClass(e.target.value)}
                           disabled={votingClosed}
-                          className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                          className="w-4 h-4 text-blue-500 border-gray-400 focus:ring-blue-500"
                         />
                       </div>
                     </div>
                     
                     {/* 가로 바차트 */}
-                    <div className="mt-3 relative w-full bg-gray-200 rounded-full h-2">
+                    <div className="mt-3 relative w-full bg-gray-600 rounded-full h-2">
                       <div 
                         className={`h-2 rounded-full transition-all duration-500 ${
                           carClass.votes_count > 0 
                             ? 'bg-gradient-to-r from-green-400 to-emerald-500' 
-                            : 'bg-gray-300'
+                            : 'bg-gray-500'
                         }`}
                         style={{ width: `${Math.max(percentage, 2)}%` }}
                       ></div>
-                      <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-600 font-medium">
+                      <div className="absolute right-0 top-1/2 transform -translate-y-1/2 text-xs text-gray-300 font-medium bg-gray-800 px-1 rounded">
                         {carClass.votes_count > 0 ? `${Math.round(percentage)}%` : '0%'}
                       </div>
                     </div>
@@ -478,8 +487,8 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
             
             {voteType === 'class' && (
               <div className="flex justify-end gap-2">
-                <button className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
-                  <span className="text-gray-600">↗</span>
+                <button className="p-2 bg-gray-600 hover:bg-gray-500 rounded-lg transition-colors">
+                  <span className="text-gray-300">↗</span>
                 </button>
                 <button
                   onClick={handleVote}
@@ -495,16 +504,16 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
 
         {/* 투표 버튼 (voteType이 'all'일 때만 표시) */}
         {voteType === 'all' && (
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+          <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
             {votingClosed ? (
               <div className="text-center py-4">
-                <div className="text-red-500 font-semibold mb-2">🔒 투표가 종료되었습니다</div>
-                <p className="text-gray-500 text-sm">이벤트 작성자가 투표를 재개할 때까지 기다려주세요.</p>
+                <div className="text-red-400 font-semibold mb-2">🔒 투표가 종료되었습니다</div>
+                <p className="text-gray-400 text-sm">이벤트 작성자가 투표를 재개할 때까지 기다려주세요.</p>
               </div>
             ) : (
               <div className="flex justify-end gap-2">
-                <button className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
-                  <span className="text-gray-600">↗</span>
+                <button className="p-2 bg-gray-600 hover:bg-gray-500 rounded-lg transition-colors">
+                  <span className="text-gray-300">↗</span>
                 </button>
                 <button
                   onClick={handleVote}
@@ -520,16 +529,16 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
 
         {/* 현재 투표 상태 */}
         {userVote && (
-          <div className="bg-gray-100 border border-gray-300 rounded-lg p-3">
-            <div className="text-sm text-gray-700 text-center">
+          <div className="bg-gray-700/50 border border-gray-600 rounded-lg p-3">
+            <div className="text-sm text-gray-300 text-center">
               {voteType === 'track' && (
-                <>현재 트랙 투표: <span className="font-semibold text-blue-600">{userVote.track_option}</span></>
+                <>현재 트랙 투표: <span className="font-semibold text-blue-400">{userVote.track_option}</span></>
               )}
               {voteType === 'class' && (
-                <>현재 클래스 투표: <span className="font-semibold text-blue-600">{userVote.car_class_option}</span></>
+                <>현재 클래스 투표: <span className="font-semibold text-blue-400">{userVote.car_class_option}</span></>
               )}
               {voteType === 'all' && (
-                <>현재 투표: <span className="font-semibold text-blue-600">{userVote.track_option}</span> + <span className="font-semibold text-blue-600">{userVote.car_class_option}</span></>
+                <>현재 투표: <span className="font-semibold text-blue-400">{userVote.track_option}</span> + <span className="font-semibold text-blue-400">{userVote.car_class_option}</span></>
               )}
             </div>
           </div>
