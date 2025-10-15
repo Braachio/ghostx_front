@@ -35,6 +35,8 @@ export default function EditMultiForm({ id }: { id: string }) {
   const [multiTime, setMultiTime] = useState('')
   const [link, setLink] = useState('')
   const [description, setDescription] = useState('')
+  const [bookmarkUrl, setBookmarkUrl] = useState('')
+  const [bookmarkLoading, setBookmarkLoading] = useState(false)
   const currentWeekInfo = getCurrentWeekInfo()
   const [year, setYear] = useState<number>(currentWeekInfo.year)
   const [week, setWeek] = useState<number>(currentWeekInfo.week)
@@ -42,6 +44,52 @@ export default function EditMultiForm({ id }: { id: string }) {
 
   const toggleDay = (d: string) => {
     setMultiDay(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d])
+  }
+
+  // URL 북마크 기능
+  const handleBookmarkUrl = async () => {
+    if (!bookmarkUrl.trim()) {
+      alert('URL을 입력해주세요.')
+      return
+    }
+
+    setBookmarkLoading(true)
+    try {
+      const response = await fetch('/api/bookmark', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url: bookmarkUrl }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        
+        // 제목이 비어있으면 북마크에서 가져온 제목 사용
+        if (!title.trim() && data.title) {
+          setTitle(data.title)
+        }
+        
+        // 설명을 북마크에서 가져온 내용으로 설정
+        if (data.description) {
+          setDescription(data.description)
+        }
+        
+        // 링크도 설정
+        setLink(bookmarkUrl)
+        
+        alert('북마크 정보를 가져왔습니다!')
+      } else {
+        const errorData = await response.json()
+        alert(errorData.error || '북마크 정보를 가져올 수 없습니다.')
+      }
+    } catch (error) {
+      console.error('북마크 처리 실패:', error)
+      alert('북마크 처리 중 오류가 발생했습니다.')
+    } finally {
+      setBookmarkLoading(false)
+    }
   }
 
   // 주차 관련 함수들 제거 (날짜 기반 시스템으로 변경)
@@ -277,15 +325,45 @@ export default function EditMultiForm({ id }: { id: string }) {
               </div>
               
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-cyan-400">설명</label>
-                <textarea 
-                  rows={4} 
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all resize-none" 
-                  value={description} 
-                  onChange={e=>setDescription(e.target.value)} 
-                  placeholder="이벤트에 대한 자세한 설명을 입력하세요..."
-                />
+                <label className="block text-sm font-medium text-cyan-400">URL 북마크</label>
+                <div className="flex gap-2">
+                  <input 
+                    type="url"
+                    className="flex-1 px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all" 
+                    value={bookmarkUrl} 
+                    onChange={e=>setBookmarkUrl(e.target.value)} 
+                    placeholder="https://gall.dcinside.com/..."
+                  />
+                  <button
+                    type="button"
+                    onClick={handleBookmarkUrl}
+                    disabled={bookmarkLoading || !bookmarkUrl.trim()}
+                    className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium whitespace-nowrap"
+                  >
+                    {bookmarkLoading ? (
+                      <div className="flex items-center gap-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        가져오는 중...
+                      </div>
+                    ) : (
+                      '📖 정보 가져오기'
+                    )}
+                  </button>
+                </div>
+                <p className="text-gray-400 text-sm">
+                  URL을 입력하고 "정보 가져오기"를 클릭하면 자동으로 제목과 설명을 가져옵니다.
+                </p>
               </div>
+              
+              {/* 가져온 설명 표시 */}
+              {description && (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-cyan-400">설명 (자동 가져옴)</label>
+                  <div className="px-4 py-3 bg-gray-800/30 border border-gray-600 rounded-lg text-gray-300 text-sm">
+                    {description}
+                  </div>
+                </div>
+              )}
 
             </div>
           </div>
