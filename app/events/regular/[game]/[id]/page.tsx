@@ -3,8 +3,6 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import ParticipationSection from '@/components/ParticipationSection'
-import VotingPanel from '@/components/VotingPanel'
-import VotingResultsPanel from '@/components/VotingResultsPanel'
 
 interface RegularEventDetailPageProps {
   params: Promise<{ game: string; id: string }>
@@ -43,7 +41,6 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
   } | null>(null)
   const [eventLoading, setEventLoading] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
-  const [votingRefreshKey, setVotingRefreshKey] = useState(0) // 투표 컴포넌트 새로고침용
   const [editForm, setEditForm] = useState({
     title: '',
     description: '',
@@ -205,10 +202,6 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
   }
 
   // 참가 상태 변경 시 투표 컴포넌트 새로고침
-  const handleParticipationChange = () => {
-    console.log('참가 상태 변경됨, 투표 컴포넌트 새로고침')
-    setVotingRefreshKey(prev => prev + 1)
-  }
 
   if (loading) {
     return (
@@ -437,57 +430,8 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
           {/* 참가신청 섹션 */}
           <ParticipationSection 
             eventId={eventId} 
-            isOwner={user && event && event.author_id === user.id}
-            onParticipationChange={handleParticipationChange}
+            isOwner={user && event && event.author_id === user.id || false}
           />
-          
-          {/* 투표 섹션들 */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* 트랙 투표 섹션 */}
-            <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
-              <h3 className="text-lg font-semibold text-white mb-4">🏁 트랙 투표</h3>
-              <p className="text-gray-400 text-sm mb-4">
-                이벤트에서 사용할 트랙을 선택해주세요.
-              </p>
-              <VotingPanel 
-                key={`track-${votingRefreshKey}`}
-                regularEventId={eventId}
-                weekNumber={undefined} // 현재 주차 자동 계산
-                year={undefined} // 현재 연도 자동 계산
-                voteType="track" // 트랙 투표만 표시
-                game={game}
-                isOwner={user && event && event.author_id === user.id}
-              />
-            </div>
-            
-            {/* 클래스 투표 섹션 */}
-            <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
-              <h3 className="text-lg font-semibold text-white mb-4">🚗 클래스 투표</h3>
-              <p className="text-gray-400 text-sm mb-4">
-                이벤트에서 사용할 차량 클래스를 선택해주세요.
-              </p>
-              <VotingPanel 
-                key={`class-${votingRefreshKey}`}
-                regularEventId={eventId}
-                weekNumber={undefined} // 현재 주차 자동 계산
-                year={undefined} // 현재 연도 자동 계산
-                voteType="class" // 클래스 투표만 표시
-                game={game}
-                isOwner={user && event && event.author_id === user.id}
-              />
-            </div>
-          </div>
-          
-          {/* 투표 결과 섹션 (이벤트 작성자만) */}
-          {user && event && event.author_id === user.id && (
-            <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
-              <h3 className="text-lg font-semibold text-white mb-4">📊 투표 결과</h3>
-              <p className="text-gray-400 text-sm mb-4">
-                투표 결과를 이벤트에 적용할 수 있습니다.
-              </p>
-              <VotingResultsPanel eventId={eventId} />
-            </div>
-          )}
         </div>
 
       </div>

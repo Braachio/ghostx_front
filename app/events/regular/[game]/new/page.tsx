@@ -4,23 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
-// 다음 요일 계산 함수
-const getNextDay = (currentDay: string): string => {
-  const days = ['월', '화', '수', '목', '금', '토', '일']
-  const currentIndex = days.indexOf(currentDay)
-  const nextIndex = (currentIndex + 1) % 7
-  return days[nextIndex]
-}
-
-// 투표 종료 요일 계산 함수 (이벤트 다음날 + 투표 지속 기간)
-const getVotingEndDay = (eventDay: string, durationDays: number): string => {
-  const days = ['월', '화', '수', '목', '금', '토', '일']
-  const eventIndex = days.indexOf(eventDay)
-  // 이벤트 다음날(투표 시작일) + 투표 지속 기간 - 1일
-  const endIndex = (eventIndex + 1 + durationDays - 1) % 7
-  return days[endIndex]
-}
-
 // 게임 이름 매핑
 const gameNames: Record<string, string> = {
   'iracing': '아이레이싱',
@@ -33,410 +16,6 @@ const gameNames: Record<string, string> = {
   'ea-wrc': 'EA WRC'
 }
 
-// 게임별 트랙 옵션
-const gameTracks: Record<string, string[]> = {
-  'iracing': [
-    'Spa-Francorchamps',
-    'Silverstone',
-    'Nürburgring',
-    'Monza',
-    'Suzuka',
-    'Watkins Glen',
-    'Road America',
-    'Laguna Seca',
-    'Sebring',
-    'Daytona',
-    'Talladega',
-    'Charlotte',
-    'Bristol',
-    'Martinsville',
-    'Phoenix',
-    'Las Vegas',
-    'Homestead',
-    'Texas',
-    'Kansas',
-    'Atlanta'
-  ],
-  'assettocorsa': [
-    'Spa-Francorchamps',
-    'Silverstone',
-    'Nürburgring',
-    'Monza',
-    'Suzuka',
-    'Imola',
-    'Mugello',
-    'Brands Hatch',
-    'Donington Park',
-    'Oulton Park',
-    'Snetterton',
-    'Knockhill',
-    'Zandvoort',
-    'Red Bull Ring',
-    'Paul Ricard',
-    'Barcelona',
-    'Valencia',
-    'Jerez',
-    'Portimão',
-    'Estoril'
-  ],
-  'gran-turismo7': [
-    'Spa-Francorchamps',
-    'Silverstone',
-    'Nürburgring',
-    'Monza',
-    'Suzuka',
-    'Fuji Speedway',
-    'Autopolis',
-    'Twin Ring Motegi',
-    'Tsukuba',
-    'Deep Forest',
-    'Trial Mountain',
-    'High Speed Ring',
-    'Grand Valley',
-    'Laguna Seca',
-    'Watkins Glen',
-    'Road Atlanta',
-    'Daytona',
-    'Le Mans',
-    'Sardegna',
-    'Catalunya'
-  ],
-  'automobilista2': [
-    'Spa-Francorchamps',
-    'Silverstone',
-    'Nürburgring',
-    'Monza',
-    'Suzuka',
-    'Imola',
-    'Mugello',
-    'Brands Hatch',
-    'Donington Park',
-    'Oulton Park',
-    'Snetterton',
-    'Knockhill',
-    'Zandvoort',
-    'Red Bull Ring',
-    'Paul Ricard',
-    'Barcelona',
-    'Valencia',
-    'Jerez',
-    'Portimão',
-    'Estoril',
-    'Interlagos',
-    'Buenos Aires',
-    'Cascavel',
-    'Velopark',
-    'Goiânia'
-  ],
-  'competizione': [
-    'Spa-Francorchamps',
-    'Silverstone',
-    'Nürburgring',
-    'Monza',
-    'Suzuka',
-    'Imola',
-    'Mugello',
-    'Brands Hatch',
-    'Donington Park',
-    'Oulton Park',
-    'Snetterton',
-    'Knockhill',
-    'Zandvoort',
-    'Red Bull Ring',
-    'Paul Ricard',
-    'Barcelona',
-    'Valencia',
-    'Jerez',
-    'Portimão',
-    'Estoril',
-    'Kyalami',
-    'Misano',
-    'Hungaroring',
-    'Zolder',
-    'Oschersleben'
-  ],
-  'lemans': [
-    'Le Mans',
-    'Spa-Francorchamps',
-    'Silverstone',
-    'Nürburgring',
-    'Monza',
-    'Suzuka',
-    'Imola',
-    'Mugello',
-    'Brands Hatch',
-    'Donington Park',
-    'Oulton Park',
-    'Snetterton',
-    'Knockhill',
-    'Zandvoort',
-    'Red Bull Ring',
-    'Paul Ricard',
-    'Barcelona',
-    'Valencia',
-    'Jerez',
-    'Portimão',
-    'Estoril',
-    'Kyalami',
-    'Misano',
-    'Hungaroring',
-    'Zolder'
-  ],
-  'f1-25': [
-    'Spa-Francorchamps',
-    'Silverstone',
-    'Monza',
-    'Suzuka',
-    'Imola',
-    'Mugello',
-    'Red Bull Ring',
-    'Paul Ricard',
-    'Barcelona',
-    'Valencia',
-    'Jerez',
-    'Portimão',
-    'Estoril',
-    'Kyalami',
-    'Misano',
-    'Hungaroring',
-    'Zolder',
-    'Bahrain',
-    'Saudi Arabia',
-    'Australia',
-    'Azerbaijan',
-    'Miami',
-    'Monaco',
-    'Canada',
-    'Austria',
-    'Great Britain',
-    'Hungary',
-    'Belgium',
-    'Netherlands',
-    'Italy',
-    'Singapore',
-    'Japan',
-    'Qatar',
-    'United States',
-    'Mexico',
-    'Brazil',
-    'Las Vegas',
-    'Abu Dhabi'
-  ],
-  'ea-wrc': [
-    'Monte Carlo',
-    'Sweden',
-    'Mexico',
-    'Croatia',
-    'Portugal',
-    'Sardinia',
-    'Kenya',
-    'Estonia',
-    'Finland',
-    'Greece',
-    'Chile',
-    'Central Europe',
-    'Japan',
-    'Rally GB',
-    'Spain',
-    'Australia',
-    'New Zealand',
-    'Argentina',
-    'Turkey',
-    'Germany'
-  ]
-}
-
-// 게임별 차량 클래스 옵션
-const gameCarClasses: Record<string, string[]> = {
-  'iracing': [
-    'GT3',
-    'GT4',
-    'LMP2',
-    'LMP3',
-    'GTE',
-    'Formula 1',
-    'Formula 2',
-    'Formula 3',
-    'IndyCar',
-    'NASCAR Cup',
-    'NASCAR Xfinity',
-    'NASCAR Truck',
-    'ARCA',
-    'Dirt Late Model',
-    'Dirt Sprint Car',
-    'Dirt Midget',
-    'Dirt Street Stock',
-    'Dirt UMP Modified',
-    'Dirt 305 Sprint Car',
-    'Dirt 360 Sprint Car'
-  ],
-  'assettocorsa': [
-    'GT3',
-    'GT4',
-    'GTE',
-    'LMP1',
-    'LMP2',
-    'LMP3',
-    'Formula 1',
-    'Formula 2',
-    'Formula 3',
-    'IndyCar',
-    'NASCAR',
-    'Touring Car',
-    'Classic F1',
-    'Classic GT',
-    'Classic Touring',
-    'Classic Prototype',
-    'Classic Endurance',
-    'Classic Rally',
-    'Classic Rally Cross',
-    'Classic Hill Climb'
-  ],
-  'gran-turismo7': [
-    'GT3',
-    'GT4',
-    'GTE',
-    'LMP1',
-    'LMP2',
-    'LMP3',
-    'Formula 1',
-    'Formula 2',
-    'Formula 3',
-    'IndyCar',
-    'NASCAR',
-    'Touring Car',
-    'Classic F1',
-    'Classic GT',
-    'Classic Touring',
-    'Classic Prototype',
-    'Classic Endurance',
-    'Classic Rally',
-    'Classic Rally Cross',
-    'Classic Hill Climb',
-    'Gr.1',
-    'Gr.2',
-    'Gr.3',
-    'Gr.4',
-    'Gr.B',
-    'Gr.X'
-  ],
-  'automobilista2': [
-    'GT3',
-    'GT4',
-    'GTE',
-    'LMP1',
-    'LMP2',
-    'LMP3',
-    'Formula 1',
-    'Formula 2',
-    'Formula 3',
-    'IndyCar',
-    'NASCAR',
-    'Touring Car',
-    'Classic F1',
-    'Classic GT',
-    'Classic Touring',
-    'Classic Prototype',
-    'Classic Endurance',
-    'Classic Rally',
-    'Classic Rally Cross',
-    'Classic Hill Climb',
-    'Stock Car Brasil',
-    'Copa Truck',
-    'Formula Vee',
-    'Formula Truck',
-    'Formula 3 Brasil'
-  ],
-  'competizione': [
-    'GT3',
-    'GT4',
-    'GTE',
-    'LMP2',
-    'LMP3',
-    'Touring Car',
-    'Classic GT',
-    'Classic Touring',
-    'Classic Prototype',
-    'Classic Endurance',
-    'Classic Rally',
-    'Classic Rally Cross',
-    'Classic Hill Climb',
-    'Cup Car',
-    'Challenge Car',
-    'Super Trofeo',
-    'GT World Challenge',
-    'GT World Challenge Europe',
-    'GT World Challenge America',
-    'GT World Challenge Asia'
-  ],
-  'lemans': [
-    'Hypercar',
-    'LMP2',
-    'LMP3',
-    'GT3',
-    'GT4',
-    'GTE',
-    'Touring Car',
-    'Classic GT',
-    'Classic Touring',
-    'Classic Prototype',
-    'Classic Endurance',
-    'Classic Rally',
-    'Classic Rally Cross',
-    'Classic Hill Climb',
-    'Cup Car',
-    'Challenge Car',
-    'Super Trofeo',
-    'GT World Challenge',
-    'GT World Challenge Europe',
-    'GT World Challenge America'
-  ],
-  'f1-25': [
-    'Formula 1',
-    'Formula 2',
-    'Formula 3',
-    'IndyCar',
-    'NASCAR',
-    'Touring Car',
-    'Classic F1',
-    'Classic GT',
-    'Classic Touring',
-    'Classic Prototype',
-    'Classic Endurance',
-    'Classic Rally',
-    'Classic Rally Cross',
-    'Classic Hill Climb',
-    'Cup Car',
-    'Challenge Car',
-    'Super Trofeo',
-    'GT World Challenge',
-    'GT World Challenge Europe',
-    'GT World Challenge America'
-  ],
-  'ea-wrc': [
-    'WRC',
-    'WRC2',
-    'WRC3',
-    'Junior WRC',
-    'Rally2',
-    'Rally3',
-    'Rally4',
-    'Rally5',
-    'Classic Rally',
-    'Classic Rally Cross',
-    'Classic Hill Climb',
-    'Cup Car',
-    'Challenge Car',
-    'Super Trofeo',
-    'GT World Challenge',
-    'GT World Challenge Europe',
-    'GT World Challenge America',
-    'GT World Challenge Asia',
-    'GT World Challenge Australia',
-    'GT World Challenge Japan'
-  ]
-}
-
 interface RegularEventFormData {
   title: string
   description: string
@@ -444,16 +23,6 @@ interface RegularEventFormData {
   start_time: string
   duration_hours: number
   link?: string
-  // 투표 옵션들
-  track_options: string[]
-  car_class_options: string[]
-  voting_enabled: boolean
-  voting_duration_days: number
-  // 자동 투표 설정
-  auto_voting_enabled: boolean
-  // 고정 트랙/차량 클래스 (투표 비활성화 시)
-  fixed_track: string
-  fixed_car_class: string
 }
 
 interface RegularEventPageProps {
@@ -471,18 +40,7 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
     start_time: '20:00',
     duration_hours: 2,
     link: '',
-    track_options: [],
-    car_class_options: [],
-    voting_enabled: true,
-    voting_duration_days: 3,
-    auto_voting_enabled: true, // 투표 활성화 시 자동 투표 스케줄 기본 활성화
-    fixed_track: '',
-    fixed_car_class: ''
   })
-
-  // 임시 입력값들
-  const [tempTrack, setTempTrack] = useState('')
-  const [tempCarClass, setTempCarClass] = useState('')
 
   // params 로드
   useEffect(() => {
@@ -497,32 +55,6 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
     e.preventDefault()
     setLoading(true)
 
-    // 투표가 활성화된 경우 옵션 검증
-    if (formData.voting_enabled) {
-      if (formData.track_options.length === 0) {
-        alert('트랙 옵션을 최소 1개 이상 추가해주세요.')
-        setLoading(false)
-        return
-      }
-      if (formData.car_class_options.length === 0) {
-        alert('차량 클래스 옵션을 최소 1개 이상 추가해주세요.')
-        setLoading(false)
-        return
-      }
-    } else {
-      // 투표가 비활성화된 경우 고정 트랙/차량 클래스 검증
-      if (!formData.fixed_track) {
-        alert('트랙을 선택해주세요.')
-        setLoading(false)
-        return
-      }
-      if (!formData.fixed_car_class) {
-        alert('차량 클래스를 선택해주세요.')
-        setLoading(false)
-        return
-      }
-    }
-
     try {
       const gameName = gameNames[game] || game
       
@@ -534,12 +66,6 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
         start_time: formData.start_time,
         duration_hours: formData.duration_hours,
         link: formData.link,
-        track_options: formData.track_options,
-        car_class_options: formData.car_class_options,
-        voting_enabled: formData.voting_enabled,
-        voting_duration_days: formData.voting_duration_days,
-        fixed_track: formData.fixed_track,
-        fixed_car_class: formData.fixed_car_class,
         event_type: 'regular_schedule',
         is_template_based: false
       }
@@ -553,32 +79,7 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
       })
 
       if (response.ok) {
-        const result = await response.json()
-        const eventId = result.eventId
-        
-        // 자동 투표가 활성화된 경우 투표 스케줄 설정
-        if (formData.auto_voting_enabled && eventId) {
-          try {
-            const scheduleResponse = await fetch(`/api/regular-events/${eventId}/voting-schedule`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                auto_voting_enabled: formData.auto_voting_enabled,
-                voting_start_offset_days: 1, // 고정: 이벤트 다음날 00:00
-                voting_duration_days: formData.voting_duration_days,
-                weeks_ahead: 4 // 4주 앞까지 스케줄 생성
-              }),
-            })
-            
-            if (!scheduleResponse.ok) {
-              console.warn('자동 투표 스케줄 설정 실패 (이벤트는 생성됨)')
-            }
-          } catch (scheduleError) {
-            console.warn('자동 투표 스케줄 설정 중 오류 (이벤트는 생성됨):', scheduleError)
-          }
-        }
+        await response.json()
         
         router.push(`/events/regular/${game}`)
       } else {
@@ -597,47 +98,8 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
     setFormData(prev => {
       const newData = { ...prev, [field]: value }
       
-      // 투표 활성화/비활성화 시 자동 투표 스케줄도 함께 제어
-      if (field === 'voting_enabled' && typeof value === 'boolean') {
-        newData.auto_voting_enabled = value // 투표 활성화 시 자동 투표 스케줄도 활성화
-      }
-      
       return newData
     })
-  }
-
-  const addTrackOption = () => {
-    if (tempTrack.trim() && !formData.track_options.includes(tempTrack.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        track_options: [...prev.track_options, tempTrack.trim()]
-      }))
-      setTempTrack('')
-    }
-  }
-
-  const removeTrackOption = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      track_options: prev.track_options.filter((_, i) => i !== index)
-    }))
-  }
-
-  const addCarClassOption = () => {
-    if (tempCarClass.trim() && !formData.car_class_options.includes(tempCarClass.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        car_class_options: [...prev.car_class_options, tempCarClass.trim()]
-      }))
-      setTempCarClass('')
-    }
-  }
-
-  const removeCarClassOption = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      car_class_options: prev.car_class_options.filter((_, i) => i !== index)
-    }))
   }
 
   if (!game) {
@@ -655,506 +117,167 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 text-white">
-      <div className="max-w-4xl mx-auto p-6">
+      <div className="container mx-auto px-4 py-8">
         {/* 헤더 */}
-        <div className="mb-12 text-center">
-          <div className="inline-block mb-6">
-            <div className="text-7xl animate-pulse">📅</div>
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <Link 
+              href={`/events/regular/${game}`}
+              className="text-blue-400 hover:text-blue-300 transition-colors"
+            >
+              ← 돌아가기
+            </Link>
+            <h1 className="text-3xl font-bold text-white">
+              {gameDisplayName} 정기 이벤트 생성
+            </h1>
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent mb-4">
-            {gameDisplayName} 정기 이벤트 등록
-          </h1>
-          <p className="text-gray-400 text-lg">
-            매주 반복되는 정기 레이싱 이벤트를 등록하세요
+          <p className="text-gray-400">
+            매주 반복되는 정기 이벤트를 생성합니다.
           </p>
-          <div className="mt-6 h-px w-96 mx-auto bg-gradient-to-r from-transparent via-blue-500 to-transparent"></div>
         </div>
 
-        {/* 정기 이벤트 설명 */}
-        <div className="relative mb-12">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-cyan-600/10 rounded-2xl blur-xl"></div>
-          <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-blue-500/40 rounded-2xl p-8 backdrop-blur-sm">
-            <div className="flex items-start gap-4">
-              <div className="text-4xl">🔄</div>
-              <div className="flex-1">
-                <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-3">
-                  정기 이벤트란?
-                </h2>
-                <p className="text-gray-300 leading-relaxed mb-4">
-                  매주 같은 요일, 같은 시간에 반복되는 정규 레이싱 이벤트입니다. 
-                  연도나 주차를 선택할 필요 없이 요일과 시간만 설정하면 됩니다.
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                  <div className="flex items-center gap-2 text-blue-400">
-                    <span>📅</span>
-                    <span>매주 반복</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-green-400">
-                    <span>⏰</span>
-                    <span>고정 시간</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-purple-400">
-                    <span>🎯</span>
-                    <span>일정 예측 가능</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 등록 폼 */}
-        <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-800/20 to-black/20 rounded-2xl blur-xl"></div>
-          <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-gray-700 rounded-2xl p-8 backdrop-blur-sm">
-            <form onSubmit={handleSubmit} className="space-y-8">
-              {/* 기본 정보 */}
-              <div>
+        {/* 폼 */}
+        <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
+          <div className="bg-gray-800/50 rounded-xl p-8 border border-gray-700">
+            
+            {/* 기본 정보 */}
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <span>📝</span>
+                기본 정보
+              </h2>
+              
+              <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-300 mb-2">
                     이벤트 제목 *
                   </label>
                   <input
                     type="text"
-                    required
                     value={formData.title}
                     onChange={(e) => handleInputChange('title', e.target.value)}
                     className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
-                    placeholder="예: 매주 일요일 GT3 챔피언십"
+                    placeholder="예: 매주 일요일 GT3 레이스"
+                    required
                   />
                 </div>
-              </div>
-
-              {/* 설명 */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-2">
-                  이벤트 설명 *
-                </label>
-                <textarea
-                  required
-                  rows={4}
-                  value={formData.description}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white resize-none"
-                  placeholder="이벤트에 대한 자세한 설명을 입력하세요..."
-                />
-              </div>
-
-              {/* 정기 일정 */}
-              <div className="border-t border-gray-700 pt-8">
-                <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                  <span>🔄</span>
-                  정기 일정 설정
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">
-                      요일 *
-                    </label>
-                    <select
-                      required
-                      value={formData.day_of_week}
-                      onChange={(e) => handleInputChange('day_of_week', e.target.value)}
-                      className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
-                    >
-                      <option value="월">월요일</option>
-                      <option value="화">화요일</option>
-                      <option value="수">수요일</option>
-                      <option value="목">목요일</option>
-                      <option value="금">금요일</option>
-                      <option value="토">토요일</option>
-                      <option value="일">일요일</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">
-                      시작 시간 *
-                    </label>
-                    <input
-                      type="time"
-                      required
-                      value={formData.start_time}
-                      onChange={(e) => handleInputChange('start_time', e.target.value)}
-                      className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">
-                      진행 시간 (시간) *
-                    </label>
-                    <select
-                      required
-                      value={formData.duration_hours}
-                      onChange={(e) => handleInputChange('duration_hours', parseInt(e.target.value))}
-                      className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
-                    >
-                      <option value={1}>1시간</option>
-                      <option value={1.5}>1.5시간</option>
-                      <option value={2}>2시간</option>
-                      <option value={2.5}>2.5시간</option>
-                      <option value={3}>3시간</option>
-                      <option value={4}>4시간</option>
-                      <option value={6}>6시간</option>
-                      <option value={8}>8시간</option>
-                      <option value={12}>12시간</option>
-                      <option value={24}>24시간</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              {/* 투표 설정 */}
-              <div className="border-t border-gray-700 pt-8">
-                <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                  <span>🗳️</span>
-                  투표 설정
-                </h3>
-                
-                <div className="mb-6">
-                  <label className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      checked={formData.voting_enabled}
-                      onChange={(e) => handleInputChange('voting_enabled', e.target.checked)}
-                      className="w-5 h-5 text-blue-600 bg-gray-800 border-gray-600 rounded focus:ring-blue-500"
-                    />
-                    <span className="text-white font-semibold">매주 트랙과 차량 클래스 투표 활성화</span>
-                  </label>
-                  <p className="text-gray-400 text-sm mt-2 ml-8">
-                    활성화하면 매주 참가자들이 투표하여 트랙과 차량 클래스를 선택할 수 있습니다.
-                  </p>
-                </div>
-
-                {formData.voting_enabled && !formData.auto_voting_enabled && (
-                  <div className="mb-6">
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">
-                      투표 기간 (일)
-                    </label>
-                    <select
-                      value={formData.voting_duration_days}
-                      onChange={(e) => handleInputChange('voting_duration_days', parseInt(e.target.value))}
-                      className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
-                    >
-                      <option value={1}>1일</option>
-                      <option value={2}>2일</option>
-                      <option value={3}>3일</option>
-                      <option value={5}>5일</option>
-                      <option value={7}>7일</option>
-                    </select>
-                    <p className="text-gray-400 text-sm mt-2">
-                      자동 투표 스케줄을 사용하면 이 설정은 무시됩니다.
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* 투표 옵션 설정 */}
-              {formData.voting_enabled && (
-                <div className="border-t border-gray-700 pt-8">
-                  <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                    <span>🎯</span>
-                    투표 옵션 설정
-                  </h3>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {/* 트랙 옵션 */}
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-300 mb-2">
-                        트랙 옵션 *
-                      </label>
-                      <div className="space-y-3">
-                        <div className="flex gap-2">
-                          <select
-                            value={tempTrack}
-                            onChange={(e) => setTempTrack(e.target.value)}
-                            className="flex-1 px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
-                          >
-                            <option value="">트랙을 선택하세요</option>
-                            {gameTracks[game]?.map((track) => (
-                              <option key={track} value={track}>
-                                {track}
-                              </option>
-                            ))}
-                          </select>
-                          <button
-                            type="button"
-                            onClick={addTrackOption}
-                            disabled={!tempTrack}
-                            className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            추가
-                          </button>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          {formData.track_options.map((track, index) => (
-                            <div key={index} className="flex items-center justify-between bg-gray-800 rounded-lg px-4 py-2">
-                              <span className="text-white">{track}</span>
-                              <button
-                                type="button"
-                                onClick={() => removeTrackOption(index)}
-                                className="text-red-400 hover:text-red-300 transition-colors"
-                              >
-                                ✕
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                        
-                        {formData.track_options.length === 0 && (
-                          <p className="text-gray-500 text-sm">트랙 옵션을 추가해주세요.</p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* 차량 클래스 옵션 */}
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-300 mb-2">
-                        차량 클래스 옵션 *
-                      </label>
-                      <div className="space-y-3">
-                        <div className="flex gap-2">
-                          <select
-                            value={tempCarClass}
-                            onChange={(e) => setTempCarClass(e.target.value)}
-                            className="flex-1 px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
-                          >
-                            <option value="">차량 클래스를 선택하세요</option>
-                            {gameCarClasses[game]?.map((carClass) => (
-                              <option key={carClass} value={carClass}>
-                                {carClass}
-                              </option>
-                            ))}
-                          </select>
-                          <button
-                            type="button"
-                            onClick={addCarClassOption}
-                            disabled={!tempCarClass}
-                            className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            추가
-                          </button>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          {formData.car_class_options.map((carClass, index) => (
-                            <div key={index} className="flex items-center justify-between bg-gray-800 rounded-lg px-4 py-2">
-                              <span className="text-white">{carClass}</span>
-                              <button
-                                type="button"
-                                onClick={() => removeCarClassOption(index)}
-                                className="text-red-400 hover:text-red-300 transition-colors"
-                              >
-                                ✕
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                        
-                        {formData.car_class_options.length === 0 && (
-                          <p className="text-gray-500 text-sm">차량 클래스 옵션을 추가해주세요.</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* 고정 트랙/차량 클래스 선택 (투표 비활성화 시) */}
-              {!formData.voting_enabled && (
-                <div className="border-t border-gray-700 pt-8">
-                  <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                    <span>🎯</span>
-                    트랙 및 차량 클래스 선택
-                  </h3>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {/* 고정 트랙 선택 */}
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-300 mb-2">
-                        트랙 *
-                      </label>
-                      <select
-                        value={formData.fixed_track}
-                        onChange={(e) => handleInputChange('fixed_track', e.target.value)}
-                        className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
-                        required
-                      >
-                        <option value="">트랙을 선택하세요</option>
-                        {gameTracks[game]?.map((track) => (
-                          <option key={track} value={track}>
-                            {track}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* 고정 차량 클래스 선택 */}
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-300 mb-2">
-                        차량 클래스 *
-                      </label>
-                      <select
-                        value={formData.fixed_car_class}
-                        onChange={(e) => handleInputChange('fixed_car_class', e.target.value)}
-                        className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
-                        required
-                      >
-                        <option value="">차량 클래스를 선택하세요</option>
-                        {gameCarClasses[game]?.map((carClass) => (
-                          <option key={carClass} value={carClass}>
-                            {carClass}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-4 p-4 bg-blue-900/20 border border-blue-500/30 rounded-lg">
-                    <div className="flex items-start gap-2">
-                      <span className="text-blue-400">💡</span>
-                      <div className="text-sm text-blue-200">
-                        <p className="font-semibold text-blue-300 mb-1">고정 트랙/차량 클래스 모드</p>
-                        <p>투표가 비활성화되어 이벤트 작성자가 직접 트랙과 차량 클래스를 선택합니다. 매주 동일한 트랙과 차량 클래스로 이벤트가 진행됩니다.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-
-              {/* 자동 투표 설정 (투표 활성화 시에만 표시) */}
-              {formData.voting_enabled && (
-                <div className="border-t border-gray-700 pt-8">
-                <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                  <span>🤖</span>
-                  자동 투표 스케줄
-                </h3>
-                
-                <div className="space-y-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-5 h-5 bg-blue-600 rounded flex items-center justify-center">
-                      <span className="text-white text-xs">✓</span>
-                    </div>
-                    <span className="text-white font-medium">
-                      자동 투표 스케줄 활성화 (기본값)
-                    </span>
-                  </div>
-                  
-                  <div className="text-sm text-gray-400 bg-gray-800/50 p-4 rounded-lg">
-                    <div className="flex items-start gap-2">
-                      <span>💡</span>
-                      <div>
-                        <p className="font-semibold text-gray-300 mb-2">자동 투표 스케줄이란?</p>
-                        <ul className="space-y-1 text-gray-400">
-                          <li>• 투표 활성화 시 자동으로 활성화되는 기능입니다</li>
-                          <li>• 이벤트 다음날 00:00에 자동으로 투표가 시작됩니다</li>
-                          <li>• 설정된 기간 후 자동으로 투표가 종료됩니다</li>
-                          <li>• 매주 반복되는 정기 이벤트에 최적화된 기능입니다</li>
-                          <li>• 예: 월요일 멀티 → 화요일 00:00 투표 시작 → 목요일 23:59 투표 종료 (3일간)</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-6">
-                      {/* 투표 시작 시점 - 고정 */}
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">
-                          투표 시작 시점
-                        </label>
-                        <div className="px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white">
-                          <span className="text-blue-400 font-medium">고정: 이벤트 다음날 00:00</span>
-                          <p className="text-gray-400 text-sm mt-1">
-                            예: {formData.day_of_week}요일 이벤트 → {getNextDay(formData.day_of_week)}요일 00:00 투표 시작
-                          </p>
-                        </div>
-                      </div>
-                      
-                      {/* 투표 지속 기간 */}
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">
-                          투표 지속 기간 (일)
-                        </label>
-                        <select
-                          value={formData.voting_duration_days}
-                          onChange={(e) => handleInputChange('voting_duration_days', parseInt(e.target.value))}
-                          className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
-                        >
-                          <option value={1}>1일</option>
-                          <option value={2}>2일</option>
-                          <option value={3}>3일</option>
-                          <option value={4}>4일</option>
-                          <option value={5}>5일</option>
-                          <option value={6}>6일</option>
-                          
-                        </select>
-                      </div>
-                    </div>
-                  
-                  <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-blue-400">📅</span>
-                        <span className="text-blue-300 font-semibold">투표 스케줄 예시</span>
-                      </div>
-                      <div className="text-sm text-blue-200 space-y-1">
-                        <p>• <strong>{formData.day_of_week}요일</strong> 이벤트 기준</p>
-                        <p>• 투표 시작: <strong>{getNextDay(formData.day_of_week)}요일 00:00</strong></p>
-                        <p>• 투표 종료: <strong>{getVotingEndDay(formData.day_of_week, formData.voting_duration_days)}요일 23:59</strong></p>
-                      </div>
-                    </div>
-                </div>
-              </div>
-              )}
-
-              {/* 추가 정보 */}
-              <div className="border-t border-gray-700 pt-8">
-                <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                  <span>🔗</span>
-                  추가 정보
-                </h3>
                 
                 <div>
                   <label className="block text-sm font-semibold text-gray-300 mb-2">
-                    링크 (참여/원문)
+                    이벤트 설명 *
                   </label>
-                  <input
-                    type="url"
-                    value={formData.link}
-                    onChange={(e) => handleInputChange('link', e.target.value)}
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
-                    placeholder="https://gall.dcinside.com/..."
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => handleInputChange('description', e.target.value)}
+                    rows={4}
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white resize-none"
+                    placeholder="이벤트에 대한 상세 설명을 입력하세요"
+                    required
                   />
-                  <p className="text-gray-400 text-sm mt-2">
-                    심레이싱게임 갤러리 등 참여 링크를 입력하세요. 입력된 링크는 이벤트 상세 페이지에서 클릭할 수 있습니다.
-                  </p>
                 </div>
               </div>
+            </div>
 
-              {/* 버튼들 */}
-              <div className="flex justify-center gap-4 pt-8">
-                <Link href={`/events/regular/${game}`}>
-                  <button
-                    type="button"
-                    className="px-8 py-3 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition-colors font-semibold"
+            {/* 정기 일정 설정 */}
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <span>📅</span>
+                정기 일정 설정
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">
+                    요일 *
+                  </label>
+                  <select
+                    value={formData.day_of_week}
+                    onChange={(e) => handleInputChange('day_of_week', e.target.value)}
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
+                    required
                   >
-                    취소
-                  </button>
-                </Link>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg shadow-green-500/50 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? '등록 중...' : '정기 이벤트 등록'}
-                </button>
+                    <option value="월">월요일</option>
+                    <option value="화">화요일</option>
+                    <option value="수">수요일</option>
+                    <option value="목">목요일</option>
+                    <option value="금">금요일</option>
+                    <option value="토">토요일</option>
+                    <option value="일">일요일</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">
+                    시작 시간 *
+                  </label>
+                  <input
+                    type="time"
+                    value={formData.start_time}
+                    onChange={(e) => handleInputChange('start_time', e.target.value)}
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">
+                    지속시간 (시간) *
+                  </label>
+                  <select
+                    value={formData.duration_hours}
+                    onChange={(e) => handleInputChange('duration_hours', parseInt(e.target.value))}
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
+                    required
+                  >
+                    <option value={1}>1시간</option>
+                    <option value={2}>2시간</option>
+                    <option value={3}>3시간</option>
+                    <option value={4}>4시간</option>
+                    <option value={6}>6시간</option>
+                    <option value={8}>8시간</option>
+                    <option value={12}>12시간</option>
+                    <option value={24}>24시간</option>
+                  </select>
+                </div>
               </div>
-            </form>
+            </div>
+
+            {/* 추가 정보 */}
+            <div className="border-t border-gray-700 pt-8">
+              <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                <span>🔗</span>
+                추가 정보
+              </h3>
+              
+              <div>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">
+                  링크 (참여/원문)
+                </label>
+                <input
+                  type="url"
+                  value={formData.link}
+                  onChange={(e) => handleInputChange('link', e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
+                  placeholder="https://gall.dcinside.com/..."
+                />
+                <p className="text-gray-400 text-sm mt-2">
+                  링크가 있으면 설명이 클릭 가능한 링크로 표시됩니다.
+                </p>
+              </div>
+            </div>
+
+            {/* 제출 버튼 */}
+            <div className="mt-8 flex justify-end">
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+              >
+                {loading ? '생성 중...' : '이벤트 생성'}
+              </button>
+            </div>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   )
