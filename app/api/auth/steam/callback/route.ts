@@ -246,9 +246,9 @@ export async function GET(request: NextRequest) {
       console.log('Profile updated successfully with Steam data')
     }
     
-    console.log('Steam login successful, redirecting to dashboard')
-    // 로그인 성공 - 대시보드로 리다이렉트
-    return NextResponse.redirect(new URL('/dashboard', baseUrl))
+    console.log('Steam login successful, redirecting to main page')
+    // 로그인 성공 - 메인페이지로 리다이렉트
+    return NextResponse.redirect(new URL('/', baseUrl))
   } catch (error) {
     console.error('Unexpected error in Steam callback:', error)
     return NextResponse.redirect(new URL('/login?error=unexpected_error', baseUrl))
