@@ -104,12 +104,6 @@ export default function EventsPage() {
                 >
                   <span className="relative z-10">🏁 오토모빌리스타2</span>
                 </Link>
-                <Link 
-                  href="/events/regular/ea-wrc" 
-                  className="relative group/btn overflow-hidden px-6 py-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40 hover:scale-105"
-                >
-                  <span className="relative z-10">🏎️ EA WRC</span>
-                </Link>
               </div>
             </div>
           </div>

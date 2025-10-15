@@ -36,8 +36,7 @@ interface EventListPageProps {
 export default function EventListPageSimple({ currentUserId, eventTypeFilter }: EventListPageProps) {
   const [multis, setMultis] = useState<MultiWithTemplate[]>([])
   const [selectedGames, setSelectedGames] = useState<string[]>([])
-  const [sortBy, setSortBy] = useState<'date' | 'game' | 'title'>('date')
-  const [timeFilter, setTimeFilter] = useState<'upcoming' | 'all' | 'past'>('upcoming')
+  const [timeFilter, setTimeFilter] = useState<'upcoming' | 'past'>('upcoming')
   const [loading, setLoading] = useState(true)
   const [isFilterExpanded, setIsFilterExpanded] = useState(true)
 
@@ -56,16 +55,11 @@ export default function EventListPageSimple({ currentUserId, eventTypeFilter }: 
         setSelectedGames(JSON.parse(savedGames))
       }
 
-      // 정렬 설정 로드
-      const savedSortBy = localStorage.getItem(getFilterKey('sortBy'))
-      if (savedSortBy) {
-        setSortBy(savedSortBy as 'date' | 'game' | 'title')
-      }
 
       // 시간 필터 로드
       const savedTimeFilter = localStorage.getItem(getFilterKey('timeFilter'))
       if (savedTimeFilter) {
-        setTimeFilter(savedTimeFilter as 'upcoming' | 'all' | 'past')
+        setTimeFilter(savedTimeFilter as 'upcoming' | 'past')
       }
 
       // 필터 확장 상태 로드
@@ -82,25 +76,22 @@ export default function EventListPageSimple({ currentUserId, eventTypeFilter }: 
   const saveFilterSettings = useCallback(() => {
     try {
       localStorage.setItem(getFilterKey('selectedGames'), JSON.stringify(selectedGames))
-      localStorage.setItem(getFilterKey('sortBy'), sortBy)
       localStorage.setItem(getFilterKey('timeFilter'), timeFilter)
       localStorage.setItem(getFilterKey('isFilterExpanded'), JSON.stringify(isFilterExpanded))
     } catch (error) {
       console.error('필터 설정 저장 실패:', error)
     }
-  }, [selectedGames, sortBy, timeFilter, isFilterExpanded, getFilterKey])
+  }, [selectedGames, timeFilter, isFilterExpanded, getFilterKey])
 
   // 필터 초기화
   const resetFilterSettings = () => {
     try {
       setSelectedGames([])
-      setSortBy('date')
       setTimeFilter('upcoming')
       setIsFilterExpanded(true)
       
       // localStorage에서도 삭제
       localStorage.removeItem(getFilterKey('selectedGames'))
-      localStorage.removeItem(getFilterKey('sortBy'))
       localStorage.removeItem(getFilterKey('timeFilter'))
       localStorage.removeItem(getFilterKey('isFilterExpanded'))
     } catch (error) {
@@ -115,10 +106,10 @@ export default function EventListPageSimple({ currentUserId, eventTypeFilter }: 
 
   // 필터 설정이 변경될 때마다 저장
   useEffect(() => {
-    if (selectedGames.length > 0 || sortBy !== 'date' || timeFilter !== 'upcoming' || !isFilterExpanded) {
+    if (selectedGames.length > 0 || timeFilter !== 'upcoming' || !isFilterExpanded) {
       saveFilterSettings()
     }
-  }, [selectedGames, sortBy, timeFilter, isFilterExpanded, saveFilterSettings])
+  }, [selectedGames, timeFilter, isFilterExpanded, saveFilterSettings])
 
   useEffect(() => {
     const fetchMultis = async () => {
@@ -209,8 +200,6 @@ export default function EventListPageSimple({ currentUserId, eventTypeFilter }: 
       if (eventTypeFilter && multi.event_type !== eventTypeFilter) return false
       
       // 시간 기반 필터 (활성/비활성 관계없이)
-      if (timeFilter === 'all') return true
-      
       const isPast = isEventPast(multi)
       
       switch (timeFilter) {
@@ -223,26 +212,17 @@ export default function EventListPageSimple({ currentUserId, eventTypeFilter }: 
       }
     })
     .sort((a, b) => {
-      switch (sortBy) {
-        case 'date':
-          // 날짜순 정렬
-          const aDate = a.event_date ? new Date(a.event_date) : 
-                       (a.year && a.week && a.multi_day ? getDateFromWeekAndDay(a.year, a.week, a.multi_day[0]) : new Date(0))
-          const bDate = b.event_date ? new Date(b.event_date) : 
-                       (b.year && b.week && b.multi_day ? getDateFromWeekAndDay(b.year, b.week, b.multi_day[0]) : new Date(0))
-          
-          // 지난 이벤트는 최신순 (내림차순), 예정/전체는 오름차순
-          if (timeFilter === 'past') {
-            return bDate.getTime() - aDate.getTime()  // 최신이 먼저
-          } else {
-            return aDate.getTime() - bDate.getTime()  // 가까운 날짜가 먼저
-          }
-        case 'game':
-          return a.game.localeCompare(b.game)
-        case 'title':
-          return a.title.localeCompare(b.title)
-        default:
-          return 0
+      // 날짜순 정렬 (고정)
+      const aDate = a.event_date ? new Date(a.event_date) : 
+                   (a.year && a.week && a.multi_day ? getDateFromWeekAndDay(a.year, a.week, a.multi_day[0]) : new Date(0))
+      const bDate = b.event_date ? new Date(b.event_date) : 
+                   (b.year && b.week && b.multi_day ? getDateFromWeekAndDay(b.year, b.week, b.multi_day[0]) : new Date(0))
+      
+      // 지난 이벤트는 최신순 (내림차순), 예정된 이벤트는 오름차순
+      if (timeFilter === 'past') {
+        return bDate.getTime() - aDate.getTime()  // 최신이 먼저
+      } else {
+        return aDate.getTime() - bDate.getTime()  // 가까운 날짜가 먼저
       }
     })
 
@@ -277,29 +257,15 @@ export default function EventListPageSimple({ currentUserId, eventTypeFilter }: 
                 value={timeFilter}
                 onChange={(e) => {
                   e.stopPropagation()
-                  setTimeFilter(e.target.value as 'upcoming' | 'all' | 'past')
+                  setTimeFilter(e.target.value as 'upcoming' | 'past')
                 }}
                 onClick={(e) => e.stopPropagation()}
                 className="px-3 py-1.5 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
               >
                 <option value="upcoming">🚀 예정된 이벤트</option>
-                <option value="all">📅 전체</option>
                 <option value="past">📜 지난 이벤트</option>
               </select>
               
-              <select
-                value={sortBy}
-                onChange={(e) => {
-                  e.stopPropagation()
-                  setSortBy(e.target.value as 'date' | 'game' | 'title')
-                }}
-                onClick={(e) => e.stopPropagation()}
-                className="px-3 py-1.5 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-              >
-                <option value="date">📅 날짜순</option>
-                <option value="game">🎮 게임순</option>
-                <option value="title">📝 제목순</option>
-              </select>
             </div>
           </div>
         </div>

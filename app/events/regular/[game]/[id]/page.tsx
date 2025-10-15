@@ -178,31 +178,40 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
 
         {/* 이벤트 정보 */}
         {event ? (
-          <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold">{event.title}</h2>
+          <div className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 rounded-2xl p-8 shadow-2xl border border-gray-600 backdrop-blur-sm">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-3xl font-bold text-white mb-2">
+                  {event.title}
+                </h2>
+                <div className="flex items-center gap-4 text-gray-400">
+                  <span>{event.game}</span>
+                  <span>•</span>
+                  <span>{event.multi_day?.join(', ') || 'TBD'}</span>
+                </div>
+              </div>
               {user && event.author_id === user.id && (
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   {!isEditing ? (
                     <button
                       onClick={handleEditStart}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-all"
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
                     >
-                      ✏️ 수정
+                      수정
                     </button>
                   ) : (
                     <div className="flex gap-2">
                       <button
                         onClick={handleEditSave}
-                        className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 transition-all"
+                        className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
                       >
-                        💾 저장
+                        저장
                       </button>
                       <button
                         onClick={handleEditCancel}
-                        className="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm font-semibold hover:bg-gray-700 transition-all"
+                        className="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors"
                       >
-                        ❌ 취소
+                        취소
                       </button>
                     </div>
                   )}
@@ -211,23 +220,41 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
             </div>
 
             {!isEditing ? (
-              // 읽기 모드
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p><strong>게임:</strong> {event.game}</p>
-                  <p><strong>트랙:</strong> {event.game_track || 'TBD'}</p>
-                  <p><strong>클래스:</strong> {event.multi_class || 'TBD'}</p>
-                  <p><strong>요일:</strong> {event.multi_day?.join(', ') || 'TBD'}</p>
+              // 읽기 모드 - 단순한 정보 표시
+              <div className="space-y-6">
+                {/* 기본 정보 그리드 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+                    <p className="text-gray-400 text-sm mb-1">트랙</p>
+                    <p className="text-white font-medium">{event.game_track || 'TBD'}</p>
+                  </div>
+                  
+                  <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+                    <p className="text-gray-400 text-sm mb-1">클래스</p>
+                    <p className="text-white font-medium">{event.multi_class || 'TBD'}</p>
+                  </div>
+                  
+                  <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+                    <p className="text-gray-400 text-sm mb-1">시작 시간</p>
+                    <p className="text-white font-medium">{event.start_time || 'TBD'}</p>
+                  </div>
+                  
+                  <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+                    <p className="text-gray-400 text-sm mb-1">지속시간</p>
+                    <p className="text-white font-medium">{event.duration_hours ? `${event.duration_hours}시간` : 'TBD'}</p>
+                  </div>
                 </div>
-                <div>
-                  <p><strong>시작 시간:</strong> {event.start_time || 'TBD'}</p>
-                  <p><strong>지속시간:</strong> {event.duration_hours || 'TBD'}시간</p>
-                  <p><strong>최대 참가자:</strong> {event.max_participants || 'TBD'}명</p>
-                  <p><strong>상태:</strong> {event.is_open ? '활성화' : '비활성화'}</p>
-                </div>
+                
+                {/* 설명 섹션 */}
+                {event.description && (
+                  <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+                    <p className="text-gray-400 text-sm mb-2">설명</p>
+                    <p className="text-gray-200 leading-relaxed">{event.description}</p>
+                  </div>
+                )}
               </div>
             ) : (
-              // 편집 모드
+              // 편집 모드 - 단순한 입력 폼
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">제목</label>
@@ -238,16 +265,30 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
                     className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">설명</label>
-                  <textarea
-                    value={editForm.description}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
-                    rows={3}
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
-                  />
-                </div>
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">트랙</label>
+                    <input
+                      type="text"
+                      value={editForm.game_track || ''}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, game_track: e.target.value }))}
+                      className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                      placeholder="트랙명을 입력하세요"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">클래스</label>
+                    <input
+                      type="text"
+                      value={editForm.multi_class || ''}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, multi_class: e.target.value }))}
+                      className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                      placeholder="차량 클래스를 입력하세요"
+                    />
+                  </div>
+                  
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">시작 시간</label>
                     <input
@@ -257,6 +298,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
                       className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
                     />
                   </div>
+                  
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">지속시간 (시간)</label>
                     <input
@@ -268,27 +310,21 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
                       className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">최대 참가자 수</label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="100"
-                      value={editForm.max_participants}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, max_participants: parseInt(e.target.value) || 1 }))}
-                      className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
-                    />
-                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">설명</label>
+                  <textarea
+                    value={editForm.description}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
+                    rows={4}
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none"
+                    placeholder="이벤트에 대한 상세 설명을 입력하세요"
+                  />
                 </div>
               </div>
             )}
 
-            {!isEditing && event.description && (
-              <div className="mt-4">
-                <p><strong>설명:</strong></p>
-                <p className="text-gray-300">{event.description}</p>
-              </div>
-            )}
           </div>
         ) : eventLoading ? (
           <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700 text-center">
@@ -300,38 +336,60 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
           </div>
         )}
 
-        {/* 기능 섹션들 - 임시 비활성화 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
-            <h3 className="text-xl font-bold text-white mb-4">👥 참가신청</h3>
-            <p className="text-gray-400 mb-4 text-sm">
+        {/* 기능 섹션들 */}
+        <div className="space-y-6">
+          {/* 참가신청 섹션 */}
+          <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
+            <h3 className="text-lg font-semibold text-white mb-4">참가신청</h3>
+            <p className="text-gray-400 text-sm mb-4">
               참가신청을 완료한 사용자만 투표할 수 있습니다.
             </p>
             <ParticipantButton eventId={eventId} />
           </div>
           
-          <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
-            <VotingPanel 
-              regularEventId={eventId}
-              weekNumber={undefined} // 현재 주차 자동 계산
-              year={undefined} // 현재 연도 자동 계산
-            />
+          {/* 투표 섹션들 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* 트랙 투표 섹션 */}
+            <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
+              <h3 className="text-lg font-semibold text-white mb-4">🏁 트랙 투표</h3>
+              <p className="text-gray-400 text-sm mb-4">
+                이벤트에서 사용할 트랙을 선택해주세요.
+              </p>
+              <VotingPanel 
+                regularEventId={eventId}
+                weekNumber={undefined} // 현재 주차 자동 계산
+                year={undefined} // 현재 연도 자동 계산
+                voteType="track" // 트랙 투표만 표시
+              />
+            </div>
+            
+            {/* 클래스 투표 섹션 */}
+            <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
+              <h3 className="text-lg font-semibold text-white mb-4">🚗 클래스 투표</h3>
+              <p className="text-gray-400 text-sm mb-4">
+                이벤트에서 사용할 차량 클래스를 선택해주세요.
+              </p>
+              <VotingPanel 
+                regularEventId={eventId}
+                weekNumber={undefined} // 현재 주차 자동 계산
+                year={undefined} // 현재 연도 자동 계산
+                voteType="class" // 클래스 투표만 표시
+              />
+            </div>
           </div>
           
+          {/* 투표 결과 섹션 (이벤트 작성자만) */}
           {user && event && event.author_id === user.id && (
-            <VotingResultsPanel eventId={eventId} />
+            <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
+              <h3 className="text-lg font-semibold text-white mb-4">📊 투표 결과</h3>
+              <p className="text-gray-400 text-sm mb-4">
+                투표 결과를 이벤트에 적용할 수 있습니다.
+              </p>
+              <VotingResultsPanel eventId={eventId} />
+            </div>
           )}
         </div>
 
-        {/* 디버그 정보 */}
-        <div className="bg-gray-900/50 rounded-xl p-4 border border-gray-700">
-          <h4 className="text-sm font-bold text-gray-300 mb-2">디버그 정보</h4>
-          <p className="text-xs text-gray-500">게임: {game}</p>
-          <p className="text-xs text-gray-500">이벤트 ID: {eventId}</p>
-          <p className="text-xs text-gray-500">사용자: {user ? user.id : '로그인되지 않음'}</p>
-          <p className="text-xs text-gray-500">이벤트 로딩: {eventLoading ? '로딩 중...' : '완료'}</p>
-          <p className="text-xs text-gray-500">이벤트 데이터: {event ? '있음' : '없음'}</p>
-        </div>
       </div>
     </div>
   )

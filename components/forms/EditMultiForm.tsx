@@ -35,7 +35,6 @@ export default function EditMultiForm({ id }: { id: string }) {
   const [multiTime, setMultiTime] = useState('')
   const [link, setLink] = useState('')
   const [description, setDescription] = useState('')
-  const [isOpen, setIsOpen] = useState(false)
   const currentWeekInfo = getCurrentWeekInfo()
   const [year, setYear] = useState<number>(currentWeekInfo.year)
   const [week, setWeek] = useState<number>(currentWeekInfo.week)
@@ -97,7 +96,7 @@ export default function EditMultiForm({ id }: { id: string }) {
           multi_day: multiDay,
           multi_time: multiTime || null,
           multi_race: null,
-          is_open: isOpen,
+          is_open: true, // 기본적으로 활성으로 유지
           description: description || null,
           link: link || null,
           year: year,
@@ -288,18 +287,6 @@ export default function EditMultiForm({ id }: { id: string }) {
                 />
               </div>
 
-              <div className="flex items-center gap-3 p-4 bg-gray-800/30 rounded-lg border border-gray-600">
-                <input 
-                  id="open" 
-                  type="checkbox" 
-                  className="w-5 h-5 text-cyan-600 bg-gray-800 border-gray-600 rounded focus:ring-cyan-500 focus:ring-2" 
-                  checked={isOpen} 
-                  onChange={e=>setIsOpen(e.target.checked)} 
-                />
-                <label htmlFor="open" className="text-gray-300 font-medium">
-                  활성으로 설정 (체크하면 다른 사용자들이 볼 수 있습니다)
-                </label>
-              </div>
             </div>
           </div>
 

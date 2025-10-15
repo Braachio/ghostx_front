@@ -263,3 +263,28 @@ export function getWeekOptions(currentYear: number = new Date().getFullYear(), c
   
   return options
 }
+
+/**
+ * 기습갤멀용 주차 옵션 생성 (이번주, 다음주만)
+ */
+export function getFlashEventWeekOptions(currentYear: number = new Date().getFullYear()): Array<{value: number; label: string; year: number}> {
+  const current = getCurrentWeekInfo()
+  const options = []
+  
+  // 현재 연도만 처리
+  if (currentYear === current.year) {
+    // 이번주와 다음주만
+    for (let i = 0; i <= 1; i++) {
+      const weekNum = current.week + i
+      if (weekNum >= 1 && weekNum <= 53) { // ISO 주차는 최대 53주차
+        options.push({
+          value: weekNum,
+          label: getWeekLabel(current.year, weekNum),
+          year: current.year
+        })
+      }
+    }
+  }
+  
+  return options
+}
