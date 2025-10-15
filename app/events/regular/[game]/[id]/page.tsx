@@ -37,7 +37,6 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
     multi_day?: string[]
     start_time?: string
     duration_hours?: number
-    max_participants?: number
     is_open: boolean
     author_id: string
   } | null>(null)
@@ -47,8 +46,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
     title: '',
     description: '',
     start_time: '',
-    duration_hours: 1,
-    max_participants: 20
+    duration_hours: 1
   })
 
   useEffect(() => {
@@ -114,8 +112,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
         title: event.title || '',
         description: event.description || '',
         start_time: event.start_time || '',
-        duration_hours: event.duration_hours || 1,
-        max_participants: event.max_participants || 20
+        duration_hours: event.duration_hours || 1
       })
       setIsEditing(true)
     }

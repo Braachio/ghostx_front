@@ -171,7 +171,6 @@ export async function POST(req: NextRequest) {
       multi_class: 'TBD', // 정기 이벤트는 주차별로 다름
       multi_day: [body.day_of_week],
       multi_time: body.start_time,
-      max_participants: body.max_participants,
       duration_hours: body.duration_hours,
       gallery_link: body.gallery_link,
       event_type: 'regular_schedule',

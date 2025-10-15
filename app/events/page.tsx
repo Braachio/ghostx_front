@@ -27,6 +27,17 @@ export default function EventsPage() {
       <div className="max-w-7xl mx-auto p-6">
         {/* 헤더 - 고스트카 테마 */}
         <div className="mb-12 text-center">
+          {/* 홈 버튼 */}
+          <div className="mb-8">
+            <Link 
+              href="/" 
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-600 hover:border-gray-500 rounded-lg text-gray-300 hover:text-white transition-all duration-300 backdrop-blur-sm"
+            >
+              <span className="text-lg">🏠</span>
+              <span className="font-medium">홈으로</span>
+            </Link>
+          </div>
+          
           <div className="inline-block mb-6">
             <div className="text-7xl animate-pulse">🏁</div>
           </div>
