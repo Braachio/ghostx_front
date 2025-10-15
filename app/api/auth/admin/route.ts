@@ -1,8 +1,4 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
-import type { Database } from '@/lib/database.types'
-import { supabaseAdmin } from '@/lib/supabaseAdminClient'
 
 export async function POST(req: Request) {
   try {

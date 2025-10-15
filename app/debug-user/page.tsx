@@ -1,11 +1,31 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs'
 import type { Database } from '@/lib/database.types'
 
 export default function DebugUserPage() {
-  const [userInfo, setUserInfo] = useState<any>(null)
+  const [userInfo, setUserInfo] = useState<{
+    user?: {
+      id: string
+      email?: string
+      email_confirmed_at?: string
+      nickname?: string
+      has_uploaded_data?: boolean
+      role?: string
+    }
+    profile?: {
+      id: string
+      nickname?: string
+      email?: string
+      role?: string
+      has_uploaded_data?: boolean
+      agreed_terms?: boolean
+    }
+    error?: string
+    message?: string
+  } | null>(null)
   const [loading, setLoading] = useState(true)
   const supabase = createPagesBrowserClient<Database>()
 
@@ -127,12 +147,12 @@ export default function DebugUserPage() {
         </div>
 
         <div className="mt-8 text-center">
-          <a
+          <Link
             href="/"
             className="text-blue-400 hover:text-blue-300"
           >
             ← 홈으로 돌아가기
-          </a>
+          </Link>
         </div>
       </div>
     </div>
