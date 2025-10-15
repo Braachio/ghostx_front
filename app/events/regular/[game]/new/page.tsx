@@ -722,7 +722,7 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
                   </p>
                 </div>
 
-                {formData.voting_enabled && (
+                {formData.voting_enabled && !formData.auto_voting_enabled && (
                   <div className="mb-6">
                     <label className="block text-sm font-semibold text-gray-300 mb-2">
                       투표 기간 (일)
@@ -738,6 +738,9 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
                       <option value={5}>5일</option>
                       <option value={7}>7일</option>
                     </select>
+                    <p className="text-gray-400 text-sm mt-2">
+                      자동 투표 스케줄을 사용하면 이 설정은 무시됩니다.
+                    </p>
                   </div>
                 )}
               </div>
@@ -950,6 +953,7 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
                           <li>• 이벤트 시작 전 자동으로 투표가 재개됩니다</li>
                           <li>• 설정된 기간 후 자동으로 투표가 종료됩니다</li>
                           <li>• 매주 반복되는 정기 이벤트에 최적화된 기능입니다</li>
+                          <li>• 자동 스케줄 사용 시 위의 &quot;투표 기간&quot; 설정은 무시됩니다</li>
                           <li>• 예: 월요일 멀티 → 화요일 00:00 투표 시작 → 목요일 23:59 투표 종료</li>
                         </ul>
                       </div>
@@ -979,7 +983,7 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
                       
                       <div>
                         <label className="block text-sm font-semibold text-gray-300 mb-2">
-                          투표 지속 기간
+                          투표 지속 기간 (일)
                         </label>
                         <select
                           value={formData.voting_duration_days}
