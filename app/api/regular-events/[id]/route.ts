@@ -63,8 +63,9 @@ export async function PATCH(
       'title',
       'description',
       'multi_day',
-      'start_time',
+      'multi_time',
       'duration_hours',
+      'max_participants',
       'is_open'
     ]
 

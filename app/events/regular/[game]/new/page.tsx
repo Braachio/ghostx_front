@@ -22,7 +22,7 @@ interface RegularEventFormData {
   day_of_week: string
   start_time: string
   duration_hours: number
-  gallery_link?: string
+  link?: string
   // 투표 옵션들
   track_options: string[]
   car_class_options: string[]
@@ -47,7 +47,7 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
     day_of_week: '일',
     start_time: '20:00',
     duration_hours: 2,
-    gallery_link: '',
+    link: '',
     track_options: [],
     car_class_options: [],
     voting_enabled: true,
@@ -97,7 +97,7 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
         day_of_week: formData.day_of_week,
         start_time: formData.start_time,
         duration_hours: formData.duration_hours,
-        gallery_link: formData.gallery_link,
+        link: formData.link,
         track_options: formData.track_options,
         car_class_options: formData.car_class_options,
         voting_enabled: formData.voting_enabled,
@@ -613,8 +613,8 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
                   </label>
                   <input
                     type="url"
-                    value={formData.gallery_link}
-                    onChange={(e) => handleInputChange('gallery_link', e.target.value)}
+                    value={formData.link}
+                    onChange={(e) => handleInputChange('link', e.target.value)}
                     className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
                     placeholder="https://gall.dcinside.com/..."
                   />

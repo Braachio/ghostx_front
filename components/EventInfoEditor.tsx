@@ -7,7 +7,7 @@ interface EventInfo {
   title: string
   description: string | null
   multi_day: string[]
-  start_time: string
+  multi_time: string
   duration_hours: number
   max_participants: number
   is_open: boolean
@@ -28,7 +28,7 @@ export default function EventInfoEditor({ event, isAuthor, onUpdate }: EventInfo
     title: event.title,
     description: event.description || '',
     multi_day: event.multi_day,
-    start_time: event.start_time,
+    multi_time: event.multi_time,
     duration_hours: event.duration_hours,
     max_participants: event.max_participants,
     is_open: event.is_open
@@ -68,7 +68,7 @@ export default function EventInfoEditor({ event, isAuthor, onUpdate }: EventInfo
       title: event.title,
       description: event.description || '',
       multi_day: event.multi_day,
-      start_time: event.start_time,
+      multi_time: event.multi_time,
       duration_hours: event.duration_hours,
       max_participants: event.max_participants,
       is_open: event.is_open
@@ -160,8 +160,8 @@ export default function EventInfoEditor({ event, isAuthor, onUpdate }: EventInfo
             <label className="block text-sm font-medium text-gray-300 mb-2">시작 시간</label>
             <input
               type="time"
-              value={formData.start_time}
-              onChange={(e) => setFormData(prev => ({ ...prev, start_time: e.target.value }))}
+              value={formData.multi_time}
+              onChange={(e) => setFormData(prev => ({ ...prev, multi_time: e.target.value }))}
               className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
             />
           </div>
@@ -241,7 +241,7 @@ export default function EventInfoEditor({ event, isAuthor, onUpdate }: EventInfo
           </div>
           <div>
             <span className="text-sm text-gray-400">시작 시간:</span>
-            <span className="ml-2 text-white">{event.start_time}</span>
+            <span className="ml-2 text-white">{event.multi_time}</span>
           </div>
           <div>
             <span className="text-sm text-gray-400">지속시간:</span>
