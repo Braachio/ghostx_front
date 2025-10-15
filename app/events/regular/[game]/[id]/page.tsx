@@ -35,7 +35,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
     game_track?: string
     multi_class?: string
     multi_day?: string[]
-    start_time?: string
+    multi_time?: string
     duration_hours?: number
     is_open: boolean
     author_id: string
@@ -46,7 +46,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
   const [editForm, setEditForm] = useState({
     title: '',
     description: '',
-    start_time: '',
+    multi_time: '',
     duration_hours: 1,
     link: '',
     game_track: '',
@@ -125,7 +125,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
       setEditForm({
         title: event.title || '',
         description: event.description || '',
-        start_time: event.start_time || '',
+        multi_time: event.multi_time || '',
         duration_hours: event.duration_hours || 1,
         link: event.link || '',
         game_track: event.game_track || '',
@@ -299,7 +299,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
                   
                   <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
                     <p className="text-gray-400 text-sm mb-1">시작 시간</p>
-                    <p className="text-white font-medium">{event.start_time || 'TBD'}</p>
+                    <p className="text-white font-medium">{event.multi_time || 'TBD'}</p>
                   </div>
                   
                   <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
@@ -367,8 +367,8 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
                     <label className="block text-sm font-medium text-gray-300 mb-2">시작 시간</label>
                     <input
                       type="time"
-                      value={editForm.start_time}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, start_time: e.target.value }))}
+                      value={editForm.multi_time}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, multi_time: e.target.value }))}
                       className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
                     />
                   </div>
