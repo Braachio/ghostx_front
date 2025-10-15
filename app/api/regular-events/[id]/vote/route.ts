@@ -73,8 +73,11 @@ export async function POST(
       }, { status: 403 })
     }
 
-    // 4. 투표 옵션이 유효한지 확인
-    const { data: trackOption, error: trackError } = await supabase
+    // 4. 투표 옵션이 유효한지 확인하고 없으면 생성
+    let trackOption, carClassOption
+    
+    // 트랙 옵션 확인
+    const { data: existingTrackOption, error: trackError } = await supabase
       .from('regular_event_vote_options')
       .select('id')
       .eq('regular_event_id', id)
@@ -84,7 +87,40 @@ export async function POST(
       .eq('year', currentYear)
       .single()
 
-    const { data: carClassOption, error: carClassError } = await supabase
+    if (trackError && trackError.code === 'PGRST116') {
+      // 트랙 옵션이 없으면 생성
+      console.log('트랙 옵션 생성:', track_option)
+      const { data: newTrackOption, error: createTrackError } = await supabase
+        .from('regular_event_vote_options')
+        .insert({
+          regular_event_id: id,
+          option_type: 'track',
+          option_value: track_option,
+          week_number: currentWeek,
+          year: currentYear,
+          votes_count: 0
+        })
+        .select('id')
+        .single()
+      
+      if (createTrackError) {
+        console.error('트랙 옵션 생성 실패:', createTrackError)
+        return NextResponse.json({ 
+          error: '트랙 옵션 생성에 실패했습니다.' 
+        }, { status: 500 })
+      }
+      trackOption = newTrackOption
+    } else if (trackError) {
+      console.error('트랙 옵션 확인 실패:', trackError)
+      return NextResponse.json({ 
+        error: '트랙 옵션 확인에 실패했습니다.' 
+      }, { status: 500 })
+    } else {
+      trackOption = existingTrackOption
+    }
+
+    // 차량 클래스 옵션 확인
+    const { data: existingCarClassOption, error: carClassError } = await supabase
       .from('regular_event_vote_options')
       .select('id')
       .eq('regular_event_id', id)
@@ -94,10 +130,36 @@ export async function POST(
       .eq('year', currentYear)
       .single()
 
-    if (trackError || carClassError || !trackOption || !carClassOption) {
+    if (carClassError && carClassError.code === 'PGRST116') {
+      // 차량 클래스 옵션이 없으면 생성
+      console.log('차량 클래스 옵션 생성:', car_class_option)
+      const { data: newCarClassOption, error: createCarClassError } = await supabase
+        .from('regular_event_vote_options')
+        .insert({
+          regular_event_id: id,
+          option_type: 'car_class',
+          option_value: car_class_option,
+          week_number: currentWeek,
+          year: currentYear,
+          votes_count: 0
+        })
+        .select('id')
+        .single()
+      
+      if (createCarClassError) {
+        console.error('차량 클래스 옵션 생성 실패:', createCarClassError)
+        return NextResponse.json({ 
+          error: '차량 클래스 옵션 생성에 실패했습니다.' 
+        }, { status: 500 })
+      }
+      carClassOption = newCarClassOption
+    } else if (carClassError) {
+      console.error('차량 클래스 옵션 확인 실패:', carClassError)
       return NextResponse.json({ 
-        error: '유효하지 않은 투표 옵션입니다.' 
-      }, { status: 400 })
+        error: '차량 클래스 옵션 확인에 실패했습니다.' 
+      }, { status: 500 })
+    } else {
+      carClassOption = existingCarClassOption
     }
 
     // 4. 투표 저장 또는 업데이트
@@ -139,6 +201,39 @@ export async function POST(
         return NextResponse.json({ error: '투표 생성에 실패했습니다.' }, { status: 500 })
       }
     }
+
+    // 5. 투표 수 업데이트
+    console.log('투표 수 업데이트 시작')
+    
+    // 트랙 투표 수 업데이트
+    const { data: trackVoteCount } = await supabase
+      .from('regular_event_votes')
+      .select('id', { count: 'exact' })
+      .eq('regular_event_id', id)
+      .eq('track_option', track_option)
+      .eq('week_number', currentWeek)
+      .eq('year', currentYear)
+
+    await supabase
+      .from('regular_event_vote_options')
+      .update({ votes_count: trackVoteCount?.length || 0 })
+      .eq('id', trackOption.id)
+
+    // 차량 클래스 투표 수 업데이트
+    const { data: carClassVoteCount } = await supabase
+      .from('regular_event_votes')
+      .select('id', { count: 'exact' })
+      .eq('regular_event_id', id)
+      .eq('car_class_option', car_class_option)
+      .eq('week_number', currentWeek)
+      .eq('year', currentYear)
+
+    await supabase
+      .from('regular_event_vote_options')
+      .update({ votes_count: carClassVoteCount?.length || 0 })
+      .eq('id', carClassOption.id)
+
+    console.log('투표 수 업데이트 완료')
 
     return NextResponse.json({ 
       success: true, 
