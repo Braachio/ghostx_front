@@ -15,7 +15,7 @@ export async function GET(
 
     console.log(`참가자 목록 조회 요청 - Event ID: ${id}`)
 
-    // 실제 데이터베이스에서 참가자 목록 조회
+    // 실제 데이터베이스에서 참가자 목록 조회 (Steam ID 포함)
     const { data, error } = await supabase
       .from('participants')
       .select(`
@@ -23,7 +23,10 @@ export async function GET(
         user_id,
         nickname,
         status,
-        joined_at
+        joined_at,
+        profiles!inner(
+          steam_id
+        )
       `)
       .eq('event_id', id)
       .order('joined_at', { ascending: false })
@@ -36,8 +39,14 @@ export async function GET(
     const participants = data || []
     console.log(`참가자 목록 반환 - ${participants.length}명`)
 
+    // Steam ID 정보를 참가자 데이터에 포함
+    const participantsWithSteamId = participants.map(participant => ({
+      ...participant,
+      steam_id: participant.profiles?.steam_id || null
+    }))
+
     return NextResponse.json({ 
-      participants,
+      participants: participantsWithSteamId,
       total: participants.length,
       confirmed: participants.filter(p => p.status === 'confirmed').length,
       pending: participants.filter(p => p.status === 'pending').length

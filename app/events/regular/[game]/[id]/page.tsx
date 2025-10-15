@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import ParticipantButton from '@/components/ParticipantButton'
+import ParticipationSection from '@/components/ParticipationSection'
 import VotingPanel from '@/components/VotingPanel'
 import VotingResultsPanel from '@/components/VotingResultsPanel'
 
@@ -428,13 +428,10 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
         <div className="space-y-6">
 
           {/* 참가신청 섹션 */}
-          <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
-            <h3 className="text-lg font-semibold text-white mb-4">참가신청</h3>
-            <p className="text-gray-400 text-sm mb-4">
-              참가신청을 완료한 사용자만 투표할 수 있습니다.
-            </p>
-            <ParticipantButton eventId={eventId} />
-          </div>
+          <ParticipationSection 
+            eventId={eventId} 
+            isOwner={user && event && event.author_id === user.id}
+          />
           
           {/* 투표 섹션들 */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
