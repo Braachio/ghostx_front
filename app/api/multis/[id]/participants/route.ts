@@ -43,8 +43,9 @@ export async function GET(
       if (profilesError) {
         console.warn('프로필 조회 실패(무시하고 계속 진행):', profilesError.message)
       } else if (profiles) {
-        steamIdByUserId = profiles.reduce((acc: Record<string, string | null>, cur) => {
-          acc[cur.id as string] = (cur as any).steam_id ?? null
+        const typedProfiles = profiles as Array<{ id: string; steam_id: string | null }>
+        steamIdByUserId = typedProfiles.reduce((acc: Record<string, string | null>, cur) => {
+          acc[cur.id] = cur.steam_id ?? null
           return acc
         }, {})
       }

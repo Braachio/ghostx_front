@@ -171,7 +171,7 @@ export default function GameChatPage({ params }: GameChatPageProps) {
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
                 onBlur={saveNickname}
-                placeholder="닉네임을 입력하세요"
+                placeholder="인게임 닉네임을 입력하세요"
                 className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
               />
             </div>
