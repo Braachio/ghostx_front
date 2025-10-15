@@ -16,6 +16,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: '이메일과 비밀번호는 필수입니다.' }, { status: 400 })
     }
 
+    // localhost 환경 감지
+    const url = new URL(req.url)
+    const isLocalhost = url.hostname === 'localhost' || url.hostname === '127.0.0.1'
+    const baseUrl = isLocalhost 
+      ? `${url.protocol}//${url.host}` 
+      : (process.env.NEXT_PUBLIC_SITE_URL || 'https://ghostx.site')
+
     const {
       data: { user },
       error: signUpError,
@@ -23,7 +30,7 @@ export async function POST(req: Request) {
       email,
       password,
       options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://ghostx.site'}/auth/callback`,
+        emailRedirectTo: `${baseUrl}/auth/callback`,
         data: {
           agreed_terms: !!agreed_terms,
           agreed_privacy: !!agreed_privacy,

@@ -61,8 +61,15 @@ async function getSteamUserInfo(steamId: string) {
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   
+  // localhost 환경 감지
+  const isLocalhost = request.nextUrl.hostname === 'localhost' || request.nextUrl.hostname === '127.0.0.1'
+  const baseUrl = isLocalhost 
+    ? `${request.nextUrl.protocol}//${request.nextUrl.host}` 
+    : (process.env.NEXT_PUBLIC_SITE_URL || 'https://ghostx.site')
+  
   console.log('=== Steam Callback Debug ===')
   console.log('Request URL:', request.url)
+  console.log('Environment:', { isLocalhost, baseUrl })
   console.log('Search params:', Object.fromEntries(searchParams.entries()))
   
   try {
@@ -77,7 +84,7 @@ export async function GET(request: NextRequest) {
       console.error('Steam auth failed: invalid mode or claimed_id')
       console.error('Expected mode: id_res, got:', mode)
       console.error('Claimed ID:', claimedId)
-      return NextResponse.redirect(new URL('/login?error=steam_auth_failed', request.url))
+      return NextResponse.redirect(new URL('/login?error=steam_auth_failed', baseUrl))
     }
     
     // Steam ID 추출
@@ -85,7 +92,7 @@ export async function GET(request: NextRequest) {
     
     if (!steamId) {
       console.error('Steam auth failed: invalid steam ID format')
-      return NextResponse.redirect(new URL('/login?error=invalid_steam_id', request.url))
+      return NextResponse.redirect(new URL('/login?error=invalid_steam_id', baseUrl))
     }
     
     console.log('Steam ID extracted:', steamId)
@@ -95,7 +102,7 @@ export async function GET(request: NextRequest) {
     
     if (!isValid) {
       console.error('Steam auth failed: validation failed')
-      return NextResponse.redirect(new URL('/login?error=steam_validation_failed', request.url))
+      return NextResponse.redirect(new URL('/login?error=steam_validation_failed', baseUrl))
     }
     
   // Steam 사용자 정보 가져오기
@@ -105,7 +112,7 @@ export async function GET(request: NextRequest) {
     console.error('Steam auth failed: could not fetch user info')
     console.error('Steam ID:', steamId)
     console.error('Steam API Key configured:', !!process.env.STEAM_WEB_API_KEY)
-    return NextResponse.redirect(new URL('/login?error=steam_user_info_failed', request.url))
+    return NextResponse.redirect(new URL('/login?error=steam_user_info_failed', baseUrl))
   }
   
   console.log('Steam user info fetched:', steamUser.personaname)
@@ -177,13 +184,13 @@ export async function GET(request: NextRequest) {
           
           if (retryError || !retrySignIn?.user) {
             console.error('Final login attempt failed:', retryError)
-            return NextResponse.redirect(new URL(`/login?error=auth_failed&details=${encodeURIComponent(retryError?.message || 'Login failed')}`, request.url))
+            return NextResponse.redirect(new URL(`/login?error=auth_failed&details=${encodeURIComponent(retryError?.message || 'Login failed')}`, baseUrl))
           }
           
           finalUser = retrySignIn.user
           console.log('Forced login successful')
         } else {
-          return NextResponse.redirect(new URL(`/login?error=signup_failed&details=${encodeURIComponent(signUpError.message)}`, request.url))
+          return NextResponse.redirect(new URL(`/login?error=signup_failed&details=${encodeURIComponent(signUpError.message)}`, baseUrl))
         }
       } else {
         finalUser = authData?.user
@@ -193,7 +200,7 @@ export async function GET(request: NextRequest) {
     
     if (!finalUser) {
       console.error('No user created or signed in')
-      return NextResponse.redirect(new URL('/login?error=unexpected_error', request.url))
+      return NextResponse.redirect(new URL('/login?error=unexpected_error', baseUrl))
     }
     
     console.log('User authenticated successfully:', finalUser.id)
@@ -241,10 +248,10 @@ export async function GET(request: NextRequest) {
     
     console.log('Steam login successful, redirecting to dashboard')
     // 로그인 성공 - 대시보드로 리다이렉트
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    return NextResponse.redirect(new URL('/dashboard', baseUrl))
   } catch (error) {
     console.error('Unexpected error in Steam callback:', error)
-    return NextResponse.redirect(new URL('/login?error=unexpected_error', request.url))
+    return NextResponse.redirect(new URL('/login?error=unexpected_error', baseUrl))
   }
 }
 
