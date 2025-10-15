@@ -76,124 +76,136 @@ export async function POST(
     // 4. 투표 옵션이 유효한지 확인하고 없으면 생성
     let trackOption, carClassOption
     
-    // 트랙 옵션 확인
-    const { data: existingTrackOption, error: trackError } = await supabase
-      .from('regular_event_vote_options')
-      .select('id')
-      .eq('regular_event_id', id)
-      .eq('option_type', 'track')
-      .eq('option_value', track_option)
-      .eq('week_number', currentWeek)
-      .eq('year', currentYear)
-      .single()
-
-    if (trackError && trackError.code === 'PGRST116') {
-      // 트랙 옵션이 없으면 생성 (upsert 사용으로 중복 방지)
-      console.log('트랙 옵션 생성:', track_option)
-      const { data: newTrackOption, error: createTrackError } = await supabase
-        .from('regular_event_vote_options')
-        .upsert({
-          regular_event_id: id,
-          option_type: 'track',
-          option_value: track_option,
-          week_number: currentWeek,
-          year: currentYear,
-          votes_count: 0
-        }, {
-          onConflict: 'regular_event_id,option_type,option_value,week_number,year'
-        })
-        .select('id')
-        .single()
+    // 트랙 옵션 확인 및 생성
+    if (track_option) {
+      console.log('트랙 옵션 처리 시작:', track_option)
       
-      if (createTrackError) {
-        console.error('트랙 옵션 생성 실패:', createTrackError)
-        // 생성 실패 시 다시 조회 시도
-        const { data: retryTrackOption, error: retryError } = await supabase
+      // 먼저 기존 옵션 확인
+      const { data: existingTrackOption, error: trackError } = await supabase
+        .from('regular_event_vote_options')
+        .select('id')
+        .eq('regular_event_id', id)
+        .eq('option_type', 'track')
+        .eq('option_value', track_option)
+        .eq('week_number', currentWeek)
+        .eq('year', currentYear)
+        .single()
+
+      if (trackError && trackError.code === 'PGRST116') {
+        // 트랙 옵션이 없으면 생성
+        console.log('트랙 옵션 생성:', track_option)
+        const { data: newTrackOption, error: createTrackError } = await supabase
           .from('regular_event_vote_options')
+          .insert({
+            regular_event_id: id,
+            option_type: 'track',
+            option_value: track_option,
+            week_number: currentWeek,
+            year: currentYear,
+            votes_count: 0
+          })
           .select('id')
-          .eq('regular_event_id', id)
-          .eq('option_type', 'track')
-          .eq('option_value', track_option)
-          .eq('week_number', currentWeek)
-          .eq('year', currentYear)
           .single()
         
-        if (retryError) {
-          return NextResponse.json({ 
-            error: '트랙 옵션 생성에 실패했습니다.' 
-          }, { status: 500 })
+        if (createTrackError) {
+          console.error('트랙 옵션 생성 실패:', createTrackError)
+          // 생성 실패 시 다시 조회 시도 (다른 프로세스에서 생성했을 수 있음)
+          const { data: retryTrackOption, error: retryError } = await supabase
+            .from('regular_event_vote_options')
+            .select('id')
+            .eq('regular_event_id', id)
+            .eq('option_type', 'track')
+            .eq('option_value', track_option)
+            .eq('week_number', currentWeek)
+            .eq('year', currentYear)
+            .single()
+          
+          if (retryError) {
+            console.error('트랙 옵션 재조회도 실패:', retryError)
+            return NextResponse.json({ 
+              error: '트랙 옵션을 처리할 수 없습니다.' 
+            }, { status: 500 })
+          }
+          trackOption = retryTrackOption
+        } else {
+          trackOption = newTrackOption
         }
-        trackOption = retryTrackOption
+      } else if (trackError) {
+        console.error('트랙 옵션 확인 실패:', trackError)
+        return NextResponse.json({ 
+          error: '트랙 옵션 확인에 실패했습니다.' 
+        }, { status: 500 })
       } else {
-        trackOption = newTrackOption
+        trackOption = existingTrackOption
       }
-    } else if (trackError) {
-      console.error('트랙 옵션 확인 실패:', trackError)
-      return NextResponse.json({ 
-        error: '트랙 옵션 확인에 실패했습니다.' 
-      }, { status: 500 })
-    } else {
-      trackOption = existingTrackOption
+      
+      console.log('트랙 옵션 처리 완료:', trackOption?.id)
     }
 
-    // 차량 클래스 옵션 확인
-    const { data: existingCarClassOption, error: carClassError } = await supabase
-      .from('regular_event_vote_options')
-      .select('id')
-      .eq('regular_event_id', id)
-      .eq('option_type', 'car_class')
-      .eq('option_value', car_class_option)
-      .eq('week_number', currentWeek)
-      .eq('year', currentYear)
-      .single()
-
-    if (carClassError && carClassError.code === 'PGRST116') {
-      // 차량 클래스 옵션이 없으면 생성 (upsert 사용으로 중복 방지)
-      console.log('차량 클래스 옵션 생성:', car_class_option)
-      const { data: newCarClassOption, error: createCarClassError } = await supabase
-        .from('regular_event_vote_options')
-        .upsert({
-          regular_event_id: id,
-          option_type: 'car_class',
-          option_value: car_class_option,
-          week_number: currentWeek,
-          year: currentYear,
-          votes_count: 0
-        }, {
-          onConflict: 'regular_event_id,option_type,option_value,week_number,year'
-        })
-        .select('id')
-        .single()
+    // 차량 클래스 옵션 확인 및 생성
+    if (car_class_option) {
+      console.log('차량 클래스 옵션 처리 시작:', car_class_option)
       
-      if (createCarClassError) {
-        console.error('차량 클래스 옵션 생성 실패:', createCarClassError)
-        // 생성 실패 시 다시 조회 시도
-        const { data: retryCarClassOption, error: retryError } = await supabase
+      // 먼저 기존 옵션 확인
+      const { data: existingCarClassOption, error: carClassError } = await supabase
+        .from('regular_event_vote_options')
+        .select('id')
+        .eq('regular_event_id', id)
+        .eq('option_type', 'car_class')
+        .eq('option_value', car_class_option)
+        .eq('week_number', currentWeek)
+        .eq('year', currentYear)
+        .single()
+
+      if (carClassError && carClassError.code === 'PGRST116') {
+        // 차량 클래스 옵션이 없으면 생성
+        console.log('차량 클래스 옵션 생성:', car_class_option)
+        const { data: newCarClassOption, error: createCarClassError } = await supabase
           .from('regular_event_vote_options')
+          .insert({
+            regular_event_id: id,
+            option_type: 'car_class',
+            option_value: car_class_option,
+            week_number: currentWeek,
+            year: currentYear,
+            votes_count: 0
+          })
           .select('id')
-          .eq('regular_event_id', id)
-          .eq('option_type', 'car_class')
-          .eq('option_value', car_class_option)
-          .eq('week_number', currentWeek)
-          .eq('year', currentYear)
           .single()
         
-        if (retryError) {
-          return NextResponse.json({ 
-            error: '차량 클래스 옵션 생성에 실패했습니다.' 
-          }, { status: 500 })
+        if (createCarClassError) {
+          console.error('차량 클래스 옵션 생성 실패:', createCarClassError)
+          // 생성 실패 시 다시 조회 시도 (다른 프로세스에서 생성했을 수 있음)
+          const { data: retryCarClassOption, error: retryError } = await supabase
+            .from('regular_event_vote_options')
+            .select('id')
+            .eq('regular_event_id', id)
+            .eq('option_type', 'car_class')
+            .eq('option_value', car_class_option)
+            .eq('week_number', currentWeek)
+            .eq('year', currentYear)
+            .single()
+          
+          if (retryError) {
+            console.error('차량 클래스 옵션 재조회도 실패:', retryError)
+            return NextResponse.json({ 
+              error: '차량 클래스 옵션을 처리할 수 없습니다.' 
+            }, { status: 500 })
+          }
+          carClassOption = retryCarClassOption
+        } else {
+          carClassOption = newCarClassOption
         }
-        carClassOption = retryCarClassOption
+      } else if (carClassError) {
+        console.error('차량 클래스 옵션 확인 실패:', carClassError)
+        return NextResponse.json({ 
+          error: '차량 클래스 옵션 확인에 실패했습니다.' 
+        }, { status: 500 })
       } else {
-        carClassOption = newCarClassOption
+        carClassOption = existingCarClassOption
       }
-    } else if (carClassError) {
-      console.error('차량 클래스 옵션 확인 실패:', carClassError)
-      return NextResponse.json({ 
-        error: '차량 클래스 옵션 확인에 실패했습니다.' 
-      }, { status: 500 })
-    } else {
-      carClassOption = existingCarClassOption
+      
+      console.log('차량 클래스 옵션 처리 완료:', carClassOption?.id)
     }
 
     // 4. 투표 저장 또는 업데이트

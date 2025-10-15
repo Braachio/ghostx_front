@@ -426,26 +426,7 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
         requestBody.car_class_option = selectedCarClass
       }
 
-      // 1. 먼저 투표 옵션을 미리 생성
-      console.log('투표 옵션 미리 생성 시작')
-      const ensureOptionsResponse = await fetch(`/api/regular-events/${regularEventId}/ensure-vote-options`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      })
-
-      if (!ensureOptionsResponse.ok) {
-        const errorData = await ensureOptionsResponse.json()
-        console.error('투표 옵션 생성 실패:', errorData)
-        setError('투표 옵션 준비에 실패했습니다.')
-        return
-      }
-
-      console.log('투표 옵션 미리 생성 완료')
-
-      // 2. 투표 실행
+      // 투표 실행 (옵션 생성은 API 내부에서 처리)
       const response = await fetch(`/api/regular-events/${regularEventId}/vote`, {
         method: 'POST',
         headers: {

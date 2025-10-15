@@ -39,6 +39,7 @@ export async function POST(
 
     // 트랙 옵션 생성
     if (track_option) {
+      console.log('트랙 옵션 생성 시작:', track_option)
       const { data: trackOption, error: trackError } = await supabase
         .from('regular_event_vote_options')
         .upsert({
@@ -54,8 +55,16 @@ export async function POST(
         .select('id')
         .single()
 
+      console.log('트랙 옵션 생성 결과:', { trackOption, trackError })
+
       if (trackError) {
         console.error('트랙 옵션 생성 실패:', trackError)
+        console.error('트랙 옵션 생성 실패 상세:', {
+          message: trackError.message,
+          details: trackError.details,
+          hint: trackError.hint,
+          code: trackError.code
+        })
         results.push({ type: 'track', error: trackError.message })
       } else {
         console.log('트랙 옵션 생성 성공:', trackOption.id)
@@ -65,6 +74,7 @@ export async function POST(
 
     // 차량 클래스 옵션 생성
     if (car_class_option) {
+      console.log('차량 클래스 옵션 생성 시작:', car_class_option)
       const { data: carClassOption, error: carClassError } = await supabase
         .from('regular_event_vote_options')
         .upsert({
@@ -80,8 +90,16 @@ export async function POST(
         .select('id')
         .single()
 
+      console.log('차량 클래스 옵션 생성 결과:', { carClassOption, carClassError })
+
       if (carClassError) {
         console.error('차량 클래스 옵션 생성 실패:', carClassError)
+        console.error('차량 클래스 옵션 생성 실패 상세:', {
+          message: carClassError.message,
+          details: carClassError.details,
+          hint: carClassError.hint,
+          code: carClassError.code
+        })
         results.push({ type: 'car_class', error: carClassError.message })
       } else {
         console.log('차량 클래스 옵션 생성 성공:', carClassOption.id)
