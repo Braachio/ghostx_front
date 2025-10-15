@@ -5,6 +5,7 @@ import Link from 'next/link'
 import ParticipantButton from '@/components/ParticipantButton'
 import VotingPanel from '@/components/VotingPanel'
 import VotingResultsPanel from '@/components/VotingResultsPanel'
+import VoteOptionsManager from '@/components/VoteOptionsManager'
 
 interface RegularEventDetailPageProps {
   params: Promise<{ game: string; id: string }>
@@ -168,6 +169,41 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
     setIsEditing(false)
   }
 
+  const handleDelete = async () => {
+    if (!event) return
+
+    const confirmMessage = `"${event.title}" 이벤트를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없으며, 관련된 모든 데이터(투표, 참가자 등)가 함께 삭제됩니다.`
+    
+    if (!confirm(confirmMessage)) {
+      return
+    }
+
+    try {
+      console.log('이벤트 삭제 요청:', eventId)
+      
+      const response = await fetch(`/api/regular-events/${eventId}`, {
+        method: 'DELETE'
+      })
+
+      console.log('삭제 응답 상태:', response.status)
+
+      if (response.ok) {
+        const data = await response.json()
+        console.log('삭제 성공 데이터:', data)
+        alert(data.message || '이벤트가 삭제되었습니다.')
+        // 이벤트 목록 페이지로 리다이렉트
+        window.location.href = `/events/regular/${game}`
+      } else {
+        const errorData = await response.json()
+        console.error('삭제 실패:', errorData)
+        alert(errorData.error || '삭제에 실패했습니다.')
+      }
+    } catch (error) {
+      console.error('이벤트 삭제 실패:', error)
+      alert('이벤트 삭제 중 오류가 발생했습니다.')
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 flex items-center justify-center">
@@ -213,12 +249,20 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
               {user && event.author_id === user.id && (
                 <div className="flex gap-3">
                   {!isEditing ? (
-                    <button
-                      onClick={handleEditStart}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-                    >
-                      수정
-                    </button>
+                    <>
+                      <button
+                        onClick={handleEditStart}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                      >
+                        수정
+                      </button>
+                      <button
+                        onClick={handleDelete}
+                        className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+                      >
+                        삭제
+                      </button>
+                    </>
                   ) : (
                     <div className="flex gap-2">
                       <button
@@ -383,6 +427,16 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
 
         {/* 기능 섹션들 */}
         <div className="space-y-6">
+          {/* 투표 옵션 관리 섹션 (작성자만) */}
+          {user && event && event.author_id === user.id && (
+            <VoteOptionsManager 
+              regularEventId={eventId}
+              weekNumber={undefined}
+              year={undefined}
+              isOwner={true}
+            />
+          )}
+
           {/* 참가신청 섹션 */}
           <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
             <h3 className="text-lg font-semibold text-white mb-4">참가신청</h3>

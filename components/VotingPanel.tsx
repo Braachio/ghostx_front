@@ -124,6 +124,24 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
     }
   }
 
+  // 참가자 상태 확인 함수
+  const checkParticipationStatus = async () => {
+    if (!user) return false
+    
+    try {
+      // 참가자 목록에서 현재 사용자 확인
+      const participantsResponse = await fetch(`/api/multis/${regularEventId}/participants`)
+      if (participantsResponse.ok) {
+        const data = await participantsResponse.json()
+        const participants = data.participants || []
+        return participants.some((p: { user_id: string }) => p.user_id === user.id)
+      }
+    } catch (error) {
+      console.error('참가자 상태 확인 실패:', error)
+    }
+    return false
+  }
+
   useEffect(() => {
     if (user) {
       fetchVoteData()
@@ -256,7 +274,15 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
         <div className="text-red-400 text-center">
           <p className="mb-4">{error}</p>
           <button 
-            onClick={fetchVoteData}
+            onClick={async () => {
+              // 참가자 상태를 다시 확인하고 투표 데이터를 새로고침
+              const isParticipant = await checkParticipationStatus()
+              if (isParticipant) {
+                await fetchVoteData()
+              } else {
+                setError('아직 참가신청이 완료되지 않았습니다. 잠시 후 다시 시도해주세요.')
+              }
+            }}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
           >
             다시 시도

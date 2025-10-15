@@ -30,9 +30,9 @@ export async function POST(
     console.log('투표 권한 확인:', { regularEventId: id, userId: user.id })
     
     const { data: participant, error: participantError } = await supabase
-      .from('multi_participants')
-      .select('id, multi_id, user_id')
-      .eq('multi_id', id)
+      .from('participants')
+      .select('id, event_id, user_id')
+      .eq('event_id', id)
       .eq('user_id', user.id)
       .single()
 
@@ -204,9 +204,9 @@ export async function GET(
 
     // 3. 참가자 수 확인
     const { data: participantCount } = await supabase
-      .from('multi_participants')
+      .from('participants')
       .select('id', { count: 'exact' })
-      .eq('multi_id', id)
+      .eq('event_id', id)
 
     // 투표 종료 상태 확인
     const { data: votingStatus } = await supabase
