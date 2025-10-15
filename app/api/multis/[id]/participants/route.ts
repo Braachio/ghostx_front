@@ -79,6 +79,8 @@ export async function POST(
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
+    console.log('인증된 사용자:', { userId: user.id, email: user.email })
+
     // 이미 참가했는지 확인 (더 안전한 방법)
     const { data: existingParticipants, error: checkError } = await supabase
       .from('participants')

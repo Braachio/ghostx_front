@@ -87,14 +87,18 @@ export default function ParticipationSection({ eventId, isOwner = false }: Parti
         } catch (error) {
           console.error('사용자 정보 가져오기 실패:', error)
         }
-        
-        // 참가 상태 확인
-        const isParticipant = await checkParticipationStatus()
-        setIsParticipant(isParticipant)
       }
       
       // 참가자 목록 가져오기
       await fetchParticipants()
+      
+      // 참가 상태 확인 (참가자 목록 로드 후)
+      if (user) {
+        const isParticipant = await checkParticipationStatus()
+        setIsParticipant(isParticipant)
+        console.log('초기 참가 상태 확인 완료:', isParticipant)
+      }
+      
       setLoading(false)
     }
     
@@ -132,7 +136,18 @@ export default function ParticipationSection({ eventId, isOwner = false }: Parti
       } else {
         const errorData = await response.json()
         console.error('참가신청 실패:', errorData)
-        alert(`참가신청 실패: ${errorData.error}`)
+        
+        // 이미 참가신청이 되어 있다면 상태를 업데이트
+        if (errorData.error === '이미 참가 신청하셨습니다.') {
+          console.log('이미 참가신청됨, 상태 업데이트')
+          await fetchParticipants()
+          const isParticipant = await checkParticipationStatus()
+          setIsParticipant(isParticipant)
+          console.log('참가 상태 업데이트 완료:', isParticipant)
+          alert('이미 참가신청이 완료되어 있습니다.')
+        } else {
+          alert(`참가신청 실패: ${errorData.error}`)
+        }
       }
     } catch (error) {
       console.error('참가신청 오류:', error)
