@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import VotingPanel from '@/components/VotingPanel'
-import ParticipantButton from '@/components/ParticipantButton'
+// import VotingPanel from '@/components/VotingPanel'
+// import ParticipantButton from '@/components/ParticipantButton'
 import { MultiWithTemplate } from '@/types/events'
 
-// VoteOptionsManager causes ReferenceError, test VotingResultsPanel instead
-import VotingResultsPanel from '@/components/VotingResultsPanel'
+// All management components cause ReferenceError, disable all
+// import VotingResultsPanel from '@/components/VotingResultsPanel'
 // import EventInfoEditor from '@/components/EventInfoEditor'
 // import VoteOptionsManager from '@/components/VoteOptionsManager'
 
@@ -34,7 +34,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [user, setUser] = useState<{ id: string } | null>(null)
-  const [toggling, setToggling] = useState(false)
+  // const [toggling, setToggling] = useState(false) // 임시 비활성화
 
   useEffect(() => {
     const loadParams = async () => {
@@ -93,33 +93,33 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
     fetchEvent()
   }, [eventId])
 
-  // ON/OFF 토글 함수
-  const handleToggle = async () => {
-    if (!event || !user || event.user_id !== user.id) return
+  // ON/OFF 토글 함수 - 임시 비활성화
+  // const handleToggle = async () => {
+  //   if (!event || !user || event.user_id !== user.id) return
 
-    setToggling(true)
-    try {
-      const response = await fetch(`/api/multis?id=${eventId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          is_open: !event.is_open
-        })
-      })
+  //   setToggling(true)
+  //   try {
+  //     const response = await fetch(`/api/multis?id=${eventId}`, {
+  //       method: 'PATCH',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         is_open: !event.is_open
+  //       })
+  //     })
 
-      if (response.ok) {
-        setEvent(prev => prev ? { ...prev, is_open: !prev.is_open } : null)
-      } else {
-        console.error('토글 업데이트 실패')
-      }
-    } catch (error) {
-      console.error('토글 업데이트 중 오류:', error)
-    } finally {
-      setToggling(false)
-    }
-  }
+  //     if (response.ok) {
+  //       setEvent(prev => prev ? { ...prev, is_open: !prev.is_open } : null)
+  //     } else {
+  //       console.error('토글 업데이트 실패')
+  //     }
+  //   } catch (error) {
+  //     console.error('토글 업데이트 중 오류:', error)
+  //   } finally {
+  //     setToggling(false)
+  //   }
+  // }
 
   // 이벤트 정보 업데이트 핸들러 (임시 비활성화)
   // const handleEventUpdate = (updatedEvent: Partial<MultiWithTemplate>) => {
@@ -202,39 +202,14 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
                     </span>
                   </div>
                 </div>
-                {/* ON/OFF 토글 및 수정 버튼 - 작성자만 변경 가능 */}
-                {user && event.user_id === user.id ? (
-                  <div className="flex gap-2">
-                    <button
-                      onClick={handleToggle}
-                      disabled={toggling}
-                      className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:scale-105 disabled:opacity-50 ${
-                        event.is_open 
-                          ? 'bg-green-600 text-white hover:bg-green-700' 
-                          : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
-                      }`}
-                    >
-                      {toggling ? '변경중...' : (event.is_open ? 'ON' : 'OFF')}
-                    </button>
-                    <button
-                      onClick={() => {
-                        // TODO: 수정 모달 또는 페이지로 이동
-                        alert('이벤트 수정 기능은 곧 추가될 예정입니다.')
-                      }}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-all hover:scale-105"
-                    >
-                      ✏️ 수정
-                    </button>
-                  </div>
-                ) : (
-                  <div className={`px-4 py-2 rounded-lg text-sm font-semibold ${
-                    event.is_open 
-                      ? 'bg-green-600 text-white' 
-                      : 'bg-gray-600 text-gray-300'
-                  }`}>
-                    {event.is_open ? 'ON' : 'OFF'}
-                  </div>
-                )}
+                {/* ON/OFF 토글 - 임시 비활성화 */}
+                <div className={`px-4 py-2 rounded-lg text-sm font-semibold ${
+                  event.is_open 
+                    ? 'bg-green-600 text-white' 
+                    : 'bg-gray-600 text-gray-300'
+                }`}>
+                  {event.is_open ? 'ON' : 'OFF'}
+                </div>
               </div>
 
               {/* 상세 정보 */}
@@ -332,23 +307,28 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
               <p className="text-gray-400 mb-4 text-sm">
                 참가신청을 완료한 사용자만 투표할 수 있습니다.
               </p>
-              <ParticipantButton eventId={event.id} />
+              {/* ParticipantButton - 임시 비활성화 */}
+              <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
+                <p className="text-gray-400 text-sm">참가 기능이 임시로 비활성화되었습니다.</p>
+              </div>
             </div>
 
             {/* 투표 패널 */}
-            {/* 투표 섹션 */}
-            <VotingPanel 
-              regularEventId={event.id}
-              weekNumber={undefined} // 현재 주차 자동 계산
-              year={undefined} // 현재 연도 자동 계산
-            />
+            {/* 투표 섹션 - 임시 비활성화 */}
+            <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
+              <h3 className="text-xl font-bold text-white mb-4">🗳️ 투표</h3>
+              <p className="text-gray-400">투표 기능이 임시로 비활성화되었습니다.</p>
+            </div>
 
-            {/* 투표 결과 적용 섹션 (이벤트 작성자만) */}
+            {/* 투표 결과 적용 섹션 (이벤트 작성자만) - 비활성화 */}
             {user && event.author_id === user.id && (
-              <VotingResultsPanel eventId={event.id} />
+              <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
+                <h3 className="text-xl font-bold text-white mb-4">🏆 투표 결과</h3>
+                <p className="text-gray-400">투표 결과 기능이 임시로 비활성화되었습니다.</p>
+              </div>
             )}
 
-            {/* 투표 후보 관리 섹션 (이벤트 작성자만) - VoteOptionsManager 비활성화 */}
+            {/* 투표 후보 관리 섹션 (이벤트 작성자만) - 비활성화 */}
             {user && event.author_id === user.id && (
               <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
                 <h3 className="text-xl font-bold text-white mb-4">🎛️ 투표 후보 관리</h3>
