@@ -168,6 +168,16 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
   const fetchVoteData = async () => {
     try {
       setLoading(true)
+      setError('')
+      
+      // 먼저 참가자 상태 확인
+      const isParticipant = await checkParticipationStatus()
+      if (!isParticipant) {
+        setError('해당 이벤트에 참가신청한 사용자만 투표할 수 있습니다.')
+        setLoading(false)
+        return
+      }
+
       const params = new URLSearchParams()
       if (weekNumber) params.append('week_number', weekNumber.toString())
       if (year) params.append('year', year.toString())
@@ -449,13 +459,8 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
           <p className="mb-4">{error}</p>
           <button 
             onClick={async () => {
-              // 참가자 상태를 다시 확인하고 투표 데이터를 새로고침
-              const isParticipant = await checkParticipationStatus()
-              if (isParticipant) {
-                await fetchVoteData()
-              } else {
-                setError('아직 참가신청이 완료되지 않았습니다. 잠시 후 다시 시도해주세요.')
-              }
+              // 투표 데이터를 새로고침 (참가자 상태 확인 포함)
+              await fetchVoteData()
             }}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
           >
