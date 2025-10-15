@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { getCurrentWeekInfo, getWeekOptions, getWeekDateRange, getFlashEventWeekOptions } from '@/app/utils/weekUtils'
+import { getCurrentWeekInfo, getWeekDateRange, getFlashEventWeekOptions } from '@/app/utils/weekUtils'
 
 const GAME_OPTIONS = ['컴페티치오네','아세토코르사','그란투리스모7','르망얼티밋','EA WRC','아이레이싱','알펙터2', 'F1 25', '오토모빌리스타2']
 const DAY_OPTIONS = ['월','화','수','목','금','토','일']

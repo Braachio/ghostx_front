@@ -66,43 +66,43 @@ export default function EventsPage() {
                   href="/events/regular/iracing" 
                   className="relative group/btn overflow-hidden px-6 py-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40 hover:scale-105"
                 >
-                  <span className="relative z-10">🏁 아이레이싱</span>
+                  <span className="relative z-10"> 아이레이싱</span>
                 </Link>
                 <Link 
                   href="/events/regular/assettocorsa" 
                   className="relative group/btn overflow-hidden px-6 py-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40 hover:scale-105"
                 >
-                  <span className="relative z-10">🏎️ 아세토코르사</span>
+                  <span className="relative z-10"> 아세토코르사</span>
                 </Link>
                 <Link 
                   href="/events/regular/gran-turismo7" 
                   className="relative group/btn overflow-hidden px-6 py-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40 hover:scale-105"
                 >
-                  <span className="relative z-10">🏆 그란투리스모7</span>
+                  <span className="relative z-10"> 그란투리스모7</span>
                 </Link>
                 <Link 
                   href="/events/regular/competizione" 
                   className="relative group/btn overflow-hidden px-6 py-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40 hover:scale-105"
                 >
-                  <span className="relative z-10">🏁 컴페티치오네</span>
+                  <span className="relative z-10"> 컴페티치오네</span>
                 </Link>
                 <Link 
                   href="/events/regular/lemans" 
                   className="relative group/btn overflow-hidden px-6 py-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40 hover:scale-105"
                 >
-                  <span className="relative z-10">🏁 르망얼티밋</span>
+                  <span className="relative z-10"> 르망얼티밋</span>
                 </Link>
                 <Link 
                   href="/events/regular/f1-25" 
                   className="relative group/btn overflow-hidden px-6 py-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40 hover:scale-105"
                 >
-                  <span className="relative z-10">🏎️ F1 25</span>
+                  <span className="relative z-10"> F1 25</span>
                 </Link>
                 <Link 
                   href="/events/regular/automobilista2" 
                   className="relative group/btn overflow-hidden px-6 py-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40 hover:scale-105"
                 >
-                  <span className="relative z-10">🏁 오토모빌리스타2</span>
+                  <span className="relative z-10"> 오토모빌리스타2</span>
                 </Link>
               </div>
             </div>

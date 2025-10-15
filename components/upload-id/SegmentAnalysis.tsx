@@ -104,7 +104,7 @@ export default function SegmentAnalysis({ result }: { result: ResultType }) {
     }
 
     fetchData()
-  }, [result.track, result.data, result.lap_id])
+  }, [result.track, result.data, result.lap_id, result, supabase])
 
 
 

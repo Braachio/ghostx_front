@@ -145,7 +145,7 @@ useEffect(() => {
   }
 
   fetchUserAndLaps()
-}, [])
+}, [supabase])
 
 
   const handleSaveName = async (lapId: string, name: string) => {

@@ -36,7 +36,7 @@ export default function SignupForm() {
       }
     }, 500)
     return () => clearTimeout(delay)
-  }, [emailId, emailDomain, customDomain])
+  }, [emailId, emailDomain, customDomain, email])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

@@ -73,7 +73,7 @@ export default function EditMultiForm({ id }: { id: string }) {
     }
 
     fetchData()
-  }, [id])
+  }, [id, currentWeekInfo.week, currentWeekInfo.year])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

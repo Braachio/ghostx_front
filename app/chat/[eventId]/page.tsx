@@ -48,7 +48,7 @@ export default function ChatPage() {
     }
 
     loadMessages()
-  }, [eventId])
+  }, [eventId, colors, generateNickname, loadMessages])
 
   useEffect(() => {
     scrollToBottom()

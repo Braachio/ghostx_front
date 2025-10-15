@@ -67,7 +67,7 @@ export default function DashboardPage() {
       }
     }
     loadTracks()
-  }, [userId, selectedDays])
+  }, [userId, selectedDays, selectedTrack])
 
   if (loading) {
     return (

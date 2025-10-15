@@ -28,7 +28,7 @@ export default function MyPostsPage() {
     }
 
     fetchPosts()
-  }, [user])
+  }, [user, supabase])
 
   const handleDelete = async (id: string) => {
     const ok = confirm('정말 삭제하시겠습니까?')

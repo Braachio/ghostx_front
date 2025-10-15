@@ -165,7 +165,12 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
       setError('')
 
       // voteType에 따라 다른 데이터 전송
-      const requestBody: any = {
+      const requestBody: {
+        week_number?: number
+        year?: number
+        track_option?: string
+        car_class_option?: string
+      } = {
         week_number: voteData?.weekInfo.week,
         year: voteData?.weekInfo.year
       }
