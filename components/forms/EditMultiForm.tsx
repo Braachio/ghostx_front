@@ -351,7 +351,7 @@ export default function EditMultiForm({ id }: { id: string }) {
                   </button>
                 </div>
                 <p className="text-gray-400 text-sm">
-                  URL을 입력하고 "정보 가져오기"를 클릭하면 자동으로 제목과 설명을 가져옵니다.
+                  URL을 입력하고 &quot;정보 가져오기&quot;를 클릭하면 자동으로 제목과 설명을 가져옵니다.
                 </p>
               </div>
               

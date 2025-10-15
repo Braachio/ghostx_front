@@ -1,7 +1,7 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 
 interface ChatMessage {
   id: string
@@ -21,18 +21,18 @@ export default function ChatPage() {
   const [userColor, setUserColor] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const colors = [
+  const colors = useMemo(() => [
     'text-red-400', 'text-blue-400', 'text-green-400', 'text-yellow-400',
     'text-purple-400', 'text-pink-400', 'text-cyan-400', 'text-orange-400'
-  ]
+  ], [])
 
-  const generateTag = () => {
+  const generateTag = useCallback(() => {
     return Math.floor(1000 + Math.random() * 9000).toString()
-  }
+  }, [])
 
-  const generateNickname = () => {
+  const generateNickname = useCallback(() => {
     return `ㅇㅇ#${generateTag()}`
-  }
+  }, [generateTag])
 
   useEffect(() => {
     const savedNickname = localStorage.getItem(`chat_nickname_${eventId}`)
@@ -58,7 +58,7 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  const loadMessages = async () => {
+  const loadMessages = useCallback(async () => {
     try {
       const response = await fetch(`/api/chat/${eventId}`)
       if (response.ok) {
@@ -78,7 +78,7 @@ export default function ChatPage() {
       console.error('메시지 로드 중 오류:', error)
       setMessages([])
     }
-  }
+  }, [eventId])
 
   const joinChat = () => {
     setIsJoined(true)
