@@ -11,7 +11,7 @@ export default function TestPage({ params }: TestPageProps) {
   const [eventId, setEventId] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<{ id: string } | null>(null)
-  const [event, setEvent] = useState<any>(null)
+  const [event, setEvent] = useState<{ title?: string } | null>(null)
   const [eventLoading, setEventLoading] = useState(false)
 
   useEffect(() => {
@@ -55,7 +55,7 @@ export default function TestPage({ params }: TestPageProps) {
         const response = await fetch('/api/multis')
         if (response.ok) {
           const data = await response.json()
-          const eventData = data.find((e: any) => e.id === eventId)
+          const eventData = data.find((e: { id: string; title?: string }) => e.id === eventId)
           if (eventData) {
             setEvent(eventData)
           }

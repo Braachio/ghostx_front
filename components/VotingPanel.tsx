@@ -106,7 +106,7 @@ export default function VotingPanel({ regularEventId, weekNumber, year }: Voting
     } else {
       setLoading(false)
     }
-  }, [user, regularEventId, weekNumber, year])
+  }, [user, regularEventId, weekNumber, year]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggleVotingStatus = async () => {
     if (!voteData) return

@@ -27,7 +27,20 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
   const [eventId, setEventId] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<{ id: string } | null>(null)
-  const [event, setEvent] = useState<any>(null)
+  const [event, setEvent] = useState<{
+    id: string
+    title: string
+    description?: string
+    game: string
+    game_track?: string
+    multi_class?: string
+    multi_day?: string[]
+    start_time?: string
+    duration_hours?: number
+    max_participants?: number
+    is_open: boolean
+    author_id: string
+  } | null>(null)
   const [eventLoading, setEventLoading] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editForm, setEditForm] = useState({
@@ -79,7 +92,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
         const response = await fetch('/api/multis')
         if (response.ok) {
           const data = await response.json()
-          const eventData = data.find((e: any) => e.id === eventId)
+          const eventData = data.find((e: { id: string }) => e.id === eventId)
           if (eventData) {
             setEvent(eventData)
           }

@@ -6,6 +6,23 @@ import WeeklyCalendar from '@/components/WeeklyCalendar'
 import TrackHistoryPanel from '@/components/TrackHistoryPanel'
 import { MultiWithTemplate } from '@/types/events'
 
+// 게임별 익명채팅 버튼 컴포넌트
+const GameChatButton = ({ gameSlug, gameName }: { gameSlug: string; gameName: string }) => {
+  const openChatInNewTab = () => {
+    const chatUrl = `/events/regular/${gameSlug}/chat`
+    window.open(chatUrl, '_blank', 'width=400,height=600,scrollbars=yes,resizable=yes')
+  }
+
+  return (
+    <button
+      onClick={openChatInNewTab}
+      className="fixed bottom-6 right-6 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full shadow-lg transition-all hover:scale-105 z-50"
+    >
+      💬 {gameName} 채팅
+    </button>
+  )
+}
+
 // 게임 이름 매핑
 const gameNames: Record<string, string> = {
   'iracing': '아이레이싱',
@@ -186,6 +203,9 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
         </div>
 
       </div>
+
+      {/* 게임별 익명채팅 */}
+      <GameChatButton gameSlug={game} gameName={gameName} />
     </div>
   )
 }
