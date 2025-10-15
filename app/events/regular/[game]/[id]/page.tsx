@@ -86,14 +86,24 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
       if (!eventId) return
 
       try {
+        console.log('이벤트 로드 시작 - ID:', eventId)
         setEventLoading(true)
         const response = await fetch('/api/multis')
+        console.log('이벤트 목록 응답 상태:', response.status)
+        
         if (response.ok) {
           const data = await response.json()
+          console.log('이벤트 목록 데이터:', data)
           const eventData = data.find((e: { id: string }) => e.id === eventId)
+          console.log('찾은 이벤트 데이터:', eventData)
+          
           if (eventData) {
             setEvent(eventData)
+          } else {
+            console.log('해당 ID의 이벤트를 찾을 수 없음:', eventId)
           }
+        } else {
+          console.error('이벤트 목록 로드 실패:', response.status)
         }
       } catch (error) {
         console.error('이벤트 로드 실패:', error)
@@ -120,19 +130,25 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
 
   const handleEditSave = async () => {
     try {
+      console.log('이벤트 수정 요청:', { eventId, editForm })
+      
       const response = await fetch(`/api/regular-events/${eventId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editForm)
       })
 
+      console.log('수정 응답 상태:', response.status)
+
       if (response.ok) {
         const data = await response.json()
+        console.log('수정 성공 데이터:', data)
         setEvent(data.event)
         setIsEditing(false)
         alert('이벤트 정보가 수정되었습니다.')
       } else {
         const errorData = await response.json()
+        console.error('수정 실패:', errorData)
         alert(errorData.error || '수정에 실패했습니다.')
       }
     } catch (error) {

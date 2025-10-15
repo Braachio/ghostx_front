@@ -172,6 +172,7 @@ export async function POST(req: NextRequest) {
       multi_day: [body.day_of_week],
       multi_time: body.start_time,
       duration_hours: body.duration_hours,
+      max_participants: 50, // 정기 이벤트는 기본값으로 50명 설정
       gallery_link: body.gallery_link,
       event_type: 'regular_schedule',
       is_template_based: false,
@@ -181,11 +182,7 @@ export async function POST(req: NextRequest) {
       // 정기 이벤트는 year, week를 null로 설정
       year: null,
       week: null,
-      event_date: null,
-      // 자동 투표 설정
-      auto_voting_enabled: body.auto_voting_enabled || false,
-      voting_start_offset_days: body.voting_start_offset_days || 1,
-      voting_duration_days: body.voting_duration_days || 3
+      event_date: null
     }).select().single()
 
     if (insertError) {
