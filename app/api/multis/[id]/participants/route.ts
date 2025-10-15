@@ -15,41 +15,51 @@ export async function GET(
 
     console.log(`참가자 목록 조회 요청 - Event ID: ${id}`)
 
-    // 실제 데이터베이스에서 참가자 목록 조회 (Steam ID 포함)
-    const { data, error } = await supabase
+    // 1) 참가자 목록 조회 (조인 없이 먼저 가져오기)
+    const { data: participants, error: participantsError } = await supabase
       .from('participants')
-      .select(`
-        id,
-        user_id,
-        nickname,
-        status,
-        joined_at,
-        profiles!inner(
-          steam_id
-        )
-      `)
+      .select('id, user_id, nickname, status, joined_at')
       .eq('event_id', id)
       .order('joined_at', { ascending: false })
 
-    if (error) {
-      console.error(`참가자 목록 조회 실패 - Event ID: ${id}, Error:`, error.message)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+    if (participantsError) {
+      console.error(`참가자 목록 조회 실패 - Event ID: ${id}, Error:`, participantsError.message)
+      return NextResponse.json({ error: participantsError.message }, { status: 500 })
     }
 
-    const participants = data || []
-    console.log(`참가자 목록 반환 - ${participants.length}명`)
+    const safeParticipants = participants || []
+    console.log(`참가자 기본 목록 반환 - ${safeParticipants.length}명`)
 
-    // Steam ID 정보를 참가자 데이터에 포함
-    const participantsWithSteamId = participants.map(participant => ({
-      ...participant,
-      steam_id: participant.profiles?.steam_id || null
+    // 2) 프로필에서 steam_id를 별도 조회하여 매핑 (조인 문제/제약 회피)
+    const userIds = safeParticipants.map(p => p.user_id).filter(Boolean)
+    let steamIdByUserId: Record<string, string | null> = {}
+
+    if (userIds.length > 0) {
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, steam_id')
+        .in('id', userIds)
+
+      if (profilesError) {
+        console.warn('프로필 조회 실패(무시하고 계속 진행):', profilesError.message)
+      } else if (profiles) {
+        steamIdByUserId = profiles.reduce((acc: Record<string, string | null>, cur) => {
+          acc[cur.id as string] = (cur as any).steam_id ?? null
+          return acc
+        }, {})
+      }
+    }
+
+    const participantsWithSteamId = safeParticipants.map(p => ({
+      ...p,
+      steam_id: steamIdByUserId[p.user_id] ?? null,
     }))
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       participants: participantsWithSteamId,
-      total: participants.length,
-      confirmed: participants.filter(p => p.status === 'confirmed').length,
-      pending: participants.filter(p => p.status === 'pending').length
+      total: participantsWithSteamId.length,
+      confirmed: participantsWithSteamId.filter(p => p.status === 'confirmed').length,
+      pending: participantsWithSteamId.filter(p => p.status === 'pending').length,
     })
   } catch (e: unknown) {
     const error = e as Error
