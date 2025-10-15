@@ -79,17 +79,21 @@ export async function POST(
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
-    // 이미 참가했는지 확인
-    const { data: existingParticipant, error: checkError } = await supabase
+    // 이미 참가했는지 확인 (더 안전한 방법)
+    const { data: existingParticipants, error: checkError } = await supabase
       .from('participants')
       .select('id')
       .eq('event_id', id)
       .eq('user_id', user.id)
-      .single()
 
-    console.log('기존 참가자 확인:', { existingParticipant, checkError })
+    console.log('기존 참가자 확인:', { existingParticipants, checkError })
 
-    if (existingParticipant && !checkError) {
+    if (checkError) {
+      console.error('참가자 확인 중 오류:', checkError)
+      return NextResponse.json({ error: '참가자 상태 확인 중 오류가 발생했습니다.' }, { status: 500 })
+    }
+
+    if (existingParticipants && existingParticipants.length > 0) {
       console.log('이미 참가 신청된 사용자:', user.id)
       return NextResponse.json({ error: '이미 참가 신청하셨습니다.' }, { status: 400 })
     }

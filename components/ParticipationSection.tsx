@@ -53,9 +53,16 @@ export default function ParticipationSection({ eventId, isOwner = false }: Parti
         const participants = data.participants || []
         console.log('참가자 목록:', participants)
         console.log('현재 사용자 ID:', user.id)
-        const isParticipant = participants.some((p: Participant) => p.user_id === user.id)
+        console.log('사용자 ID 타입:', typeof user.id)
+        
+        const isParticipant = participants.some((p: Participant) => {
+          console.log('비교 중:', { participantId: p.user_id, currentUserId: user.id, match: p.user_id === user.id })
+          return p.user_id === user.id
+        })
         console.log('참가 상태:', isParticipant)
         return isParticipant
+      } else {
+        console.error('참가자 목록 조회 실패:', response.status, response.statusText)
       }
     } catch (error) {
       console.error('참가 상태 확인 실패:', error)
@@ -97,6 +104,8 @@ export default function ParticipationSection({ eventId, isOwner = false }: Parti
   const handleJoin = async () => {
     if (!user) return
 
+    console.log('참가신청 시작:', { eventId, userId: user.id, nickname: userInfo?.nickname })
+
     try {
       setJoining(true)
       const response = await fetch(`/api/multis/${eventId}/participants`, {
@@ -109,15 +118,20 @@ export default function ParticipationSection({ eventId, isOwner = false }: Parti
         }),
       })
 
+      console.log('참가신청 응답:', { status: response.status, ok: response.ok })
+
       if (response.ok) {
+        console.log('참가신청 성공, 상태 업데이트 시작')
         // 참가자 목록을 먼저 새로고침
         await fetchParticipants()
         // 참가 상태를 다시 확인
         const isParticipant = await checkParticipationStatus()
         setIsParticipant(isParticipant)
+        console.log('참가 상태 업데이트 완료:', isParticipant)
         alert('참가신청이 완료되었습니다! 이제 투표할 수 있습니다.')
       } else {
         const errorData = await response.json()
+        console.error('참가신청 실패:', errorData)
         alert(`참가신청 실패: ${errorData.error}`)
       }
     } catch (error) {
