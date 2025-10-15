@@ -80,14 +80,17 @@ export async function POST(
     }
 
     // 이미 참가했는지 확인
-    const { data: existingParticipant } = await supabase
+    const { data: existingParticipant, error: checkError } = await supabase
       .from('participants')
       .select('id')
       .eq('event_id', id)
       .eq('user_id', user.id)
       .single()
 
-    if (existingParticipant) {
+    console.log('기존 참가자 확인:', { existingParticipant, checkError })
+
+    if (existingParticipant && !checkError) {
+      console.log('이미 참가 신청된 사용자:', user.id)
       return NextResponse.json({ error: '이미 참가 신청하셨습니다.' }, { status: 400 })
     }
 
@@ -143,15 +146,23 @@ export async function DELETE(
     }
 
     // 참가자 삭제
-    const { error: deleteError } = await supabase
+    const { data: deletedData, error: deleteError } = await supabase
       .from('participants')
       .delete()
       .eq('event_id', id)
       .eq('user_id', user.id)
+      .select()
+
+    console.log('참가자 삭제 결과:', { deletedData, deleteError })
 
     if (deleteError) {
       console.error(`참가 취소 실패 - Event ID: ${id}, User ID: ${user.id}, Error:`, deleteError.message)
       return NextResponse.json({ error: deleteError.message }, { status: 500 })
+    }
+
+    if (!deletedData || deletedData.length === 0) {
+      console.log('삭제할 참가자 데이터가 없음:', { eventId: id, userId: user.id })
+      return NextResponse.json({ error: '참가 신청 내역을 찾을 수 없습니다.' }, { status: 404 })
     }
 
     console.log(`참가 취소 성공 - User ID: ${user.id}`)

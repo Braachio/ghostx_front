@@ -51,7 +51,11 @@ export default function ParticipationSection({ eventId, isOwner = false }: Parti
       if (response.ok) {
         const data = await response.json()
         const participants = data.participants || []
-        return participants.some((p: Participant) => p.user_id === user.id)
+        console.log('참가자 목록:', participants)
+        console.log('현재 사용자 ID:', user.id)
+        const isParticipant = participants.some((p: Participant) => p.user_id === user.id)
+        console.log('참가 상태:', isParticipant)
+        return isParticipant
       }
     } catch (error) {
       console.error('참가 상태 확인 실패:', error)
@@ -106,8 +110,11 @@ export default function ParticipationSection({ eventId, isOwner = false }: Parti
       })
 
       if (response.ok) {
-        setIsParticipant(true)
-        await fetchParticipants() // 참가자 목록 새로고침
+        // 참가자 목록을 먼저 새로고침
+        await fetchParticipants()
+        // 참가 상태를 다시 확인
+        const isParticipant = await checkParticipationStatus()
+        setIsParticipant(isParticipant)
         alert('참가신청이 완료되었습니다! 이제 투표할 수 있습니다.')
       } else {
         const errorData = await response.json()
@@ -131,8 +138,11 @@ export default function ParticipationSection({ eventId, isOwner = false }: Parti
       })
 
       if (response.ok) {
-        setIsParticipant(false)
-        await fetchParticipants() // 참가자 목록 새로고침
+        // 참가자 목록을 먼저 새로고침
+        await fetchParticipants()
+        // 참가 상태를 다시 확인
+        const isParticipant = await checkParticipationStatus()
+        setIsParticipant(isParticipant)
         alert('참가가 취소되었습니다.')
       } else {
         const errorData = await response.json()
