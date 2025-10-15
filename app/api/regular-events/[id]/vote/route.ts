@@ -221,12 +221,20 @@ export async function POST(
       week_number: currentWeek,
       year: currentYear,
       voter_id: user.id,
-      track_option,
-      car_class_option
+      ...(track_option && { track_option }),
+      ...(car_class_option && { car_class_option })
     }
 
     console.log('투표 데이터:', voteData)
     console.log('기존 투표 존재 여부:', !!existingVote)
+
+    // 투표 데이터 유효성 검증
+    if (!track_option && !car_class_option) {
+      console.error('투표할 옵션이 없습니다.')
+      return NextResponse.json({ 
+        error: '투표할 옵션을 선택해주세요.' 
+      }, { status: 400 })
+    }
 
     let result
     if (existingVote) {
