@@ -2,7 +2,6 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 
-// 투표 후보 조회
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -10,15 +9,26 @@ export async function GET(
   try {
     const { id } = await params
     const supabase = createRouteHandlerClient({ cookies })
+    
+    const { searchParams } = new URL(req.url)
+    const week_number = parseInt(searchParams.get('week_number') || '0')
+    const year = parseInt(searchParams.get('year') || '0')
 
-    // 투표 옵션들 조회
+    // 현재 주차 정보
+    const currentYear = year || new Date().getFullYear()
+    const currentWeek = week_number || Math.ceil((((+new Date() - +new Date(new Date().getFullYear(), 0, 1)) / 86400000) + new Date(new Date().getFullYear(), 0, 1).getDay() + 1) / 7)
+
     const { data: voteOptions, error } = await supabase
-      .from('regular_event_vote_options')
-      .select('*')
+      .from('vote_options')
+      .select('id, option_type, option_value, votes_count')
       .eq('regular_event_id', id)
-      .order('option_type, created_at')
+      .eq('week_number', currentWeek)
+      .eq('year', currentYear)
+      .order('option_type, option_value')
 
-    if (error) throw error
+    if (error) {
+      return NextResponse.json({ error: '투표 옵션을 불러오는데 실패했습니다.' }, { status: 500 })
+    }
 
     return NextResponse.json({
       success: true,
@@ -26,14 +36,13 @@ export async function GET(
     })
 
   } catch (error) {
-    console.error('투표 후보 조회 실패:', error)
-    return NextResponse.json({
-      error: error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.'
+    console.error('투표 옵션 조회 오류:', error)
+    return NextResponse.json({ 
+      error: error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.' 
     }, { status: 500 })
   }
 }
 
-// 투표 후보 추가
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -52,78 +61,52 @@ export async function POST(
     }
 
     const body = await req.json()
-    const { optionType, optionValue, weekNumber, year } = body
+    const { option_type, option_value, week_number, year } = body
 
-    if (!optionType || !optionValue || !weekNumber || !year) {
-      return NextResponse.json({ error: '필수 정보가 누락되었습니다.' }, { status: 400 })
-    }
+    // 현재 주차 정보
+    const currentYear = year || new Date().getFullYear()
+    const currentWeek = week_number || Math.ceil((((+new Date() - +new Date(new Date().getFullYear(), 0, 1)) / 86400000) + new Date(new Date().getFullYear(), 0, 1).getDay() + 1) / 7)
 
-    // 이벤트 작성자인지 확인
+    // 이벤트 소유자 확인
     const { data: event, error: eventError } = await supabase
       .from('multis')
-      .select('author_id, event_type')
+      .select('author_id')
       .eq('id', id)
       .single()
 
-    if (eventError || !event) {
-      return NextResponse.json({ error: '이벤트를 찾을 수 없습니다.' }, { status: 404 })
+    if (eventError || !event || event.author_id !== user.id) {
+      return NextResponse.json({ error: '이벤트 소유자만 투표 옵션을 관리할 수 있습니다.' }, { status: 403 })
     }
 
-    if (event.author_id !== user.id) {
-      return NextResponse.json({ error: '이벤트 작성자만 투표 후보를 관리할 수 있습니다.' }, { status: 403 })
-    }
-
-    if (event.event_type !== 'regular_schedule') {
-      return NextResponse.json({ error: '정기 이벤트만 투표 후보를 관리할 수 있습니다.' }, { status: 400 })
-    }
-
-    // 중복 확인
-    const { data: existingOption } = await supabase
-      .from('regular_event_vote_options')
-      .select('id')
-      .eq('regular_event_id', id)
-      .eq('option_type', optionType)
-      .eq('option_value', optionValue)
-      .eq('week_number', weekNumber)
-      .eq('year', year)
-      .single()
-
-    if (existingOption) {
-      return NextResponse.json({ error: '이미 존재하는 투표 후보입니다.' }, { status: 400 })
-    }
-
-    // 투표 후보 추가
-    const { data: newOption, error: insertError } = await supabase
-      .from('regular_event_vote_options')
+    const { data: newOption, error } = await supabase
+      .from('vote_options')
       .insert({
         regular_event_id: id,
-        option_type: optionType,
-        option_value: optionValue,
-        week_number: weekNumber,
-        year: year,
-        votes_count: 0,
-        voting_closed: false
+        option_type,
+        option_value,
+        week_number: currentWeek,
+        year: currentYear
       })
       .select()
       .single()
 
-    if (insertError) throw insertError
+    if (error) {
+      return NextResponse.json({ error: '투표 옵션 생성에 실패했습니다.' }, { status: 500 })
+    }
 
     return NextResponse.json({
       success: true,
-      message: '투표 후보가 추가되었습니다.',
       voteOption: newOption
     })
 
   } catch (error) {
-    console.error('투표 후보 추가 실패:', error)
-    return NextResponse.json({
-      error: error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.'
+    console.error('투표 옵션 생성 오류:', error)
+    return NextResponse.json({ 
+      error: error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.' 
     }, { status: 500 })
   }
 }
 
-// 투표 후보 수정
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -142,57 +125,44 @@ export async function PATCH(
     }
 
     const body = await req.json()
-    const { optionId, optionValue } = body
+    const { option_id, option_value } = body
 
-    if (!optionId || !optionValue) {
-      return NextResponse.json({ error: '필수 정보가 누락되었습니다.' }, { status: 400 })
-    }
-
-    // 이벤트 작성자인지 확인
+    // 이벤트 소유자 확인
     const { data: event, error: eventError } = await supabase
       .from('multis')
-      .select('author_id, event_type')
+      .select('author_id')
       .eq('id', id)
       .single()
 
-    if (eventError || !event) {
-      return NextResponse.json({ error: '이벤트를 찾을 수 없습니다.' }, { status: 404 })
+    if (eventError || !event || event.author_id !== user.id) {
+      return NextResponse.json({ error: '이벤트 소유자만 투표 옵션을 관리할 수 있습니다.' }, { status: 403 })
     }
 
-    if (event.author_id !== user.id) {
-      return NextResponse.json({ error: '이벤트 작성자만 투표 후보를 관리할 수 있습니다.' }, { status: 403 })
-    }
-
-    if (event.event_type !== 'regular_schedule') {
-      return NextResponse.json({ error: '정기 이벤트만 투표 후보를 관리할 수 있습니다.' }, { status: 400 })
-    }
-
-    // 투표 후보 수정
-    const { data: updatedOption, error: updateError } = await supabase
-      .from('regular_event_vote_options')
-      .update({ option_value: optionValue })
-      .eq('id', optionId)
+    const { data: updatedOption, error } = await supabase
+      .from('vote_options')
+      .update({ option_value })
+      .eq('id', option_id)
       .eq('regular_event_id', id)
       .select()
       .single()
 
-    if (updateError) throw updateError
+    if (error) {
+      return NextResponse.json({ error: '투표 옵션 수정에 실패했습니다.' }, { status: 500 })
+    }
 
     return NextResponse.json({
       success: true,
-      message: '투표 후보가 수정되었습니다.',
       voteOption: updatedOption
     })
 
   } catch (error) {
-    console.error('투표 후보 수정 실패:', error)
-    return NextResponse.json({
-      error: error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.'
+    console.error('투표 옵션 수정 오류:', error)
+    return NextResponse.json({ 
+      error: error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.' 
     }, { status: 500 })
   }
 }
 
-// 투표 후보 삭제
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -211,45 +181,42 @@ export async function DELETE(
     }
 
     const { searchParams } = new URL(req.url)
-    const voteOptionId = searchParams.get('voteOptionId')
+    const option_id = searchParams.get('option_id')
 
-    if (!voteOptionId) {
-      return NextResponse.json({ error: '투표 후보 ID가 필요합니다.' }, { status: 400 })
+    if (!option_id) {
+      return NextResponse.json({ error: '옵션 ID가 필요합니다.' }, { status: 400 })
     }
 
-    // 이벤트 작성자인지 확인
+    // 이벤트 소유자 확인
     const { data: event, error: eventError } = await supabase
       .from('multis')
-      .select('author_id, event_type')
+      .select('author_id')
       .eq('id', id)
       .single()
 
-    if (eventError || !event) {
-      return NextResponse.json({ error: '이벤트를 찾을 수 없습니다.' }, { status: 404 })
+    if (eventError || !event || event.author_id !== user.id) {
+      return NextResponse.json({ error: '이벤트 소유자만 투표 옵션을 관리할 수 있습니다.' }, { status: 403 })
     }
 
-    if (event.author_id !== user.id) {
-      return NextResponse.json({ error: '이벤트 작성자만 투표 후보를 관리할 수 있습니다.' }, { status: 403 })
-    }
-
-    // 투표 후보 삭제
-    const { error: deleteError } = await supabase
-      .from('regular_event_vote_options')
+    const { error } = await supabase
+      .from('vote_options')
       .delete()
-      .eq('id', voteOptionId)
+      .eq('id', option_id)
       .eq('regular_event_id', id)
 
-    if (deleteError) throw deleteError
+    if (error) {
+      return NextResponse.json({ error: '투표 옵션 삭제에 실패했습니다.' }, { status: 500 })
+    }
 
     return NextResponse.json({
       success: true,
-      message: '투표 후보가 삭제되었습니다.'
+      message: '투표 옵션이 삭제되었습니다.'
     })
 
   } catch (error) {
-    console.error('투표 후보 삭제 실패:', error)
-    return NextResponse.json({
-      error: error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.'
+    console.error('투표 옵션 삭제 오류:', error)
+    return NextResponse.json({ 
+      error: error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.' 
     }, { status: 500 })
   }
 }
