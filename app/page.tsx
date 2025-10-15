@@ -203,20 +203,20 @@ export default function HomePage() {
               {t[language].title}
             </span>
           </h1>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
+          {/* <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
             {language === 'ko' ? (
               <>당신의 <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">고스트카</span>가 되어드립니다</>
             ) : (
               <>Your <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Ghost Car</span> Awaits</>
             )}
-          </h2>
-          <p className="text-xl text-gray-300 mb-4 max-w-3xl mx-auto">
+          </h2> */}
+          {/* <p className="text-xl text-gray-300 mb-4 max-w-3xl mx-auto">
             {language === 'ko' ? (
               <>데이터 분석으로 랩타임을 단축시켜주는 <span className="text-cyan-400 font-semibold">디지털 고스트카</span></>
             ) : (
               <><span className="text-cyan-400 font-semibold">Digital Ghost Car</span> powered by data analysis to reduce lap times</>
             )}
-          </p>
+          </p> */}
           <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
             {/* {t[language].description2} */}
           </p>

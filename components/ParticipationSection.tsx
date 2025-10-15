@@ -31,11 +31,18 @@ export default function ParticipationSection({ eventId, isOwner = false }: Parti
   // 참가자 목록 가져오기
   const fetchParticipants = async () => {
     try {
+      console.log('참가자 목록 가져오기 시작:', eventId)
       const response = await fetch(`/api/multis/${eventId}/participants`)
+      console.log('참가자 목록 API 응답:', { status: response.status, ok: response.ok })
+      
       if (response.ok) {
         const data = await response.json()
+        console.log('참가자 목록 데이터:', data)
         setParticipants(data.participants || [])
         setParticipantCount(data.total || 0)
+        console.log('참가자 수 업데이트:', data.total)
+      } else {
+        console.error('참가자 목록 API 오류:', response.status, response.statusText)
       }
     } catch (error) {
       console.error('참가자 목록 가져오기 실패:', error)
@@ -149,6 +156,7 @@ export default function ParticipationSection({ eventId, isOwner = false }: Parti
         // 이미 참가신청이 되어 있다면 상태를 업데이트
         if (errorData.error === '이미 참가 신청하셨습니다.') {
           console.log('이미 참가신청됨, 상태 업데이트')
+          // 참가자 목록과 상태를 모두 업데이트
           await fetchParticipants()
           const isParticipant = await checkParticipationStatus()
           setIsParticipant(isParticipant)
@@ -176,14 +184,17 @@ export default function ParticipationSection({ eventId, isOwner = false }: Parti
       })
 
       if (response.ok) {
+        console.log('참가 취소 성공, 상태 업데이트 시작')
         // 참가자 목록을 먼저 새로고침
         await fetchParticipants()
         // 참가 상태를 다시 확인
         const isParticipant = await checkParticipationStatus()
         setIsParticipant(isParticipant)
+        console.log('참가 취소 후 상태 업데이트 완료:', isParticipant)
         alert('참가가 취소되었습니다.')
       } else {
         const errorData = await response.json()
+        console.error('참가 취소 실패:', errorData)
         alert(`참가취소 실패: ${errorData.error}`)
       }
     } catch (error) {

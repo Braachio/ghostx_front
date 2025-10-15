@@ -72,7 +72,12 @@ export async function GET(req: NextRequest) {
       userParticipant: userParticipant || null,
       userError: userError?.message || null,
       totalParticipants: allParticipants?.length || 0,
-      isParticipant: !!userParticipant
+      isParticipant: !!userParticipant,
+      participantDetails: {
+        total: allParticipants?.length || 0,
+        confirmed: allParticipants?.filter(p => p.status === 'confirmed').length || 0,
+        pending: allParticipants?.filter(p => p.status === 'pending').length || 0
+      }
     })
 
   } catch (error) {
