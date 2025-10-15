@@ -16,7 +16,6 @@ interface VotingResultsPanelProps {
 export default function VotingResultsPanel({ eventId }: VotingResultsPanelProps) {
   const [results, setResults] = useState<VotingResults | null>(null)
   const [loading, setLoading] = useState(false)
-  const [applying, setApplying] = useState(false)
   const [error, setError] = useState('')
 
   // 현재 주차 정보 계산
@@ -44,38 +43,6 @@ export default function VotingResultsPanel({ eventId }: VotingResultsPanelProps)
     }
   }
 
-  const applyResults = async () => {
-    if (!results) return
-    
-    setApplying(true)
-    setError('')
-    try {
-      const response = await fetch(`/api/regular-events/${eventId}/apply-voting-results`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          week_number: results.week_number,
-          year: results.year
-        }),
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        alert(`투표 결과가 적용되었습니다!\n\n🏁 트랙: ${data.results.winningTrack} (${data.results.trackVotes}표)\n🚗 클래스: ${data.results.winningCarClass} (${data.results.carClassVotes}표)`)
-        await fetchResults() // 결과 새로고침
-      } else {
-        const errorData = await response.json()
-        setError(errorData.error || '투표 결과 적용에 실패했습니다.')
-      }
-    } catch (err) {
-      console.error('투표 결과 적용 실패:', err)
-      setError('투표 결과 적용 중 오류가 발생했습니다.')
-    } finally {
-      setApplying(false)
-    }
-  }
 
   useEffect(() => {
     // 지연 실행으로 초기화 문제 방지
@@ -131,25 +98,16 @@ export default function VotingResultsPanel({ eventId }: VotingResultsPanelProps)
         </div>
       </div>
 
-      <p className="text-sm text-gray-400 mb-4">투표 결과를 이벤트에 적용할 수 있습니다.</p>
-
-      {/* 투표 결과 적용 버튼 */}
-      <div>
-        <button
-          onClick={applyResults}
-          disabled={applying}
-          className="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-semibold flex items-center justify-center gap-2"
-        >
-          {applying ? '적용 중...' : (
-            <>
-              <span>🏆</span>
-              <span>투표 결과를 이벤트에 적용하기</span>
-            </>
-          )}
-        </button>
-        <p className="text-xs text-gray-500 mt-2 text-center">
-          승리한 트랙과 차량 클래스가 정기 이벤트의 TBD 부분에 자동으로 입력됩니다
-        </p>
+      <div className="text-center py-4">
+        <div className="text-sm text-gray-400 mb-2">
+          투표가 종료되면 승리한 트랙과 차량 클래스가 자동으로 이벤트에 적용됩니다.
+        </div>
+        <div className="text-xs text-gray-500">
+          🏁 트랙: {results.tracks.length > 0 ? results.tracks[0].option_value : 'N/A'} ({results.tracks.length > 0 ? results.tracks[0].votes_count : 0}표)
+        </div>
+        <div className="text-xs text-gray-500">
+          🚗 클래스: {results.carClasses.length > 0 ? results.carClasses[0].option_value : 'N/A'} ({results.carClasses.length > 0 ? results.carClasses[0].votes_count : 0}표)
+        </div>
       </div>
     </div>
   )
