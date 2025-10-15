@@ -16,6 +16,219 @@ const gameNames: Record<string, string> = {
   'ea-wrc': 'EA WRC'
 }
 
+// 게임별 트랙 옵션
+const gameTracks: Record<string, string[]> = {
+  'iracing': [
+    'Spa-Francorchamps',
+    'Silverstone',
+    'Nürburgring',
+    'Monza',
+    'Suzuka',
+    'Watkins Glen',
+    'Road America',
+    'Laguna Seca',
+    'Sebring',
+    'Daytona',
+    'Talladega',
+    'Charlotte',
+    'Bristol',
+    'Martinsville',
+    'Phoenix',
+    'Las Vegas',
+    'Homestead',
+    'Texas',
+    'Kansas',
+    'Atlanta'
+  ],
+  'assettocorsa': [
+    'Spa-Francorchamps',
+    'Silverstone',
+    'Nürburgring',
+    'Monza',
+    'Suzuka',
+    'Imola',
+    'Mugello',
+    'Brands Hatch',
+    'Donington Park',
+    'Oulton Park',
+    'Snetterton',
+    'Knockhill',
+    'Zandvoort',
+    'Red Bull Ring',
+    'Paul Ricard',
+    'Barcelona',
+    'Valencia',
+    'Jerez',
+    'Portimão',
+    'Estoril'
+  ],
+  'gran-turismo7': [
+    'Spa-Francorchamps',
+    'Silverstone',
+    'Nürburgring',
+    'Monza',
+    'Suzuka',
+    'Fuji Speedway',
+    'Autopolis',
+    'Twin Ring Motegi',
+    'Tsukuba',
+    'Deep Forest',
+    'Trial Mountain',
+    'High Speed Ring',
+    'Grand Valley',
+    'Laguna Seca',
+    'Watkins Glen',
+    'Road Atlanta',
+    'Daytona',
+    'Le Mans',
+    'Sardegna',
+    'Catalunya'
+  ],
+  'automobilista2': [
+    'Spa-Francorchamps',
+    'Silverstone',
+    'Nürburgring',
+    'Monza',
+    'Suzuka',
+    'Imola',
+    'Mugello',
+    'Brands Hatch',
+    'Donington Park',
+    'Oulton Park',
+    'Snetterton',
+    'Knockhill',
+    'Zandvoort',
+    'Red Bull Ring',
+    'Paul Ricard',
+    'Barcelona',
+    'Valencia',
+    'Jerez',
+    'Portimão',
+    'Estoril',
+    'Interlagos',
+    'Buenos Aires',
+    'Cascavel',
+    'Velopark',
+    'Goiânia'
+  ],
+  'competizione': [
+    'Spa-Francorchamps',
+    'Silverstone',
+    'Nürburgring',
+    'Monza',
+    'Suzuka',
+    'Imola',
+    'Mugello',
+    'Brands Hatch',
+    'Donington Park',
+    'Oulton Park',
+    'Snetterton',
+    'Knockhill',
+    'Zandvoort',
+    'Red Bull Ring',
+    'Paul Ricard',
+    'Barcelona',
+    'Valencia',
+    'Jerez',
+    'Portimão',
+    'Estoril',
+    'Kyalami',
+    'Misano',
+    'Hungaroring',
+    'Zolder',
+    'Oschersleben'
+  ],
+  'lemans': [
+    'Le Mans',
+    'Spa-Francorchamps',
+    'Silverstone',
+    'Nürburgring',
+    'Monza',
+    'Suzuka',
+    'Imola',
+    'Mugello',
+    'Brands Hatch',
+    'Donington Park',
+    'Oulton Park',
+    'Snetterton',
+    'Knockhill',
+    'Zandvoort',
+    'Red Bull Ring',
+    'Paul Ricard',
+    'Barcelona',
+    'Valencia',
+    'Jerez',
+    'Portimão',
+    'Estoril',
+    'Kyalami',
+    'Misano',
+    'Hungaroring',
+    'Zolder'
+  ],
+  'f1-25': [
+    'Spa-Francorchamps',
+    'Silverstone',
+    'Monza',
+    'Suzuka',
+    'Imola',
+    'Mugello',
+    'Red Bull Ring',
+    'Paul Ricard',
+    'Barcelona',
+    'Valencia',
+    'Jerez',
+    'Portimão',
+    'Estoril',
+    'Kyalami',
+    'Misano',
+    'Hungaroring',
+    'Zolder',
+    'Bahrain',
+    'Saudi Arabia',
+    'Australia',
+    'Azerbaijan',
+    'Miami',
+    'Monaco',
+    'Canada',
+    'Austria',
+    'Great Britain',
+    'Hungary',
+    'Belgium',
+    'Netherlands',
+    'Italy',
+    'Singapore',
+    'Japan',
+    'Qatar',
+    'United States',
+    'Mexico',
+    'Brazil',
+    'Las Vegas',
+    'Abu Dhabi'
+  ],
+  'ea-wrc': [
+    'Monte Carlo',
+    'Sweden',
+    'Mexico',
+    'Croatia',
+    'Portugal',
+    'Sardinia',
+    'Kenya',
+    'Estonia',
+    'Finland',
+    'Greece',
+    'Chile',
+    'Central Europe',
+    'Japan',
+    'Rally GB',
+    'Spain',
+    'Australia',
+    'New Zealand',
+    'Argentina',
+    'Turkey',
+    'Germany'
+  ]
+}
+
 interface RegularEventFormData {
   title: string
   description: string
@@ -23,6 +236,8 @@ interface RegularEventFormData {
   start_time: string
   duration_hours: number
   link?: string
+  voting_enabled: boolean
+  track_options: string[]
 }
 
 interface RegularEventPageProps {
@@ -40,7 +255,12 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
     start_time: '20:00',
     duration_hours: 2,
     link: '',
+    voting_enabled: false,
+    track_options: []
   })
+
+  // 임시 입력값들
+  const [tempTrack, setTempTrack] = useState('')
 
   // params 로드
   useEffect(() => {
@@ -55,6 +275,15 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
     e.preventDefault()
     setLoading(true)
 
+    // 투표가 활성화된 경우 옵션 검증
+    if (formData.voting_enabled) {
+      if (formData.track_options.length === 0) {
+        alert('트랙 옵션을 최소 1개 이상 추가해주세요.')
+        setLoading(false)
+        return
+      }
+    }
+
     try {
       const gameName = gameNames[game] || game
       
@@ -66,6 +295,8 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
         start_time: formData.start_time,
         duration_hours: formData.duration_hours,
         link: formData.link,
+        voting_enabled: formData.voting_enabled,
+        track_options: formData.track_options,
         event_type: 'regular_schedule',
         is_template_based: false
       }
@@ -79,7 +310,29 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
       })
 
       if (response.ok) {
-        await response.json()
+        const result = await response.json()
+        const eventId = result.eventId
+        
+        // 투표가 활성화된 경우 투표 옵션 생성
+        if (formData.voting_enabled && eventId && formData.track_options.length > 0) {
+          try {
+            for (const track of formData.track_options) {
+              await fetch(`/api/regular-events/${eventId}/vote-options`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  option_type: 'track',
+                  option_value: track
+                }),
+              })
+            }
+            console.log('투표 옵션 생성 완료')
+          } catch (optionError) {
+            console.warn('투표 옵션 생성 중 오류 (이벤트는 생성됨):', optionError)
+          }
+        }
         
         router.push(`/events/regular/${game}`)
       } else {
@@ -100,6 +353,23 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
       
       return newData
     })
+  }
+
+  const addTrackOption = () => {
+    if (tempTrack.trim() && !formData.track_options.includes(tempTrack.trim())) {
+      setFormData(prev => ({
+        ...prev,
+        track_options: [...prev.track_options, tempTrack.trim()]
+      }))
+      setTempTrack('')
+    }
+  }
+
+  const removeTrackOption = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      track_options: prev.track_options.filter((_, i) => i !== index)
+    }))
   }
 
   if (!game) {
@@ -240,6 +510,81 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
                   </select>
                 </div>
               </div>
+            </div>
+
+            {/* 투표 설정 */}
+            <div className="border-t border-gray-700 pt-8">
+              <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                <span>🗳️</span>
+                투표 설정
+              </h3>
+              
+              <div className="mb-6">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.voting_enabled}
+                    onChange={(e) => handleInputChange('voting_enabled', e.target.checked)}
+                    className="w-5 h-5 text-blue-600 bg-gray-800 border-gray-600 rounded focus:ring-blue-500"
+                  />
+                  <span className="text-white font-semibold">트랙 투표 활성화</span>
+                </label>
+                <p className="text-gray-400 text-sm mt-2 ml-8">
+                  활성화하면 매주 참가자들이 투표하여 트랙을 선택할 수 있습니다.
+                </p>
+              </div>
+
+              {/* 트랙 옵션 설정 */}
+              {formData.voting_enabled && (
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">
+                    트랙 옵션 *
+                  </label>
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <select
+                        value={tempTrack}
+                        onChange={(e) => setTempTrack(e.target.value)}
+                        className="flex-1 px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white"
+                      >
+                        <option value="">트랙을 선택하세요</option>
+                        {gameTracks[game]?.map((track) => (
+                          <option key={track} value={track}>
+                            {track}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        onClick={addTrackOption}
+                        disabled={!tempTrack}
+                        className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        추가
+                      </button>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      {formData.track_options.map((track, index) => (
+                        <div key={index} className="flex items-center justify-between bg-gray-800 rounded-lg px-4 py-2">
+                          <span className="text-white">{track}</span>
+                          <button
+                            type="button"
+                            onClick={() => removeTrackOption(index)}
+                            className="text-red-400 hover:text-red-300 transition-colors"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {formData.track_options.length === 0 && (
+                      <p className="text-gray-500 text-sm">트랙 옵션을 추가해주세요.</p>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 추가 정보 */}
