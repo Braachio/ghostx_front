@@ -115,6 +115,9 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
   const [newTrackOption, setNewTrackOption] = useState('')
   const [newCarClassOption, setNewCarClassOption] = useState('')
   const [addingOption, setAddingOption] = useState(false)
+  const [editingOptionId, setEditingOptionId] = useState<string | null>(null)
+  const [editingOptionValue, setEditingOptionValue] = useState('')
+  const [deletingOptionId, setDeletingOptionId] = useState<string | null>(null)
 
   // 투표 종료까지 남은 일수 계산
   const getDaysLeft = () => {
@@ -251,6 +254,65 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
       alert('투표 옵션 추가 중 오류가 발생했습니다.')
     } finally {
       setAddingOption(false)
+    }
+  }
+
+  // 투표 옵션 수정 함수
+  const editVoteOption = async (optionId: string) => {
+    if (!editingOptionValue.trim()) {
+      alert('옵션 값을 입력해주세요.')
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/regular-events/${regularEventId}/vote-options`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          optionId,
+          optionValue: editingOptionValue.trim()
+        })
+      })
+
+      if (response.ok) {
+        setEditingOptionId(null)
+        setEditingOptionValue('')
+        await fetchVoteData()
+        alert('옵션이 수정되었습니다. 다음 투표 시작 시점에 반영됩니다.')
+      } else {
+        const errorData = await response.json()
+        alert(errorData.error || '옵션 수정에 실패했습니다.')
+      }
+    } catch (error) {
+      console.error('투표 옵션 수정 실패:', error)
+      alert('투표 옵션 수정 중 오류가 발생했습니다.')
+    }
+  }
+
+  // 투표 옵션 삭제 함수
+  const deleteVoteOption = async (optionId: string) => {
+    if (!confirm('정말로 이 투표 옵션을 삭제하시겠습니까?\n\n다음 투표 시작 시점에 반영됩니다.')) {
+      return
+    }
+
+    try {
+      setDeletingOptionId(optionId)
+      const response = await fetch(`/api/regular-events/${regularEventId}/vote-options?voteOptionId=${optionId}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        await fetchVoteData()
+        alert('옵션이 삭제되었습니다. 다음 투표 시작 시점에 반영됩니다.')
+      } else {
+        const errorData = await response.json()
+        alert(errorData.error || '옵션 삭제에 실패했습니다.')
+      }
+    } catch (error) {
+      console.error('투표 옵션 삭제 실패:', error)
+      alert('투표 옵션 삭제 중 오류가 발생했습니다.')
+    } finally {
+      setDeletingOptionId(null)
     }
   }
 
@@ -507,7 +569,55 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
                     } ${votingClosed ? 'cursor-not-allowed opacity-60' : ''}`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-medium text-white">{track.option_value}</span>
+                      <div className="flex items-center gap-2">
+                        {editingOptionId === track.option_value ? (
+                          <input
+                            type="text"
+                            value={editingOptionValue}
+                            onChange={(e) => setEditingOptionValue(e.target.value)}
+                            className="px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm"
+                            onKeyPress={(e) => e.key === 'Enter' && editVoteOption(track.option_value)}
+                          />
+                        ) : (
+                          <span className="font-medium text-white">{track.option_value}</span>
+                        )}
+                        {isOwner && (
+                          <div className="flex items-center gap-1">
+                            {editingOptionId === track.option_value ? (
+                              <>
+                                <button
+                                  onClick={() => editVoteOption(track.option_value)}
+                                  className="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition-colors"
+                                >
+                                  저장
+                                </button>
+                                <button
+                                  onClick={() => { setEditingOptionId(null); setEditingOptionValue('') }}
+                                  className="px-2 py-1 bg-gray-600 text-white rounded text-xs hover:bg-gray-700 transition-colors"
+                                >
+                                  취소
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  onClick={() => { setEditingOptionId(track.option_value); setEditingOptionValue(track.option_value) }}
+                                  className="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 transition-colors"
+                                >
+                                  수정
+                                </button>
+                                <button
+                                  onClick={() => deleteVoteOption(track.option_value)}
+                                  disabled={deletingOptionId === track.option_value}
+                                  className="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 disabled:opacity-50 transition-colors"
+                                >
+                                  {deletingOptionId === track.option_value ? '삭제 중...' : '삭제'}
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        )}
+                      </div>
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-gray-300">({track.votes_count}표)</span>
                         <input
@@ -581,7 +691,7 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
                     </button>
                   </div>
                   <p className="text-xs text-gray-400">
-                    게임별 트랙 목록에서 선택하여 추가할 수 있습니다.
+                    게임별 트랙 목록에서 선택하여 추가할 수 있습니다. 기존 옵션은 각 옵션 옆의 수정/삭제 버튼을 사용하세요.
                   </p>
                 </div>
               </div>
@@ -640,7 +750,55 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
                     } ${votingClosed ? 'cursor-not-allowed opacity-60' : ''}`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-medium text-white">{carClass.option_value}</span>
+                      <div className="flex items-center gap-2">
+                        {editingOptionId === carClass.option_value ? (
+                          <input
+                            type="text"
+                            value={editingOptionValue}
+                            onChange={(e) => setEditingOptionValue(e.target.value)}
+                            className="px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm"
+                            onKeyPress={(e) => e.key === 'Enter' && editVoteOption(carClass.option_value)}
+                          />
+                        ) : (
+                          <span className="font-medium text-white">{carClass.option_value}</span>
+                        )}
+                        {isOwner && (
+                          <div className="flex items-center gap-1">
+                            {editingOptionId === carClass.option_value ? (
+                              <>
+                                <button
+                                  onClick={() => editVoteOption(carClass.option_value)}
+                                  className="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition-colors"
+                                >
+                                  저장
+                                </button>
+                                <button
+                                  onClick={() => { setEditingOptionId(null); setEditingOptionValue('') }}
+                                  className="px-2 py-1 bg-gray-600 text-white rounded text-xs hover:bg-gray-700 transition-colors"
+                                >
+                                  취소
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  onClick={() => { setEditingOptionId(carClass.option_value); setEditingOptionValue(carClass.option_value) }}
+                                  className="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 transition-colors"
+                                >
+                                  수정
+                                </button>
+                                <button
+                                  onClick={() => deleteVoteOption(carClass.option_value)}
+                                  disabled={deletingOptionId === carClass.option_value}
+                                  className="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 disabled:opacity-50 transition-colors"
+                                >
+                                  {deletingOptionId === carClass.option_value ? '삭제 중...' : '삭제'}
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        )}
+                      </div>
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-gray-300">({carClass.votes_count}표)</span>
                         <input
@@ -714,7 +872,7 @@ export default function VotingPanel({ regularEventId, weekNumber, year, voteType
                     </button>
                   </div>
                   <p className="text-xs text-gray-400">
-                    게임별 차량 클래스 목록에서 선택하여 추가할 수 있습니다.
+                    게임별 차량 클래스 목록에서 선택하여 추가할 수 있습니다. 기존 옵션은 각 옵션 옆의 수정/삭제 버튼을 사용하세요.
                   </p>
                 </div>
               </div>

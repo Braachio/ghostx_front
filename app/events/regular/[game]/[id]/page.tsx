@@ -5,7 +5,6 @@ import Link from 'next/link'
 import ParticipantButton from '@/components/ParticipantButton'
 import VotingPanel from '@/components/VotingPanel'
 import VotingResultsPanel from '@/components/VotingResultsPanel'
-import VoteOptionsManager from '@/components/VoteOptionsManager'
 
 interface RegularEventDetailPageProps {
   params: Promise<{ game: string; id: string }>
@@ -427,15 +426,6 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
 
         {/* 기능 섹션들 */}
         <div className="space-y-6">
-          {/* 투표 옵션 관리 섹션 (작성자만) */}
-          {user && event && event.author_id === user.id && (
-            <VoteOptionsManager 
-              regularEventId={eventId}
-              weekNumber={undefined}
-              year={undefined}
-              isOwner={true}
-            />
-          )}
 
           {/* 참가신청 섹션 */}
           <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
