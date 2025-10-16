@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { hasEventManagementPermission } from '@/lib/client-permissions'
 
 // 게임 이름 매핑
 const gameNames: Record<string, string> = {
@@ -248,6 +249,9 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
   const router = useRouter()
   const [game, setGame] = useState<string>('')
   const [loading, setLoading] = useState(false)
+  const [, setUser] = useState<{ id: string } | null>(null)
+  const [hasPermission, setHasPermission] = useState(false)
+  const [permissionChecked, setPermissionChecked] = useState(false)
   const [formData, setFormData] = useState<RegularEventFormData>({
     title: '',
     description: '',
@@ -270,6 +274,29 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
     }
     loadParams()
   }, [params])
+
+  // 권한 확인
+  useEffect(() => {
+    const checkPermission = async () => {
+      try {
+        const response = await fetch('/api/me')
+        if (response.ok) {
+          const data = await response.json()
+          setUser(data.user)
+          
+          if (data.user) {
+            const hasEventPermission = await hasEventManagementPermission(data.user.id)
+            setHasPermission(hasEventPermission)
+          }
+        }
+      } catch (error) {
+        console.error('권한 확인 실패:', error)
+      } finally {
+        setPermissionChecked(true)
+      }
+    }
+    checkPermission()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -385,12 +412,32 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
     }))
   }
 
-  if (!game) {
+  if (!game || !permissionChecked) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
           <p className="text-blue-400 text-xl">로딩 중...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!hasPermission) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto">
+          <div className="text-6xl mb-6">🚫</div>
+          <h1 className="text-2xl font-bold text-white mb-4">접근 권한이 없습니다</h1>
+          <p className="text-gray-400 mb-6">
+            정기 이벤트 생성은 관리자나 방장만 가능합니다.
+          </p>
+          <Link 
+            href={`/events/regular/${game}`}
+            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            ← 이벤트 목록으로 돌아가기
+          </Link>
         </div>
       </div>
     )

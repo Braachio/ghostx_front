@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import type { Database } from '@/lib/database.types'
+import { hasEventManagementPermission } from '@/lib/permissions'
 
 export async function GET(req: NextRequest) {
   try {
@@ -162,6 +163,12 @@ export async function POST(req: NextRequest) {
 
   // 정기 이벤트인 경우
   if (body.event_type === 'regular_schedule') {
+    // 정기 이벤트 생성 권한 확인
+    const hasPermission = await hasEventManagementPermission(user.id)
+    
+    if (!hasPermission) {
+      return NextResponse.json({ error: '정기 이벤트 생성 권한이 없습니다. 관리자나 방장만 생성할 수 있습니다.' }, { status: 403 })
+    }
     // 1. 먼저 multis 테이블에 기본 이벤트 정보 등록
     const { data: eventData, error: insertError } = await supabase.from('multis').insert({
       title: body.title,

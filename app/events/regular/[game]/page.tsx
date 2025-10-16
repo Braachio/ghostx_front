@@ -5,6 +5,7 @@ import Link from 'next/link'
 import WeeklyCalendar from '@/components/WeeklyCalendar'
 import TrackHistoryPanel from '@/components/TrackHistoryPanel'
 import { MultiWithTemplate } from '@/types/events'
+import { hasEventManagementPermission } from '@/lib/client-permissions'
 
 // 게임별 익명채팅 버튼 컴포넌트
 const GameChatButton = ({ gameSlug, gameName }: { gameSlug: string; gameName: string }) => {
@@ -43,6 +44,8 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
   const [game, setGame] = useState<string>('')
   const [events, setEvents] = useState<MultiWithTemplate[]>([])
   const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<{ id: string } | null>(null)
+  const [hasManagementPermission, setHasManagementPermission] = useState(false)
 
   useEffect(() => {
     const loadParams = async () => {
@@ -51,6 +54,28 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
     }
     loadParams()
   }, [params])
+
+  // 사용자 정보 로드 및 권한 확인
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const response = await fetch('/api/me')
+        if (response.ok) {
+          const data = await response.json()
+          setUser(data.user)
+          
+          // 권한 확인 (정기 이벤트 생성 권한)
+          if (data.user) {
+            const hasPermission = await hasEventManagementPermission(data.user.id)
+            setHasManagementPermission(hasPermission)
+          }
+        }
+      } catch (error) {
+        console.error('사용자 정보 로드 실패:', error)
+      }
+    }
+    loadUser()
+  }, [])
 
   useEffect(() => {
     if (!game) return
@@ -141,11 +166,13 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
 
         {/* 액션 버튼들 */}
         <div className="flex justify-center gap-4 mb-8">
-          <Link href={`/events/regular/${game}/new`}>
-            <button className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg shadow-green-500/50 font-semibold">
-              ➕ 정기 이벤트 추가
-            </button>
-          </Link>
+          {hasManagementPermission && (
+            <Link href={`/events/regular/${game}/new`}>
+              <button className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg shadow-green-500/50 font-semibold">
+                ➕ 정기 이벤트 추가
+              </button>
+            </Link>
+          )}
           <Link href="/events">
             <button className="px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all shadow-lg shadow-cyan-500/50 font-semibold">
               🗓️ 다른 이벤트 보기
@@ -187,13 +214,20 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
           <div className="bg-gray-800/50 rounded-xl p-8 border border-gray-700 text-center mb-12">
             <div className="text-6xl mb-4">📅</div>
             <h3 className="text-xl font-bold text-white mb-2">등록된 정기 이벤트가 없습니다</h3>
-            <p className="text-gray-400 mb-6">새로운 정기 이벤트를 등록해보세요!</p>
-            <Link
-              href={`/events/regular/${game}/new`}
-              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all font-semibold"
-            >
-              ➕ 정기 이벤트 추가
-            </Link>
+            <p className="text-gray-400 mb-6">
+              {hasManagementPermission 
+                ? "새로운 정기 이벤트를 등록해보세요!" 
+                : "관리자나 방장이 정기 이벤트를 등록할 때까지 기다려주세요."
+              }
+            </p>
+            {hasManagementPermission && (
+              <Link
+                href={`/events/regular/${game}/new`}
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all font-semibold"
+              >
+                ➕ 정기 이벤트 추가
+              </Link>
+            )}
           </div>
         )}
 
