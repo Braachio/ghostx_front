@@ -39,8 +39,6 @@ export default function TrackVotingPanel({
   const [showOptionManager, setShowOptionManager] = useState(false)
   const [newOptionValue, setNewOptionValue] = useState('')
 
-  const supabase = createClientComponentClient()
-
   // 게임별 트랙 리스트
   const gameTracks: Record<string, string[]> = {
     'iracing': [
