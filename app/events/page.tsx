@@ -45,7 +45,7 @@ export default function EventsPage() {
             RACING EVENTS
           </h1>
           <p className="text-gray-400 text-lg">
-            당신의 고스트가 달릴 무대를 선택하세요
+            참여할 멀티 이벤트를 선택하세요
           </p>
           <div className="mt-6 h-px w-96 mx-auto bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
         </div>
