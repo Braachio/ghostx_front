@@ -67,6 +67,7 @@ export async function POST(
       .select('voting_start, voting_end, is_active')
       .eq('regular_event_id', id)
       .eq('is_active', true)
+      .lte('voting_start', now.toISOString())
       .gte('voting_end', now.toISOString())
       .single()
 
@@ -203,6 +204,7 @@ export async function GET(
       .select('voting_start, voting_end, is_active')
       .eq('regular_event_id', id)
       .eq('is_active', true)
+      .lte('voting_start', now.toISOString())
       .gte('voting_end', now.toISOString())
       .single()
 
