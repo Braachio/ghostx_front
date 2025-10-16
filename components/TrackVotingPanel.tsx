@@ -7,6 +7,7 @@ interface TrackVotingPanelProps {
   regularEventId: string
   isOwner?: boolean
   onVoteChange?: () => void
+  game?: string
 }
 
 interface TrackOption {
@@ -26,7 +27,8 @@ interface VoteData {
 export default function TrackVotingPanel({ 
   regularEventId, 
   isOwner = false,
-  onVoteChange 
+  onVoteChange,
+  game = 'competizione'
 }: TrackVotingPanelProps) {
   const [voteData, setVoteData] = useState<VoteData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -36,10 +38,108 @@ export default function TrackVotingPanel({
   const [isParticipant, setIsParticipant] = useState(false)
   const [showOptionManager, setShowOptionManager] = useState(false)
   const [newOptionValue, setNewOptionValue] = useState('')
-  const [editingOption, setEditingOption] = useState<string | null>(null)
-  const [editValue, setEditValue] = useState('')
 
   const supabase = createClientComponentClient()
+
+  // 게임별 트랙 리스트
+  const gameTracks: Record<string, string[]> = {
+    'iracing': [
+      'Watkins Glen International',
+      'Silverstone Circuit',
+      'Spa-Francorchamps',
+      'Monza',
+      'Nürburgring',
+      'Daytona International Speedway',
+      'Indianapolis Motor Speedway',
+      'Sebring International Raceway',
+      'Road America',
+      'Laguna Seca'
+    ],
+    'assettocorsa': [
+      'Nürburgring Nordschleife',
+      'Spa-Francorchamps',
+      'Silverstone',
+      'Monza',
+      'Imola',
+      'Mugello',
+      'Brands Hatch',
+      'Donington Park',
+      'Suzuka',
+      'Fuji Speedway'
+    ],
+    'gran-turismo7': [
+      'Spa-Francorchamps',
+      'Nürburgring',
+      'Monza',
+      'Silverstone',
+      'Suzuka',
+      'Fuji Speedway',
+      'Laguna Seca',
+      'Watkins Glen',
+      'Daytona',
+      'Le Mans'
+    ],
+    'automobilista2': [
+      'Interlagos',
+      'Silverstone',
+      'Spa-Francorchamps',
+      'Monza',
+      'Nürburgring',
+      'Imola',
+      'Mugello',
+      'Brands Hatch',
+      'Donington Park',
+      'Watkins Glen'
+    ],
+    'competizione': [
+      'Barcelona',
+      'Silverstone',
+      'Spa-Francorchamps',
+      'Monza',
+      'Nürburgring',
+      'Imola',
+      'Mugello',
+      'Brands Hatch',
+      'Donington Park',
+      'Zandvoort'
+    ],
+    'lemans': [
+      'Le Mans',
+      'Spa-Francorchamps',
+      'Silverstone',
+      'Monza',
+      'Nürburgring',
+      'Imola',
+      'Mugello',
+      'Brands Hatch',
+      'Donington Park',
+      'Watkins Glen'
+    ],
+    'f1-25': [
+      'Silverstone',
+      'Monza',
+      'Spa-Francorchamps',
+      'Monaco',
+      'Suzuka',
+      'Interlagos',
+      'Red Bull Ring',
+      'Hungaroring',
+      'Circuit of the Americas',
+      'Abu Dhabi'
+    ],
+    'ea-wrc': [
+      'Monte Carlo',
+      'Sweden',
+      'Mexico',
+      'Croatia',
+      'Portugal',
+      'Sardinia',
+      'Kenya',
+      'Estonia',
+      'Finland',
+      'Greece'
+    ]
+  }
 
   // 사용자 정보 및 참가 상태 확인
   useEffect(() => {
@@ -124,35 +224,6 @@ export default function TrackVotingPanel({
     }
   }
 
-  // 투표 옵션 수정
-  const handleEditOption = async (optionId: string) => {
-    if (!editValue.trim() || !isOwner) return
-
-    try {
-      const response = await fetch(`/api/regular-events/${regularEventId}/vote-options`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          option_id: optionId,
-          option_value: editValue.trim()
-        }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || '옵션 수정에 실패했습니다.')
-      }
-
-      setEditingOption(null)
-      setEditValue('')
-      await fetchVoteData()
-    } catch (error) {
-      console.error('옵션 수정 실패:', error)
-      setError(error instanceof Error ? error.message : '옵션 수정 중 오류가 발생했습니다.')
-    }
-  }
 
   // 투표 옵션 삭제
   const handleDeleteOption = async (optionId: string) => {
@@ -353,13 +424,18 @@ export default function TrackVotingPanel({
           <div className="mb-4">
             <label className="block text-xs text-gray-300 mb-2">새 트랙 옵션 추가</label>
             <div className="flex gap-2">
-              <input
-                type="text"
+              <select
                 value={newOptionValue}
                 onChange={(e) => setNewOptionValue(e.target.value)}
-                placeholder="트랙 이름을 입력하세요"
                 className="flex-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              />
+              >
+                <option value="">트랙을 선택하세요</option>
+                {gameTracks[game]?.map((track) => (
+                  <option key={track} value={track}>
+                    {track}
+                  </option>
+                ))}
+              </select>
               <button
                 onClick={handleAddOption}
                 disabled={!newOptionValue.trim()}
@@ -376,52 +452,14 @@ export default function TrackVotingPanel({
             <div className="space-y-2">
               {voteData.trackOptions.map((option) => (
                 <div key={option.id} className="flex items-center gap-2 p-2 bg-gray-800 rounded">
-                  {editingOption === option.id ? (
-                    <>
-                      <input
-                        type="text"
-                        value={editValue}
-                        onChange={(e) => setEditValue(e.target.value)}
-                        className="flex-1 px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm"
-                        autoFocus
-                      />
-                      <button
-                        onClick={() => handleEditOption(option.id)}
-                        className="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition-colors"
-                      >
-                        저장
-                      </button>
-                      <button
-                        onClick={() => {
-                          setEditingOption(null)
-                          setEditValue('')
-                        }}
-                        className="px-2 py-1 bg-gray-600 text-white rounded text-xs hover:bg-gray-700 transition-colors"
-                      >
-                        취소
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <span className="flex-1 text-white text-sm">{option.option_value}</span>
-                      <span className="text-xs text-gray-400">{option.votes_count}표</span>
-                      <button
-                        onClick={() => {
-                          setEditingOption(option.id)
-                          setEditValue(option.option_value)
-                        }}
-                        className="px-2 py-1 bg-yellow-600 text-white rounded text-xs hover:bg-yellow-700 transition-colors"
-                      >
-                        수정
-                      </button>
-                      <button
-                        onClick={() => handleDeleteOption(option.id)}
-                        className="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 transition-colors"
-                      >
-                        삭제
-                      </button>
-                    </>
-                  )}
+                  <span className="flex-1 text-white text-sm">{option.option_value}</span>
+                  <span className="text-xs text-gray-400">{option.votes_count}표</span>
+                  <button
+                    onClick={() => handleDeleteOption(option.id)}
+                    className="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 transition-colors"
+                  >
+                    삭제
+                  </button>
                 </div>
               ))}
             </div>

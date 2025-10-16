@@ -442,6 +442,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
                 <TrackVotingPanel 
                   regularEventId={eventId}
                   isOwner={user && event && event.author_id === user.id || false}
+                  game={game}
                 />
               )}
             </div>
