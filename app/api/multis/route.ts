@@ -36,8 +36,8 @@ export async function GET(req: NextRequest) {
     const start = req.nextUrl.searchParams.get('start')
     const end = req.nextUrl.searchParams.get('end')
 
-    // 간단한 쿼리로 시작 (모든 컬럼 선택)
-    let query = supabase.from('multis').select('*')
+    // 간단한 쿼리로 시작 (모든 컬럼 선택, voting_enabled 포함)
+    let query = supabase.from('multis').select('*, voting_enabled')
 
     if (start && end) {
       query = query.gte('created_at', start).lte('created_at', end)
@@ -173,7 +173,7 @@ export async function POST(req: NextRequest) {
       multi_time: body.start_time,
       duration_hours: body.duration_hours,
       max_participants: 50, // 정기 이벤트는 기본값으로 50명 설정
-      gallery_link: body.gallery_link,
+      link: body.link,
       event_type: 'regular_schedule',
       is_template_based: false,
       is_open: true,

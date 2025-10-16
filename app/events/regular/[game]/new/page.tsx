@@ -313,9 +313,10 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
         const result = await response.json()
         const eventId = result.eventId
         
-        // 투표가 활성화된 경우 투표 옵션 생성
+        // 투표가 활성화된 경우 투표 옵션 및 스케줄 생성
         if (formData.voting_enabled && eventId && formData.track_options.length > 0) {
           try {
+            // 투표 옵션 생성
             for (const track of formData.track_options) {
               await fetch(`/api/regular-events/${eventId}/vote-options`, {
                 method: 'POST',
@@ -329,8 +330,20 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
               })
             }
             console.log('투표 옵션 생성 완료')
+
+            // 투표 스케줄 생성
+            await fetch(`/api/regular-events/${eventId}/voting-schedule`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                weeks_ahead: 4
+              }),
+            })
+            console.log('투표 스케줄 생성 완료')
           } catch (optionError) {
-            console.warn('투표 옵션 생성 중 오류 (이벤트는 생성됨):', optionError)
+            console.warn('투표 설정 생성 중 오류 (이벤트는 생성됨):', optionError)
           }
         }
         

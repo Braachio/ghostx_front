@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import ParticipationSection from '@/components/ParticipationSection'
+import TrackVotingPanel from '@/components/TrackVotingPanel'
 
 interface RegularEventDetailPageProps {
   params: Promise<{ game: string; id: string }>
@@ -38,6 +39,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
     is_open: boolean
     author_id: string
     link?: string
+    voting_enabled?: boolean
   } | null>(null)
   const [eventLoading, setEventLoading] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -432,6 +434,14 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
             eventId={eventId} 
             isOwner={user && event && event.author_id === user.id || false}
           />
+
+          {/* 투표 섹션 */}
+          {event && event.voting_enabled && (
+            <TrackVotingPanel 
+              regularEventId={eventId}
+              isOwner={user && event && event.author_id === user.id || false}
+            />
+          )}
         </div>
 
       </div>
