@@ -67,9 +67,9 @@ export async function POST(
       votingStart.setDate(votingStart.getDate() + 1)
       votingStart.setHours(0, 0, 0, 0)
       
-      // 투표 종료: 투표 시작 3일 후 23:59
+      // 투표 종료: 투표 시작 4일 후 23:59
       const votingEnd = new Date(votingStart)
-      votingEnd.setDate(votingEnd.getDate() + 3)
+      votingEnd.setDate(votingEnd.getDate() + 4)
       votingEnd.setHours(23, 59, 59, 999)
 
       // 투표 스케줄 생성
