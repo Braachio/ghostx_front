@@ -89,7 +89,7 @@ export default function TrackVotingPanel({
 
   useEffect(() => {
     fetchVoteData()
-  }, [regularEventId, fetchVoteData])
+  }, [fetchVoteData])
 
   // 투표하기
   const handleVote = async (trackOptionId: string) => {

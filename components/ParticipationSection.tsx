@@ -212,7 +212,7 @@ export default function ParticipationSection({ eventId, isOwner = false, onParti
         // 참가 상태를 다시 확인
         try {
           const supabase = createClientComponentClient()
-          const { data: participant, error } = await supabase
+          const { data: participant } = await supabase
             .from('participants')
             .select('id, user_id, status')
             .eq('event_id', eventId)
@@ -286,7 +286,7 @@ export default function ParticipationSection({ eventId, isOwner = false, onParti
         // 참가 상태를 다시 확인
         try {
           const supabase = createClientComponentClient()
-          const { data: participant, error } = await supabase
+          const { data: participant } = await supabase
             .from('participants')
             .select('id, user_id, status')
             .eq('event_id', eventId)
