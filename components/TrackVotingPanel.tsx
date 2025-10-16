@@ -145,14 +145,16 @@ export default function TrackVotingPanel({
   useEffect(() => {
     const checkUserAndParticipation = async () => {
       try {
+        const supabaseClient = createClientComponentClient()
+        
         // 사용자 정보 가져오기
-        const { data: { user } } = await supabase.auth.getUser()
+        const { data: { user } } = await supabaseClient.auth.getUser()
         setUser(user)
 
         if (!user) return
 
         // 참가 상태 확인
-        const { data: participant } = await supabase
+        const { data: participant } = await supabaseClient
           .from('participants')
           .select('id')
           .eq('event_id', regularEventId)

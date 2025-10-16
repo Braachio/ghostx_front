@@ -44,7 +44,7 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
   const [game, setGame] = useState<string>('')
   const [events, setEvents] = useState<MultiWithTemplate[]>([])
   const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<{ id: string } | null>(null)
+  const [, setUser] = useState<{ id: string } | null>(null)
   const [hasManagementPermission, setHasManagementPermission] = useState(false)
 
   useEffect(() => {
