@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import type { User } from '@supabase/supabase-js'
 
@@ -30,7 +30,7 @@ export default function ParticipationSection({ eventId, isOwner = false, onParti
   const [showDetails, setShowDetails] = useState(false)
 
   // 참가자 목록 가져오기
-  const fetchParticipants = async () => {
+  const fetchParticipants = useCallback(async () => {
     try {
       console.log('참가자 목록 가져오기 시작:', eventId)
       const response = await fetch(`/api/multis/${eventId}/participants`)
@@ -61,10 +61,10 @@ export default function ParticipationSection({ eventId, isOwner = false, onParti
     } catch (error) {
       console.error('참가자 목록 가져오기 실패:', error)
     }
-  }
+  }, [eventId])
 
   // 현재 사용자의 참가 상태 확인 (Supabase 직접 사용)
-  const checkParticipationStatus = async () => {
+  const checkParticipationStatus = useCallback(async () => {
     if (!user) return false
     
     try {
@@ -98,7 +98,7 @@ export default function ParticipationSection({ eventId, isOwner = false, onParti
       console.error('참가 상태 확인 실패:', error)
     }
     return false
-  }
+  }, [user, eventId])
 
   useEffect(() => {
     const checkUser = async () => {

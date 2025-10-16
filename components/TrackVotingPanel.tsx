@@ -62,7 +62,7 @@ export default function TrackVotingPanel({
     }
 
     checkUserAndParticipation()
-  }, [regularEventId, supabase])
+  }, [regularEventId])
 
   // 투표 데이터 가져오기
   const fetchVoteData = useCallback(async () => {
