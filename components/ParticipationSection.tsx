@@ -119,21 +119,62 @@ export default function ParticipationSection({ eventId, isOwner = false, onParti
         }
       }
       
-      // 참가자 목록 가져오기
-      await fetchParticipants()
+      // 참가자 목록 가져오기 (직접 정의)
+      try {
+        console.log('참가자 목록 가져오기 시작:', eventId)
+        const response = await fetch(`/api/multis/${eventId}/participants`)
+        console.log('참가자 목록 API 응답:', { status: response.status, ok: response.ok })
+        
+        if (response.ok) {
+          const data = await response.json()
+          console.log('참가자 목록 데이터:', data)
+          setParticipants(data.participants || [])
+          setParticipantCount(data.total || 0)
+          console.log('참가자 수 업데이트:', data.total)
+        } else {
+          console.error('참가자 목록 API 오류:', response.status, response.statusText)
+        }
+      } catch (error) {
+        console.error('참가자 목록 가져오기 실패:', error)
+      }
       
-      // 참가 상태 확인 (참가자 목록 로드 후)
+      // 참가 상태 확인 (직접 정의)
       if (user) {
-        const isParticipant = await checkParticipationStatus()
-        setIsParticipant(isParticipant)
-        console.log('초기 참가 상태 확인 완료:', isParticipant)
+        try {
+          const supabase = createClientComponentClient()
+          
+          const { data: participant, error } = await supabase
+            .from('participants')
+            .select('id, user_id, status')
+            .eq('event_id', eventId)
+            .eq('user_id', user.id)
+            .single()
+
+          console.log('Supabase 참가 상태 확인:', { 
+            eventId, 
+            userId: user.id, 
+            participant, 
+            error: error?.message,
+            errorCode: error?.code 
+          })
+          
+          if (error && error.code !== 'PGRST116') {
+            console.error('참가 상태 확인 오류:', error)
+          } else {
+            const isParticipant = !!participant
+            setIsParticipant(isParticipant)
+            console.log('초기 참가 상태 확인 완료:', isParticipant)
+          }
+        } catch (error) {
+          console.error('참가 상태 확인 실패:', error)
+        }
       }
       
       setLoading(false)
     }
     
     checkUser()
-  }, [eventId, checkParticipationStatus, fetchParticipants])
+  }, [eventId])
 
   const handleJoin = async () => {
     if (!user) return
@@ -157,11 +198,34 @@ export default function ParticipationSection({ eventId, isOwner = false, onParti
       if (response.ok) {
         console.log('참가신청 성공, 상태 업데이트 시작')
         // 참가자 목록을 먼저 새로고침
-        await fetchParticipants()
+        try {
+          const response = await fetch(`/api/multis/${eventId}/participants`)
+          if (response.ok) {
+            const data = await response.json()
+            setParticipants(data.participants || [])
+            setParticipantCount(data.total || 0)
+          }
+        } catch (error) {
+          console.error('참가자 목록 새로고침 실패:', error)
+        }
+        
         // 참가 상태를 다시 확인
-        const isParticipant = await checkParticipationStatus()
-        setIsParticipant(isParticipant)
-        console.log('참가 상태 업데이트 완료:', isParticipant)
+        try {
+          const supabase = createClientComponentClient()
+          const { data: participant, error } = await supabase
+            .from('participants')
+            .select('id, user_id, status')
+            .eq('event_id', eventId)
+            .eq('user_id', user.id)
+            .single()
+          
+          const isParticipant = !!participant
+          setIsParticipant(isParticipant)
+          console.log('참가 상태 업데이트 완료:', isParticipant)
+        } catch (error) {
+          console.error('참가 상태 확인 실패:', error)
+        }
+        
         alert('참가신청이 완료되었습니다! 이제 투표할 수 있습니다.')
         // 참가 상태 변경 알림
         if (onParticipationChange) {
@@ -208,11 +272,33 @@ export default function ParticipationSection({ eventId, isOwner = false, onParti
       if (response.ok) {
         console.log('참가 취소 성공, 상태 업데이트 시작')
         // 참가자 목록을 먼저 새로고침
-        await fetchParticipants()
+        try {
+          const response = await fetch(`/api/multis/${eventId}/participants`)
+          if (response.ok) {
+            const data = await response.json()
+            setParticipants(data.participants || [])
+            setParticipantCount(data.total || 0)
+          }
+        } catch (error) {
+          console.error('참가자 목록 새로고침 실패:', error)
+        }
+        
         // 참가 상태를 다시 확인
-        const isParticipant = await checkParticipationStatus()
-        setIsParticipant(isParticipant)
-        console.log('참가 취소 후 상태 업데이트 완료:', isParticipant)
+        try {
+          const supabase = createClientComponentClient()
+          const { data: participant, error } = await supabase
+            .from('participants')
+            .select('id, user_id, status')
+            .eq('event_id', eventId)
+            .eq('user_id', user.id)
+            .single()
+          
+          const isParticipant = !!participant
+          setIsParticipant(isParticipant)
+          console.log('참가 취소 후 상태 업데이트 완료:', isParticipant)
+        } catch (error) {
+          console.error('참가 상태 확인 실패:', error)
+        }
         alert('참가가 취소되었습니다.')
         // 참가 상태 변경 알림
         if (onParticipationChange) {
