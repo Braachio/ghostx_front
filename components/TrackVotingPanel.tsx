@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 interface TrackVotingPanelProps {
@@ -32,7 +32,7 @@ export default function TrackVotingPanel({
   const [loading, setLoading] = useState(true)
   const [voting, setVoting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<{ id: string } | null>(null)
   const [isParticipant, setIsParticipant] = useState(false)
 
   const supabase = createClientComponentClient()
@@ -65,7 +65,7 @@ export default function TrackVotingPanel({
   }, [regularEventId, supabase])
 
   // 투표 데이터 가져오기
-  const fetchVoteData = async () => {
+  const fetchVoteData = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -85,11 +85,11 @@ export default function TrackVotingPanel({
     } finally {
       setLoading(false)
     }
-  }
+  }, [regularEventId])
 
   useEffect(() => {
     fetchVoteData()
-  }, [regularEventId])
+  }, [regularEventId, fetchVoteData])
 
   // 투표하기
   const handleVote = async (trackOptionId: string) => {

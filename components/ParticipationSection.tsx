@@ -133,7 +133,7 @@ export default function ParticipationSection({ eventId, isOwner = false, onParti
     }
     
     checkUser()
-  }, [eventId])
+  }, [eventId, checkParticipationStatus, fetchParticipants])
 
   const handleJoin = async () => {
     if (!user) return
