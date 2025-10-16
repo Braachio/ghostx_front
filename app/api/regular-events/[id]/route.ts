@@ -1,6 +1,7 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
+import { hasEventManagementPermission } from '@/lib/permissions'
 
 // 정기 이벤트 삭제
 export async function DELETE(
@@ -24,7 +25,15 @@ export async function DELETE(
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
-    // 이벤트 작성자인지 확인
+    // 이벤트 관리 권한 확인
+    const hasPermission = await hasEventManagementPermission(user.id, id)
+    
+    if (!hasPermission) {
+      console.log('권한 없음 - 이벤트 관리 권한이 없음')
+      return NextResponse.json({ error: '이벤트 관리 권한이 없습니다.' }, { status: 403 })
+    }
+
+    // 이벤트 존재 확인
     const { data: event, error: eventError } = await supabase
       .from('multis')
       .select('author_id, event_type, title')
@@ -44,11 +53,6 @@ export async function DELETE(
     }
 
     console.log('이벤트 정보:', { author_id: event.author_id, event_type: event.event_type, user_id: user.id })
-
-    if (event.author_id !== user.id) {
-      console.log('권한 없음 - 작성자가 아님')
-      return NextResponse.json({ error: '이벤트 작성자만 삭제할 수 있습니다.' }, { status: 403 })
-    }
 
     if (event.event_type !== 'regular_schedule') {
       console.log('잘못된 이벤트 타입:', event.event_type)
@@ -151,7 +155,15 @@ export async function PATCH(
     const body = await req.json()
     console.log('수정 요청 데이터:', body)
 
-    // 이벤트 작성자인지 확인
+    // 이벤트 관리 권한 확인
+    const hasPermission = await hasEventManagementPermission(user.id, id)
+    
+    if (!hasPermission) {
+      console.log('권한 없음 - 이벤트 관리 권한이 없음')
+      return NextResponse.json({ error: '이벤트 관리 권한이 없습니다.' }, { status: 403 })
+    }
+
+    // 이벤트 존재 확인
     const { data: event, error: eventError } = await supabase
       .from('multis')
       .select('author_id, event_type')
@@ -171,11 +183,6 @@ export async function PATCH(
     }
 
     console.log('이벤트 정보:', { author_id: event.author_id, event_type: event.event_type, user_id: user.id })
-
-    if (event.author_id !== user.id) {
-      console.log('권한 없음 - 작성자가 아님')
-      return NextResponse.json({ error: '이벤트 작성자만 수정할 수 있습니다.' }, { status: 403 })
-    }
 
     if (event.event_type !== 'regular_schedule') {
       console.log('잘못된 이벤트 타입:', event.event_type)

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import ParticipationSection from '@/components/ParticipationSection'
 import TrackVotingPanel from '@/components/TrackVotingPanel'
+import { hasEventManagementPermission } from '@/lib/client-permissions'
 
 interface RegularEventDetailPageProps {
   params: Promise<{ game: string; id: string }>
@@ -26,6 +27,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
   const [eventId, setEventId] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<{ id: string } | null>(null)
+  const [hasManagementPermission, setHasManagementPermission] = useState(false)
   const [event, setEvent] = useState<{
     id: string
     title: string
@@ -76,13 +78,19 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
         if (response.ok) {
           const data = await response.json()
           setUser(data.user)
+          
+          // 권한 확인
+          if (data.user && eventId) {
+            const hasPermission = await hasEventManagementPermission(data.user.id, eventId)
+            setHasManagementPermission(hasPermission)
+          }
         }
       } catch (error) {
         console.error('사용자 정보 로드 실패:', error)
       }
     }
     loadUser()
-  }, [])
+  }, [eventId])
 
   // 이벤트 데이터 로드
   useEffect(() => {
@@ -251,18 +259,22 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
                 <div className="flex gap-3">
                   {!isEditing ? (
                     <>
-                      <button
-                        onClick={handleEditStart}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-                      >
-                        수정
-                      </button>
-                      <button
-                        onClick={handleDelete}
-                        className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
-                      >
-                        삭제
-                      </button>
+                      {hasManagementPermission && (
+                        <>
+                          <button
+                            onClick={handleEditStart}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                          >
+                            수정
+                          </button>
+                          <button
+                            onClick={handleDelete}
+                            className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+                          >
+                            삭제
+                          </button>
+                        </>
+                      )}
                     </>
                   ) : (
                     <div className="flex gap-2">
@@ -441,7 +453,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
               {event.voting_enabled && (
                 <TrackVotingPanel 
                   regularEventId={eventId}
-                  isOwner={user && event && event.author_id === user.id || false}
+                  isOwner={hasManagementPermission}
                   game={game}
                 />
               )}

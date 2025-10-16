@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import type { Database } from '@/lib/database.types'
+import { hasEventManagementPermission } from '@/lib/permissions'
 
 // GET /api/regular-events/[id]/vote-options - 투표 옵션 조회
 export async function GET(
@@ -58,19 +59,11 @@ export async function POST(
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
-    // 이벤트 작성자인지 확인
-    const { data: event, error: eventError } = await supabase
-      .from('multis')
-      .select('author_id')
-      .eq('id', id)
-      .single()
-
-    if (eventError || !event) {
-      return NextResponse.json({ error: '이벤트를 찾을 수 없습니다.' }, { status: 404 })
-    }
-
-    if (event.author_id !== user.id) {
-      return NextResponse.json({ error: '이벤트 작성자만 옵션을 추가할 수 있습니다.' }, { status: 403 })
+    // 이벤트 관리 권한 확인
+    const hasPermission = await hasEventManagementPermission(user.id, id)
+    
+    if (!hasPermission) {
+      return NextResponse.json({ error: '이벤트 관리 권한이 없습니다.' }, { status: 403 })
     }
 
     const { option_type, option_value } = body
@@ -142,19 +135,11 @@ export async function PATCH(
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
-    // 이벤트 작성자인지 확인
-    const { data: event, error: eventError } = await supabase
-      .from('multis')
-      .select('author_id')
-      .eq('id', id)
-      .single()
-
-    if (eventError || !event) {
-      return NextResponse.json({ error: '이벤트를 찾을 수 없습니다.' }, { status: 404 })
-    }
-
-    if (event.author_id !== user.id) {
-      return NextResponse.json({ error: '이벤트 작성자만 옵션을 수정할 수 있습니다.' }, { status: 403 })
+    // 이벤트 관리 권한 확인
+    const hasPermission = await hasEventManagementPermission(user.id, id)
+    
+    if (!hasPermission) {
+      return NextResponse.json({ error: '이벤트 관리 권한이 없습니다.' }, { status: 403 })
     }
 
     // 투표 옵션 수정
@@ -214,19 +199,11 @@ export async function DELETE(
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
-    // 이벤트 작성자인지 확인
-    const { data: event, error: eventError } = await supabase
-      .from('multis')
-      .select('author_id')
-      .eq('id', id)
-      .single()
-
-    if (eventError || !event) {
-      return NextResponse.json({ error: '이벤트를 찾을 수 없습니다.' }, { status: 404 })
-    }
-
-    if (event.author_id !== user.id) {
-      return NextResponse.json({ error: '이벤트 작성자만 옵션을 삭제할 수 있습니다.' }, { status: 403 })
+    // 이벤트 관리 권한 확인
+    const hasPermission = await hasEventManagementPermission(user.id, id)
+    
+    if (!hasPermission) {
+      return NextResponse.json({ error: '이벤트 관리 권한이 없습니다.' }, { status: 403 })
     }
 
     // 투표 옵션 삭제
