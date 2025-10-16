@@ -116,6 +116,78 @@ export async function POST(
   }
 }
 
+// PATCH /api/regular-events/[id]/vote-options - 투표 옵션 수정
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const cookieStore = await cookies()
+    const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore })
+    const { id } = await params
+    const body = await req.json()
+
+    console.log('투표 옵션 수정:', { regularEventId: id, body })
+
+    const { option_id, option_value } = body
+
+    if (!option_id || !option_value) {
+      return NextResponse.json({ error: '옵션 ID와 값을 입력해주세요.' }, { status: 400 })
+    }
+
+    // 사용자 인증 확인
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    
+    if (authError || !user) {
+      return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+    }
+
+    // 이벤트 작성자인지 확인
+    const { data: event, error: eventError } = await supabase
+      .from('multis')
+      .select('author_id')
+      .eq('id', id)
+      .single()
+
+    if (eventError || !event) {
+      return NextResponse.json({ error: '이벤트를 찾을 수 없습니다.' }, { status: 404 })
+    }
+
+    if (event.author_id !== user.id) {
+      return NextResponse.json({ error: '이벤트 작성자만 옵션을 수정할 수 있습니다.' }, { status: 403 })
+    }
+
+    // 투표 옵션 수정
+    const { data: updatedOption, error: updateError } = await supabase
+      .from('vote_options')
+      .update({
+        option_value: option_value,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', option_id)
+      .eq('regular_event_id', id)
+      .select()
+      .single()
+
+    if (updateError) {
+      console.error('투표 옵션 수정 실패:', updateError)
+      return NextResponse.json({ error: '투표 옵션 수정에 실패했습니다.' }, { status: 500 })
+    }
+
+    console.log('투표 옵션 수정 성공:', { optionId: updatedOption.id, newValue: option_value })
+
+    return NextResponse.json({
+      success: true,
+      option: updatedOption,
+      message: '투표 옵션이 수정되었습니다.'
+    })
+
+  } catch (error) {
+    console.error('투표 옵션 수정 오류:', error)
+    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 })
+  }
+}
+
 // DELETE /api/regular-events/[id]/vote-options - 투표 옵션 삭제
 export async function DELETE(
   req: NextRequest,
@@ -125,12 +197,13 @@ export async function DELETE(
     const cookieStore = await cookies()
     const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore })
     const { id } = await params
-    const { searchParams } = new URL(req.url)
-    const optionId = searchParams.get('optionId')
+    const body = await req.json()
 
-    console.log('투표 옵션 삭제:', { regularEventId: id, optionId })
+    console.log('투표 옵션 삭제:', { regularEventId: id, body })
 
-    if (!optionId) {
+    const { option_id } = body
+
+    if (!option_id) {
       return NextResponse.json({ error: '옵션 ID가 필요합니다.' }, { status: 400 })
     }
 
@@ -160,7 +233,7 @@ export async function DELETE(
     const { error: deleteError } = await supabase
       .from('vote_options')
       .delete()
-      .eq('id', optionId)
+      .eq('id', option_id)
       .eq('regular_event_id', id)
 
     if (deleteError) {

@@ -34,6 +34,10 @@ export default function TrackVotingPanel({
   const [error, setError] = useState<string | null>(null)
   const [user, setUser] = useState<{ id: string } | null>(null)
   const [isParticipant, setIsParticipant] = useState(false)
+  const [showOptionManager, setShowOptionManager] = useState(false)
+  const [newOptionValue, setNewOptionValue] = useState('')
+  const [editingOption, setEditingOption] = useState<string | null>(null)
+  const [editValue, setEditValue] = useState('')
 
   const supabase = createClientComponentClient()
 
@@ -90,6 +94,96 @@ export default function TrackVotingPanel({
   useEffect(() => {
     fetchVoteData()
   }, [fetchVoteData])
+
+  // 투표 옵션 추가
+  const handleAddOption = async () => {
+    if (!newOptionValue.trim() || !isOwner) return
+
+    try {
+      const response = await fetch(`/api/regular-events/${regularEventId}/vote-options`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          option_type: 'track',
+          option_value: newOptionValue.trim()
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || '옵션 추가에 실패했습니다.')
+      }
+
+      setNewOptionValue('')
+      await fetchVoteData()
+    } catch (error) {
+      console.error('옵션 추가 실패:', error)
+      setError(error instanceof Error ? error.message : '옵션 추가 중 오류가 발생했습니다.')
+    }
+  }
+
+  // 투표 옵션 수정
+  const handleEditOption = async (optionId: string) => {
+    if (!editValue.trim() || !isOwner) return
+
+    try {
+      const response = await fetch(`/api/regular-events/${regularEventId}/vote-options`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          option_id: optionId,
+          option_value: editValue.trim()
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || '옵션 수정에 실패했습니다.')
+      }
+
+      setEditingOption(null)
+      setEditValue('')
+      await fetchVoteData()
+    } catch (error) {
+      console.error('옵션 수정 실패:', error)
+      setError(error instanceof Error ? error.message : '옵션 수정 중 오류가 발생했습니다.')
+    }
+  }
+
+  // 투표 옵션 삭제
+  const handleDeleteOption = async (optionId: string) => {
+    if (!isOwner) return
+
+    if (!confirm('이 투표 옵션을 삭제하시겠습니까? 삭제된 옵션에 대한 기존 투표도 함께 삭제됩니다.')) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/regular-events/${regularEventId}/vote-options`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          option_id: optionId
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || '옵션 삭제에 실패했습니다.')
+      }
+
+      await fetchVoteData()
+    } catch (error) {
+      console.error('옵션 삭제 실패:', error)
+      setError(error instanceof Error ? error.message : '옵션 삭제 중 오류가 발생했습니다.')
+    }
+  }
 
   // 투표하기
   const handleVote = async (trackOptionId: string) => {
@@ -225,11 +319,21 @@ export default function TrackVotingPanel({
     <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-white">🏁 트랙 투표</h3>
-        {voteData.votingOpen && (
-          <div className="text-sm text-blue-400">
-            {getTimeLeft()}
-          </div>
-        )}
+        <div className="flex items-center gap-3">
+          {voteData.votingOpen && (
+            <div className="text-sm text-blue-400">
+              {getTimeLeft()}
+            </div>
+          )}
+          {isOwner && (
+            <button
+              onClick={() => setShowOptionManager(!showOptionManager)}
+              className="px-3 py-1 text-xs bg-gray-700 text-gray-300 rounded hover:bg-gray-600 transition-colors"
+            >
+              {showOptionManager ? '관리 닫기' : '옵션 관리'}
+            </button>
+          )}
+        </div>
       </div>
 
       {!voteData.votingOpen && (
@@ -237,6 +341,91 @@ export default function TrackVotingPanel({
           <p className="text-yellow-400 text-sm">
             투표 기간이 아닙니다.
           </p>
+        </div>
+      )}
+
+      {/* 옵션 관리 섹션 */}
+      {isOwner && showOptionManager && (
+        <div className="mb-6 p-4 bg-gray-900/50 rounded-lg border border-gray-600">
+          <h4 className="text-sm font-semibold text-white mb-3">투표 옵션 관리</h4>
+          
+          {/* 새 옵션 추가 */}
+          <div className="mb-4">
+            <label className="block text-xs text-gray-300 mb-2">새 트랙 옵션 추가</label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newOptionValue}
+                onChange={(e) => setNewOptionValue(e.target.value)}
+                placeholder="트랙 이름을 입력하세요"
+                className="flex-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              />
+              <button
+                onClick={handleAddOption}
+                disabled={!newOptionValue.trim()}
+                className="px-3 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                추가
+              </button>
+            </div>
+          </div>
+
+          {/* 기존 옵션 목록 */}
+          <div>
+            <label className="block text-xs text-gray-300 mb-2">기존 옵션 관리</label>
+            <div className="space-y-2">
+              {voteData.trackOptions.map((option) => (
+                <div key={option.id} className="flex items-center gap-2 p-2 bg-gray-800 rounded">
+                  {editingOption === option.id ? (
+                    <>
+                      <input
+                        type="text"
+                        value={editValue}
+                        onChange={(e) => setEditValue(e.target.value)}
+                        className="flex-1 px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm"
+                        autoFocus
+                      />
+                      <button
+                        onClick={() => handleEditOption(option.id)}
+                        className="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition-colors"
+                      >
+                        저장
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditingOption(null)
+                          setEditValue('')
+                        }}
+                        className="px-2 py-1 bg-gray-600 text-white rounded text-xs hover:bg-gray-700 transition-colors"
+                      >
+                        취소
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <span className="flex-1 text-white text-sm">{option.option_value}</span>
+                      <span className="text-xs text-gray-400">{option.votes_count}표</span>
+                      <button
+                        onClick={() => {
+                          setEditingOption(option.id)
+                          setEditValue(option.option_value)
+                        }}
+                        className="px-2 py-1 bg-yellow-600 text-white rounded text-xs hover:bg-yellow-700 transition-colors"
+                      >
+                        수정
+                      </button>
+                      <button
+                        onClick={() => handleDeleteOption(option.id)}
+                        className="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 transition-colors"
+                      >
+                        삭제
+                      </button>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
