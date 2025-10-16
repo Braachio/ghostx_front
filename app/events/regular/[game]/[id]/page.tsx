@@ -436,11 +436,18 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
           />
 
           {/* 투표 섹션 */}
-          {event && event.voting_enabled && (
-            <TrackVotingPanel 
-              regularEventId={eventId}
-              isOwner={user && event && event.author_id === user.id || false}
-            />
+          {event && (
+            <div className="space-y-4">
+              <div className="text-sm text-gray-400">
+                Debug: voting_enabled = {event.voting_enabled ? 'true' : 'false'}
+              </div>
+              {event.voting_enabled && (
+                <TrackVotingPanel 
+                  regularEventId={eventId}
+                  isOwner={user && event && event.author_id === user.id || false}
+                />
+              )}
+            </div>
           )}
         </div>
 

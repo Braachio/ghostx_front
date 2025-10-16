@@ -174,6 +174,7 @@ export async function POST(req: NextRequest) {
       duration_hours: body.duration_hours,
       max_participants: 50, // 정기 이벤트는 기본값으로 50명 설정
       link: body.link,
+      voting_enabled: body.voting_enabled || false,
       event_type: 'regular_schedule',
       is_template_based: false,
       is_open: true,
@@ -193,7 +194,7 @@ export async function POST(req: NextRequest) {
     console.log('정기 이벤트 기본 정보 등록 성공:', eventData.id)
 
     // 2. 투표 옵션 저장 (투표가 활성화된 경우)
-    if (body.voting_enabled && body.track_options && body.car_class_options) {
+    if (body.voting_enabled && body.track_options && body.track_options.length > 0) {
       const currentYear = now.getFullYear()
       const currentWeek = Math.ceil((((+now - +new Date(now.getFullYear(), 0, 1)) / 86400000) + new Date(now.getFullYear(), 0, 1).getDay() + 1) / 7)
 
@@ -207,25 +208,15 @@ export async function POST(req: NextRequest) {
         votes_count: 0
       }))
 
-      // 차량 클래스 옵션들 저장
-      const carClassOptions = body.car_class_options.map(carClass => ({
-        regular_event_id: eventData.id,
-        week_number: currentWeek,
-        year: currentYear,
-        option_type: 'car_class',
-        option_value: carClass,
-        votes_count: 0
-      }))
-
       const { error: optionsError } = await supabase
-        .from('regular_event_vote_options')
-        .insert([...trackOptions, ...carClassOptions])
+        .from('vote_options')
+        .insert(trackOptions)
 
       if (optionsError) {
         console.error('투표 옵션 저장 실패:', optionsError)
         // 투표 옵션 저장 실패해도 이벤트는 생성된 상태
       } else {
-        console.log('투표 옵션 저장 성공:', trackOptions.length + carClassOptions.length, '개')
+        console.log('투표 옵션 저장 성공:', trackOptions.length, '개')
       }
     }
 
