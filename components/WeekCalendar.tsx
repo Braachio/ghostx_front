@@ -40,40 +40,54 @@ export default function WeekCalendar({ selectedDate, onDateSelect }: WeekCalenda
 
   return (
     <div className="space-y-4">
-      {/* 날짜 선택 헤더 */}
-      <div className="flex items-center gap-2">
-        <span className="text-lg">📅</span>
-        <h3 className="text-lg font-semibold text-cyan-400">날짜 선택</h3>
+      {/* 캘린더 헤더 */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-lg">📅</span>
+          <h3 className="text-lg font-semibold text-cyan-400">날짜 선택</h3>
+        </div>
         <span className="text-sm text-gray-400">
           오늘부터 7일 후까지
         </span>
       </div>
 
-      {/* 날짜 그리드 */}
-      <div className="grid grid-cols-4 gap-3">
-        {availableDates.map((dayInfo) => (
-          <button
-            key={dayInfo.date}
-            onClick={() => handleDateClick(dayInfo.date)}
-            className={`p-4 rounded-lg text-center transition-all duration-200 ${
-              selectedDate === dayInfo.date
-                ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-500/30 scale-105'
-                : dayInfo.isToday
-                ? 'bg-orange-500 text-white hover:bg-orange-600'
-                : 'bg-gray-700 hover:bg-gray-600 text-white hover:shadow-lg hover:scale-105'
-            } cursor-pointer`}
-          >
-            <div className="text-xs text-gray-300 mb-1">{dayInfo.dayName}</div>
-            <div className="text-lg font-bold">{dayInfo.dayOfMonth}</div>
-            <div className="text-xs text-gray-300">{dayInfo.month}월</div>
-            {dayInfo.isToday && <div className="text-xs mt-1 font-bold">오늘</div>}
-          </button>
-        ))}
+      {/* 캘린더 테이블 */}
+      <div className="bg-gray-800/50 border border-gray-600 rounded-lg overflow-hidden">
+        {/* 요일 헤더 */}
+        <div className="grid grid-cols-7 bg-gray-700">
+          {['일', '월', '화', '수', '목', '금', '토'].map((day) => (
+            <div key={day} className="p-3 text-center text-sm font-medium text-gray-300 border-r border-gray-600 last:border-r-0">
+              {day}
+            </div>
+          ))}
+        </div>
+
+        {/* 날짜 그리드 */}
+        <div className="grid grid-cols-7">
+          {availableDates.map((dayInfo) => (
+            <button
+              key={dayInfo.date}
+              onClick={() => handleDateClick(dayInfo.date)}
+              className={`p-4 text-center transition-all duration-200 border-r border-b border-gray-600 last:border-r-0 hover:bg-gray-600/50 ${
+                selectedDate === dayInfo.date
+                  ? 'bg-cyan-600 text-white shadow-lg'
+                  : dayInfo.isToday
+                  ? 'bg-orange-500 text-white'
+                  : 'bg-transparent text-white hover:bg-gray-600/30'
+              }`}
+            >
+              <div className="text-lg font-bold">{dayInfo.dayOfMonth}</div>
+              {dayInfo.isToday && (
+                <div className="text-xs mt-1 font-medium">오늘</div>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* 선택된 날짜 정보 */}
       {selectedDate && (
-        <div className="mt-4 p-4 bg-gradient-to-r from-cyan-900/20 to-blue-900/20 border border-cyan-500/30 rounded-lg">
+        <div className="p-4 bg-gradient-to-r from-cyan-900/20 to-blue-900/20 border border-cyan-500/30 rounded-lg">
           <div className="flex items-center gap-2">
             <span className="text-cyan-400">✅</span>
             <span className="text-white font-medium">
