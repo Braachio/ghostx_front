@@ -8,50 +8,50 @@ interface WeekCalendarProps {
 }
 
 export default function WeekCalendar({ selectedDate, onDateSelect }: WeekCalendarProps) {
-  // 이번주 일요일부터 7일간 날짜 계산
-  const getAvailableDates = () => {
+  // 현재 월의 전체 캘린더 생성
+  const getCurrentMonthCalendar = () => {
     const now = new Date()
-    const currentDay = now.getDay() // 0(일) ~ 6(토)
+    const currentYear = now.getFullYear()
+    const currentMonth = now.getMonth()
     
-    // 이번주 일요일 계산
-    const thisWeekSunday = new Date(now)
-    thisWeekSunday.setDate(now.getDate() - currentDay)
-    thisWeekSunday.setHours(0, 0, 0, 0)
+    // 이번달 1일
+    const firstDay = new Date(currentYear, currentMonth, 1)
+    const lastDay = new Date(currentYear, currentMonth + 1, 0)
+    
+    // 이번달 1일이 포함된 주의 일요일
+    const startDate = new Date(firstDay)
+    startDate.setDate(firstDay.getDate() - firstDay.getDay())
+    
+    // 이번달 마지막일이 포함된 주의 토요일
+    const endDate = new Date(lastDay)
+    endDate.setDate(lastDay.getDate() + (6 - lastDay.getDay()))
     
     const dates = []
+    const currentDate = new Date(startDate)
     
-    console.log('현재 시간:', now.toLocaleString('ko-KR'))
-    console.log('현재 요일:', now.getDay(), ['일', '월', '화', '수', '목', '금', '토'][now.getDay()])
-    console.log('이번주 일요일:', thisWeekSunday.toLocaleString('ko-KR'))
-    
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(thisWeekSunday)
-      date.setDate(thisWeekSunday.getDate() + i)
+    while (currentDate <= endDate) {
+      const isCurrentMonth = currentDate.getMonth() === currentMonth
+      const isToday = currentDate.toDateString() === now.toDateString()
+      const isPast = currentDate < now && !isToday
       
-      const dayInfo = {
-        date: date.toISOString().split('T')[0], // YYYY-MM-DD
-        day: date.getDay(),
-        dayName: ['일', '월', '화', '수', '목', '금', '토'][date.getDay()],
-        month: date.getMonth() + 1,
-        dayOfMonth: date.getDate(),
-        isToday: date.toDateString() === now.toDateString(),
-        isPast: date < now && date.toDateString() !== now.toDateString()
-      }
-      
-      console.log(`+${i}일:`, {
-        date: dayInfo.date,
-        day: dayInfo.day,
-        dayName: dayInfo.dayName,
-        isToday: dayInfo.isToday
+      dates.push({
+        date: currentDate.toISOString().split('T')[0],
+        day: currentDate.getDay(),
+        dayName: ['일', '월', '화', '수', '목', '금', '토'][currentDate.getDay()],
+        month: currentDate.getMonth() + 1,
+        dayOfMonth: currentDate.getDate(),
+        isCurrentMonth,
+        isToday,
+        isPast
       })
       
-      dates.push(dayInfo)
+      currentDate.setDate(currentDate.getDate() + 1)
     }
     
     return dates
   }
 
-  const availableDates = getAvailableDates()
+  const calendarDates = getCurrentMonthCalendar()
 
   const handleDateClick = (date: string) => {
     onDateSelect(date)
@@ -66,11 +66,11 @@ export default function WeekCalendar({ selectedDate, onDateSelect }: WeekCalenda
           <h3 className="text-lg font-semibold text-cyan-400">날짜 선택</h3>
         </div>
         <span className="text-sm text-gray-400">
-          이번주 일요일부터 토요일까지
+          {new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long' })}
         </span>
       </div>
 
-      {/* 캘린더 테이블 */}
+      {/* 월 단위 캘린더 */}
       <div className="bg-gray-800/50 border border-gray-600 rounded-lg overflow-hidden">
         {/* 요일 헤더 */}
         <div className="grid grid-cols-7 bg-gray-700">
@@ -83,21 +83,28 @@ export default function WeekCalendar({ selectedDate, onDateSelect }: WeekCalenda
 
         {/* 날짜 그리드 */}
         <div className="grid grid-cols-7">
-          {availableDates.map((dayInfo) => (
+          {calendarDates.map((dayInfo) => (
             <button
               key={dayInfo.date}
-              onClick={() => handleDateClick(dayInfo.date)}
-              className={`p-4 text-center transition-all duration-200 border-r border-b border-gray-600 last:border-r-0 hover:bg-gray-600/50 ${
-                selectedDate === dayInfo.date
+              onClick={() => !dayInfo.isPast && handleDateClick(dayInfo.date)}
+              disabled={dayInfo.isPast}
+              className={`p-3 text-center transition-all duration-200 border-r border-b border-gray-600 last:border-r-0 ${
+                dayInfo.isPast
+                  ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                  : selectedDate === dayInfo.date
                   ? 'bg-cyan-600 text-white shadow-lg'
                   : dayInfo.isToday
-                  ? 'bg-orange-500 text-white'
-                  : 'bg-transparent text-white hover:bg-gray-600/30'
-              }`}
+                  ? 'bg-orange-500 text-white hover:bg-orange-600'
+                  : dayInfo.isCurrentMonth
+                  ? 'bg-transparent text-white hover:bg-gray-600/30'
+                  : 'bg-gray-800/30 text-gray-500 hover:bg-gray-600/20'
+              } ${!dayInfo.isPast ? 'cursor-pointer' : 'cursor-not-allowed'}`}
             >
-              <div className="text-lg font-bold">{dayInfo.dayOfMonth}</div>
+              <div className={`text-sm font-medium ${!dayInfo.isCurrentMonth ? 'text-gray-500' : ''}`}>
+                {dayInfo.dayOfMonth}
+              </div>
               {dayInfo.isToday && (
-                <div className="text-xs mt-1 font-medium">오늘</div>
+                <div className="text-xs mt-1 font-bold">오늘</div>
               )}
             </button>
           ))}

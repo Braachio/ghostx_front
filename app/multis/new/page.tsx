@@ -183,7 +183,7 @@ export default function NewMultiPage() {
                   onDateSelect={handleDateSelect} 
                 />
                 <p className="text-gray-400 text-sm">
-                  이번주 일요일부터 토요일까지 날짜를 선택하세요
+                  이번달 캘린더에서 날짜를 선택하세요
                 </p>
               </div>
             </div>
