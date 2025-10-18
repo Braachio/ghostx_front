@@ -51,12 +51,8 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
     }
 
     if (multi.event_type === 'regular_schedule') {
-      if (isToday) return `오늘${multi.multi_time ? ` ${multi.multi_time}` : ''}`
-      if (isTomorrow) return `내일${multi.multi_time ? ` ${multi.multi_time}` : ''}`
       return `매주 ${multi.multi_day && multi.multi_day[0]}요일${multi.multi_time ? ` ${multi.multi_time}` : ''}`
     } else {
-      if (isToday) return `오늘${multi.multi_time ? ` ${multi.multi_time}` : ''}`
-      if (isTomorrow) return `내일${multi.multi_time ? ` ${multi.multi_time}` : ''}`
       return `${eventDate.getMonth() + 1}월 ${eventDate.getDate()}일 ${['일', '월', '화', '수', '목', '금', '토'][eventDate.getDay()]}요일${multi.multi_time ? ` ${multi.multi_time}` : ''}`
     }
   }
@@ -333,13 +329,7 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
         </div>
       )}
 
-      {/* 다음 일정 안내 */}
-      {nextEventDate && (
-        <div className="mb-4 -mt-2 text-xs text-gray-400 flex items-center gap-2">
-          <span className="text-cyan-400">🗓</span>
-          <span>다음 일정: {formatKoreanDate(nextEventDate)}</span>
-        </div>
-      )}
+
 
     </div>
   )
