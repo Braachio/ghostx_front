@@ -203,29 +203,15 @@ export default function NewMultiPage() {
               </div>
             </div>
 
-            {/* 요일과 시간 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-cyan-400">요일 (자동 설정)</label>
-                <div className="px-4 py-3 bg-gray-800/30 border border-gray-600 rounded-lg text-gray-300">
-                  {multiDay.length > 0 ? (
-                    <span className="text-cyan-400 font-medium">
-                      {multiDay.join(', ')} - 선택된 날짜에 따라 자동 설정됨
-                    </span>
-                  ) : (
-                    <span>날짜를 선택하면 자동으로 설정됩니다</span>
-                  )}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-cyan-400">시간</label>
-                <input 
-                  placeholder="20:00 (예: 20:30, 20시30분)" 
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all" 
-                  value={multiTime} 
-                  onChange={e=>setMultiTime(e.target.value)} 
-                />
-              </div>
+            {/* 시간 입력 */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-cyan-400">시간</label>
+              <input 
+                placeholder="20:00 (예: 20:30, 20시30분)" 
+                className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all" 
+                value={multiTime} 
+                onChange={e=>setMultiTime(e.target.value)} 
+              />
             </div>
           </div>
 

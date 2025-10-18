@@ -85,11 +85,13 @@ export default function WeekCalendar({ selectedDate, onDateSelect }: WeekCalenda
       </div>
 
       {/* 월 단위 캘린더 */}
-      <div className="bg-gray-800/50 border border-gray-600 rounded-lg overflow-hidden">
+      <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 border border-gray-600/50 rounded-xl overflow-hidden shadow-2xl">
         {/* 요일 헤더 */}
-        <div className="grid grid-cols-7 bg-gray-700">
-          {['일', '월', '화', '수', '목', '금', '토'].map((day) => (
-            <div key={day} className="p-3 text-center text-sm font-medium text-gray-300 border-r border-gray-600 last:border-r-0">
+        <div className="grid grid-cols-7 bg-gradient-to-r from-gray-700 to-gray-800">
+          {['일', '월', '화', '수', '목', '금', '토'].map((day, index) => (
+            <div key={day} className={`p-4 text-center text-sm font-bold border-r border-gray-600/50 last:border-r-0 ${
+              index === 0 ? 'text-red-400' : index === 6 ? 'text-blue-400' : 'text-gray-200'
+            }`}>
               {day}
             </div>
           ))}
@@ -102,45 +104,34 @@ export default function WeekCalendar({ selectedDate, onDateSelect }: WeekCalenda
               key={dayInfo.date}
               onClick={() => !dayInfo.isPast && handleDateClick(dayInfo.date)}
               disabled={dayInfo.isPast}
-              className={`p-3 text-center transition-all duration-200 border-r border-b border-gray-600 last:border-r-0 ${
+              className={`relative p-4 text-center transition-all duration-300 border-r border-b border-gray-600/30 last:border-r-0 group ${
                 dayInfo.isPast
-                  ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                  ? 'bg-gray-800/50 text-gray-600 cursor-not-allowed'
                   : selectedDate === dayInfo.date
-                  ? 'bg-cyan-600 text-white shadow-lg'
+                  ? 'bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30 scale-105'
                   : dayInfo.isToday
-                  ? 'bg-orange-500 text-white hover:bg-orange-600'
+                  ? 'bg-gradient-to-br from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 shadow-lg shadow-orange-500/30'
                   : dayInfo.isCurrentMonth
-                  ? 'bg-transparent text-white hover:bg-gray-600/30'
-                  : 'bg-gray-800/30 text-gray-500 hover:bg-gray-600/20'
-              } ${!dayInfo.isPast ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                  ? 'bg-transparent text-white hover:bg-gray-600/40 hover:scale-105'
+                  : 'bg-gray-800/20 text-gray-500 hover:bg-gray-600/30'
+              } ${!dayInfo.isPast ? 'cursor-pointer hover:shadow-lg' : 'cursor-not-allowed'}`}
             >
-              <div className={`text-sm font-medium ${!dayInfo.isCurrentMonth ? 'text-gray-500' : ''}`}>
+              <div className={`text-lg font-bold transition-all duration-200 ${
+                !dayInfo.isCurrentMonth ? 'text-gray-500' : ''
+              } ${selectedDate === dayInfo.date ? 'text-white' : ''}`}>
                 {dayInfo.dayOfMonth}
               </div>
               {dayInfo.isToday && (
-                <div className="text-xs mt-1 font-bold">오늘</div>
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-orange-400 rounded-full animate-pulse"></div>
+              )}
+              {selectedDate === dayInfo.date && (
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></div>
               )}
             </button>
           ))}
         </div>
       </div>
 
-      {/* 선택된 날짜 정보 */}
-      {selectedDate && (
-        <div className="p-4 bg-gradient-to-r from-cyan-900/20 to-blue-900/20 border border-cyan-500/30 rounded-lg">
-          <div className="flex items-center gap-2">
-            <span className="text-cyan-400">✅</span>
-            <span className="text-white font-medium">
-              선택된 날짜: {new Date(selectedDate).toLocaleDateString('ko-KR', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric',
-                weekday: 'long'
-              })}
-            </span>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
