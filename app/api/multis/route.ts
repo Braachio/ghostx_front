@@ -53,7 +53,8 @@ export async function GET(req: NextRequest) {
       link,
       voting_enabled,
       created_at,
-      event_type
+      event_type,
+      event_date
     `)
 
     if (start && end) {
