@@ -284,6 +284,23 @@ export default function FullPageLayout({
             </div>
           </div>
 
+          {/* 로그인하지 않은 사용자를 위한 시작하기 버튼 */}
+          {!user && (
+            <div className="text-center mb-16">
+              <Link
+                href="/login"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 text-white text-lg font-bold rounded-2xl hover:from-cyan-700 hover:via-blue-700 hover:to-purple-700 transition-all duration-300 shadow-2xl shadow-cyan-500/30 hover:shadow-cyan-500/50 hover:scale-105"
+              >
+                <span className="text-2xl">🚀</span>
+                <span>{t[language].getStarted}</span>
+                <span className="text-xl">→</span>
+              </Link>
+              <p className="text-gray-400 text-sm mt-4">
+                {language === 'ko' ? '지금 바로 시작하여 모든 갤멀 일정을 확인하세요!' : 'Start now to check all gallery multi schedules!'}
+              </p>
+            </div>
+          )}
+
           {/* 스크롤 힌트 */}
           <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
             <div className="text-center">
