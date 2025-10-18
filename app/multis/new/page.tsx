@@ -183,7 +183,7 @@ export default function NewMultiPage() {
                   onDateSelect={handleDateSelect} 
                 />
                 <p className="text-gray-400 text-sm">
-                  이번주와 다음주 중에서 날짜를 선택하세요
+                  오늘부터 7일 후까지 날짜를 선택하세요
                 </p>
               </div>
             </div>
