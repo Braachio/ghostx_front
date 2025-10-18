@@ -117,8 +117,8 @@ export function getDateFromWeekAndDay(year: number, week: number, dayName: strin
   const dayOffset = dayMap[dayName]
   if (dayOffset === undefined) return null
   
-  // 간단한 주차 계산: 1월 1일부터 시작
-  const jan1 = new Date(year, 0, 1) // 1월 1일
+  // 정확한 주차 계산: 1월 1일이 포함된 주의 월요일부터 시작
+  const jan1 = new Date(year, 0, 1, 12, 0, 0) // 정오 12시로 설정해서 시간대 문제 방지
   const jan1Day = jan1.getDay() // 0(일) ~ 6(토)
   
   // 1월 1일이 포함된 주의 월요일 찾기
@@ -129,19 +129,21 @@ export function getDateFromWeekAndDay(year: number, week: number, dayName: strin
     daysFromMonday = jan1Day - 1 // 월요일(1)이면 0일 전
   }
   
-  // 첫 번째 월요일
-  const firstMonday = new Date(jan1)
-  firstMonday.setDate(jan1.getDate() - daysFromMonday)
+  // 첫 번째 월요일 (밀리초 기반 계산)
+  const firstMondayTime = jan1.getTime() - (daysFromMonday * 24 * 60 * 60 * 1000)
+  const firstMonday = new Date(firstMondayTime)
+  firstMonday.setHours(0, 0, 0, 0)
   
   // N주차의 월요일 = 1주차 월요일 + (N-1) * 7일
-  const targetMonday = new Date(firstMonday)
-  targetMonday.setDate(firstMonday.getDate() + (week - 1) * 7)
+  const targetMondayTime = firstMondayTime + ((week - 1) * 7 * 24 * 60 * 60 * 1000)
+  const targetMonday = new Date(targetMondayTime)
+  targetMonday.setHours(0, 0, 0, 0)
   
   // 해당 요일로 이동
   const targetDate = new Date(targetMonday)
   targetDate.setDate(targetMonday.getDate() + dayOffset)
   
-  console.log(`간단한 주차 계산:`, {
+  console.log(`수정된 주차 계산:`, {
     year,
     week,
     dayName,

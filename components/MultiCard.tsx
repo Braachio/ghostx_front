@@ -22,15 +22,36 @@ export default function MultiCard({
 
   // 이벤트 시작 날짜 계산
   const getEventDate = () => {
+    console.log('MultiCard 날짜 계산 디버깅:', {
+      title: multi.title,
+      event_date: multi.event_date,
+      year: multi.year,
+      week: multi.week,
+      multi_day: multi.multi_day
+    })
+    
     if (multi.event_date) {
-      return new Date(multi.event_date)
+      const eventDate = new Date(multi.event_date)
+      console.log('event_date 사용:', {
+        original: multi.event_date,
+        parsed: eventDate.toDateString()
+      })
+      return eventDate
     }
     
     if (multi.year && multi.week && multi.multi_day && multi.multi_day.length > 0) {
       // 첫 번째 요일을 기준으로 날짜 계산
-      return getDateFromWeekAndDay(multi.year, multi.week, multi.multi_day[0])
+      const calculatedDate = getDateFromWeekAndDay(multi.year, multi.week, multi.multi_day[0])
+      console.log('주차 계산 사용:', {
+        year: multi.year,
+        week: multi.week,
+        day: multi.multi_day[0],
+        calculated: calculatedDate?.toDateString()
+      })
+      return calculatedDate
     }
     
+    console.log('날짜 정보 없음')
     return null
   }
 
