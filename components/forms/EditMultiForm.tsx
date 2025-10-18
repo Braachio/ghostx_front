@@ -92,10 +92,7 @@ export default function EditMultiForm({ id }: { id: string }) {
     }
     setSubmitting(true)
     try {
-      // selectedDate에서 year, week 계산
-      const eventDate = new Date(selectedDate + 'T12:00:00')
-      const year = eventDate.getFullYear()
-      const week = Math.ceil((eventDate.getTime() - new Date(year, 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000))
+      // event_date만 사용, year/week는 더 이상 필요 없음
       
       const response = await fetch(`/api/multis/${id}`, {
         method: 'PATCH',
@@ -113,8 +110,6 @@ export default function EditMultiForm({ id }: { id: string }) {
           is_open: true, // 기본적으로 활성으로 유지
           description: description || null,
           link: link || null,
-          year: year,
-          week: week,
           event_date: selectedDate,
         })
       })

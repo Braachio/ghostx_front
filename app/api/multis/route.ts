@@ -95,8 +95,6 @@ export async function GET(req: NextRequest) {
           anonymous_password: null,
           created_at: new Date().toISOString(),
           updated_at: null,
-          year: new Date().getFullYear(),
-          week: Math.ceil((new Date().getTime() - new Date(new Date().getFullYear(), 0, 1).getTime()) / (1000 * 60 * 60 * 24 * 7)),
           event_date: null,
           event_type: 'flash_event',
           is_template_based: false,

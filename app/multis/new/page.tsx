@@ -56,12 +56,7 @@ export default function NewMultiPage() {
     }
     setSubmitting(true)
     try {
-      // 선택된 날짜에서 year, week 계산
-      const selectedDateObj = new Date(selectedDate)
-      const year = selectedDateObj.getFullYear()
-      const week = Math.ceil((selectedDateObj.getTime() - new Date(year, 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000))
-      
-      // 디버깅: 전송되는 데이터 확인
+      // event_date만 사용, year/week는 더 이상 필요 없음
       const submitData = {
         title,
         game,
@@ -73,12 +68,10 @@ export default function NewMultiPage() {
         is_open: true, // 기본적으로 활성으로 등록
         description: description || null,
         link: link || null,
-        year: year,
-        week: week,
         event_date: selectedDate, // 선택된 날짜를 event_date로 설정
       }
       
-      console.log('선택된 날짜:', selectedDate, '계산된 year/week:', year, week)
+      console.log('선택된 날짜:', selectedDate)
       console.log('등록 시 전송되는 데이터:', submitData)
       
       // API 라우트를 통해 등록
