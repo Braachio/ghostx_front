@@ -15,17 +15,13 @@ interface EventCalendarProps {
 const GAME_OPTIONS = [
   { id: 'all', name: '전체', icon: '🎮' },
   { id: 'iracing', name: 'iRacing', icon: '🏁' },
-  { id: 'assetto_corsa', name: 'Assetto Corsa', icon: '🏎️' },
-  { id: 'assetto_corsa_competizione', name: 'Assetto Corsa Competizione', icon: '🏆' },
-  { id: 'f1_2023', name: 'F1 2023', icon: '🏎️' },
-  { id: 'f1_2024', name: 'F1 2024', icon: '🏎️' },
-  { id: 'gran_turismo', name: 'Gran Turismo', icon: '🏁' },
-  { id: 'forza_motorsport', name: 'Forza Motorsport', icon: '🏎️' },
-  { id: 'forza_horizon', name: 'Forza Horizon', icon: '🌅' },
-  { id: 'dirt_rally', name: 'Dirt Rally', icon: '🌲' },
-  { id: 'project_cars', name: 'Project CARS', icon: '🏁' },
-  { id: 'automobilista', name: 'Automobilista', icon: '🏎️' },
-  { id: 'r_factor', name: 'rFactor 2', icon: '🏁' },
+  { id: 'assettocorsa', name: '아세토코르사', icon: '🏎️' },
+  { id: 'gran-turismo7', name: '그란투리스모7', icon: '🏁' },
+  { id: 'competizione', name: '컴페티치오네', icon: '🏆' },
+  { id: 'lemans', name: '르망얼티밋', icon: '🏎️' },
+  { id: 'f1-25', name: 'F1 25', icon: '🏎️' },
+  { id: 'automobilista2', name: '오토모빌리스타2', icon: '🏎️' },
+  { id: 'ea-wrc', name: 'EA WRC', icon: '🌲' },
 ]
 
 const DAYS_OF_WEEK = ['일', '월', '화', '수', '목', '금', '토']
@@ -43,20 +39,6 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
     }
   }, [events, selectedGame])
 
-  // 키보드 단축키
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.metaKey) {
-        const gameIndex = parseInt(e.key) - 1
-        if (gameIndex >= 0 && gameIndex < GAME_OPTIONS.length) {
-          onGameChange?.(GAME_OPTIONS[gameIndex].id)
-        }
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyPress)
-    return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [onGameChange])
 
   // 현재 월의 날짜들 생성
   const getCalendarDays = () => {
@@ -92,17 +74,13 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
   const getGameColor = (game: string) => {
     const colorMap: { [key: string]: string } = {
       'iracing': 'bg-blue-600',
-      'assetto_corsa': 'bg-green-600',
-      'assetto_corsa_competizione': 'bg-yellow-600',
-      'f1_2023': 'bg-red-600',
-      'f1_2024': 'bg-red-600',
-      'gran_turismo': 'bg-purple-600',
-      'forza_motorsport': 'bg-orange-600',
-      'forza_horizon': 'bg-pink-600',
-      'dirt_rally': 'bg-emerald-600',
-      'project_cars': 'bg-cyan-600',
-      'automobilista': 'bg-indigo-600',
-      'r_factor': 'bg-teal-600',
+      'assettocorsa': 'bg-green-600',
+      'gran-turismo7': 'bg-purple-600',
+      'competizione': 'bg-yellow-600',
+      'lemans': 'bg-orange-600',
+      'f1-25': 'bg-red-600',
+      'automobilista2': 'bg-teal-600',
+      'ea-wrc': 'bg-emerald-600',
     }
     return colorMap[game] || 'bg-gray-600'
   }
@@ -164,9 +142,6 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
             <label className="text-sm font-medium text-gray-300">게임 선택</label>
-            <span className="text-xs text-gray-500">
-              Ctrl/Cmd + 숫자로 빠른 선택
-            </span>
           </div>
           <div className="flex flex-wrap gap-2">
             {GAME_OPTIONS.map((game, index) => {
@@ -183,7 +158,7 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
                       ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
                       : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:scale-105'
                   }`}
-                  title={`Ctrl/Cmd + ${index + 1}로 빠른 선택`}
+                  title={game.name}
                 >
                   <span className="mr-2">{game.icon}</span>
                   <span>{game.name}</span>
