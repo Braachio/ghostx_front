@@ -286,6 +286,7 @@ export async function POST(req: NextRequest) {
     week: week,
     author_id: user.id,
     created_at: now.toISOString(),
+    event_date: body.event_date, // event_date 명시적으로 포함
   })
 
   if (insertError) {

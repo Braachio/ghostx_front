@@ -229,47 +229,47 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
       className={`group relative bg-gradient-to-br from-gray-900 to-black border border-gray-700 rounded-xl p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-500/10 hover:-translate-y-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60 ${isOpen ? '' : 'opacity-70'}
       `}
     >
-      {/* 이벤트 날짜/시간 (가독성 좋게 표시) */}
-      <div className="mb-6">
-        <div className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 border border-gray-600/50 rounded-xl p-4 mb-3">
+      {/* 이벤트 날짜/시간 (간단하게 표시) */}
+      <div className="mb-4">
+        <div className="flex items-center gap-3 text-sm text-gray-300">
           {/* 날짜 정보 */}
-          {eventDate ? (
-            <div className={`px-4 py-3 rounded-lg text-center text-xl font-bold mb-3
-              ${isPast ? 'bg-gray-500 text-white' :
-                isToday ? 'bg-red-500 text-white' : 
-                isTomorrow ? 'bg-orange-500 text-white' : 
-                'bg-blue-500 text-white'}`}>
-              {multi.event_type === 'regular_schedule' ? (
-                // 정기 이벤트
-                isToday ? '🔥 오늘' : 
-                isTomorrow ? '⚡ 내일' : 
-                `매주 ${multi.multi_day && multi.multi_day[0]}요일`
-              ) : (
-                // 일반 이벤트
-                isPast ? '📅 종료됨' :
-                isToday ? '🔥 오늘' : 
-                isTomorrow ? '⚡ 내일' : 
-                `${eventDate.getMonth() + 1}월 ${eventDate.getDate()}일 ${['일', '월', '화', '수', '목', '금', '토'][eventDate.getDay()]}요일`
-              )}
-            </div>
-          ) : (
-            // event_date가 없는 경우 기본 정보 표시
-            <div className="px-4 py-3 rounded-lg text-center text-xl font-bold mb-3 bg-gray-600 text-white">
-              {multi.event_type === 'regular_schedule' ? (
-                `매주 ${multi.multi_day && multi.multi_day[0]}요일`
-              ) : (
-                '날짜 미정'
-              )}
-            </div>
-          )}
+          <div className="flex items-center gap-1">
+            <span className="text-gray-400">📅</span>
+            {eventDate ? (
+              <span className={`px-2 py-1 rounded text-xs font-medium ${
+                isPast ? 'bg-gray-600 text-gray-300' :
+                isToday ? 'bg-red-500/20 text-red-400' : 
+                isTomorrow ? 'bg-orange-500/20 text-orange-400' : 
+                'bg-blue-500/20 text-blue-400'
+              }`}>
+                {multi.event_type === 'regular_schedule' ? (
+                  isToday ? '오늘' : 
+                  isTomorrow ? '내일' : 
+                  `매주 ${multi.multi_day && multi.multi_day[0]}`
+                ) : (
+                  isPast ? '종료됨' :
+                  isToday ? '오늘' : 
+                  isTomorrow ? '내일' : 
+                  `${eventDate.getMonth() + 1}/${eventDate.getDate()} ${['일', '월', '화', '수', '목', '금', '토'][eventDate.getDay()]}`
+                )}
+              </span>
+            ) : (
+              <span className="px-2 py-1 rounded text-xs font-medium bg-gray-600 text-gray-300">
+                {multi.event_type === 'regular_schedule' ? 
+                  `매주 ${multi.multi_day && multi.multi_day[0]}` : 
+                  '날짜 미정'
+                }
+              </span>
+            )}
+          </div>
           
           {/* 시간 정보 */}
           {multi.multi_time && (
-            <div className="flex items-center justify-center gap-3">
-              <div className="flex items-center gap-2 px-4 py-2 bg-yellow-500/20 text-yellow-400 rounded-lg border border-yellow-500/30">
-                <span className="text-lg">⏰</span>
-                <span className="text-lg font-semibold">{multi.multi_time}</span>
-              </div>
+            <div className="flex items-center gap-1">
+              <span className="text-gray-400">⏰</span>
+              <span className="px-2 py-1 rounded text-xs font-medium bg-yellow-500/20 text-yellow-400">
+                {multi.multi_time}
+              </span>
             </div>
           )}
         </div>
