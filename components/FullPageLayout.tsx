@@ -149,12 +149,30 @@ export default function FullPageLayout({
             <div className="hidden md:flex items-center gap-3">
               {user ? (
                 <>
-                  <Link
-                    href="/events/regular/new"
-                    className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg shadow-green-500/30"
-                  >
-                    ➕ {t[language].createEvent}
-                  </Link>
+                  {/* 권한에 따른 버튼 표시 */}
+                  {user.role === 'admin' || user.role === 'event_manager' ? (
+                    <>
+                      <Link
+                        href="/events/regular/new"
+                        className="px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all shadow-lg shadow-blue-500/30"
+                      >
+                        📅 정기 갤멀 생성
+                      </Link>
+                      <Link
+                        href="/multis/new"
+                        className="px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white text-sm font-medium rounded-lg hover:from-orange-700 hover:to-red-700 transition-all shadow-lg shadow-orange-500/30"
+                      >
+                        ⚡ 기습 갤멀 생성
+                      </Link>
+                    </>
+                  ) : (
+                    <Link
+                      href="/multis/new"
+                      className="px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white text-sm font-medium rounded-lg hover:from-orange-700 hover:to-red-700 transition-all shadow-lg shadow-orange-500/30"
+                    >
+                      ⚡ 기습 갤멀 생성
+                    </Link>
+                  )}
                   <span className="text-sm bg-gray-800/50 px-3 py-2 rounded-lg border border-gray-700 text-cyan-400">
                     👤 {t[language].welcome(user.nickname)}
                   </span>
@@ -226,7 +244,7 @@ export default function FullPageLayout({
             </h1>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-8 text-white">
               {language === 'ko' ? (
-                <>심레이싱 갤러리 멀티 일정 통합 관리 시스템</>
+                <>심레이싱 게임 갤러리 멀티 일정 통합 관리 시스템</>
               ) : (
                 <>Sim Racing Gallery Multi Schedule Management System</>
               )}

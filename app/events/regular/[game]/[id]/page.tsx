@@ -42,6 +42,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
     author_id: string
     link?: string
     voting_enabled?: boolean
+    views?: number
   } | null>(null)
   const [eventLoading, setEventLoading] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -253,6 +254,15 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
                   <span>{event.game}</span>
                   <span>•</span>
                   <span>{event.multi_day?.join(', ') || 'TBD'}</span>
+                  {event.views !== undefined && (
+                    <>
+                      <span>•</span>
+                      <span className="flex items-center gap-1">
+                        <span>👁️</span>
+                        <span>{event.views.toLocaleString()}회 조회</span>
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
               {user && event.author_id === user.id && (
