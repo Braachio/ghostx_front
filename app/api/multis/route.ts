@@ -66,7 +66,8 @@ export async function GET(req: NextRequest) {
     console.log('GET /api/multis - 쿼리 결과:', {
       dataLength: data?.length || 0,
       error: error?.message || null,
-      firstItem: data?.[0] || null
+      firstItem: data?.[0] || null,
+      allData: data
     })
 
     if (error) {
@@ -102,34 +103,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(data)
   } catch (error) {
     console.error('multis API 에러:', error)
-    // 전체 에러 시에도 더미 데이터 반환
-    const dummyData = [
-      {
-        id: '1',
-        title: '🏁 주말 레이싱 이벤트',
-        game: '컴페티치오네',
-        game_track: 'Seoul Circuit',
-        multi_class: 'GT3',
-        multi_day: ['토', '일'],
-        multi_time: '20:00',
-        multi_race: 'Sprint Race',
-        is_open: true,
-        description: '주말 레이싱 이벤트입니다. 많은 참여 부탁드립니다!',
-        link: null,
-        author_id: 'dummy-author',
-        anonymous_nickname: null,
-        anonymous_password: null,
-        created_at: new Date().toISOString(),
-        updated_at: null,
-        year: new Date().getFullYear(),
-        week: Math.ceil((new Date().getTime() - new Date(new Date().getFullYear(), 0, 1).getTime()) / (1000 * 60 * 60 * 24 * 7)),
-        event_date: null,
-        event_type: 'flash_event',
-        is_template_based: false,
-        template_id: null
-      }
-    ]
-    return NextResponse.json(dummyData)
+    return NextResponse.json({ error: '서버 오류' }, { status: 500 })
   }
 }
 
