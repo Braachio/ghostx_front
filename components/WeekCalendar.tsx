@@ -73,12 +73,8 @@ export default function WeekCalendar({ selectedDate, onDateSelect }: WeekCalenda
 
   return (
     <div className="space-y-4">
-      {/* 캘린더 헤더 */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-lg">📅</span>
-          <h3 className="text-lg font-semibold text-cyan-400">날짜 선택</h3>
-        </div>
+      {/* 월/년도 표시만 */}
+      <div className="flex justify-end">
         <span className="text-sm text-gray-400">
           {new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long' })}
         </span>
@@ -110,7 +106,7 @@ export default function WeekCalendar({ selectedDate, onDateSelect }: WeekCalenda
                   : selectedDate === dayInfo.date
                   ? 'bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30 scale-105'
                   : dayInfo.isToday
-                  ? 'bg-gradient-to-br from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 shadow-lg shadow-orange-500/30'
+                  ? 'bg-transparent text-white border-2 border-orange-400 hover:bg-orange-500/20'
                   : dayInfo.isCurrentMonth
                   ? 'bg-transparent text-white hover:bg-gray-600/40 hover:scale-105'
                   : 'bg-gray-800/20 text-gray-500 hover:bg-gray-600/30'
@@ -121,9 +117,6 @@ export default function WeekCalendar({ selectedDate, onDateSelect }: WeekCalenda
               } ${selectedDate === dayInfo.date ? 'text-white' : ''}`}>
                 {dayInfo.dayOfMonth}
               </div>
-              {dayInfo.isToday && (
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-orange-400 rounded-full animate-pulse"></div>
-              )}
               {selectedDate === dayInfo.date && (
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></div>
               )}
