@@ -169,9 +169,6 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
                   }`}>
                     {gameEventCount}
                   </span>
-                  <span className="ml-1 text-xs opacity-60">
-                    {index + 1}
-                  </span>
                 </button>
               )
             })}
