@@ -107,8 +107,6 @@ export default function MultiDetailPage() {
   if (error) return <p className="p-6 text-red-500 dark:text-red-400">⚠️ {error}</p>
   if (!multi) return <p className="p-6 text-gray-700 dark:text-gray-300">불러오는 중...</p>
 
-  const formattedDate = new Date(multi.created_at)
-  const isValidDate = !isNaN(formattedDate.getTime())
   const isAuthor = user && multi.author_id === user.id
 
   // 게임별 아이콘 매핑
@@ -165,9 +163,6 @@ export default function MultiDetailPage() {
                   <h1 className="text-3xl font-bold text-white mb-2">{multi.title}</h1>
                   <div className="flex items-center gap-4 text-gray-300">
                     <span className="bg-cyan-600/20 px-3 py-1 rounded-lg text-sm">{multi.game}</span>
-                    <span className="text-sm">
-                      {isValidDate ? formattedDate.toLocaleString('ko-KR') : '날짜 정보 없음'}
-                    </span>
                   </div>
                 </div>
                 <div className={`px-4 py-2 rounded-lg font-semibold ${
