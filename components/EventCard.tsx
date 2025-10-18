@@ -37,8 +37,6 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   
-  const isToday = eventDate && eventDate.toDateString() === today.toDateString()
-  const isTomorrow = eventDate && eventDate.toDateString() === new Date(today.getTime() + 24 * 60 * 60 * 1000).toDateString()
   const isPast = eventDate && eventDate < today
 
   // 날짜/시간 정보 포맷팅 함수
@@ -223,13 +221,6 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
     }
   }
 
-  const nextEventDate = getNextEventDate()
-  const formatKoreanDate = (d: Date | null) => {
-    if (!d) return null
-    const dayNames = ['일', '월', '화', '수', '목', '금', '토']
-    const dayName = dayNames[d.getDay()]
-    return `${d.getMonth() + 1}월 ${d.getDate()}일 (${dayName})`
-  }
 
   const truncatedDescription = multi.description && multi.description.length > 140
     ? `${multi.description.slice(0, 140)}…`
