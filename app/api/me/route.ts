@@ -39,7 +39,7 @@ export async function GET() {
 
   const { data: profile, error } = await supabase
     .from('profiles')
-    .select('id, nickname, has_uploaded_data, steam_id')
+    .select('id, nickname, has_uploaded_data, steam_id, role')
     .eq('id', user.id)
     .single()
 
@@ -58,7 +58,7 @@ export async function GET() {
         agreed_terms: true,
         agreed_privacy: true,
       })
-      .select('id, nickname, has_uploaded_data')
+      .select('id, nickname, has_uploaded_data, role')
       .single()
     
     if (insertError || !newProfile) {
@@ -70,7 +70,7 @@ export async function GET() {
   }
 
   // 여기까지 왔으면 finalProfile은 Profile 타입이 확정됨
-  const { nickname, has_uploaded_data, steam_id } = finalProfile
+  const { nickname, has_uploaded_data, steam_id, role } = finalProfile
 
   return NextResponse.json({
     user: {
@@ -80,6 +80,7 @@ export async function GET() {
       nickname,
       has_uploaded_data: has_uploaded_data ?? false,
       steam_id: steam_id || null,
+      role: role || 'user',
       is_steam_user: !!steam_id, // Steam 사용자인지 여부
     },
   })

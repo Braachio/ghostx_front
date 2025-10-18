@@ -37,8 +37,24 @@ export async function GET(req: NextRequest) {
     const start = req.nextUrl.searchParams.get('start')
     const end = req.nextUrl.searchParams.get('end')
 
-    // 간단한 쿼리로 시작 (모든 컬럼 선택, voting_enabled 포함)
-    let query = supabase.from('multis').select('*, voting_enabled')
+    // 필요한 필드만 선택하여 최적화
+    let query = supabase.from('multis').select(`
+      id,
+      title,
+      description,
+      game,
+      game_track,
+      multi_class,
+      multi_day,
+      multi_time,
+      duration_hours,
+      is_open,
+      author_id,
+      link,
+      voting_enabled,
+      created_at,
+      event_type
+    `)
 
     if (start && end) {
       query = query.gte('created_at', start).lte('created_at', end)
