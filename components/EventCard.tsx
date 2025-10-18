@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import type { Database } from '@/lib/database.types'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { MultiWithTemplate } from '@/types/events'
 
@@ -353,24 +352,6 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
         </div>
       )}
 
-      {/* 액션 버튼들 */}
-      {currentUserId && multi.author_id === currentUserId && (
-        <div className="flex items-center justify-end pt-4 border-t border-gray-700">
-          <div className="flex gap-3">
-            {/* 작성자에게만 수정 버튼 표시 */}
-            <Link href={`/multis/${multi.id}/edit`}>
-              <button 
-                className="px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-lg hover:from-orange-700 hover:to-red-700 transition-all font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/60"
-                onClick={(e) => {
-                  e.stopPropagation()
-                }}
-              >
-                ✏️ 수정
-              </button>
-            </Link>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
