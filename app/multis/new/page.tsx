@@ -200,33 +200,39 @@ export default function NewMultiPage() {
             {/* 시간 입력 */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-cyan-400">시간</label>
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 {/* 시간 선택 드롭다운 */}
                 <select 
-                  className="flex-1 px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all" 
-                  value={multiTime} 
-                  onChange={e=>setMultiTime(e.target.value)}
+                  className="w-20 px-2 py-2 bg-gray-800/50 border border-gray-600 rounded text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all" 
+                  value={multiTime.split(':')[0] || ''} 
+                  onChange={e=>{
+                    const minute = multiTime.split(':')[1] || '00'
+                    setMultiTime(`${e.target.value}:${minute}`)
+                  }}
                 >
-                  <option value="">시간 선택</option>
+                  <option value="">시</option>
                   {Array.from({ length: 24 }, (_, i) => {
                     const hour = i.toString().padStart(2, '0')
                     return (
-                      <option key={hour} value={`${hour}:00`}>
-                        {hour}:00
+                      <option key={hour} value={hour}>
+                        {hour}
                       </option>
                     )
                   })}
                 </select>
                 
+                <span className="text-gray-400 text-sm flex items-center">:</span>
+                
                 {/* 분 선택 드롭다운 */}
                 <select 
-                  className="w-24 px-3 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all" 
-                  value={multiTime.split(':')[1] || '00'} 
+                  className="w-16 px-2 py-2 bg-gray-800/50 border border-gray-600 rounded text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all" 
+                  value={multiTime.split(':')[1] || ''} 
                   onChange={e=>{
                     const hour = multiTime.split(':')[0] || '20'
                     setMultiTime(`${hour}:${e.target.value}`)
                   }}
                 >
+                  <option value="">분</option>
                   {Array.from({ length: 12 }, (_, i) => {
                     const minute = (i * 5).toString().padStart(2, '0')
                     return (
@@ -237,9 +243,6 @@ export default function NewMultiPage() {
                   })}
                 </select>
               </div>
-              <p className="text-gray-400 text-sm">
-                시간과 분을 선택하세요 (5분 단위)
-              </p>
             </div>
           </div>
 
