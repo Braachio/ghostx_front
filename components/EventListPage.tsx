@@ -177,7 +177,7 @@ export default function EventListPageSimple({ currentUserId, eventTypeFilter }: 
       created_at: multi.created_at
     })
     
-    // event_date가 있으면 해당 날짜 사용
+    // event_date가 있으면 해당 날짜 사용 (최우선)
     if (multi.event_date) {
       const eventDate = new Date(multi.event_date)
       eventDate.setHours(0, 0, 0, 0)

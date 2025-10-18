@@ -15,7 +15,7 @@ export async function POST(req: Request) {
       클래스, 레이스, 공지
     } = body
 
-    const { year, week } = parseCsvDateToWeek(일자)
+    const { year, week, eventDate } = parseCsvDateToWeek(일자)
     const link = 공지?.startsWith('http') ? 공지 : ''
 
     // 🔍 중복 여부 확인
@@ -51,6 +51,7 @@ export async function POST(req: Request) {
       link,
       year,
       week,
+      event_date: eventDate,
       anonymous_nickname: 'csv업로드',
       anonymous_password: '9999',
       created_at: new Date().toISOString(),
