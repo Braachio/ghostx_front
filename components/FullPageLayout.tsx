@@ -431,7 +431,11 @@ export default function FullPageLayout({
                     상시 서버
                   </h3>
                   <p className="text-gray-300 text-sm mb-6 leading-relaxed">
-                    {language === 'ko' ? '24시간 언제든 접속 가능한<br />상시 운영 서버' : 'Always-on server accessible<br />24 hours a day, anytime'}
+                    {language === 'ko' ? (
+                      <>24시간 언제든 접속 가능한<br />상시 운영 서버</>
+                    ) : (
+                      <>Always-on server accessible<br />24 hours a day, anytime</>
+                    )}
                   </p>
                   <div className="inline-block px-4 py-2 bg-green-900/30 rounded-full border border-green-500/30">
                     <span className="text-green-300 text-sm font-semibold">모든 게임 통합 페이지</span>
@@ -457,7 +461,11 @@ export default function FullPageLayout({
                     리그
                   </h3>
                   <p className="text-gray-300 text-sm mb-6 leading-relaxed">
-                    {language === 'ko' ? '정식 리그 시스템으로 운영되는<br />공식 레이싱 이벤트' : 'Official racing events operated<br />with a formal league system'}
+                    {language === 'ko' ? (
+                      <>정식 리그 시스템으로 운영되는<br />공식 레이싱 이벤트</>
+                    ) : (
+                      <>Official racing events operated<br />with a formal league system</>
+                    )}
                   </p>
                   <div className="inline-block px-4 py-2 bg-purple-900/30 rounded-full border border-purple-500/30">
                     <span className="text-purple-300 text-sm font-semibold">모든 게임 통합 페이지</span>
@@ -483,7 +491,11 @@ export default function FullPageLayout({
                     기습 갤멀
                   </h3>
                   <p className="text-gray-300 text-sm mb-6 leading-relaxed">
-                    {language === 'ko' ? '예고 없이 갑작스럽게 열리는<br />일회성 레이싱 이벤트' : 'One-time racing events that open<br />suddenly without notice'}
+                    {language === 'ko' ? (
+                      <>예고 없이 갑작스럽게 열리는<br />일회성 레이싱 이벤트</>
+                    ) : (
+                      <>One-time racing events that open<br />suddenly without notice</>
+                    )}
                   </p>
                   <div className="inline-block px-4 py-2 bg-orange-900/30 rounded-full border border-orange-500/30">
                     <span className="text-orange-300 text-sm font-semibold">시간 기반 필터링</span>
