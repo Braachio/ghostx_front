@@ -34,10 +34,28 @@ export default function CsvUploadPage() {
 
   useEffect(() => {
     const checkAdmin = async () => {
-      const { data } = await supabase.auth.getUser()
-      const user = data?.user
-      if (user && user.email === 'josanghn@gmail.com') {
+      const { data: { user } } = await supabase.auth.getUser()
+      console.log('CSV 업로드 페이지 - 사용자 확인:', { user: user?.email, userId: user?.id })
+      
+      if (!user) {
+        console.log('사용자가 로그인되지 않음')
+        return
+      }
+
+      // profiles 테이블에서 사용자 역할 확인
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+
+      console.log('프로필 조회 결과:', { profile, error })
+
+      if (profile && (profile.role === 'admin' || profile.role === 'event_manager')) {
+        console.log('관리자 권한 확인됨:', profile.role)
         setIsAdmin(true)
+      } else {
+        console.log('관리자 권한 없음:', profile?.role)
       }
     }
     checkAdmin()
