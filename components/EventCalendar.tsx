@@ -43,6 +43,21 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
     }
   }, [events, selectedGame])
 
+  // 키보드 단축키
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        const gameIndex = parseInt(e.key) - 1
+        if (gameIndex >= 0 && gameIndex < GAME_OPTIONS.length) {
+          onGameChange?.(GAME_OPTIONS[gameIndex].id)
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [onGameChange])
+
   // 현재 월의 날짜들 생성
   const getCalendarDays = () => {
     const year = currentDate.getFullYear()
@@ -71,6 +86,25 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
       if (!event.multi_day || !Array.isArray(event.multi_day)) return false
       return event.multi_day.includes(dateStr)
     })
+  }
+
+  // 게임별 색상 매핑
+  const getGameColor = (game: string) => {
+    const colorMap: { [key: string]: string } = {
+      'iracing': 'bg-blue-600',
+      'assetto_corsa': 'bg-green-600',
+      'assetto_corsa_competizione': 'bg-yellow-600',
+      'f1_2023': 'bg-red-600',
+      'f1_2024': 'bg-red-600',
+      'gran_turismo': 'bg-purple-600',
+      'forza_motorsport': 'bg-orange-600',
+      'forza_horizon': 'bg-pink-600',
+      'dirt_rally': 'bg-emerald-600',
+      'project_cars': 'bg-cyan-600',
+      'automobilista': 'bg-indigo-600',
+      'r_factor': 'bg-teal-600',
+    }
+    return colorMap[game] || 'bg-gray-600'
   }
 
   // 날짜가 현재 월인지 확인
@@ -128,22 +162,44 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
       {/* 게임 필터 */}
       {onGameChange && (
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-300 mb-3">게임 선택</label>
+          <div className="flex items-center justify-between mb-3">
+            <label className="text-sm font-medium text-gray-300">게임 선택</label>
+            <span className="text-xs text-gray-500">
+              Ctrl/Cmd + 숫자로 빠른 선택
+            </span>
+          </div>
           <div className="flex flex-wrap gap-2">
-            {GAME_OPTIONS.map((game) => (
-              <button
-                key={game.id}
-                onClick={() => onGameChange(game.id)}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  selectedGame === game.id
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                }`}
-              >
-                <span className="mr-1">{game.icon}</span>
-                {game.name}
-              </button>
-            ))}
+            {GAME_OPTIONS.map((game, index) => {
+              const gameEventCount = game.id === 'all' 
+                ? events.length 
+                : events.filter(event => event.game === game.id).length
+              
+              return (
+                <button
+                  key={game.id}
+                  onClick={() => onGameChange(game.id)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    selectedGame === game.id
+                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
+                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:scale-105'
+                  }`}
+                  title={`Ctrl/Cmd + ${index + 1}로 빠른 선택`}
+                >
+                  <span className="mr-2">{game.icon}</span>
+                  <span>{game.name}</span>
+                  <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
+                    selectedGame === game.id
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-600 text-gray-300'
+                  }`}>
+                    {gameEventCount}
+                  </span>
+                  <span className="ml-1 text-xs opacity-60">
+                    {index + 1}
+                  </span>
+                </button>
+              )
+            })}
           </div>
         </div>
       )}
@@ -182,14 +238,19 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
                   <Link
                     key={event.id}
                     href={`/events/regular/${event.game}/${event.id}`}
-                    className="block p-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors truncate"
-                    title={event.title}
+                    className={`block p-1 text-white text-xs rounded hover:opacity-80 transition-all duration-200 truncate ${getGameColor(event.game)}`}
+                    title={`${event.title} (${event.game})`}
                   >
-                    {event.title}
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs opacity-75">
+                        {GAME_OPTIONS.find(g => g.id === event.game)?.icon || '🎮'}
+                      </span>
+                      <span className="truncate">{event.title}</span>
+                    </div>
                   </Link>
                 ))}
                 {dayEvents.length > 3 && (
-                  <div className="text-xs text-gray-400">
+                  <div className="text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded">
                     +{dayEvents.length - 3}개 더
                   </div>
                 )}
@@ -202,14 +263,20 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
       {/* 이벤트 통계 */}
       <div className="mt-6 p-4 bg-gray-800 rounded-lg">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-300">
-            총 {filteredEvents.length}개의 이벤트
-          </span>
-          {selectedGame !== 'all' && (
-            <span className="text-blue-400">
-              {GAME_OPTIONS.find(g => g.id === selectedGame)?.name} 필터 적용
+          <div className="flex items-center gap-4">
+            <span className="text-gray-300">
+              총 {filteredEvents.length}개의 이벤트
             </span>
-          )}
+            {selectedGame !== 'all' && (
+              <span className="text-blue-400 flex items-center gap-1">
+                <span>{GAME_OPTIONS.find(g => g.id === selectedGame)?.icon}</span>
+                {GAME_OPTIONS.find(g => g.id === selectedGame)?.name} 필터 적용
+              </span>
+            )}
+          </div>
+          <div className="text-xs text-gray-400">
+            {currentDate.getFullYear()}년 {currentDate.getMonth() + 1}월
+          </div>
         </div>
       </div>
     </div>
