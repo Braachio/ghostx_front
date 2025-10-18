@@ -164,6 +164,7 @@ export default function EventListPageSimple({ currentUserId, eventTypeFilter }: 
   // 이벤트가 과거인지 미래인지 판단하는 함수
   const isEventPast = (multi: MultiWithTemplate) => {
     const now = new Date()
+    // 로컬 시간 기준으로 오늘 날짜 계산
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     
     // event_date가 있으면 해당 날짜 사용
