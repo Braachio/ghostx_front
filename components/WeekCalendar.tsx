@@ -100,25 +100,29 @@ export default function WeekCalendar({ selectedDate, onDateSelect }: WeekCalenda
         </div>
         
         {/* 월 네비게이션 */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button
             onClick={goToPreviousMonth}
-            className="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white transition-colors"
+            className="p-2 rounded-lg bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white transition-all duration-200 hover:scale-105 shadow-md hover:shadow-lg"
             title="이전 달"
           >
-            <span className="text-sm">‹</span>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
           </button>
           
-          <span className="text-sm text-gray-400 min-w-[120px] text-center">
+          <span className="text-sm text-gray-300 min-w-[120px] text-center font-medium">
             {currentYear}년 {currentMonth + 1}월
           </span>
           
           <button
             onClick={goToNextMonth}
-            className="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white transition-colors"
+            className="p-2 rounded-lg bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white transition-all duration-200 hover:scale-105 shadow-md hover:shadow-lg"
             title="다음 달"
           >
-            <span className="text-sm">›</span>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
           </button>
         </div>
       </div>
