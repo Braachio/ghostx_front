@@ -77,19 +77,50 @@ export async function GET() {
 
     const player: SteamPlayer = profileData.response.players[0]
 
-    // 2. 소유한 게임 목록 가져오기
+    // 2. 레이싱 게임만 필터링하여 가져오기
     const gamesUrl = `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${STEAM_API_KEY}&steamid=${steamId}&include_appinfo=true&include_played_free_games=true`
     const gamesResponse = await fetch(gamesUrl)
     const gamesData = await gamesResponse.json()
 
-    const games: SteamGame[] = gamesData.response?.games || []
+    const allGames: SteamGame[] = gamesData.response?.games || []
+    
+    // 레이싱 게임 필터링 (앱 ID 기반)
+    const racingGameAppIds = [
+      2315,    // iRacing
+      244210,  // Assetto Corsa
+      1446780, // Gran Turismo 7
+      805550,  // Assetto Corsa Competizione
+      2420500, // Le Mans Ultimate
+      2420500, // F1 25
+      1066890, // Automobilista 2
+      2073850, // EA WRC
+    ]
+    
+    const racingGames = allGames.filter(game => 
+      racingGameAppIds.includes(game.appid) ||
+      game.name.toLowerCase().includes('racing') ||
+      game.name.toLowerCase().includes('sim') ||
+      game.name.toLowerCase().includes('track') ||
+      game.name.toLowerCase().includes('formula') ||
+      game.name.toLowerCase().includes('gt') ||
+      game.name.toLowerCase().includes('f1')
+    )
 
-    // 3. 최근 플레이한 게임 가져오기
+    // 3. 최근 플레이한 게임 가져오기 (레이싱 게임만)
     const recentGamesUrl = `https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v1/?key=${STEAM_API_KEY}&steamid=${steamId}&count=10`
     const recentGamesResponse = await fetch(recentGamesUrl)
     const recentGamesData = await recentGamesResponse.json()
 
-    const recentGames: SteamGame[] = recentGamesData.response?.games || []
+    const allRecentGames: SteamGame[] = recentGamesData.response?.games || []
+    const recentRacingGames = allRecentGames.filter(game => 
+      racingGameAppIds.includes(game.appid) ||
+      game.name.toLowerCase().includes('racing') ||
+      game.name.toLowerCase().includes('sim') ||
+      game.name.toLowerCase().includes('track') ||
+      game.name.toLowerCase().includes('formula') ||
+      game.name.toLowerCase().includes('gt') ||
+      game.name.toLowerCase().includes('f1')
+    )
 
     return NextResponse.json({
       profile: {
@@ -100,7 +131,7 @@ export async function GET() {
         avatarMedium: player.avatarmedium,
         accountCreated: player.timecreated ? new Date(player.timecreated * 1000).toISOString() : null,
       },
-      games: games.map(game => ({
+      racingGames: racingGames.map(game => ({
         appId: game.appid,
         name: game.name,
         playtimeForever: game.playtime_forever,
@@ -112,7 +143,7 @@ export async function GET() {
           ? `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_logo_url}.jpg`
           : null,
       })),
-      recentGames: recentGames.map(game => ({
+      recentRacingGames: recentRacingGames.map(game => ({
         appId: game.appid,
         name: game.name,
         playtimeForever: game.playtime_forever,
@@ -121,8 +152,8 @@ export async function GET() {
           ? `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`
           : null,
       })),
-      totalGames: games.length,
-      totalPlaytime: games.reduce((sum, game) => sum + game.playtime_forever, 0),
+      totalRacingGames: racingGames.length,
+      totalRacingPlaytime: racingGames.reduce((sum, game) => sum + game.playtime_forever, 0),
     })
   } catch (error) {
     console.error('Steam profile fetch error:', error)
