@@ -30,16 +30,18 @@ export default function WeekCalendar({ selectedDate, onDateSelect }: WeekCalenda
     const currentDate = new Date(startDate)
     
     while (currentDate <= endDate) {
-      const isCurrentMonth = currentDate.getMonth() === currentMonth
-      const isToday = currentDate.toDateString() === now.toDateString()
-      const isPast = currentDate < now && !isToday
+      // 새로운 Date 객체 생성 (참조 문제 방지)
+      const dateObj = new Date(currentDate)
+      const isCurrentMonth = dateObj.getMonth() === currentMonth
+      const isToday = dateObj.toDateString() === now.toDateString()
+      const isPast = dateObj < now && !isToday
       
       dates.push({
-        date: currentDate.toISOString().split('T')[0],
-        day: currentDate.getDay(),
-        dayName: ['일', '월', '화', '수', '목', '금', '토'][currentDate.getDay()],
-        month: currentDate.getMonth() + 1,
-        dayOfMonth: currentDate.getDate(),
+        date: dateObj.toISOString().split('T')[0],
+        day: dateObj.getDay(),
+        dayName: ['일', '월', '화', '수', '목', '금', '토'][dateObj.getDay()],
+        month: dateObj.getMonth() + 1,
+        dayOfMonth: dateObj.getDate(),
         isCurrentMonth,
         isToday,
         isPast
@@ -54,6 +56,8 @@ export default function WeekCalendar({ selectedDate, onDateSelect }: WeekCalenda
   const calendarDates = getCurrentMonthCalendar()
 
   const handleDateClick = (date: string) => {
+    console.log('캘린더에서 선택된 날짜:', date)
+    console.log('선택된 날짜 객체:', new Date(date))
     onDateSelect(date)
   }
 

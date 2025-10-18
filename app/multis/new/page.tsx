@@ -27,10 +27,13 @@ export default function NewMultiPage() {
   }
 
   const handleDateSelect = (date: string) => {
+    console.log('multis/new에서 받은 날짜:', date)
+    console.log('날짜 파싱 결과:', new Date(date))
     setSelectedDate(date)
     // 선택된 날짜의 요일을 자동으로 설정
     const selectedDateObj = new Date(date)
     const dayName = ['일', '월', '화', '수', '목', '금', '토'][selectedDateObj.getDay()]
+    console.log('계산된 요일:', dayName)
     setMultiDay([dayName])
   }
 
