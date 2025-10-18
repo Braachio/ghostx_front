@@ -16,6 +16,17 @@ interface MultiCsvRow {
   공지: string
 }
 
+interface CalendarEvent {
+  id: string
+  date: string // YYYY-MM-DD 형식
+  time: string
+  game: string
+  track: string
+  carClass: string
+  race: string
+  link: string
+}
+
 // ✅ 게임 이름 정규화 함수
 function normalizeGameName(game: string): string {
   return game
@@ -31,6 +42,17 @@ export default function CsvUploadPage() {
   const [isAdmin, setIsAdmin] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [message, setMessage] = useState('')
+  const [useCalendar, setUseCalendar] = useState(false)
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([])
+  const [selectedDate, setSelectedDate] = useState<string>('')
+  const [newEvent, setNewEvent] = useState<Partial<CalendarEvent>>({
+    time: '',
+    game: '',
+    track: '',
+    carClass: '',
+    race: '',
+    link: ''
+  })
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -60,6 +82,85 @@ export default function CsvUploadPage() {
     }
     checkAdmin()
   }, [supabase])
+
+  // 캘린더 이벤트 추가
+  const addCalendarEvent = () => {
+    if (!selectedDate || !newEvent.time || !newEvent.game || !newEvent.track || !newEvent.link) {
+      alert('모든 필수 필드를 입력해주세요.')
+      return
+    }
+
+    const event: CalendarEvent = {
+      id: Date.now().toString(),
+      date: selectedDate,
+      time: newEvent.time,
+      game: normalizeGameName(newEvent.game),
+      track: newEvent.track,
+      carClass: newEvent.carClass || '',
+      race: newEvent.race || '',
+      link: newEvent.link
+    }
+
+    setCalendarEvents(prev => [...prev, event])
+    setNewEvent({
+      time: '',
+      game: '',
+      track: '',
+      carClass: '',
+      race: '',
+      link: ''
+    })
+  }
+
+  // 캘린더 이벤트 삭제
+  const removeCalendarEvent = (id: string) => {
+    setCalendarEvents(prev => prev.filter(event => event.id !== id))
+  }
+
+  // 캘린더 이벤트 일괄 등록
+  const registerCalendarEvents = async () => {
+    if (calendarEvents.length === 0) {
+      alert('등록할 이벤트가 없습니다.')
+      return
+    }
+
+    setUploading(true)
+    let successCount = 0
+    let failCount = 0
+
+    try {
+      for (const event of calendarEvents) {
+        const res = await fetch('/api/auto-register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            일자: event.date,
+            요일: new Date(event.date).toLocaleDateString('ko-KR', { weekday: 'short' }),
+            시간: event.time,
+            게임: event.game,
+            서킷: event.track,
+            클래스: event.carClass,
+            레이스: event.race,
+            공지: event.link
+          }),
+        })
+
+        if (res.ok) {
+          successCount++
+        } else {
+          failCount++
+        }
+      }
+
+      setMessage(`✅ ${successCount}개 등록 완료\n❌ ${failCount}개 실패`)
+      setCalendarEvents([])
+    } catch (error) {
+      console.error('등록 실패:', error)
+      setMessage('등록 중 오류가 발생했습니다.')
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const handleCsvUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

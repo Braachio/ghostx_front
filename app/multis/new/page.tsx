@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { getCurrentWeekInfo, getWeekDateRange, getFlashEventWeekOptions } from '@/app/utils/weekUtils'
+import WeekCalendar from '@/components/WeekCalendar'
 
 const GAME_OPTIONS = ['컴페티치오네','아세토코르사','그란투리스모7','르망얼티밋','EA WRC','아이레이싱','알펙터2', 'F1 25', '오토모빌리스타2']
 const DAY_OPTIONS = ['월','화','수','목','금','토','일']
@@ -19,13 +19,19 @@ export default function NewMultiPage() {
   const [multiTime, setMultiTime] = useState('')
   const [link, setLink] = useState('')
   const [description, setDescription] = useState('')
-  const currentWeekInfo = getCurrentWeekInfo()
-  const [year] = useState<number>(currentWeekInfo.year) // 연도는 현재 연도로 고정
-  const [week, setWeek] = useState<number>(currentWeekInfo.week)
+  const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   const toggleDay = (d: string) => {
     setMultiDay(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d])
+  }
+
+  const handleDateSelect = (date: string) => {
+    setSelectedDate(date)
+    // 선택된 날짜의 요일을 자동으로 설정
+    const selectedDateObj = new Date(date)
+    const dayName = ['일', '월', '화', '수', '목', '금', '토'][selectedDateObj.getDay()]
+    setMultiDay([dayName])
   }
 
 
@@ -33,12 +39,17 @@ export default function NewMultiPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!title.trim() || !game.trim() || !gameTrack.trim() || multiDay.length === 0) {
-      alert('제목/게임/트랙/요일은 필수입니다.')
+    if (!title.trim() || !game.trim() || !gameTrack.trim() || !selectedDate) {
+      alert('제목/게임/트랙/날짜는 필수입니다.')
       return
     }
     setSubmitting(true)
     try {
+      // 선택된 날짜에서 year, week 계산
+      const selectedDateObj = new Date(selectedDate)
+      const year = selectedDateObj.getFullYear()
+      const week = Math.ceil((selectedDateObj.getTime() - new Date(year, 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000))
+      
       // 디버깅: 전송되는 데이터 확인
       const submitData = {
         title,
@@ -51,13 +62,13 @@ export default function NewMultiPage() {
         is_open: true, // 기본적으로 활성으로 등록
         description: description || null,
         link: link || null,
-        year: year, // 현재 연도로 고정
-        week: week ?? null,
+        year: year,
+        week: week,
+        event_date: selectedDate, // 선택된 날짜를 event_date로 설정
       }
       
+      console.log('선택된 날짜:', selectedDate, '계산된 year/week:', year, week)
       console.log('등록 시 전송되는 데이터:', submitData)
-      console.log('현재 week 상태:', week)
-      console.log('현재 year 상태:', year)
       
       // API 라우트를 통해 등록
       const response = await fetch('/api/multis', {
@@ -163,32 +174,16 @@ export default function NewMultiPage() {
               <h2 className="text-xl font-semibold text-white">일정 정보</h2>
             </div>
             
-            {/* 주차 선택 */}
+            {/* 날짜 선택 */}
             <div className="mb-6">
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-cyan-400">주차</label>
-                <select 
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all" 
-                  value={week} 
-                  onChange={e => {
-                    const newWeek = parseInt(e.target.value)
-                    console.log('주차 변경:', newWeek)
-                    setWeek(newWeek)
-                  }}
-                >
-                  {getFlashEventWeekOptions(year).map(option => {
-                    const { start, end } = getWeekDateRange(year, option.value)
-                    const startStr = `${start.getMonth() + 1}/${start.getDate()}`
-                    const endStr = `${end.getMonth() + 1}/${end.getDate()}`
-                    return (
-                      <option key={option.value} value={option.value}>
-                        {option.label} ({option.value}주차) - {startStr} ~ {endStr}
-                      </option>
-                    )
-                  })}
-                </select>
-                <p className="text-gray-400 text-sm mt-1">
-                  연도: {year}년 (자동 설정)
+              <div className="space-y-4">
+                <label className="block text-sm font-medium text-cyan-400">날짜 선택</label>
+                <WeekCalendar 
+                  selectedDate={selectedDate} 
+                  onDateSelect={handleDateSelect} 
+                />
+                <p className="text-gray-400 text-sm">
+                  이번주와 다음주 중에서 날짜를 선택하세요
                 </p>
               </div>
             </div>
@@ -196,14 +191,15 @@ export default function NewMultiPage() {
             {/* 요일과 시간 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-cyan-400">요일 *</label>
-                <div className="flex flex-wrap gap-2">
-                  {DAY_OPTIONS.map(d => (
-                    <label key={d} className={`px-3 py-2 rounded-lg border cursor-pointer transition-all hover:scale-105 text-sm ${multiDay.includes(d)?'bg-gradient-to-r from-cyan-600 to-blue-600 text-white border-cyan-500 shadow-lg shadow-cyan-500/25':'bg-gray-800/50 text-gray-300 border-gray-600 hover:border-gray-500'}`}>
-                      <input type="checkbox" className="hidden" checked={multiDay.includes(d)} onChange={()=>toggleDay(d)} />
-                      <span className="font-medium">{d}</span>
-                    </label>
-                  ))}
+                <label className="block text-sm font-medium text-cyan-400">요일 (자동 설정)</label>
+                <div className="px-4 py-3 bg-gray-800/30 border border-gray-600 rounded-lg text-gray-300">
+                  {multiDay.length > 0 ? (
+                    <span className="text-cyan-400 font-medium">
+                      {multiDay.join(', ')} - 선택된 날짜에 따라 자동 설정됨
+                    </span>
+                  ) : (
+                    <span>날짜를 선택하면 자동으로 설정됩니다</span>
+                  )}
                 </div>
               </div>
               <div className="space-y-2">
