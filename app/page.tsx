@@ -6,6 +6,7 @@ import { useSupabaseClient } from '@supabase/auth-helpers-react'
 import Image from 'next/image'
 import Footer from '@/components/Footer'
 import CookieConsentBanner from '@/components/CookieConsentBanner'
+import GameInterestModal from '@/components/GameInterestModal'
 
 interface MeResponse {
   id: string
@@ -17,6 +18,8 @@ export default function HomePage() {
   const [language, setLanguage] = useState<'ko' | 'en'>('ko')
   const [views, setViews] = useState<number | null>(null)
   const [mounted, setMounted] = useState(false)
+  const [showGameInterestModal, setShowGameInterestModal] = useState(false)
+  const [hasCheckedGameInterest, setHasCheckedGameInterest] = useState(false)
   const supabase = useSupabaseClient()
 
   // 번역 텍스트
@@ -84,6 +87,20 @@ export default function HomePage() {
         if (meRes.ok) {
           const { user } = await meRes.json()
           setUser(user)
+          
+          // 스팀 로그인 사용자이고 관심게임 설정을 확인하지 않은 경우
+          if (user && user.id && !hasCheckedGameInterest) {
+            // 관심게임 설정 여부 확인
+            const interestRes = await fetch('/api/user-interest-games')
+            if (interestRes.ok) {
+              const { games } = await interestRes.json()
+              if (!games || games.length === 0) {
+                // 관심게임이 설정되지 않은 경우 모달 표시
+                setShowGameInterestModal(true)
+              }
+            }
+            setHasCheckedGameInterest(true)
+          }
         } else {
           setUser(null)
         }
@@ -94,8 +111,15 @@ export default function HomePage() {
     }
 
     loadUserAndViews()
-  }, [mounted])
+  }, [mounted, hasCheckedGameInterest])
 
+  const handleGameInterestComplete = () => {
+    setShowGameInterestModal(false)
+  }
+
+  const handleGameInterestClose = () => {
+    setShowGameInterestModal(false)
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 text-white py-6 sm:py-8">
@@ -402,7 +426,14 @@ export default function HomePage() {
 
       <Footer />
       {/* 쿠키 설정 */}
-      <CookieConsentBanner />      
+      <CookieConsentBanner />
+      
+      {/* 관심게임 설정 모달 */}
+      <GameInterestModal
+        isOpen={showGameInterestModal}
+        onClose={handleGameInterestClose}
+        onComplete={handleGameInterestComplete}
+      />
     </main>
   )
 }
