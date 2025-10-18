@@ -242,11 +242,65 @@ export default function EventListPageSimple({ currentUserId, eventTypeFilter }: 
       }
     }
     
+    // 날짜 정보가 없으면 제목에서 날짜 추출 시도
+    if (multi.title) {
+      // 제목에서 날짜 패턴 찾기 (예: "10/10", "10/09", "10월 10일" 등)
+      const datePatterns = [
+        /(\d{1,2})\/(\d{1,2})/,  // MM/DD 형식
+        /(\d{1,2})월\s*(\d{1,2})일/,  // MM월 DD일 형식
+        /(\d{4})-(\d{1,2})-(\d{1,2})/,  // YYYY-MM-DD 형식
+      ]
+      
+      for (const pattern of datePatterns) {
+        const match = multi.title.match(pattern)
+        if (match) {
+          let month, day, year
+          
+          if (pattern.source.includes('월')) {
+            // MM월 DD일 형식
+            month = parseInt(match[1])
+            day = parseInt(match[2])
+            year = new Date().getFullYear()
+          } else if (match.length === 4) {
+            // YYYY-MM-DD 형식
+            year = parseInt(match[1])
+            month = parseInt(match[2])
+            day = parseInt(match[3])
+          } else {
+            // MM/DD 형식
+            month = parseInt(match[1])
+            day = parseInt(match[2])
+            year = new Date().getFullYear()
+          }
+          
+          const eventDate = new Date(year, month - 1, day)
+          const eventDay = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate())
+          const isPast = eventDay < today
+          
+          console.log('제목에서 날짜 추출 결과:', {
+            title: multi.title,
+            extractedDate: eventDate.toISOString(),
+            eventDay: eventDay.toISOString(),
+            today: today.toISOString(),
+            isPast
+          })
+          
+          return isPast
+        }
+      }
+    }
+    
     // 날짜 정보가 없으면 created_at 기준으로 판단
     if (multi.created_at) {
       const createdDate = new Date(multi.created_at)
       const daysDiff = Math.floor((today.getTime() - createdDate.getTime()) / (24 * 60 * 60 * 1000))
       // 생성된지 7일 이상 지났으면 과거로 간주
+      console.log('created_at 기준 판단:', {
+        title: multi.title,
+        createdDate: createdDate.toISOString(),
+        daysDiff,
+        isPast: daysDiff > 7
+      })
       return daysDiff > 7
     }
     
