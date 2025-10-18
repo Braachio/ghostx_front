@@ -113,19 +113,6 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
     return { pastDates, futureDates }
   }
 
-  // 다음 이벤트 날짜 계산 (미래 날짜만)
-  const getNextEventDate = () => {
-    const { futureDates } = getEventDates()
-    
-    if (futureDates.length === 0) {
-      return null
-    }
-    
-    // 가장 가까운 미래 날짜 반환
-    return futureDates.reduce((closest, current) => 
-      current < closest ? current : closest
-    )
-  }
 
 
   // 시간대 라벨 생성 (지난 이벤트와 미래 이벤트 구분)
