@@ -36,8 +36,14 @@ export default function WeekCalendar({ selectedDate, onDateSelect }: WeekCalenda
       const isToday = dateObj.toDateString() === now.toDateString()
       const isPast = dateObj < now && !isToday
       
+      // 로컬 시간을 사용하여 타임존 문제 방지
+      const year = dateObj.getFullYear()
+      const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+      const day = String(dateObj.getDate()).padStart(2, '0')
+      const localDateString = `${year}-${month}-${day}`
+      
       dates.push({
-        date: dateObj.toISOString().split('T')[0],
+        date: localDateString,
         day: dateObj.getDay(),
         dayName: ['일', '월', '화', '수', '목', '금', '토'][dateObj.getDay()],
         month: dateObj.getMonth() + 1,
@@ -56,8 +62,12 @@ export default function WeekCalendar({ selectedDate, onDateSelect }: WeekCalenda
   const calendarDates = getCurrentMonthCalendar()
 
   const handleDateClick = (date: string) => {
-    console.log('캘린더에서 선택된 날짜:', date)
-    console.log('선택된 날짜 객체:', new Date(date))
+    console.log('=== 캘린더 날짜 선택 디버깅 ===')
+    console.log('선택된 날짜 문자열:', date)
+    console.log('Date 객체 생성:', new Date(date))
+    console.log('Date 객체 로컬 시간:', new Date(date).toLocaleString('ko-KR'))
+    console.log('Date 객체 UTC 시간:', new Date(date).toISOString())
+    console.log('현재 시간:', new Date().toLocaleString('ko-KR'))
     onDateSelect(date)
   }
 

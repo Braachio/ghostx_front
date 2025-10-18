@@ -27,12 +27,24 @@ export default function NewMultiPage() {
   }
 
   const handleDateSelect = (date: string) => {
-    console.log('multis/new에서 받은 날짜:', date)
-    console.log('날짜 파싱 결과:', new Date(date))
+    console.log('=== multis/new 날짜 처리 디버깅 ===')
+    console.log('받은 날짜 문자열:', date)
+    
+    // 날짜 파싱 방법들 비교
+    const method1 = new Date(date)
+    const method2 = new Date(date + 'T00:00:00')
+    const method3 = new Date(date + 'T12:00:00')
+    
+    console.log('방법1 (기본):', method1, method1.toLocaleString('ko-KR'))
+    console.log('방법2 (자정):', method2, method2.toLocaleString('ko-KR'))
+    console.log('방법3 (정오):', method3, method3.toLocaleString('ko-KR'))
+    
     setSelectedDate(date)
-    // 선택된 날짜의 요일을 자동으로 설정
-    const selectedDateObj = new Date(date)
+    
+    // 정오 시간으로 파싱하여 타임존 문제 방지
+    const selectedDateObj = new Date(date + 'T12:00:00')
     const dayName = ['일', '월', '화', '수', '목', '금', '토'][selectedDateObj.getDay()]
+    console.log('최종 선택된 날짜:', selectedDateObj.toLocaleString('ko-KR'))
     console.log('계산된 요일:', dayName)
     setMultiDay([dayName])
   }
