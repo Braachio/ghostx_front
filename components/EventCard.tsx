@@ -75,19 +75,6 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
   }
 
 
-  // 요일별 색상 매핑
-  const getDayColor = (day: string) => {
-    const dayColors: Record<string, string> = {
-      '월': 'text-blue-400 bg-blue-500/20',
-      '화': 'text-green-400 bg-green-500/20',
-      '수': 'text-purple-400 bg-purple-500/20',
-      '목': 'text-orange-400 bg-orange-500/20',
-      '금': 'text-pink-400 bg-pink-500/20',
-      '토': 'text-cyan-400 bg-cyan-500/20',
-      '일': 'text-red-400 bg-red-500/20'
-    }
-    return dayColors[day] || 'text-gray-400 bg-gray-500/20'
-  }
 
 
   // 이벤트 날짜 계산 (event_date만 사용)
@@ -243,27 +230,39 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
       className={`group relative bg-gradient-to-br from-gray-900 to-black border border-gray-700 rounded-xl p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-500/10 hover:-translate-y-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60 ${isOpen ? '' : 'opacity-70'}
       `}
     >
-      {/* 이벤트 시작 날짜 (가장 눈에 띄게) */}
-      {eventDate && (
-        <div className={`mb-4 px-4 py-2 rounded-lg text-center text-base font-bold
-          ${isPast ? 'bg-gray-500 text-white' :
-            isToday ? 'bg-red-500 text-white' : 
-            isTomorrow ? 'bg-orange-500 text-white' : 
-            'bg-blue-500 text-white'}`}>
-          {multi.event_type === 'regular_schedule' ? (
-            // 정기 이벤트
-            isToday ? '🔥 오늘' : 
-            isTomorrow ? '⚡ 내일' : 
-            `매주 ${multi.multi_day && multi.multi_day[0]}요일`
-          ) : (
-            // 일반 이벤트
-            isPast ? '📅 종료됨' :
-            isToday ? '🔥 오늘' : 
-            isTomorrow ? '⚡ 내일' : 
-            `${eventDate.getMonth() + 1}/${eventDate.getDate()} ${['일', '월', '화', '수', '목', '금', '토'][eventDate.getDay()]}`
-          )}
-        </div>
-      )}
+      {/* 이벤트 날짜/시간 (한눈에 보기 쉽게) */}
+      <div className="mb-4">
+        {eventDate && (
+          <div className={`px-4 py-3 rounded-lg text-center text-lg font-bold mb-2
+            ${isPast ? 'bg-gray-500 text-white' :
+              isToday ? 'bg-red-500 text-white' : 
+              isTomorrow ? 'bg-orange-500 text-white' : 
+              'bg-blue-500 text-white'}`}>
+            {multi.event_type === 'regular_schedule' ? (
+              // 정기 이벤트
+              isToday ? '🔥 오늘' : 
+              isTomorrow ? '⚡ 내일' : 
+              `매주 ${multi.multi_day && multi.multi_day[0]}요일`
+            ) : (
+              // 일반 이벤트
+              isPast ? '📅 종료됨' :
+              isToday ? '🔥 오늘' : 
+              isTomorrow ? '⚡ 내일' : 
+              `${eventDate.getMonth() + 1}/${eventDate.getDate()} ${['일', '월', '화', '수', '목', '금', '토'][eventDate.getDay()]}`
+            )}
+          </div>
+        )}
+        
+        {/* 시간 정보 */}
+        {multi.multi_time && (
+          <div className="text-center">
+            <span className="inline-flex items-center gap-2 px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-sm font-medium">
+              <span>⏰</span>
+              <span>{multi.multi_time}</span>
+            </span>
+          </div>
+        )}
+      </div>
 
       {/* 정기 이벤트 표시 */}
       {multi.event_type === 'regular_schedule' && (
@@ -336,22 +335,6 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
             <span className="text-gray-400 text-sm">클래스:</span>
             <span className="text-white font-medium text-sm">{multi.multi_class}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-purple-400">📅</span>
-            <span className="text-gray-400 text-sm">요일:</span>
-            <div className="flex flex-wrap gap-1">
-              {multi.multi_day.map(day => (
-                <span key={day} className={`px-2 py-0.5 rounded-full text-xs font-medium ${getDayColor(day)}`}>
-                  {day}
-                </span>
-              ))}
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-yellow-400">⏰</span>
-            <span className="text-gray-400 text-sm">시작 시간:</span>
-            <span className="text-white font-medium text-sm">{multi.multi_time || '미정'}</span>
-          </div>
         </div>
       </div>
 
@@ -373,7 +356,7 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
       {/* 액션 버튼들 */}
       <div className="flex items-center justify-end pt-4 border-t border-gray-700">
         <div className="flex gap-3">
-          {multi.link ? (
+          {multi.link && (
             <a
               href={multi.link}
               target="_blank"
@@ -385,17 +368,6 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
             >
               🔗 참가하기
             </a>
-          ) : (
-            <Link href={`/multis/${multi.id}`}>
-              <button 
-                className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60"
-                onClick={(e) => {
-                  e.stopPropagation()
-                }}
-              >
-                💬 상세보기
-              </button>
-            </Link>
           )}
           
           {/* 작성자에게만 수정 버튼 표시 */}
