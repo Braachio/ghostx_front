@@ -8,21 +8,22 @@ interface WeekCalendarProps {
 }
 
 export default function WeekCalendar({ selectedDate, onDateSelect }: WeekCalendarProps) {
-  // 현재 월의 전체 캘린더 생성
-  const getCurrentMonthCalendar = () => {
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth())
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
+
+  // 특정 월의 캘린더 생성
+  const getMonthCalendar = (year: number, month: number) => {
     const now = new Date()
-    const currentYear = now.getFullYear()
-    const currentMonth = now.getMonth()
     
-    // 이번달 1일
-    const firstDay = new Date(currentYear, currentMonth, 1)
-    const lastDay = new Date(currentYear, currentMonth + 1, 0)
+    // 해당 월 1일
+    const firstDay = new Date(year, month, 1)
+    const lastDay = new Date(year, month + 1, 0)
     
-    // 이번달 1일이 포함된 주의 일요일
+    // 해당 월 1일이 포함된 주의 일요일
     const startDate = new Date(firstDay)
     startDate.setDate(firstDay.getDate() - firstDay.getDay())
     
-    // 이번달 마지막일이 포함된 주의 토요일
+    // 해당 월 마지막일이 포함된 주의 토요일
     const endDate = new Date(lastDay)
     endDate.setDate(lastDay.getDate() + (6 - lastDay.getDay()))
     
@@ -32,15 +33,15 @@ export default function WeekCalendar({ selectedDate, onDateSelect }: WeekCalenda
     while (currentDate <= endDate) {
       // 새로운 Date 객체 생성 (참조 문제 방지)
       const dateObj = new Date(currentDate)
-      const isCurrentMonth = dateObj.getMonth() === currentMonth
+      const isCurrentMonth = dateObj.getMonth() === month
       const isToday = dateObj.toDateString() === now.toDateString()
       const isPast = dateObj < now && !isToday
       
       // 로컬 시간을 사용하여 타임존 문제 방지
       const year = dateObj.getFullYear()
-      const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+      const monthStr = String(dateObj.getMonth() + 1).padStart(2, '0')
       const day = String(dateObj.getDate()).padStart(2, '0')
-      const localDateString = `${year}-${month}-${day}`
+      const localDateString = `${year}-${monthStr}-${day}`
       
       dates.push({
         date: localDateString,
@@ -59,7 +60,25 @@ export default function WeekCalendar({ selectedDate, onDateSelect }: WeekCalenda
     return dates
   }
 
-  const calendarDates = getCurrentMonthCalendar()
+  const goToPreviousMonth = () => {
+    if (currentMonth === 0) {
+      setCurrentMonth(11)
+      setCurrentYear(currentYear - 1)
+    } else {
+      setCurrentMonth(currentMonth - 1)
+    }
+  }
+
+  const goToNextMonth = () => {
+    if (currentMonth === 11) {
+      setCurrentMonth(0)
+      setCurrentYear(currentYear + 1)
+    } else {
+      setCurrentMonth(currentMonth + 1)
+    }
+  }
+
+  const calendarDates = getMonthCalendar(currentYear, currentMonth)
 
   const handleDateClick = (date: string) => {
     console.log('=== 캘린더 날짜 선택 디버깅 ===')
@@ -79,9 +98,29 @@ export default function WeekCalendar({ selectedDate, onDateSelect }: WeekCalenda
           <span className="text-lg">📅</span>
           <h3 className="text-lg font-semibold text-cyan-400">날짜 선택</h3>
         </div>
-        <span className="text-sm text-gray-400">
-          {new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long' })}
-        </span>
+        
+        {/* 월 네비게이션 */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={goToPreviousMonth}
+            className="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white transition-colors"
+            title="이전 달"
+          >
+            <span className="text-sm">‹</span>
+          </button>
+          
+          <span className="text-sm text-gray-400 min-w-[120px] text-center">
+            {currentYear}년 {currentMonth + 1}월
+          </span>
+          
+          <button
+            onClick={goToNextMonth}
+            className="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white transition-colors"
+            title="다음 달"
+          >
+            <span className="text-sm">›</span>
+          </button>
+        </div>
       </div>
 
       {/* 월 단위 캘린더 */}
