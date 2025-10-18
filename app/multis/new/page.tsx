@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import WeekCalendar from '@/components/WeekCalendar'
 
 const GAME_OPTIONS = ['컴페티치오네','아세토코르사','그란투리스모7','르망얼티밋','EA WRC','아이레이싱','알펙터2', 'F1 25', '오토모빌리스타2']
-const DAY_OPTIONS = ['월','화','수','목','금','토','일']
 
 export default function NewMultiPage() {
   const router = useRouter()
@@ -22,9 +21,6 @@ export default function NewMultiPage() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
-  const toggleDay = (d: string) => {
-    setMultiDay(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d])
-  }
 
   const handleDateSelect = (date: string) => {
     console.log('=== multis/new 날짜 처리 디버깅 ===')

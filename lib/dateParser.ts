@@ -5,8 +5,6 @@ export function parseCsvDateToWeek(dateStr: string): { year: number; week: numbe
   try {
     const now = new Date()
     const currentYear = now.getFullYear()
-    const currentMonth = now.getMonth() + 1 // 1-based month
-    const currentDay = now.getDate()
 
     const cleaned = dateStr.replace('월', '').replace('일', '')
     const [monthStr, dayStr] = cleaned.split(' ').filter(Boolean)

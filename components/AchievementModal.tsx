@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 
 interface Achievement {
@@ -44,7 +44,7 @@ export default function AchievementModal({ appId, gameName, isOpen, onClose }: A
     }
   }, [isOpen, data, loading, fetchAchievements])
 
-  async function fetchAchievements() {
+  const fetchAchievements = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -64,7 +64,7 @@ export default function AchievementModal({ appId, gameName, isOpen, onClose }: A
     } finally {
       setLoading(false)
     }
-  }
+  }, [appId])
 
   const filteredAchievements = data?.achievements.filter(achievement => {
     switch (filter) {

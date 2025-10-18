@@ -42,9 +42,7 @@ export default function CsvUploadPage() {
   const [isAdmin, setIsAdmin] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [message, setMessage] = useState('')
-  const [useCalendar, setUseCalendar] = useState(false)
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([])
-  const [selectedDate, setSelectedDate] = useState<string>('')
   const [newEvent, setNewEvent] = useState<Partial<CalendarEvent>>({
     time: '',
     game: '',
@@ -82,40 +80,6 @@ export default function CsvUploadPage() {
     }
     checkAdmin()
   }, [supabase])
-
-  // 캘린더 이벤트 추가
-  const addCalendarEvent = () => {
-    if (!selectedDate || !newEvent.time || !newEvent.game || !newEvent.track || !newEvent.link) {
-      alert('모든 필수 필드를 입력해주세요.')
-      return
-    }
-
-    const event: CalendarEvent = {
-      id: Date.now().toString(),
-      date: selectedDate,
-      time: newEvent.time,
-      game: normalizeGameName(newEvent.game),
-      track: newEvent.track,
-      carClass: newEvent.carClass || '',
-      race: newEvent.race || '',
-      link: newEvent.link
-    }
-
-    setCalendarEvents(prev => [...prev, event])
-    setNewEvent({
-      time: '',
-      game: '',
-      track: '',
-      carClass: '',
-      race: '',
-      link: ''
-    })
-  }
-
-  // 캘린더 이벤트 삭제
-  const removeCalendarEvent = (id: string) => {
-    setCalendarEvents(prev => prev.filter(event => event.id !== id))
-  }
 
   // 캘린더 이벤트 일괄 등록
   const registerCalendarEvents = async () => {
