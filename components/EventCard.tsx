@@ -354,24 +354,10 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
       )}
 
       {/* 액션 버튼들 */}
-      <div className="flex items-center justify-end pt-4 border-t border-gray-700">
-        <div className="flex gap-3">
-          {multi.link && (
-            <a
-              href={multi.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-medium"
-              onClick={(e) => {
-                e.stopPropagation()
-              }}
-            >
-              🔗 참가하기
-            </a>
-          )}
-          
-          {/* 작성자에게만 수정 버튼 표시 */}
-          {currentUserId && multi.author_id === currentUserId && (
+      {currentUserId && multi.author_id === currentUserId && (
+        <div className="flex items-center justify-end pt-4 border-t border-gray-700">
+          <div className="flex gap-3">
+            {/* 작성자에게만 수정 버튼 표시 */}
             <Link href={`/multis/${multi.id}/edit`}>
               <button 
                 className="px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-lg hover:from-orange-700 hover:to-red-700 transition-all font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/60"
@@ -382,9 +368,9 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
                 ✏️ 수정
               </button>
             </Link>
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
