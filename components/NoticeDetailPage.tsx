@@ -1,6 +1,7 @@
 'use client'
 
 import { useParams } from 'next/navigation'
+import Image from 'next/image'
 import { JSX, useEffect, useState } from 'react'
 
 // 링크, 이미지 등을 처리하는 간단한 parser
@@ -18,10 +19,12 @@ function parseContent(content: string): JSX.Element[] {
             if (/\.(jpeg|jpg|png|gif|webp)$/.test(part)) {
               // 이미지 URL
               return (
-                <img
+                <Image
                   key={index}
                   src={part}
                   alt="첨부 이미지"
+                  width={800}
+                  height={400}
                   className="my-4 max-w-full rounded shadow"
                 />
               )

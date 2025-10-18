@@ -46,7 +46,6 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
     const month = currentDate.getMonth()
     
     const firstDay = new Date(year, month, 1)
-    const lastDay = new Date(year, month + 1, 0)
     const startDate = new Date(firstDay)
     startDate.setDate(startDate.getDate() - firstDay.getDay())
     
@@ -144,7 +143,7 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
             <label className="text-sm font-medium text-gray-300">게임 선택</label>
           </div>
           <div className="flex flex-wrap gap-2">
-            {GAME_OPTIONS.map((game, index) => {
+            {GAME_OPTIONS.map((game) => {
               const gameEventCount = game.id === 'all' 
                 ? events.length 
                 : events.filter(event => event.game === game.id).length

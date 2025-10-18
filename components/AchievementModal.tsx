@@ -42,7 +42,7 @@ export default function AchievementModal({ appId, gameName, isOpen, onClose }: A
     if (isOpen && !data && !loading) {
       fetchAchievements()
     }
-  }, [isOpen])
+  }, [isOpen, data, loading, fetchAchievements])
 
   async function fetchAchievements() {
     try {

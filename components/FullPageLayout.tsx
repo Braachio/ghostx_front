@@ -9,8 +9,15 @@ import type { Database } from '@/lib/database.types'
 
 type Multi = Database['public']['Tables']['multis']['Row']
 
+interface User {
+  id: string
+  email: string
+  nickname: string
+  role: string
+}
+
 interface FullPageLayoutProps {
-  user: any
+  user: User | null
   language: 'ko' | 'en'
   views: number | null
   events: Multi[]
@@ -24,7 +31,6 @@ interface FullPageLayoutProps {
 export default function FullPageLayout({
   user,
   language,
-  views,
   events,
   eventsLoading,
   selectedGame,
