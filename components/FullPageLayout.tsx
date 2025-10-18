@@ -145,88 +145,57 @@ export default function FullPageLayout({
               </span>
             </Link>
 
-            {/* 데스크톱 네비게이션 */}
-            <div className="hidden md:flex items-center gap-4">
-              {/* 섹션 네비게이션 */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => scrollToSection(0)}
-                  className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
-                >
-                  👻 소개
-                </button>
-                <button
-                  onClick={() => scrollToSection(1)}
-                  className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
-                >
-                  🗓️ 캘린더
-                </button>
-                <button
-                  onClick={() => scrollToSection(2)}
-                  className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
-                >
-                  🏁 이벤트
-                </button>
-                <button
-                  onClick={() => scrollToSection(3)}
-                  className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
-                >
-                  👤 프로필
-                </button>
-              </div>
-
-              {/* 사용자 메뉴 */}
-              <div className="flex items-center gap-3">
-                {user ? (
-                  <>
-                    <Link
-                      href="/events/regular/new"
-                      className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg shadow-green-500/30"
-                    >
-                      ➕ {t[language].createEvent}
-                    </Link>
-                    <span className="text-sm bg-gray-800/50 px-3 py-2 rounded-lg border border-gray-700 text-cyan-400">
-                      👤 {t[language].welcome(user.nickname)}
-                    </span>
-                    <button
-                      onClick={onLogout}
-                      className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white text-sm font-medium rounded-lg hover:from-red-700 hover:to-red-800 transition-all shadow-lg shadow-red-500/30"
-                    >
-                      {t[language].logout}
-                    </button>
-                  </>
-                ) : (
+            {/* 사용자 메뉴만 유지 */}
+            <div className="hidden md:flex items-center gap-3">
+              {user ? (
+                <>
                   <Link
-                    href="/login"
-                    className="px-6 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-medium rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all shadow-lg shadow-cyan-500/50"
+                    href="/events/regular/new"
+                    className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg shadow-green-500/30"
                   >
-                    {t[language].getStarted}
+                    ➕ {t[language].createEvent}
                   </Link>
-                )}
+                  <span className="text-sm bg-gray-800/50 px-3 py-2 rounded-lg border border-gray-700 text-cyan-400">
+                    👤 {t[language].welcome(user.nickname)}
+                  </span>
+                  <button
+                    onClick={onLogout}
+                    className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white text-sm font-medium rounded-lg hover:from-red-700 hover:to-red-800 transition-all shadow-lg shadow-red-500/30"
+                  >
+                    {t[language].logout}
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/login"
+                  className="px-6 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-medium rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all shadow-lg shadow-cyan-500/50"
+                >
+                  {t[language].getStarted}
+                </Link>
+              )}
 
-                {/* 언어 전환 */}
-                <div className="flex bg-gray-800/80 backdrop-blur-sm rounded-lg p-1 border border-gray-700">
-                  <button
-                    onClick={() => onLanguageChange('ko')}
-                    className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
-                      language === 'ko' 
-                        ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg' 
-                        : 'text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    🇰🇷
-                  </button>
-                  <button
-                    onClick={() => onLanguageChange('en')}
-                    className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
-                      language === 'en' 
-                        ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg' 
-                        : 'text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    🇺🇸
-                  </button>
-                </div>
+              {/* 언어 전환 */}
+              <div className="flex bg-gray-800/80 backdrop-blur-sm rounded-lg p-1 border border-gray-700">
+                <button
+                  onClick={() => onLanguageChange('ko')}
+                  className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+                    language === 'ko' 
+                      ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg' 
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  🇰🇷
+                </button>
+                <button
+                  onClick={() => onLanguageChange('en')}
+                  className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+                    language === 'en' 
+                      ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg' 
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  🇺🇸
+                </button>
               </div>
             </div>
 
@@ -594,25 +563,50 @@ export default function FullPageLayout({
         </div>
       </section>
 
-      {/* 네비게이션 도트 */}
-      <div className="fixed right-8 top-1/2 transform -translate-y-1/2 z-40 hidden lg:block">
-        <div className="space-y-4">
+      {/* 좌측 세로 네비게이션 */}
+      <div className="fixed left-8 top-1/2 transform -translate-y-1/2 z-40 hidden lg:block">
+        <div className="flex flex-col items-center">
           {[
-            { index: 0, label: '소개' },
-            { index: 1, label: '캘린더' },
-            { index: 2, label: '이벤트' },
-            { index: 3, label: '프로필' }
-          ].map(({ index, label }) => (
-            <button
-              key={index}
-              onClick={() => scrollToSection(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 group ${
-                currentSection === index
-                  ? 'bg-cyan-400 scale-125'
-                  : 'bg-gray-600 hover:bg-gray-400'
-              }`}
-              title={label}
-            />
+            { index: 0, label: '소개', icon: '👻' },
+            { index: 1, label: '캘린더', icon: '🗓️' },
+            { index: 2, label: '이벤트', icon: '🏁' },
+            { index: 3, label: '프로필', icon: '👤' }
+          ].map(({ index, label, icon }, arrayIndex) => (
+            <div key={index} className="flex flex-col items-center">
+              <button
+                onClick={() => scrollToSection(index)}
+                className={`flex items-center gap-4 px-3 py-3 rounded-lg transition-all duration-300 group ${
+                  currentSection === index
+                    ? 'text-cyan-400 scale-110'
+                    : 'text-gray-400 hover:text-white hover:scale-105'
+                }`}
+                title={label}
+              >
+                <span className="text-2xl">{icon}</span>
+                <span className="text-sm font-medium">{label}</span>
+              </button>
+              
+              {/* 연결점 (마지막 항목 제외) */}
+              {arrayIndex < 3 && (
+                <div className="flex flex-col items-center my-8">
+                  <div className={`w-1 h-8 transition-all duration-300 ${
+                    currentSection === index || currentSection === index + 1
+                      ? 'bg-cyan-400/60'
+                      : 'bg-gray-600/30'
+                  }`}></div>
+                  <div className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    currentSection === index || currentSection === index + 1
+                      ? 'bg-cyan-400'
+                      : 'bg-gray-600'
+                  }`}></div>
+                  <div className={`w-1 h-8 transition-all duration-300 ${
+                    currentSection === index || currentSection === index + 1
+                      ? 'bg-cyan-400/60'
+                      : 'bg-gray-600/30'
+                  }`}></div>
+                </div>
+              )}
+            </div>
           ))}
         </div>
       </div>
