@@ -24,19 +24,35 @@ export function parseCsvDateToWeek(dateStr: string): { year: number; week: numbe
       targetDate = new Date(year, month - 1, day)
     }
     
-    // 이번주/다음주 판단 로직 추가
+    // 이번주/다음주 판단 로직 수정
     const thisWeekStart = new Date(now)
     thisWeekStart.setDate(now.getDate() - now.getDay()) // 이번주 일요일
     thisWeekStart.setHours(0, 0, 0, 0)
+    
+    const thisWeekEnd = new Date(thisWeekStart)
+    thisWeekEnd.setDate(thisWeekStart.getDate() + 6) // 이번주 토요일
+    thisWeekEnd.setHours(23, 59, 59, 999)
     
     const nextWeekStart = new Date(thisWeekStart)
     nextWeekStart.setDate(thisWeekStart.getDate() + 7) // 다음주 일요일
     
     const nextWeekEnd = new Date(nextWeekStart)
     nextWeekEnd.setDate(nextWeekStart.getDate() + 6) // 다음주 토요일
+    nextWeekEnd.setHours(23, 59, 59, 999)
     
-    // 이번주 범위에 있는지 확인
-    if (targetDate >= thisWeekStart && targetDate <= nextWeekStart) {
+    console.log('주차 판단 로직:', {
+      input: dateStr,
+      targetDate: targetDate.toISOString(),
+      thisWeekStart: thisWeekStart.toISOString(),
+      thisWeekEnd: thisWeekEnd.toISOString(),
+      nextWeekStart: nextWeekStart.toISOString(),
+      nextWeekEnd: nextWeekEnd.toISOString(),
+      isThisWeek: targetDate >= thisWeekStart && targetDate <= thisWeekEnd,
+      isNextWeek: targetDate >= nextWeekStart && targetDate <= nextWeekEnd
+    })
+    
+    // 이번주 범위에 있는지 확인 (일요일 00:00 ~ 토요일 23:59)
+    if (targetDate >= thisWeekStart && targetDate <= thisWeekEnd) {
       // 이번주에 해당하는 경우, 현재 주차 사용
       const week = getISOWeek(now)
       const eventDate = targetDate.toISOString().split('T')[0]
@@ -45,13 +61,13 @@ export function parseCsvDateToWeek(dateStr: string): { year: number; week: numbe
         input: dateStr,
         targetDate: eventDate,
         thisWeekStart: thisWeekStart.toISOString(),
-        nextWeekStart: nextWeekStart.toISOString()
+        thisWeekEnd: thisWeekEnd.toISOString()
       })
       
       return { year: currentYear, week, eventDate }
     }
     
-    // 다음주 범위에 있는지 확인
+    // 다음주 범위에 있는지 확인 (일요일 00:00 ~ 토요일 23:59)
     if (targetDate >= nextWeekStart && targetDate <= nextWeekEnd) {
       // 다음주에 해당하는 경우
       const nextWeekDate = new Date(nextWeekStart)
