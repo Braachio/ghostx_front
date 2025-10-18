@@ -26,15 +26,6 @@ export default function NewMultiPage() {
     console.log('=== multis/new 날짜 처리 디버깅 ===')
     console.log('받은 날짜 문자열:', date)
     
-    // 날짜 파싱 방법들 비교
-    const method1 = new Date(date)
-    const method2 = new Date(date + 'T00:00:00')
-    const method3 = new Date(date + 'T12:00:00')
-    
-    console.log('방법1 (기본):', method1, method1.toLocaleString('ko-KR'))
-    console.log('방법2 (자정):', method2, method2.toLocaleString('ko-KR'))
-    console.log('방법3 (정오):', method3, method3.toLocaleString('ko-KR'))
-    
     setSelectedDate(date)
     
     // 정오 시간으로 파싱하여 타임존 문제 방지
@@ -43,6 +34,9 @@ export default function NewMultiPage() {
     console.log('최종 선택된 날짜:', selectedDateObj.toLocaleString('ko-KR'))
     console.log('계산된 요일:', dayName)
     setMultiDay([dayName])
+    
+    // 날짜 선택 시 자동 등록 방지 (명시적으로 등록 버튼을 눌러야 함)
+    console.log('날짜 선택 완료 - 등록 버튼을 눌러주세요')
   }
 
 

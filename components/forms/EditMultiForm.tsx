@@ -40,13 +40,15 @@ export default function EditMultiForm({ id }: { id: string }) {
 
   const handleDateSelect = (date: string) => {
     console.log('EditMultiForm에서 받은 날짜:', date)
-    console.log('날짜 파싱 결과:', new Date(date))
     setSelectedDate(date)
     // 선택된 날짜의 요일을 자동으로 설정
     const selectedDateObj = new Date(date + 'T12:00:00')
     const dayName = ['일', '월', '화', '수', '목', '금', '토'][selectedDateObj.getDay()]
     console.log('계산된 요일:', dayName)
     setMultiDay([dayName])
+    
+    // 날짜 선택 시 자동 등록 방지 (명시적으로 수정 버튼을 눌러야 함)
+    console.log('날짜 선택 완료 - 수정 버튼을 눌러주세요')
   }
 
 
