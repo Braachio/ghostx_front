@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { getCurrentWeekInfo, getWeekOptions, getWeekDateRange } from '@/app/utils/weekUtils'
+import WeekCalendar from '@/components/WeekCalendar'
 
 type MultisType = {
   title: string
@@ -17,10 +17,10 @@ type MultisType = {
   is_open: boolean
   year: number
   week: number
+  event_date?: string
 }
 
 const GAME_OPTIONS = ['컴페티치오네','아세토코르사','그란투리스모7','르망얼티밋','EA WRC','아이레이싱','알펙터2', 'F1 25', '오토모빌리스타2']
-const DAY_OPTIONS = ['월','화','수','목','금','토','일']
 
 // 주차 계산 함수 제거 (날짜 기반 시스템으로 변경)
 
@@ -35,13 +35,18 @@ export default function EditMultiForm({ id }: { id: string }) {
   const [multiTime, setMultiTime] = useState('')
   const [link, setLink] = useState('')
   const [description, setDescription] = useState('')
-  const currentWeekInfo = getCurrentWeekInfo()
-  const [year, setYear] = useState<number>(currentWeekInfo.year)
-  const [week, setWeek] = useState<number>(currentWeekInfo.week)
+  const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
-  const toggleDay = (d: string) => {
-    setMultiDay(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d])
+  const handleDateSelect = (date: string) => {
+    console.log('EditMultiForm에서 받은 날짜:', date)
+    console.log('날짜 파싱 결과:', new Date(date))
+    setSelectedDate(date)
+    // 선택된 날짜의 요일을 자동으로 설정
+    const selectedDateObj = new Date(date + 'T12:00:00')
+    const dayName = ['일', '월', '화', '수', '목', '금', '토'][selectedDateObj.getDay()]
+    console.log('계산된 요일:', dayName)
+    setMultiDay([dayName])
   }
 
 
@@ -65,8 +70,11 @@ export default function EditMultiForm({ id }: { id: string }) {
         setDescription(data.description ?? '')
         setLink(data.link ?? '')
         setIsOpen(data.is_open ?? false)
-        setYear(data.year ?? currentWeekInfo.year)
-        setWeek(data.week ?? currentWeekInfo.week)
+        
+        // event_date가 있으면 selectedDate로 설정
+        if (data.event_date) {
+          setSelectedDate(data.event_date)
+        }
       } catch (error) {
         console.error('데이터 불러오기 실패:', error)
         alert('데이터를 불러올 수 없습니다.')
@@ -74,16 +82,21 @@ export default function EditMultiForm({ id }: { id: string }) {
     }
 
     fetchData()
-  }, [id, currentWeekInfo.week, currentWeekInfo.year])
+  }, [id])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!title.trim() || !game.trim() || !gameTrack.trim() || multiDay.length === 0) {
-      alert('제목/게임/트랙/요일은 필수입니다.')
+    if (!title.trim() || !game.trim() || !gameTrack.trim() || !selectedDate) {
+      alert('제목/게임/트랙/날짜는 필수입니다.')
       return
     }
     setSubmitting(true)
     try {
+      // selectedDate에서 year, week 계산
+      const eventDate = new Date(selectedDate + 'T12:00:00')
+      const year = eventDate.getFullYear()
+      const week = Math.ceil((eventDate.getTime() - new Date(year, 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000))
+      
       const response = await fetch(`/api/multis/${id}`, {
         method: 'PATCH',
         headers: {
@@ -102,6 +115,7 @@ export default function EditMultiForm({ id }: { id: string }) {
           link: link || null,
           year: year,
           week: week,
+          event_date: selectedDate,
         })
       })
       
@@ -190,29 +204,45 @@ export default function EditMultiForm({ id }: { id: string }) {
               <h2 className="text-xl font-semibold text-white">일정 정보</h2>
             </div>
             
-            {/* 요일 선택 */}
+            {/* 날짜 선택 */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-cyan-400 mb-3">요일 *</label>
-              <div className="flex flex-wrap gap-3">
-                {DAY_OPTIONS.map(d => (
-                  <label key={d} className={`px-4 py-3 rounded-lg border cursor-pointer transition-all hover:scale-105 ${multiDay.includes(d)?'bg-gradient-to-r from-cyan-600 to-blue-600 text-white border-cyan-500 shadow-lg shadow-cyan-500/25':'bg-gray-800/50 text-gray-300 border-gray-600 hover:border-gray-500'}`}>
-                    <input type="checkbox" className="hidden" checked={multiDay.includes(d)} onChange={()=>toggleDay(d)} />
-                    <span className="font-medium">{d}</span>
-                  </label>
-                ))}
-              </div>
+              <WeekCalendar 
+                selectedDate={selectedDate} 
+                onDateSelect={handleDateSelect} 
+              />
             </div>
 
             {/* 시간 및 날짜 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-cyan-400">시간</label>
-                <input 
-                  placeholder="20:00 (예: 20:30, 20시30분)" 
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all" 
-                  value={multiTime} 
-                  onChange={e=>setMultiTime(e.target.value)} 
-                />
+                <div className="flex items-center gap-2">
+                  <select
+                    value={multiTime.split(':')[0] || '20'}
+                    onChange={(e) => {
+                      const minutes = multiTime.split(':')[1] || '00'
+                      setMultiTime(`${e.target.value}:${minutes}`)
+                    }}
+                    className="w-20 px-2 py-2 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                  >
+                    {Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0')).map(hour => (
+                      <option key={hour} value={hour}>{hour}</option>
+                    ))}
+                  </select>
+                  <span className="text-gray-400">:</span>
+                  <select
+                    value={multiTime.split(':')[1] || '00'}
+                    onChange={(e) => {
+                      const hours = multiTime.split(':')[0] || '20'
+                      setMultiTime(`${hours}:${e.target.value}`)
+                    }}
+                    className="w-16 px-2 py-2 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                  >
+                    {Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, '0')).map(minute => (
+                      <option key={minute} value={minute}>{minute}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-cyan-400">클래스</label>
@@ -225,38 +255,6 @@ export default function EditMultiForm({ id }: { id: string }) {
               </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-cyan-400">연도</label>
-                <select 
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all" 
-                  value={year} 
-                  onChange={e => setYear(parseInt(e.target.value))}
-                >
-                  <option value={currentWeekInfo.year}>{currentWeekInfo.year}년</option>
-                  <option value={currentWeekInfo.year + 1}>{currentWeekInfo.year + 1}년</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-cyan-400">주차</label>
-                <select 
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all" 
-                  value={week} 
-                  onChange={e => setWeek(parseInt(e.target.value))}
-                >
-                  {getWeekOptions(year, week).map(option => {
-                    const { start, end } = getWeekDateRange(year, option.value)
-                    const startStr = `${start.getMonth() + 1}/${start.getDate()}`
-                    const endStr = `${end.getMonth() + 1}/${end.getDate()}`
-                    return (
-                      <option key={option.value} value={option.value}>
-                        {option.label} ({option.value}주차) - {startStr} ~ {endStr}
-                      </option>
-                    )
-                  })}
-                </select>
-              </div>
-            </div>
           </div>
 
           {/* 추가 정보 */}
