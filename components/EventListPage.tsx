@@ -167,20 +167,87 @@ export default function EventListPageSimple({ currentUserId, eventTypeFilter }: 
     // 로컬 시간 기준으로 오늘 날짜 계산
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     
+    console.log('이벤트 날짜 계산 디버깅:', {
+      multiId: multi.id,
+      title: multi.title,
+      year: multi.year,
+      week: multi.week,
+      multiDay: multi.multi_day,
+      eventDate: multi.event_date,
+      created_at: multi.created_at
+    })
+    
     // event_date가 있으면 해당 날짜 사용
     if (multi.event_date) {
       const eventDate = new Date(multi.event_date)
       eventDate.setHours(0, 0, 0, 0)
-      return eventDate < today
+      const isPast = eventDate < today
+      console.log('event_date 비교 결과:', {
+        eventDate: eventDate.toISOString(),
+        today: today.toISOString(),
+        isPast
+      })
+      return isPast
     }
     
     // event_date가 없으면 주차 계산 사용
     if (multi.year && multi.week && multi.multi_day && multi.multi_day.length > 0) {
-      const eventDate = getDateFromWeekAndDay(multi.year, multi.week, multi.multi_day[0])
-      if (eventDate) {
-        const eventDay = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate())
-        return eventDay < today
+      // 간단한 주차 계산: 1월 1일부터 시작해서 주차 계산
+      const jan1 = new Date(multi.year, 0, 1) // 1월 1일
+      const jan1Day = jan1.getDay() // 0(일) ~ 6(토)
+      
+      // 1월 1일이 포함된 주의 월요일 찾기
+      let daysFromMonday
+      if (jan1Day === 0) {
+        daysFromMonday = 6 // 일요일이면 6일 전이 월요일
+      } else {
+        daysFromMonday = jan1Day - 1 // 월요일(1)이면 0일 전
       }
+      
+      // 첫 번째 월요일
+      const firstMonday = new Date(jan1)
+      firstMonday.setDate(jan1.getDate() - daysFromMonday)
+      
+      // N주차의 월요일 = 1주차 월요일 + (N-1) * 7일
+      const targetMonday = new Date(firstMonday)
+      targetMonday.setDate(firstMonday.getDate() + (multi.week - 1) * 7)
+      
+      // 요일 매핑
+      const dayMap: Record<string, number> = {
+        '월': 0, '화': 1, '수': 2, '목': 3, '금': 4, '토': 5, '일': 6
+      }
+      
+      const dayOffset = dayMap[multi.multi_day[0]]
+      if (dayOffset !== undefined) {
+        const eventDate = new Date(targetMonday)
+        eventDate.setDate(targetMonday.getDate() + dayOffset)
+        
+        const eventDay = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate())
+        const isPast = eventDay < today
+        
+        console.log('간단한 주차 계산 결과:', {
+          year: multi.year,
+          week: multi.week,
+          day: multi.multi_day[0],
+          jan1: jan1.toISOString(),
+          firstMonday: firstMonday.toISOString(),
+          targetMonday: targetMonday.toISOString(),
+          eventDate: eventDate.toISOString(),
+          eventDay: eventDay.toISOString(),
+          today: today.toISOString(),
+          isPast
+        })
+        
+        return isPast
+      }
+    }
+    
+    // 날짜 정보가 없으면 created_at 기준으로 판단
+    if (multi.created_at) {
+      const createdDate = new Date(multi.created_at)
+      const daysDiff = Math.floor((today.getTime() - createdDate.getTime()) / (24 * 60 * 60 * 1000))
+      // 생성된지 7일 이상 지났으면 과거로 간주
+      return daysDiff > 7
     }
     
     return false
