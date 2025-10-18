@@ -73,8 +73,12 @@ export default function WeekCalendar({ selectedDate, onDateSelect }: WeekCalenda
 
   return (
     <div className="space-y-4">
-      {/* 월/년도 표시만 */}
-      <div className="flex justify-end">
+      {/* 캘린더 헤더 */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-lg">📅</span>
+          <h3 className="text-lg font-semibold text-cyan-400">날짜 선택</h3>
+        </div>
         <span className="text-sm text-gray-400">
           {new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long' })}
         </span>

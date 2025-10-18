@@ -191,16 +191,10 @@ export default function NewMultiPage() {
             
             {/* 날짜 선택 */}
             <div className="mb-6">
-              <div className="space-y-4">
-                <label className="block text-sm font-medium text-cyan-400">날짜 선택</label>
-                <WeekCalendar 
-                  selectedDate={selectedDate} 
-                  onDateSelect={handleDateSelect} 
-                />
-                <p className="text-gray-400 text-sm">
-                  이번달 캘린더에서 날짜를 선택하세요
-                </p>
-              </div>
+              <WeekCalendar 
+                selectedDate={selectedDate} 
+                onDateSelect={handleDateSelect} 
+              />
             </div>
 
             {/* 시간 입력 */}
