@@ -41,6 +41,26 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
   const isTomorrow = eventDate && eventDate.toDateString() === new Date(today.getTime() + 24 * 60 * 60 * 1000).toDateString()
   const isPast = eventDate && eventDate < today
 
+  // 날짜/시간 정보 포맷팅 함수
+  const getDateTimeInfo = () => {
+    if (!eventDate) {
+      if (multi.event_type === 'regular_schedule') {
+        return `매주 ${multi.multi_day && multi.multi_day[0]}요일${multi.multi_time ? ` ${multi.multi_time}` : ''}`
+      }
+      return '날짜 미정'
+    }
+
+    if (multi.event_type === 'regular_schedule') {
+      if (isToday) return `오늘${multi.multi_time ? ` ${multi.multi_time}` : ''}`
+      if (isTomorrow) return `내일${multi.multi_time ? ` ${multi.multi_time}` : ''}`
+      return `매주 ${multi.multi_day && multi.multi_day[0]}요일${multi.multi_time ? ` ${multi.multi_time}` : ''}`
+    } else {
+      if (isToday) return `오늘${multi.multi_time ? ` ${multi.multi_time}` : ''}`
+      if (isTomorrow) return `내일${multi.multi_time ? ` ${multi.multi_time}` : ''}`
+      return `${eventDate.getMonth() + 1}월 ${eventDate.getDate()}일 ${['일', '월', '화', '수', '목', '금', '토'][eventDate.getDay()]}요일${multi.multi_time ? ` ${multi.multi_time}` : ''}`
+    }
+  }
+
   const toggleOpen = async () => {
     if (isLoading) return
 
@@ -229,51 +249,6 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
       className={`group relative bg-gradient-to-br from-gray-900 to-black border border-gray-700 rounded-xl p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-500/10 hover:-translate-y-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60 ${isOpen ? '' : 'opacity-70'}
       `}
     >
-      {/* 이벤트 날짜/시간 (간단하게 표시) */}
-      <div className="mb-4">
-        <div className="flex items-center gap-3 text-sm text-gray-300">
-          {/* 날짜 정보 */}
-          <div className="flex items-center gap-1">
-            <span className="text-gray-400">📅</span>
-            {eventDate ? (
-              <span className={`px-2 py-1 rounded text-xs font-medium ${
-                isPast ? 'bg-gray-600 text-gray-300' :
-                isToday ? 'bg-red-500/20 text-red-400' : 
-                isTomorrow ? 'bg-orange-500/20 text-orange-400' : 
-                'bg-blue-500/20 text-blue-400'
-              }`}>
-                {multi.event_type === 'regular_schedule' ? (
-                  isToday ? '오늘' : 
-                  isTomorrow ? '내일' : 
-                  `매주 ${multi.multi_day && multi.multi_day[0]}`
-                ) : (
-                  isPast ? '종료됨' :
-                  isToday ? '오늘' : 
-                  isTomorrow ? '내일' : 
-                  `${eventDate.getMonth() + 1}/${eventDate.getDate()} ${['일', '월', '화', '수', '목', '금', '토'][eventDate.getDay()]}`
-                )}
-              </span>
-            ) : (
-              <span className="px-2 py-1 rounded text-xs font-medium bg-gray-600 text-gray-300">
-                {multi.event_type === 'regular_schedule' ? 
-                  `매주 ${multi.multi_day && multi.multi_day[0]}` : 
-                  '날짜 미정'
-                }
-              </span>
-            )}
-          </div>
-          
-          {/* 시간 정보 */}
-          {multi.multi_time && (
-            <div className="flex items-center gap-1">
-              <span className="text-gray-400">⏰</span>
-              <span className="px-2 py-1 rounded text-xs font-medium bg-yellow-500/20 text-yellow-400">
-                {multi.multi_time}
-              </span>
-            </div>
-          )}
-        </div>
-      </div>
 
       {/* 정기 이벤트 표시 */}
       {multi.event_type === 'regular_schedule' && (
@@ -292,6 +267,8 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
             </h3>
             <div className="flex items-center gap-2 mt-1">
               <p className="text-sm text-gray-400">{multi.game}</p>
+              <span className="text-sm text-gray-500">•</span>
+              <span className="text-sm text-gray-300">{getDateTimeInfo()}</span>
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTimeLabel().color}`}>
                 {getTimeLabel().label}
               </span>
