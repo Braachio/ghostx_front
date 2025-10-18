@@ -96,16 +96,6 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
     return gameIcons[game] || '🏁'
   }
 
-  // 날짜 포맷팅
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('ko-KR', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
 
   // 요일별 색상 매핑
   const getDayColor = (day: string) => {
@@ -425,12 +415,7 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
       )}
 
       {/* 액션 버튼들 */}
-      <div className="flex items-center justify-between pt-4 border-t border-gray-700">
-        <div className="flex items-center gap-2 text-sm text-gray-400">
-          <span>📅</span>
-          <span>{formatDate(multi.created_at || '')}</span>
-        </div>
-        
+      <div className="flex items-center justify-end pt-4 border-t border-gray-700">
         <div className="flex gap-3">
           {multi.link ? (
             <a
