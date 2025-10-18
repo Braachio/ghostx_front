@@ -24,7 +24,7 @@ export default function OnboardingPage() {
       const result = await res.json()
 
       if (res.ok) {
-        router.push('/dashboard')
+        router.push('/')
       } else {
         setError(result.error || '닉네임 등록 실패')
       }

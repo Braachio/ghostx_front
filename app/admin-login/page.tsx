@@ -31,8 +31,8 @@ export default function AdminLoginPage() {
         return
       }
 
-      // 로그인 성공 시 대시보드로 이동
-      router.push('/dashboard')
+      // 로그인 성공 시 메인페이지로 이동
+      router.push('/')
     } catch (error) {
       console.error('관리자 로그인 오류:', error)
       setError('네트워크 오류가 발생했습니다.')
