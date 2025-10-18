@@ -52,8 +52,8 @@ function LoginForm() {
             // 먼저 현재 세션 상태 확인
             const sessionCheck = await fetch('/api/me')
             if (sessionCheck.ok) {
-              // 이미 로그인된 상태면 바로 대시보드로 이동
-              router.push('/dashboard')
+              // 이미 로그인된 상태면 바로 메인페이지로 이동
+              router.push('/')
               return
             }
             
@@ -81,8 +81,8 @@ function LoginForm() {
               localStorage.setItem('ghostx_anonymous_id', data.anonymousId)
             }
       
-            // 익명 로그인 성공 - 대시보드로 이동
-            router.push('/dashboard')
+            // 익명 로그인 성공 - 메인페이지로 이동
+            router.push('/')
           } catch (err) {
             console.error('익명 로그인 오류:', err)
             setError('익명 로그인 중 오류가 발생했습니다.')
