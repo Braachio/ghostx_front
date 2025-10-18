@@ -117,19 +117,38 @@ export function getDateFromWeekAndDay(year: number, week: number, dayName: strin
   const dayOffset = dayMap[dayName]
   if (dayOffset === undefined) return null
   
-  // getWeekDateRange를 사용해서 해당 주차의 월요일을 가져옴
-  const { start: monday } = getWeekDateRange(year, week)
+  // 간단한 주차 계산: 1월 1일부터 시작
+  const jan1 = new Date(year, 0, 1) // 1월 1일
+  const jan1Day = jan1.getDay() // 0(일) ~ 6(토)
+  
+  // 1월 1일이 포함된 주의 월요일 찾기
+  let daysFromMonday
+  if (jan1Day === 0) {
+    daysFromMonday = 6 // 일요일이면 6일 전이 월요일
+  } else {
+    daysFromMonday = jan1Day - 1 // 월요일(1)이면 0일 전
+  }
+  
+  // 첫 번째 월요일
+  const firstMonday = new Date(jan1)
+  firstMonday.setDate(jan1.getDate() - daysFromMonday)
+  
+  // N주차의 월요일 = 1주차 월요일 + (N-1) * 7일
+  const targetMonday = new Date(firstMonday)
+  targetMonday.setDate(firstMonday.getDate() + (week - 1) * 7)
   
   // 해당 요일로 이동
-  const targetDate = new Date(monday)
-  targetDate.setDate(monday.getDate() + dayOffset)
+  const targetDate = new Date(targetMonday)
+  targetDate.setDate(targetMonday.getDate() + dayOffset)
   
-  console.log(`주차별 날짜 계산:`, {
+  console.log(`간단한 주차 계산:`, {
     year,
     week,
     dayName,
     dayOffset,
-    monday: monday.toDateString(),
+    jan1: jan1.toDateString(),
+    firstMonday: firstMonday.toDateString(),
+    targetMonday: targetMonday.toDateString(),
     targetDate: targetDate.toDateString(),
     today: new Date().toDateString()
   })
