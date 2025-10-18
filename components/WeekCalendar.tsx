@@ -8,25 +8,44 @@ interface WeekCalendarProps {
 }
 
 export default function WeekCalendar({ selectedDate, onDateSelect }: WeekCalendarProps) {
-  // 오늘부터 +7일까지 날짜 계산
+  // 이번주 일요일부터 7일간 날짜 계산
   const getAvailableDates = () => {
     const now = new Date()
+    const currentDay = now.getDay() // 0(일) ~ 6(토)
+    
+    // 이번주 일요일 계산
+    const thisWeekSunday = new Date(now)
+    thisWeekSunday.setDate(now.getDate() - currentDay)
+    thisWeekSunday.setHours(0, 0, 0, 0)
+    
     const dates = []
     
-    for (let i = 0; i <= 7; i++) {
-      const date = new Date(now)
-      date.setDate(now.getDate() + i)
-      date.setHours(0, 0, 0, 0)
+    console.log('현재 시간:', now.toLocaleString('ko-KR'))
+    console.log('현재 요일:', now.getDay(), ['일', '월', '화', '수', '목', '금', '토'][now.getDay()])
+    console.log('이번주 일요일:', thisWeekSunday.toLocaleString('ko-KR'))
+    
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(thisWeekSunday)
+      date.setDate(thisWeekSunday.getDate() + i)
       
-      dates.push({
+      const dayInfo = {
         date: date.toISOString().split('T')[0], // YYYY-MM-DD
         day: date.getDay(),
         dayName: ['일', '월', '화', '수', '목', '금', '토'][date.getDay()],
         month: date.getMonth() + 1,
         dayOfMonth: date.getDate(),
-        isToday: i === 0,
-        isPast: false // 오늘부터 +7일까지는 모두 미래
+        isToday: date.toDateString() === now.toDateString(),
+        isPast: date < now && date.toDateString() !== now.toDateString()
+      }
+      
+      console.log(`+${i}일:`, {
+        date: dayInfo.date,
+        day: dayInfo.day,
+        dayName: dayInfo.dayName,
+        isToday: dayInfo.isToday
       })
+      
+      dates.push(dayInfo)
     }
     
     return dates
@@ -47,7 +66,7 @@ export default function WeekCalendar({ selectedDate, onDateSelect }: WeekCalenda
           <h3 className="text-lg font-semibold text-cyan-400">날짜 선택</h3>
         </div>
         <span className="text-sm text-gray-400">
-          오늘부터 7일 후까지
+          이번주 일요일부터 토요일까지
         </span>
       </div>
 
