@@ -117,7 +117,12 @@ export default function NewMultiPage() {
 
 
         {/* 이벤트 등록 폼 */}
-        <form onSubmit={handleSubmit} className="bg-gradient-to-br from-gray-900/50 to-black/50 backdrop-blur-sm border border-cyan-500/30 rounded-xl p-8 shadow-2xl shadow-cyan-500/10">
+        <form onSubmit={handleSubmit} className="bg-gradient-to-br from-gray-900/50 to-black/50 backdrop-blur-sm border border-cyan-500/30 rounded-xl p-8 shadow-2xl shadow-cyan-500/10" onKeyDown={(e) => {
+          // Enter 키로 인한 자동 제출 방지
+          if (e.key === 'Enter' && e.target instanceof HTMLInputElement) {
+            e.preventDefault()
+          }
+        }}>
           {/* 기본 정보 */}
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-6">
@@ -198,6 +203,7 @@ export default function NewMultiPage() {
                     const minute = multiTime.split(':')[1] || '00'
                     setMultiTime(`${e.target.value}:${minute}`)
                   }}
+                  onKeyDown={(e) => e.preventDefault()}
                 >
                   <option value="">시</option>
                   {Array.from({ length: 24 }, (_, i) => {
@@ -220,6 +226,7 @@ export default function NewMultiPage() {
                     const hour = multiTime.split(':')[0] || '20'
                     setMultiTime(`${hour}:${e.target.value}`)
                   }}
+                  onKeyDown={(e) => e.preventDefault()}
                 >
                   <option value="">분</option>
                   {Array.from({ length: 12 }, (_, i) => {

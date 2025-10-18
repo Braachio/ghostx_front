@@ -147,7 +147,12 @@ export default function EditMultiForm({ id }: { id: string }) {
         </div>
 
         {/* 이벤트 수정 폼 */}
-        <form onSubmit={handleSubmit} className="bg-gradient-to-br from-gray-900/50 to-black/50 backdrop-blur-sm border border-cyan-500/30 rounded-xl p-8 shadow-2xl shadow-cyan-500/10">
+        <form onSubmit={handleSubmit} className="bg-gradient-to-br from-gray-900/50 to-black/50 backdrop-blur-sm border border-cyan-500/30 rounded-xl p-8 shadow-2xl shadow-cyan-500/10" onKeyDown={(e) => {
+          // Enter 키로 인한 자동 제출 방지
+          if (e.key === 'Enter' && e.target instanceof HTMLInputElement) {
+            e.preventDefault()
+          }
+        }}>
           {/* 기본 정보 */}
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-6">
@@ -218,6 +223,7 @@ export default function EditMultiForm({ id }: { id: string }) {
                       const minutes = multiTime.split(':')[1] || '00'
                       setMultiTime(`${e.target.value}:${minutes}`)
                     }}
+                    onKeyDown={(e) => e.preventDefault()}
                     className="w-20 px-2 py-2 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
                   >
                     {Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0')).map(hour => (
@@ -231,6 +237,7 @@ export default function EditMultiForm({ id }: { id: string }) {
                       const hours = multiTime.split(':')[0] || '20'
                       setMultiTime(`${hours}:${e.target.value}`)
                     }}
+                    onKeyDown={(e) => e.preventDefault()}
                     className="w-16 px-2 py-2 bg-gray-800/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
                   >
                     {Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, '0')).map(minute => (
