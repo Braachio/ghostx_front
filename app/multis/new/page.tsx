@@ -200,12 +200,46 @@ export default function NewMultiPage() {
             {/* 시간 입력 */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-cyan-400">시간</label>
-              <input 
-                placeholder="20:00 (예: 20:30, 20시30분)" 
-                className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all" 
-                value={multiTime} 
-                onChange={e=>setMultiTime(e.target.value)} 
-              />
+              <div className="flex gap-3">
+                {/* 시간 선택 드롭다운 */}
+                <select 
+                  className="flex-1 px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all" 
+                  value={multiTime} 
+                  onChange={e=>setMultiTime(e.target.value)}
+                >
+                  <option value="">시간 선택</option>
+                  {Array.from({ length: 24 }, (_, i) => {
+                    const hour = i.toString().padStart(2, '0')
+                    return (
+                      <option key={hour} value={`${hour}:00`}>
+                        {hour}:00
+                      </option>
+                    )
+                  })}
+                </select>
+                
+                {/* 분 선택 드롭다운 */}
+                <select 
+                  className="w-24 px-3 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all" 
+                  value={multiTime.split(':')[1] || '00'} 
+                  onChange={e=>{
+                    const hour = multiTime.split(':')[0] || '20'
+                    setMultiTime(`${hour}:${e.target.value}`)
+                  }}
+                >
+                  {Array.from({ length: 12 }, (_, i) => {
+                    const minute = (i * 5).toString().padStart(2, '0')
+                    return (
+                      <option key={minute} value={minute}>
+                        {minute}
+                      </option>
+                    )
+                  })}
+                </select>
+              </div>
+              <p className="text-gray-400 text-sm">
+                시간과 분을 선택하세요 (5분 단위)
+              </p>
             </div>
           </div>
 
