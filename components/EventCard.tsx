@@ -231,9 +231,9 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
     >
       {/* 이벤트 날짜/시간 (가독성 좋게 표시) */}
       <div className="mb-6">
-        {eventDate && (
-          <div className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 border border-gray-600/50 rounded-xl p-4 mb-3">
-            {/* 날짜 정보 */}
+        <div className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 border border-gray-600/50 rounded-xl p-4 mb-3">
+          {/* 날짜 정보 */}
+          {eventDate ? (
             <div className={`px-4 py-3 rounded-lg text-center text-xl font-bold mb-3
               ${isPast ? 'bg-gray-500 text-white' :
                 isToday ? 'bg-red-500 text-white' : 
@@ -252,18 +252,27 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
                 `${eventDate.getMonth() + 1}월 ${eventDate.getDate()}일 ${['일', '월', '화', '수', '목', '금', '토'][eventDate.getDay()]}요일`
               )}
             </div>
-            
-            {/* 시간 정보 */}
-            {multi.multi_time && (
-              <div className="flex items-center justify-center gap-3">
-                <div className="flex items-center gap-2 px-4 py-2 bg-yellow-500/20 text-yellow-400 rounded-lg border border-yellow-500/30">
-                  <span className="text-lg">⏰</span>
-                  <span className="text-lg font-semibold">{multi.multi_time}</span>
-                </div>
+          ) : (
+            // event_date가 없는 경우 기본 정보 표시
+            <div className="px-4 py-3 rounded-lg text-center text-xl font-bold mb-3 bg-gray-600 text-white">
+              {multi.event_type === 'regular_schedule' ? (
+                `매주 ${multi.multi_day && multi.multi_day[0]}요일`
+              ) : (
+                '날짜 미정'
+              )}
+            </div>
+          )}
+          
+          {/* 시간 정보 */}
+          {multi.multi_time && (
+            <div className="flex items-center justify-center gap-3">
+              <div className="flex items-center gap-2 px-4 py-2 bg-yellow-500/20 text-yellow-400 rounded-lg border border-yellow-500/30">
+                <span className="text-lg">⏰</span>
+                <span className="text-lg font-semibold">{multi.multi_time}</span>
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* 정기 이벤트 표시 */}
