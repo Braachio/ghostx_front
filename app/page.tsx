@@ -7,11 +7,15 @@ import Image from 'next/image'
 import Footer from '@/components/Footer'
 import CookieConsentBanner from '@/components/CookieConsentBanner'
 import GameInterestModal from '@/components/GameInterestModal'
+import EventCalendar from '@/components/EventCalendar'
+import type { Database } from '@/lib/database.types'
 
 interface MeResponse {
   id: string
   nickname: string
 }
+
+type Multi = Database['public']['Tables']['multis']['Row']
 
 export default function HomePage() {
   const [user, setUser] = useState<MeResponse | null>(null)
@@ -20,6 +24,9 @@ export default function HomePage() {
   const [mounted, setMounted] = useState(false)
   const [showGameInterestModal, setShowGameInterestModal] = useState(false)
   const [hasCheckedGameInterest, setHasCheckedGameInterest] = useState(false)
+  const [events, setEvents] = useState<Multi[]>([])
+  const [selectedGame, setSelectedGame] = useState('all')
+  const [eventsLoading, setEventsLoading] = useState(true)
   const supabase = useSupabaseClient()
 
   // 번역 텍스트
@@ -105,6 +112,14 @@ export default function HomePage() {
           setUser(null)
         }
 
+        // 이벤트 데이터 가져오기
+        const eventsRes = await fetch('/api/multis')
+        if (eventsRes.ok) {
+          const { data } = await eventsRes.json()
+          setEvents(data || [])
+        }
+        setEventsLoading(false)
+
       } catch (err) {
         console.error('데이터 로드 실패:', err)
       }
@@ -119,6 +134,10 @@ export default function HomePage() {
 
   const handleGameInterestClose = () => {
     setShowGameInterestModal(false)
+  }
+
+  const handleGameChange = (game: string) => {
+    setSelectedGame(game)
   }
 
   return (
@@ -239,7 +258,23 @@ export default function HomePage() {
           <div className="h-px w-96 mx-auto bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
         </div>
 
-        {/* 메뉴 카드 - 네온 효과 */}
+        {/* 갤멀 일정 캘린더 */}
+        <div className="max-w-7xl mx-auto mb-12">
+          {eventsLoading ? (
+            <div className="bg-gray-900 rounded-lg p-8 text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+              <p className="text-gray-400">이벤트를 불러오는 중...</p>
+            </div>
+          ) : (
+            <EventCalendar
+              events={events}
+              selectedGame={selectedGame}
+              onGameChange={handleGameChange}
+            />
+          )}
+        </div>
+
+        {/* 추가 메뉴 카드 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-12">
           {/* Steam 프로필 카드 */}
           {user ? (
