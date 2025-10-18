@@ -80,7 +80,10 @@ export default function WeekCalendar({ selectedDate, onDateSelect }: WeekCalenda
 
   const calendarDates = getMonthCalendar(currentYear, currentMonth)
 
-  const handleDateClick = (date: string) => {
+  const handleDateClick = (date: string, e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
     console.log('=== 캘린더 날짜 선택 디버깅 ===')
     console.log('선택된 날짜 문자열:', date)
     console.log('Date 객체 생성:', new Date(date))
@@ -145,8 +148,9 @@ export default function WeekCalendar({ selectedDate, onDateSelect }: WeekCalenda
           {calendarDates.map((dayInfo) => (
             <button
               key={dayInfo.date}
-              onClick={() => !dayInfo.isPast && handleDateClick(dayInfo.date)}
+              onClick={(e) => !dayInfo.isPast && handleDateClick(dayInfo.date, e)}
               disabled={dayInfo.isPast}
+              type="button"
               className={`relative p-4 text-center transition-all duration-300 border-r border-b border-gray-600/30 last:border-r-0 group ${
                 dayInfo.isPast
                   ? 'bg-gray-800/50 text-gray-600 cursor-not-allowed'
