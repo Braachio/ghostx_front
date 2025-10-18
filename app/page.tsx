@@ -25,8 +25,7 @@ export default function HomePage() {
       welcome: (name: string) => `${name}님 환영합니다`,
       dashboard: '대시보드',
       logout: '로그아웃',
-      signup: '회원가입',
-      login: '로그인',
+      getStarted: '시작하기',
       title: 'GHOST-X',
       subtitle: '당신의 고스트카가 되어드립니다',
       // description: '데이터 분석으로 랩타임을 단축시켜주는 디지털 고스트카',
@@ -37,14 +36,13 @@ export default function HomePage() {
       ghostAnalysisDesc: 'MoTeC 데이터로 당신만의 고스트카를 만들어\n랩타임 단축의 비밀을 찾아보세요',
       dashboardDesc: '나의 레이싱 성능을 분석하고\n개선 포인트를 확인해보세요',
       dashboardDescGuest: '로그인하고 나의 레이싱 성능을\n분석해보세요',
-      clickToLogin: '클릭하여 로그인하기 →'
+      clickToLogin: '시작하기 →'
     },
     en: {
       welcome: (name: string) => `Welcome, ${name}`,
       dashboard: 'Dashboard',
       logout: 'Logout',
-      signup: 'Sign Up',
-      login: 'Login',
+      getStarted: 'Get Started',
       title: 'GHOST-X',
       subtitle: 'Your Digital Ghost Car Awaits',
       description: 'AI-powered data analysis to reduce your lap times',
@@ -55,7 +53,7 @@ export default function HomePage() {
       ghostAnalysisDesc: 'Create your own ghost car with MoTeC data\nand discover the secrets to faster lap times',
       dashboardDesc: 'Analyze your racing performance\nand identify improvement points',
       dashboardDescGuest: 'Login and analyze your\nracing performance',
-      clickToLogin: 'Click to login →'
+      clickToLogin: 'Get Started →'
     }
   }
 
@@ -160,16 +158,10 @@ export default function HomePage() {
               ) : (
                 <>
                   <Link
-                    href="/signup"
-                    className="px-4 py-2 rounded-lg border border-cyan-500/50 text-sm text-white bg-gray-800/80 hover:bg-cyan-900/30 hover:border-cyan-400 transition backdrop-blur-sm"
-                  >
-                    {t[language].signup}
-                  </Link>
-                  <Link
                     href="/login"
-                    className="px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm hover:from-cyan-700 hover:to-blue-700 transition shadow-lg shadow-cyan-500/50"
+                    className="px-6 py-2 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm hover:from-cyan-700 hover:to-blue-700 transition shadow-lg shadow-cyan-500/50"
                   >
-                    {t[language].login}
+                    {t[language].getStarted}
                   </Link>
                   {process.env.NODE_ENV !== 'production' && (
                     <>
