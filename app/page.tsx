@@ -162,6 +162,28 @@ export default function HomePage() {
 
           <div className="w-full sm:w-auto">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
+              {/* 갤멀 일정 메뉴 */}
+              <div className="flex bg-gray-800/80 backdrop-blur-sm rounded-lg p-1 border border-gray-700">
+                <Link
+                  href="/events"
+                  className="px-3 py-1.5 text-xs font-semibold rounded-md transition-all text-gray-300 hover:text-white hover:bg-gray-700"
+                >
+                  🗓️ 갤멀 일정
+                </Link>
+                <Link
+                  href="/events/regular"
+                  className="px-3 py-1.5 text-xs font-semibold rounded-md transition-all text-gray-300 hover:text-white hover:bg-gray-700"
+                >
+                  📅 정기 갤멀
+                </Link>
+                <Link
+                  href="/multis"
+                  className="px-3 py-1.5 text-xs font-semibold rounded-md transition-all text-gray-300 hover:text-white hover:bg-gray-700"
+                >
+                  ⚡ 기습 갤멀
+                </Link>
+              </div>
+
               {/* 언어 전환 버튼 */}
               <div className="flex bg-gray-800/80 backdrop-blur-sm rounded-lg p-1 border border-gray-700">
                 <button
@@ -188,6 +210,12 @@ export default function HomePage() {
 
               {user ? (
                 <>
+                  <Link
+                    href="/events/regular/new"
+                    className="px-3 py-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm hover:from-green-700 hover:to-emerald-700 transition shadow-lg shadow-green-500/30"
+                  >
+                    ➕ 갤멀 생성
+                  </Link>
                   <span className="text-sm bg-gray-800/50 px-3 py-2 rounded-lg border border-gray-700 text-cyan-400">
                     👤 {t[language].welcome(user.nickname)}
                   </span>
@@ -228,7 +256,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* 메인 타이틀 - 고스트카 테마 */}
+        {/* 메인 타이틀 - 갤멀 일정 중심 */}
         <div className="text-center py-12 mb-8">
           <div className="inline-block mb-8">
             <div className="text-8xl animate-pulse">👻</div>
@@ -238,22 +266,19 @@ export default function HomePage() {
               {t[language].title}
             </span>
           </h1>
-          {/* <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
             {language === 'ko' ? (
-              <>당신의 <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">고스트카</span>가 되어드립니다</>
+              <>갤멀 일정을 한눈에 확인하고<br />참여할 멀티를 선택하세요</>
             ) : (
-              <>Your <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Ghost Car</span> Awaits</>
+              <>Check Gallery Multi Schedules<br />and Choose Your Events</>
             )}
-          </h2> */}
-          {/* <p className="text-xl text-gray-300 mb-4 max-w-3xl mx-auto">
-            {language === 'ko' ? (
-              <>데이터 분석으로 랩타임을 단축시켜주는 <span className="text-cyan-400 font-semibold">디지털 고스트카</span></>
-            ) : (
-              <><span className="text-cyan-400 font-semibold">Digital Ghost Car</span> powered by data analysis to reduce lap times</>
-            )}
-          </p> */}
+          </h2>
           <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
-            {/* {t[language].description2} */}
+            {language === 'ko' ? (
+              <>정기 갤멀부터 기습 갤멀까지, 모든 레이싱 이벤트를 캘린더로 관리하세요</>
+            ) : (
+              <>Manage all racing events from regular to flash events with our calendar system</>
+            )}
           </p>
           <div className="h-px w-96 mx-auto bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
         </div>
@@ -274,19 +299,51 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* 추가 메뉴 카드 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-12">
-          {/* Steam 프로필 카드 */}
+        {/* 갤멀 관련 액션 카드 */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-12">
+          {/* 정기 갤멀 */}
+          <Link href="/events/regular" className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-cyan-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
+            <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-blue-500/40 rounded-2xl p-8 backdrop-blur-sm hover:border-blue-400/60 transition-all duration-300 hover:scale-105 cursor-pointer">
+              <div className="text-center">
+                <div className="text-6xl mb-4">📅</div>
+                <h2 className="text-2xl font-bold mb-3 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                  정기 갤멀
+                </h2>
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  매주 반복되는<br />정기 레이싱 이벤트
+                </p>
+              </div>
+            </div>
+          </Link>
+
+          {/* 기습 갤멀 */}
+          <Link href="/multis" className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-600/20 to-red-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
+            <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-orange-500/40 rounded-2xl p-8 backdrop-blur-sm hover:border-orange-400/60 transition-all duration-300 hover:scale-105 cursor-pointer">
+              <div className="text-center">
+                <div className="text-6xl mb-4">⚡</div>
+                <h2 className="text-2xl font-bold mb-3 bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
+                  기습 갤멀
+                </h2>
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  예고 없이 갑작스럽게<br />열리는 일회성 이벤트
+                </p>
+              </div>
+            </div>
+          </Link>
+
+          {/* Steam 프로필 */}
           {user ? (
             <Link href="/profile" className="relative group">
               <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
-              <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-purple-500/40 rounded-2xl p-10 backdrop-blur-sm hover:border-purple-400/60 transition-all duration-300 hover:scale-105 cursor-pointer">
+              <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-purple-500/40 rounded-2xl p-8 backdrop-blur-sm hover:border-purple-400/60 transition-all duration-300 hover:scale-105 cursor-pointer">
                 <div className="text-center">
-                  <div className="text-7xl mb-6">🎮</div>
-                  <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  <div className="text-6xl mb-4">🎮</div>
+                  <h2 className="text-2xl font-bold mb-3 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                     Steam 프로필
                   </h2>
-                  <p className="text-gray-300 text-lg leading-relaxed">
+                  <p className="text-gray-300 text-sm leading-relaxed">
                     레이싱 게임 통계와<br />업적 현황
                   </p>
                 </div>
@@ -295,37 +352,22 @@ export default function HomePage() {
           ) : (
             <Link href="/login" className="relative group">
               <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
-              <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-purple-500/40 rounded-2xl p-10 backdrop-blur-sm hover:border-purple-400/60 transition-all duration-300 hover:scale-105 cursor-pointer">
+              <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-purple-500/40 rounded-2xl p-8 backdrop-blur-sm hover:border-purple-400/60 transition-all duration-300 hover:scale-105 cursor-pointer">
                 <div className="text-center">
-                  <div className="text-7xl mb-6">🎮</div>
-                  <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  <div className="text-6xl mb-4">🎮</div>
+                  <h2 className="text-2xl font-bold mb-3 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                     Steam 프로필
                   </h2>
-                  <p className="text-gray-300 text-lg mb-4 leading-relaxed">
+                  <p className="text-gray-300 text-sm mb-3 leading-relaxed">
                     Steam 로그인하고<br />통계 확인
                   </p>
-                  <div className="inline-block px-4 py-2 bg-purple-900/30 rounded-full border border-purple-500/30">
-                    <span className="text-purple-300 text-sm font-semibold">로그인 필요</span>
+                  <div className="inline-block px-3 py-1 bg-purple-900/30 rounded-full border border-purple-500/30">
+                    <span className="text-purple-300 text-xs font-semibold">로그인 필요</span>
                   </div>
                 </div>
               </div>
             </Link>
           )}
-
-          <Link href="/events" className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-br from-cyan-600/20 to-blue-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
-            <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-cyan-500/40 rounded-2xl p-10 backdrop-blur-sm hover:border-cyan-400/60 transition-all duration-300 hover:scale-105 cursor-pointer">
-              <div className="text-center">
-                <div className="text-7xl mb-6">🗓️</div>
-                <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-                  {t[language].racingCommunity}
-                </h2>
-                <p className="text-gray-300 text-lg leading-relaxed">
-                  {t[language].racingCommunityDesc}
-                </p>
-              </div>
-            </div>
-          </Link>
 
           {/* 기습 갤멀, 대시보드 & 고스트 분석 - 임시 비활성화 */}
           {/* 
