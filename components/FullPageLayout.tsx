@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import EventCalendar from './EventCalendar'
+import InterestGameNotificationBanner from './InterestGameNotificationBanner'
 import type { Database } from '@/lib/database.types'
 
 type Multi = Database['public']['Tables']['multis']['Row']
@@ -323,6 +324,11 @@ export default function FullPageLayout({
               {language === 'ko' ? '모든 갤멀 일정을 한눈에 확인하세요' : 'View all gallery multi schedules at a glance'}
             </p>
           </div>
+          
+          {/* 관심 게임 알림 배너 */}
+          {user && (
+            <InterestGameNotificationBanner userId={user.id} />
+          )}
           
           {eventsLoading ? (
             <div className="bg-gray-900 rounded-lg p-8 text-center">
