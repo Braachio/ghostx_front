@@ -5,7 +5,6 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import type { Database } from '@/lib/database.types'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { getDateFromWeekAndDay } from '@/app/utils/weekUtils'
 import { MultiWithTemplate } from '@/types/events'
 
 interface EventCardProps {
@@ -19,40 +18,19 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
   const [isOpen, setIsOpen] = useState(multi.is_open)
   const [isLoading, setIsLoading] = useState(false)
 
-  // 이벤트 시작 날짜 계산
+  // 이벤트 시작 날짜 계산 (event_date만 사용)
   const getEventDate = () => {
     if (multi.event_date) {
-      return new Date(multi.event_date)
+      const eventDate = new Date(multi.event_date + 'T12:00:00') // 정오로 설정해서 시간대 문제 방지
+      console.log('EventCard 날짜 표시:', {
+        title: multi.title,
+        event_date: multi.event_date,
+        parsed: eventDate.toDateString()
+      })
+      return eventDate
     }
     
-    // 정기 이벤트인 경우 (year, week가 null)
-    if (!multi.year && !multi.week && multi.multi_day && multi.multi_day.length > 0) {
-      // 정기 이벤트는 다음에 올 해당 요일을 계산
-      const dayNames = ['일', '월', '화', '수', '목', '금', '토']
-      const targetDay = dayNames.indexOf(multi.multi_day[0])
-      
-      if (targetDay !== -1) {
-        const today = new Date()
-        const todayDay = today.getDay()
-        let daysUntilTarget = targetDay - todayDay
-        
-        // 오늘 이후의 해당 요일 찾기
-        if (daysUntilTarget <= 0) {
-          daysUntilTarget += 7
-        }
-        
-        const nextEventDate = new Date(today)
-        nextEventDate.setDate(today.getDate() + daysUntilTarget)
-        return nextEventDate
-      }
-    }
-    
-    // 일반 이벤트인 경우
-    if (multi.year && multi.week && multi.multi_day && multi.multi_day.length > 0) {
-      // 첫 번째 요일을 기준으로 날짜 계산
-      return getDateFromWeekAndDay(multi.year, multi.week, multi.multi_day[0])
-    }
-    
+    console.log('event_date 없음:', multi.title)
     return null
   }
 
@@ -112,7 +90,7 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
   }
 
 
-  // 이벤트 날짜 계산 (event_date 필드 우선 사용, 없으면 주차 계산)
+  // 이벤트 날짜 계산 (event_date만 사용)
   const getEventDates = () => {
     const now = new Date()
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
@@ -120,37 +98,15 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
     const pastDates: Date[] = []
     const futureDates: Date[] = []
     
-    // event_date가 있으면 해당 날짜 사용 (새 시스템)
+    // event_date만 사용
     if (multi.event_date) {
-      const eventDate = new Date(multi.event_date)
+      const eventDate = new Date(multi.event_date + 'T12:00:00') // 정오로 설정해서 시간대 문제 방지
       eventDate.setHours(0, 0, 0, 0) // 시간 제거하고 날짜만 비교
       
       if (eventDate < today) {
         pastDates.push(eventDate)
       } else {
         futureDates.push(eventDate)
-      }
-      
-      return { pastDates, futureDates }
-    }
-    
-    // event_date가 없으면 기존 주차 계산 사용 (하위 호환)
-    const multiYear = multi.year
-    const multiWeek = multi.week
-    
-    if (!multiWeek || !multiYear) {
-      return { pastDates: [], futureDates: [] }
-    }
-    
-    for (const day of multi.multi_day) {
-      const eventDate = getDateFromWeekAndDay(multiYear, multiWeek, day)
-      
-      if (eventDate) {
-        if (eventDate < today) {
-          pastDates.push(eventDate)
-        } else {
-          futureDates.push(eventDate)
-        }
       }
     }
     
