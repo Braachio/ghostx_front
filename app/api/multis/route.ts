@@ -77,32 +77,7 @@ export async function GET(req: NextRequest) {
         details: error.details,
         hint: error.hint
       })
-      // 에러 시 더미 데이터 반환
-      const dummyData = [
-        {
-          id: '1',
-          title: '🏁 주말 레이싱 이벤트',
-          game: '컴페티치오네',
-          game_track: 'Seoul Circuit',
-          multi_class: 'GT3',
-          multi_day: ['토', '일'],
-          multi_time: '20:00',
-          multi_race: 'Sprint Race',
-          is_open: true,
-          description: '주말 레이싱 이벤트입니다. 많은 참여 부탁드립니다!',
-          link: null,
-          author_id: 'dummy-author',
-          anonymous_nickname: null,
-          anonymous_password: null,
-          created_at: new Date().toISOString(),
-          updated_at: null,
-          event_date: null,
-          event_type: 'flash_event',
-          is_template_based: false,
-          template_id: null
-        }
-      ]
-      return NextResponse.json(dummyData)
+      return NextResponse.json({ error: '데이터 조회 실패' }, { status: 500 })
     }
 
     console.log('multis 데이터 조회 성공:', data?.length || 0, '개')
