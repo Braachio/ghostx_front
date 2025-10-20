@@ -245,7 +245,6 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
 
         {/* 정기 갤멀 (요일별 고정) */}
         {DAYS_OF_WEEK.map((day) => {
-          const dayNames = ['일', '월', '화', '수', '목', '금', '토']
           const regularEvents = getRegularGalleryEvents().filter(event => 
             event.multi_day && event.multi_day.includes(day)
           )
