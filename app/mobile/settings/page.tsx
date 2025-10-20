@@ -28,7 +28,7 @@ export default function MobileSettingsPage() {
     getUser()
   }, [])
 
-  const handleSettingChange = (key: string, value: any) => {
+  const handleSettingChange = (key: string, value: boolean | string) => {
     setSettings(prev => ({
       ...prev,
       [key]: value

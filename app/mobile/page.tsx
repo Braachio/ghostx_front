@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { User } from '@supabase/supabase-js'
+import { Multi } from '../../types/events'
 import MobileHeader from '../../components/mobile/MobileHeader'
 import MobileCalendar from '../../components/mobile/MobileCalendar'
 import MobileEventList from '../../components/mobile/MobileEventList'
@@ -12,7 +13,7 @@ export default function MobileHomePage() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'calendar' | 'events'>('calendar')
-  const [events, setEvents] = useState<any[]>([])
+  const [events, setEvents] = useState<Multi[]>([])
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
 
   useEffect(() => {

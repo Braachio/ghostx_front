@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { Multi } from '../../types/events'
 
 interface MobileCalendarProps {
-  events: any[]
+  events: Multi[]
   selectedDate: string | null
   onDateSelect: (date: string) => void
 }
@@ -18,7 +19,6 @@ export default function MobileCalendar({ events, selectedDate, onDateSelect }: M
   // 현재 월의 캘린더 데이터 생성
   const calendarData = useMemo(() => {
     const firstDay = new Date(year, month, 1)
-    const lastDay = new Date(year, month + 1, 0)
     const startDate = new Date(firstDay)
     startDate.setDate(startDate.getDate() - firstDay.getDay()) // 일요일부터 시작
 

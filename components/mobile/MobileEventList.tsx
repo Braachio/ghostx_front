@@ -2,9 +2,10 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
+import { Multi } from '../../types/events'
 
 interface MobileEventListProps {
-  events: any[]
+  events: Multi[]
   selectedDate: string | null
 }
 
@@ -58,7 +59,7 @@ export default function MobileEventList({ events, selectedDate }: MobileEventLis
   }, [events, filter, selectedDate, sortBy])
 
   // 이벤트 날짜 포맷팅
-  const formatEventDate = (event: any) => {
+  const formatEventDate = (event: Multi) => {
     if (event.event_date) {
       const date = new Date(event.event_date)
       return date.toLocaleDateString('ko-KR', {
@@ -74,7 +75,7 @@ export default function MobileEventList({ events, selectedDate }: MobileEventLis
   }
 
   // 이벤트 시간 포맷팅
-  const formatEventTime = (event: any) => {
+  const formatEventTime = (event: Multi) => {
     if (event.multi_time) {
       return event.multi_time
     }
