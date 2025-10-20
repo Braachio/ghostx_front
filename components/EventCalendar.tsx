@@ -143,6 +143,22 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
     return colorMap[game] || 'bg-gray-600'
   }
 
+  // 정기 갤멀 표시용 강조 색상 (보더/텍스트)
+  const getGameAccentColor = (game: string) => {
+    const colorMap: { [key: string]: { border: string; dot: string; text: string } } = {
+      'iracing': { border: 'border-blue-500/60', dot: 'bg-blue-400', text: 'text-blue-300' },
+      '아세토코르사': { border: 'border-green-500/60', dot: 'bg-green-400', text: 'text-green-300' },
+      '그란투리스모7': { border: 'border-purple-500/60', dot: 'bg-purple-400', text: 'text-purple-300' },
+      '컴페티치오네': { border: 'border-yellow-500/60', dot: 'bg-yellow-400', text: 'text-yellow-300' },
+      '르망얼티밋': { border: 'border-orange-500/60', dot: 'bg-orange-400', text: 'text-orange-300' },
+      'F1 25': { border: 'border-red-500/60', dot: 'bg-red-400', text: 'text-red-300' },
+      '오토모빌리스타2': { border: 'border-teal-500/60', dot: 'bg-teal-400', text: 'text-teal-300' },
+      'EA WRC': { border: 'border-emerald-500/60', dot: 'bg-emerald-400', text: 'text-emerald-300' },
+      '알펙터2': { border: 'border-cyan-500/60', dot: 'bg-cyan-400', text: 'text-cyan-300' },
+    }
+    return colorMap[game] || { border: 'border-gray-600/60', dot: 'bg-gray-400', text: 'text-gray-300' }
+  }
+
   // 날짜가 현재 월인지 확인
   const isCurrentMonth = (date: Date) => {
     return date.getMonth() === currentDate.getMonth()
@@ -252,21 +268,22 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
           )
           
           return (
-            <div key={`regular-${day}`} className="p-2 bg-gray-700/50 rounded min-h-[60px]">
-              <div className="text-xs text-gray-300 mb-1 font-medium">정기 갤멀</div>
+            <div key={`regular-${day}`} className="p-2 bg-gradient-to-b from-gray-800/60 to-gray-800/30 rounded min-h-[64px] border border-gray-700/60">
+              <div className="flex items-center justify-between mb-1">
+                <div className="text-[11px] tracking-wide text-gray-300 font-semibold">정기 갤멀</div>
+                {regularEvents.length > 0 && (
+                  <span className="text-[10px] text-gray-400">{regularEvents.length}개</span>
+                )}
+              </div>
               <div className="space-y-1">
                 {regularEvents.slice(0, 2).map((event) => (
-                  <div
-                    key={event.id}
-                    className={`p-1 text-white text-xs rounded truncate ${getGameColor(event.game)}`}
-                    title={`${event.title} (${event.game})`}
+                  <div key={event.id} title={`${event.title} (${event.game})`}
+                       className={`px-2 py-1 rounded-md bg-gray-800/80 border ${getGameAccentColor(event.game).border} flex items-center gap-2`}
                   >
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs opacity-75">
-                        {GAME_OPTIONS.find(g => g.id === event.game)?.icon || '🎮'}
-                      </span>
-                      <span className="truncate">{event.title}</span>
-                    </div>
+                    <span className={`w-2 h-2 rounded-full ${getGameAccentColor(event.game).dot}`} />
+                    <span className={`text-[11px] font-medium truncate ${getGameAccentColor(event.game).text}`}>
+                      {event.title}
+                    </span>
                   </div>
                 ))}
                 {regularEvents.length > 2 && (
