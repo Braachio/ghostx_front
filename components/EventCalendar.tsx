@@ -252,13 +252,16 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
           )
           
           return (
-            <div key={`regular-${day}`} className="p-2 bg-gray-700/50 rounded min-h-[60px]">
-              <div className="text-xs text-gray-300 mb-1 font-medium">정기 갤멀</div>
+            <div key={`regular-${day}`} className="p-2 bg-gray-700/40 rounded min-h-[60px] border border-cyan-500/30">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-semibold rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">정기</span>
+                <span className="text-xs text-gray-300 font-medium">정기 갤멀</span>
+              </div>
               <div className="space-y-1">
                 {regularEvents.slice(0, 2).map((event) => (
                   <div
                     key={event.id}
-                    className={`p-1 text-white text-xs rounded truncate ${getGameColor(event.game)}`}
+                    className={`p-1 text-white text-xs rounded truncate ${getGameColor(event.game)} border border-white/10`}
                     title={`${event.title} (${event.game})`}
                   >
                     <div className="flex items-center gap-1">
