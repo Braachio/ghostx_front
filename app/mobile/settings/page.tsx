@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { User } from '@supabase/supabase-js'
-import { createClient } from '../../../lib/supabaseClient'
+import { supabase } from '../../../lib/supabaseClient'
 import MobileHeader from '../../../components/mobile/MobileHeader'
 
 export default function MobileSettingsPage() {
@@ -17,8 +17,6 @@ export default function MobileSettingsPage() {
   })
 
   useEffect(() => {
-    const supabase = createClient()
-    
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)

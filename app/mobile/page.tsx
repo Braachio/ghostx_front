@@ -7,7 +7,7 @@ import MobileHeader from '../../components/mobile/MobileHeader'
 import MobileCalendar from '../../components/mobile/MobileCalendar'
 import MobileEventList from '../../components/mobile/MobileEventList'
 import MobileNavigation from '../../components/mobile/MobileNavigation'
-import { createClient } from '../../lib/supabaseClient'
+import { supabase } from '../../lib/supabaseClient'
 
 export default function MobileHomePage() {
   const [user, setUser] = useState<User | null>(null)
@@ -17,8 +17,6 @@ export default function MobileHomePage() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
 
   useEffect(() => {
-    const supabase = createClient()
-    
     // 사용자 정보 가져오기
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
