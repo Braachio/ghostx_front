@@ -85,23 +85,26 @@ export default function MobileCalendar({ events, selectedDate, onDateSelect }: M
   return (
     <div className="mobile-calendar">
       {/* 월 네비게이션 */}
-      <div className="flex items-center justify-between mobile-px-4 mobile-py-3 bg-slate-800">
+      <div className="flex items-center justify-between mobile-px-4 mobile-py-4 bg-gradient-to-r from-slate-800 to-slate-700 border-b border-slate-600/50">
         <button
           onClick={goToPreviousMonth}
-          className="mobile-px-3 mobile-py-2 bg-slate-700 rounded-lg touch-button"
+          className="mobile-px-4 mobile-py-3 bg-slate-700/50 backdrop-blur-sm rounded-xl border border-slate-600/50 touch-button hover:bg-slate-600/50 transition-all"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
         
-        <h2 className="mobile-text-lg font-semibold">
-          {year}년 {month + 1}월
-        </h2>
+        <div className="text-center">
+          <h2 className="mobile-text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+            {year}년 {month + 1}월
+          </h2>
+          <div className="mobile-text-xs text-slate-400">캘린더</div>
+        </div>
         
         <button
           onClick={goToNextMonth}
-          className="mobile-px-3 mobile-py-2 bg-slate-700 rounded-lg touch-button"
+          className="mobile-px-4 mobile-py-3 bg-slate-700/50 backdrop-blur-sm rounded-xl border border-slate-600/50 touch-button hover:bg-slate-600/50 transition-all"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -110,11 +113,11 @@ export default function MobileCalendar({ events, selectedDate, onDateSelect }: M
       </div>
 
       {/* 요일 헤더 */}
-      <div className="grid grid-cols-7 bg-slate-800">
+      <div className="grid grid-cols-7 bg-gradient-to-r from-slate-800 to-slate-700 border-b border-slate-600/30">
         {['일', '월', '화', '수', '목', '금', '토'].map((day, index) => (
           <div 
             key={day}
-            className={`mobile-py-2 text-center mobile-text-sm font-medium ${
+            className={`mobile-py-3 text-center mobile-text-sm font-semibold ${
               index === 0 ? 'text-red-400' : index === 6 ? 'text-blue-400' : 'text-slate-300'
             }`}
           >

@@ -85,34 +85,34 @@ export default function MobileEventList({ events, selectedDate }: MobileEventLis
   return (
     <div className="flex-1 overflow-hidden flex flex-col">
       {/* 필터 및 정렬 */}
-      <div className="mobile-p-4 bg-slate-800 border-b border-slate-700">
-        <div className="flex space-x-2 mobile-mb-3">
+      <div className="mobile-p-4 bg-gradient-to-r from-slate-800 to-slate-700 border-b border-slate-600/50">
+        <div className="flex space-x-2 mobile-mb-4">
           <button
             onClick={() => setFilter('all')}
-            className={`mobile-px-3 mobile-py-2 rounded-lg mobile-text-sm touch-button ${
+            className={`mobile-px-4 mobile-py-3 rounded-xl mobile-text-sm touch-button transition-all ${
               filter === 'all' 
-                ? 'bg-cyan-600 text-white' 
-                : 'bg-slate-700 text-slate-300'
+                ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/25' 
+                : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50 border border-slate-600/50'
             }`}
           >
             전체
           </button>
           <button
             onClick={() => setFilter('regular')}
-            className={`mobile-px-3 mobile-py-2 rounded-lg mobile-text-sm touch-button ${
+            className={`mobile-px-4 mobile-py-3 rounded-xl mobile-text-sm touch-button transition-all ${
               filter === 'regular' 
-                ? 'bg-cyan-600 text-white' 
-                : 'bg-slate-700 text-slate-300'
+                ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/25' 
+                : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50 border border-slate-600/50'
             }`}
           >
             정기 갤멀
           </button>
           <button
             onClick={() => setFilter('flash')}
-            className={`mobile-px-3 mobile-py-2 rounded-lg mobile-text-sm touch-button ${
+            className={`mobile-px-4 mobile-py-3 rounded-xl mobile-text-sm touch-button transition-all ${
               filter === 'flash' 
-                ? 'bg-cyan-600 text-white' 
-                : 'bg-slate-700 text-slate-300'
+                ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/25' 
+                : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50 border border-slate-600/50'
             }`}
           >
             기습 갤멀
@@ -120,13 +120,13 @@ export default function MobileEventList({ events, selectedDate }: MobileEventLis
         </div>
 
         <div className="flex items-center justify-between">
-          <div className="mobile-text-sm text-slate-400">
-            총 {filteredEvents.length}개 이벤트
+          <div className="mobile-text-sm text-slate-300 font-medium">
+            총 <span className="text-cyan-400 font-bold">{filteredEvents.length}</span>개 이벤트
           </div>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as 'date' | 'title')}
-            className="mobile-px-3 mobile-py-2 bg-slate-700 border border-slate-600 rounded-lg mobile-text-sm"
+            className="mobile-px-4 mobile-py-2 bg-slate-700/50 backdrop-blur-sm border border-slate-600/50 rounded-xl mobile-text-sm text-slate-300 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
           >
             <option value="date">날짜순</option>
             <option value="title">제목순</option>
