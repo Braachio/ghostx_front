@@ -16,6 +16,18 @@ export async function GET(req: NextRequest) {
     const supabase = createRouteHandlerClient<Database>({
       cookies: () => cookieStore,
     })
+    
+    // 인증 상태 확인
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    console.log('인증 상태:', { user: user?.id, email: user?.email, authError })
+    
+    // RLS 정책 확인을 위한 테스트 쿼리
+    console.log('=== RLS 정책 테스트 ===')
+    const { data: testData, error: testError } = await supabase
+      .from('multis')
+      .select('count(*)')
+      .limit(1)
+    console.log('RLS 테스트 결과:', { testData, testError })
 
     // 이벤트 상태 정리 작업 실행 (백그라운드에서)
     try {
@@ -64,6 +76,8 @@ export async function GET(req: NextRequest) {
       query = query.gte('created_at', start).lte('created_at', end)
     }
 
+    // RLS 우회를 위한 서비스 키 사용 시도
+    console.log('=== 서비스 키로 쿼리 시도 ===')
     const { data, error } = await query.order('created_at', { ascending: false })
 
     console.log('=== /api/multis 디버깅 정보 ===')
