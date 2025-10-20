@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { User } from '@supabase/supabase-js'
-import { createClient } from '../../utils/supabase'
+import { createClient } from '../../../lib/supabaseClient'
 import MobileHeader from '../../components/mobile/MobileHeader'
 
 export default function MobileSettingsPage() {
