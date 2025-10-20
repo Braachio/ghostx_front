@@ -86,50 +86,38 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
     return days
   }
 
-  // 특정 날짜의 이벤트 가져오기
-  const getEventsForDate = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0]
-    console.log('=== getEventsForDate 디버깅 ===')
-    console.log('찾는 날짜:', dateStr)
-    console.log('필터링된 이벤트 개수:', filteredEvents.length)
-    
-    const dayEvents = filteredEvents.filter(event => {
-      // 갤멀 이벤트만 필터링 (정기 갤멀, 기습갤멀)
-      const isGalleryEvent = event.title && (
+  // 정기 갤멀 이벤트 가져오기 (요일별)
+  const getRegularGalleryEvents = () => {
+    return filteredEvents.filter(event => {
+      const isRegularGallery = event.title && (
         event.title.includes('갤멀') || 
-        event.title.includes('갤러리') ||
-        event.title.includes('정기') ||
-        event.title.includes('기습')
-      )
+        event.title.includes('갤러리')
+      ) && event.multi_day && Array.isArray(event.multi_day)
       
-      if (!isGalleryEvent) {
-        console.log(`이벤트 "${event.title}" 갤멀 아님 - 제외`)
-        return false
-      }
-      
-      // event_date가 있는 경우 (일반 이벤트)
-      if (event.event_date) {
-        const eventDateStr = event.event_date.split('T')[0]
-        const matches = eventDateStr === dateStr
-        console.log(`이벤트 "${event.title}" (${event.event_date}) 매칭:`, matches)
-        return matches
-      }
-      
-      // multi_day가 있는 경우 (정기 이벤트) - 요일 매칭
-      if (event.multi_day && Array.isArray(event.multi_day)) {
-        const dayNames = ['일', '월', '화', '수', '목', '금', '토']
-        const dayName = dayNames[date.getDay()]
-        const matches = event.multi_day.includes(dayName)
-        console.log(`정기 이벤트 "${event.title}" (${event.multi_day}) 요일 매칭:`, matches)
-        return matches
-      }
-      
-      return false
+      return isRegularGallery
     })
+  }
+
+  // 기습갤멀 이벤트 가져오기 (특정 날짜)
+  const getFlashGalleryEvents = (date: Date) => {
+    const dateStr = date.toISOString().split('T')[0]
     
-    console.log('해당 날짜 이벤트 개수:', dayEvents.length)
-    console.log('=== getEventsForDate 디버깅 완료 ===')
-    return dayEvents
+    return filteredEvents.filter(event => {
+      const isFlashGallery = event.title && (
+        event.title.includes('기습') || 
+        event.title.includes('갤멀')
+      ) && event.event_date
+      
+      if (!isFlashGallery) return false
+      
+      const eventDateStr = event.event_date.split('T')[0]
+      return eventDateStr === dateStr
+    })
+  }
+
+  // 특정 날짜의 이벤트 가져오기 (기습갤멀만)
+  const getEventsForDate = (date: Date) => {
+    return getFlashGalleryEvents(date)
   }
 
   // 게임별 색상 매핑
@@ -246,6 +234,42 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
             {day}
           </div>
         ))}
+
+        {/* 정기 갤멀 (요일별 고정) */}
+        {DAYS_OF_WEEK.map((day) => {
+          const dayNames = ['일', '월', '화', '수', '목', '금', '토']
+          const dayIndex = dayNames.indexOf(day)
+          const regularEvents = getRegularGalleryEvents().filter(event => 
+            event.multi_day && event.multi_day.includes(day)
+          )
+          
+          return (
+            <div key={`regular-${day}`} className="p-2 bg-gray-700/50 rounded min-h-[60px]">
+              <div className="text-xs text-gray-300 mb-1 font-medium">정기 갤멀</div>
+              <div className="space-y-1">
+                {regularEvents.slice(0, 2).map((event) => (
+                  <div
+                    key={event.id}
+                    className={`p-1 text-white text-xs rounded truncate ${getGameColor(event.game)}`}
+                    title={`${event.title} (${event.game})`}
+                  >
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs opacity-75">
+                        {GAME_OPTIONS.find(g => g.id === event.game)?.icon || '🎮'}
+                      </span>
+                      <span className="truncate">{event.title}</span>
+                    </div>
+                  </div>
+                ))}
+                {regularEvents.length > 2 && (
+                  <div className="text-xs text-gray-400 text-center">
+                    +{regularEvents.length - 2}개 더
+                  </div>
+                )}
+              </div>
+            </div>
+          )
+        })}
 
         {/* 날짜 셀들 */}
         {calendarDays.map((date, index) => {
