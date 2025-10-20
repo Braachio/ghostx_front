@@ -19,7 +19,7 @@ const GAME_OPTIONS = [
   { id: '컴페티치오네', name: '컴페티치오네', icon: '🏆' },
   { id: '오토모빌리스타2', name: '오토모빌리스타2', icon: '🏎️' },
   { id: '아세토코르사', name: '아세토코르사', icon: '🏎️' },
-  { id: '그란투리스모', name: '그란투리스모', icon: '🏁' },
+  { id: '그란투리스모7', name: '그란투리스모7', icon: '🏁' },
   { id: '알펙터2', name: '알펙터2', icon: '🏎️' },
 ]
 
@@ -107,7 +107,12 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
     const dateStr = toLocalDateString(date)
     
     return filteredEvents.filter(event => {
-      const isFlash = event.event_type === 'flash_event' && !!event.event_date
+      const isFlash = (!!event.event_date) && (
+        event.event_type === 'flash_event' ||
+        event.event_type === 'flash' ||
+        event.event_type === null ||
+        event.event_type === undefined
+      )
       
       if (!isFlash) return false
       
