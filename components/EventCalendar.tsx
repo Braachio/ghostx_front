@@ -30,6 +30,7 @@ const DAYS_OF_WEEK = ['일', '월', '화', '수', '목', '금', '토']
 export default function EventCalendar({ events, selectedGame = 'all', onGameChange }: EventCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [filteredEvents, setFilteredEvents] = useState<Multi[]>([])
+  const [expandedDate, setExpandedDate] = useState<Date | null>(null)
 
   // 게임별 이벤트 필터링
   useEffect(() => {
@@ -283,6 +284,10 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
               className={`min-h-[100px] p-2 border border-gray-700 rounded ${
                 isCurrentMonthDay ? 'bg-gray-800' : 'bg-gray-900'
               } ${isToday ? 'ring-2 ring-blue-500' : ''}`}
+              onClick={() => setExpandedDate(date)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setExpandedDate(date) }}
             >
               <div className={`text-sm font-medium mb-1 ${
                 isCurrentMonthDay ? 'text-white' : 'text-gray-500'
@@ -317,6 +322,77 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
           )
         })}
       </div>
+
+      {/* 확대 모달 */}
+      {expandedDate && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          onClick={() => setExpandedDate(null)}
+        >
+          <div
+            className="w-full max-w-2xl mx-4 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-700">
+              <div className="text-white font-semibold">
+                {expandedDate.getFullYear()}년 {expandedDate.getMonth() + 1}월 {expandedDate.getDate()}일 ({DAYS_OF_WEEK[expandedDate.getDay()]})
+              </div>
+              <button
+                className="px-3 py-1 text-sm rounded bg-gray-700 hover:bg-gray-600 text-white"
+                onClick={() => setExpandedDate(null)}
+              >
+                닫기
+              </button>
+            </div>
+
+            {/* 선택된 날짜의 기습갤멀 */}
+            <div className="p-5 space-y-3">
+              <div className="text-sm text-gray-300 mb-1">기습 갤멀</div>
+              {getEventsForDate(expandedDate).length === 0 ? (
+                <div className="text-sm text-gray-500">기습 갤멀 일정이 없습니다.</div>
+              ) : (
+                <div className="space-y-2">
+                  {getEventsForDate(expandedDate).map((event) => (
+                    <Link
+                      key={event.id}
+                      href={`/events/regular/${event.game}/${event.id}`}
+                      className={`block px-3 py-2 rounded border border-gray-700 ${getGameColor(event.game)} hover:opacity-90 transition-colors`}
+                      title={`${event.title} (${event.game})`}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2 text-white">
+                          <span>{GAME_OPTIONS.find(g => g.id === event.game)?.icon || '🎮'}</span>
+                          <span className="font-medium truncate">{event.title}</span>
+                        </div>
+                        {event.multi_time && (
+                          <span className="text-xs text-gray-200 bg-gray-800 px-2 py-1 rounded border border-gray-700">{event.multi_time}</span>
+                        )}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* 요일 고정 정기 갤멀 안내 */}
+            <div className="px-5 pb-5">
+              <div className="text-sm text-gray-300 mb-2">해당 요일 정기 갤멀</div>
+              <div className="space-y-2">
+                {getRegularGalleryEvents()
+                  .filter(event => event.multi_day && event.multi_day.includes(DAYS_OF_WEEK[expandedDate.getDay()]))
+                  .map(event => (
+                    <div key={`regular-${event.id}`} className={`px-3 py-2 rounded bg-gray-800 border border-gray-700 text-white text-sm ${getGameColor(event.game)}`}>
+                      <div className="flex items-center gap-2">
+                        <span>{GAME_OPTIONS.find(g => g.id === event.game)?.icon || '🎮'}</span>
+                        <span className="truncate">{event.title}</span>
+                      </div>
+                    </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 이벤트 통계 */}
       <div className="mt-6 p-4 bg-gray-800 rounded-lg">
