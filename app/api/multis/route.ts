@@ -67,6 +67,19 @@ export async function GET(req: NextRequest) {
     console.log('데이터 개수:', data?.length || 0)
     console.log('에러:', error?.message || '없음')
     console.log('첫 번째 아이템:', data?.[0] || '없음')
+    
+    // 게임 필드 값들 확인
+    if (data && data.length > 0) {
+      const gameValues = [...new Set(data.map(event => event.game))]
+      console.log('실제 게임 필드 값들:', gameValues)
+      
+      // 각 게임별 개수 확인
+      gameValues.forEach(game => {
+        const count = data.filter(event => event.game === game).length
+        console.log(`${game}: ${count}개`)
+      })
+    }
+    
     console.log('전체 데이터:', data)
     console.log('===============================')
 
