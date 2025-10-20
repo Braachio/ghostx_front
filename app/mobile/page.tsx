@@ -6,7 +6,7 @@ import MobileHeader from '../../components/mobile/MobileHeader'
 import MobileCalendar from '../../components/mobile/MobileCalendar'
 import MobileEventList from '../../components/mobile/MobileEventList'
 import MobileNavigation from '../../components/mobile/MobileNavigation'
-import { createClient } from '../../utils/supabase'
+import { createClient } from '../utils/supabase'
 
 export default function MobileHomePage() {
   const [user, setUser] = useState<User | null>(null)
