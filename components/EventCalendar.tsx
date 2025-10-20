@@ -246,7 +246,6 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
         {/* 정기 갤멀 (요일별 고정) */}
         {DAYS_OF_WEEK.map((day) => {
           const dayNames = ['일', '월', '화', '수', '목', '금', '토']
-          const dayIndex = dayNames.indexOf(day)
           const regularEvents = getRegularGalleryEvents().filter(event => 
             event.multi_day && event.multi_day.includes(day)
           )
@@ -254,7 +253,7 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
           return (
             <div key={`regular-${day}`} className="p-2 bg-gray-700/40 rounded min-h-[60px] border border-cyan-500/30">
               <div className="flex items-center gap-2 mb-1">
-                <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-semibold rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">정기</span>
+                {/* <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-semibold rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">정기</span> */}
                 <span className="text-xs text-gray-300 font-medium">정기 갤멀</span>
               </div>
               <div className="space-y-1">
