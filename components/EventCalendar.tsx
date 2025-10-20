@@ -89,10 +89,34 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
   // 특정 날짜의 이벤트 가져오기
   const getEventsForDate = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0]
-    return filteredEvents.filter(event => {
-      if (!event.multi_day || !Array.isArray(event.multi_day)) return false
-      return event.multi_day.includes(dateStr)
+    console.log('=== getEventsForDate 디버깅 ===')
+    console.log('찾는 날짜:', dateStr)
+    console.log('필터링된 이벤트 개수:', filteredEvents.length)
+    
+    const dayEvents = filteredEvents.filter(event => {
+      // event_date가 있는 경우 (일반 이벤트)
+      if (event.event_date) {
+        const eventDateStr = event.event_date.split('T')[0]
+        const matches = eventDateStr === dateStr
+        console.log(`이벤트 "${event.title}" (${event.event_date}) 매칭:`, matches)
+        return matches
+      }
+      
+      // multi_day가 있는 경우 (정기 이벤트) - 요일 매칭
+      if (event.multi_day && Array.isArray(event.multi_day)) {
+        const dayNames = ['일', '월', '화', '수', '목', '금', '토']
+        const dayName = dayNames[date.getDay()]
+        const matches = event.multi_day.includes(dayName)
+        console.log(`정기 이벤트 "${event.title}" (${event.multi_day}) 요일 매칭:`, matches)
+        return matches
+      }
+      
+      return false
     })
+    
+    console.log('해당 날짜 이벤트 개수:', dayEvents.length)
+    console.log('=== getEventsForDate 디버깅 완료 ===')
+    return dayEvents
   }
 
   // 게임별 색상 매핑
