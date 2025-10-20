@@ -72,12 +72,28 @@ export default function HomePage() {
         }
 
         // 이벤트 데이터 가져오기
+        console.log('=== 이벤트 데이터 가져오기 시작 ===')
         const eventsRes = await fetch('/api/multis')
+        console.log('API 응답 상태:', eventsRes.status)
+        
         if (eventsRes.ok) {
-          const { data } = await eventsRes.json()
-          setEvents(data || [])
+          const responseData = await eventsRes.json()
+          console.log('API 응답 데이터:', responseData)
+          
+          // 응답이 배열인지 확인
+          if (Array.isArray(responseData)) {
+            setEvents(responseData)
+            console.log('이벤트 설정 완료:', responseData.length, '개')
+          } else {
+            console.log('응답이 배열이 아님:', responseData)
+            setEvents([])
+          }
+        } else {
+          console.error('API 요청 실패:', eventsRes.status, eventsRes.statusText)
+          setEvents([])
         }
         setEventsLoading(false)
+        console.log('=== 이벤트 데이터 가져오기 완료 ===')
 
       } catch (err) {
         console.error('데이터 로드 실패:', err)

@@ -32,11 +32,19 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
 
   // 게임별 이벤트 필터링
   useEffect(() => {
+    console.log('=== EventCalendar 필터링 시작 ===')
+    console.log('전체 이벤트:', events.length, '개')
+    console.log('선택된 게임:', selectedGame)
+    
     if (selectedGame === 'all') {
       setFilteredEvents(events)
+      console.log('전체 이벤트 표시:', events.length, '개')
     } else {
-      setFilteredEvents(events.filter(event => event.game === selectedGame))
+      const filtered = events.filter(event => event.game === selectedGame)
+      setFilteredEvents(filtered)
+      console.log('필터링된 이벤트:', filtered.length, '개')
     }
+    console.log('=== EventCalendar 필터링 완료 ===')
   }, [events, selectedGame])
 
 

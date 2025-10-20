@@ -63,12 +63,12 @@ export async function GET(req: NextRequest) {
 
     const { data, error } = await query.order('created_at', { ascending: false })
 
-    console.log('GET /api/multis - 쿼리 결과:', {
-      dataLength: data?.length || 0,
-      error: error?.message || null,
-      firstItem: data?.[0] || null,
-      allData: data
-    })
+    console.log('=== /api/multis 디버깅 정보 ===')
+    console.log('데이터 개수:', data?.length || 0)
+    console.log('에러:', error?.message || '없음')
+    console.log('첫 번째 아이템:', data?.[0] || '없음')
+    console.log('전체 데이터:', data)
+    console.log('===============================')
 
     if (error) {
       console.error('Supabase 에러:', error)
