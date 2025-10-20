@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { User } from '@supabase/supabase-js'
 import { createClient } from '../../../lib/supabaseClient'
-import MobileHeader from '../../components/mobile/MobileHeader'
+import MobileHeader from '../../../components/mobile/MobileHeader'
 
 export default function MobileSettingsPage() {
   const [user, setUser] = useState<User | null>(null)
