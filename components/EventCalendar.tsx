@@ -87,19 +87,11 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
     return days
   }
 
-  // 공통: 갤멀 키워드 판단
-  const hasGalleryKeyword = (title?: string | null) => {
-    if (!title) return false
-    return title.includes('갤멀') || title.includes('갤러리')
-  }
-
   // 정기 갤멀 이벤트 가져오기 (요일별)
   const getRegularGalleryEvents = () => {
     return filteredEvents.filter(event => {
-      const isRegular = hasGalleryKeyword(event.title)
+      const isRegular = event.event_type === 'regular_schedule'
         && Array.isArray(event.multi_day) && event.multi_day.length > 0
-        && !event.title?.includes('기습')
-        && !event.event_date // 명시적 날짜가 있으면 정기가 아님
       return isRegular
     })
   }
@@ -109,7 +101,7 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
     const dateStr = date.toISOString().split('T')[0]
     
     return filteredEvents.filter(event => {
-      const isFlash = hasGalleryKeyword(event.title) && !!event.event_date
+      const isFlash = event.event_type === 'flash_event' && !!event.event_date
       
       if (!isFlash) return false
       
