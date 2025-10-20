@@ -1,0 +1,27 @@
+{
+  "name": "Ghost-X Mobile",
+  "short_name": "Ghost-X",
+  "description": "심레이싱 갤러리 멀티 일정 관리 시스템",
+  "start_url": "/mobile",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#06b6d4",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["games", "entertainment", "lifestyle"],
+  "lang": "ko",
+  "dir": "ltr"
+}
