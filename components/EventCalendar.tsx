@@ -14,14 +14,15 @@ interface EventCalendarProps {
 
 const GAME_OPTIONS = [
   { id: 'all', name: '전체', icon: '🎮' },
-  { id: 'iracing', name: 'iRacing', icon: '🏁' },
-  { id: 'assettocorsa', name: '아세토코르사', icon: '🏎️' },
-  { id: 'gran-turismo7', name: '그란투리스모7', icon: '🏁' },
-  { id: 'competizione', name: '컴페티치오네', icon: '🏆' },
-  { id: 'lemans', name: '르망얼티밋', icon: '🏎️' },
-  { id: 'f1-25', name: 'F1 25', icon: '🏎️' },
-  { id: 'automobilista2', name: '오토모빌리스타2', icon: '🏎️' },
-  { id: 'ea-wrc', name: 'EA WRC', icon: '🌲' },
+  { id: 'new', name: 'New', icon: '🆕' },
+  { id: '르망얼티밋', name: '르망얼티밋', icon: '🏎️' },
+  { id: 'F1 25', name: 'F1 25', icon: '🏎️' },
+  { id: '컴페티치오네', name: '컴페티치오네', icon: '🏆' },
+  { id: '오토모빌리스타2', name: '오토모빌리스타2', icon: '🏎️' },
+  { id: 'EA WRC', name: 'EA WRC', icon: '🌲' },
+  { id: '아세토코르사', name: '아세토코르사', icon: '🏎️' },
+  { id: '그란투리스모', name: '그란투리스모', icon: '🏁' },
+  { id: '알펙터2', name: '알펙터2', icon: '🏎️' },
 ]
 
 const DAYS_OF_WEEK = ['일', '월', '화', '수', '목', '금', '토']
