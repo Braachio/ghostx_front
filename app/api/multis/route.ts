@@ -7,6 +7,9 @@ import { hasEventManagementPermission } from '@/lib/permissions'
 
 export async function GET(req: NextRequest) {
   try {
+    console.log('=== /api/multis GET 요청 시작 ===')
+    console.log('요청 URL:', req.url)
+    console.log('요청 시간:', new Date().toISOString())
     console.log('multis API 호출됨')
     
     const cookieStore = await cookies()
