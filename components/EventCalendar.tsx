@@ -14,12 +14,10 @@ interface EventCalendarProps {
 
 const GAME_OPTIONS = [
   { id: 'all', name: '전체', icon: '🎮' },
-  { id: 'new', name: 'New', icon: '🆕' },
   { id: '르망얼티밋', name: '르망얼티밋', icon: '🏎️' },
   { id: 'F1 25', name: 'F1 25', icon: '🏎️' },
   { id: '컴페티치오네', name: '컴페티치오네', icon: '🏆' },
   { id: '오토모빌리스타2', name: '오토모빌리스타2', icon: '🏎️' },
-  { id: 'EA WRC', name: 'EA WRC', icon: '🌲' },
   { id: '아세토코르사', name: '아세토코르사', icon: '🏎️' },
   { id: '그란투리스모', name: '그란투리스모', icon: '🏁' },
   { id: '알펙터2', name: '알펙터2', icon: '🏎️' },
@@ -96,16 +94,26 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
     })
   }
 
+  // 로컬 YYYY-MM-DD
+  const toLocalDateString = (d: Date) => {
+    const y = d.getFullYear()
+    const m = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+    return `${y}-${m}-${day}`
+  }
+
   // 기습갤멀 이벤트 가져오기 (특정 날짜)
   const getFlashGalleryEvents = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0]
+    const dateStr = toLocalDateString(date)
     
     return filteredEvents.filter(event => {
       const isFlash = event.event_type === 'flash_event' && !!event.event_date
       
       if (!isFlash) return false
       
-      const eventDateStr = event.event_date.split('T')[0]
+      const eventDateStr = (event.event_date.includes('T')
+        ? event.event_date.split('T')[0]
+        : event.event_date)
       return eventDateStr === dateStr
     })
   }
