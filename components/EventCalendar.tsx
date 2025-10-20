@@ -94,6 +94,19 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
     console.log('필터링된 이벤트 개수:', filteredEvents.length)
     
     const dayEvents = filteredEvents.filter(event => {
+      // 갤멀 이벤트만 필터링 (정기 갤멀, 기습갤멀)
+      const isGalleryEvent = event.title && (
+        event.title.includes('갤멀') || 
+        event.title.includes('갤러리') ||
+        event.title.includes('정기') ||
+        event.title.includes('기습')
+      )
+      
+      if (!isGalleryEvent) {
+        console.log(`이벤트 "${event.title}" 갤멀 아님 - 제외`)
+        return false
+      }
+      
       // event_date가 있는 경우 (일반 이벤트)
       if (event.event_date) {
         const eventDateStr = event.event_date.split('T')[0]
