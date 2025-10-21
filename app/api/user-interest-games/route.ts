@@ -18,7 +18,7 @@ export async function GET() {
     // 사용자의 관심게임 조회
     const { data: games, error: gamesError } = await supabase
       .from('user_interest_games')
-      .select('game_id')
+      .select('game')
       .eq('user_id', user.id)
 
     if (gamesError) {
@@ -32,7 +32,7 @@ export async function GET() {
     }
 
     return NextResponse.json({ 
-      games: games?.map(g => g.game_id) || [],
+      games: games?.map(g => g.game) || [],
       success: true 
     })
 
@@ -83,7 +83,7 @@ export async function POST(req: Request) {
         .insert(
           gameIds.map(gameId => ({
             user_id: user.id,
-            game_id: gameId,
+            game: gameId,
             created_at: new Date().toISOString()
           }))
         )

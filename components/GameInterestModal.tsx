@@ -11,18 +11,15 @@ interface GameInterestModalProps {
 }
 
 const GAME_OPTIONS = [
-  { id: 'iracing', name: 'iRacing', icon: '🏁' },
-  { id: 'assetto_corsa', name: 'Assetto Corsa', icon: '🏎️' },
-  { id: 'assetto_corsa_competizione', name: 'Assetto Corsa Competizione', icon: '🏆' },
-  { id: 'f1_2023', name: 'F1 2023', icon: '🏎️' },
-  { id: 'f1_2024', name: 'F1 2024', icon: '🏎️' },
-  { id: 'gran_turismo', name: 'Gran Turismo', icon: '🏁' },
-  { id: 'forza_motorsport', name: 'Forza Motorsport', icon: '🏎️' },
-  { id: 'forza_horizon', name: 'Forza Horizon', icon: '🌅' },
-  { id: 'dirt_rally', name: 'Dirt Rally', icon: '🌲' },
-  { id: 'project_cars', name: 'Project CARS', icon: '🏁' },
-  { id: 'automobilista', name: 'Automobilista', icon: '🏎️' },
-  { id: 'r_factor', name: 'rFactor 2', icon: '🏁' },
+  { id: '아이레이싱', name: 'iRacing', icon: '🏁' },
+  { id: '아세토코르사', name: 'Assetto Corsa', icon: '🏎️' },
+  { id: '컴페티치오네', name: 'Assetto Corsa Competizione', icon: '🏆' },
+  { id: 'F1 25', name: 'F1 25', icon: '🏎️' },
+  { id: '그란투리스모7', name: 'Gran Turismo 7', icon: '🏁' },
+  { id: '오토모빌리스타2', name: 'Automobilista 2', icon: '🏎️' },
+  { id: '르망얼티밋', name: 'Le Mans Ultimate', icon: '🏎️' },
+  { id: '알펙터2', name: 'rFactor 2', icon: '🏁' },
+  { id: 'EA WRC', name: 'EA WRC', icon: '🌲' },
 ]
 
 export default function GameInterestModal({ isOpen, onClose, onComplete }: GameInterestModalProps) {
@@ -63,10 +60,10 @@ export default function GameInterestModal({ isOpen, onClose, onComplete }: GameI
         .upsert(
           selectedGames.map(gameId => ({
             user_id: user.id,
-            game_id: gameId,
+            game: gameId,
             created_at: new Date().toISOString()
           })),
-          { onConflict: 'user_id,game_id' }
+          { onConflict: 'user_id,game' }
         )
 
       if (saveError) {
