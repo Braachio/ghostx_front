@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import WeekCalendar from '@/components/WeekCalendar'
+import RichTextEditor from '@/components/RichTextEditor'
 
 const GAME_OPTIONS = ['컴페티치오네','아세토코르사','그란투리스모7','르망얼티밋','EA WRC','아이레이싱','알펙터2', 'F1 25', '오토모빌리스타2']
 
@@ -256,12 +257,11 @@ export default function NewMultiPage() {
               
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-cyan-400">설명</label>
-                <textarea 
-                  rows={4} 
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all resize-none" 
-                  value={description} 
-                  onChange={e=>setDescription(e.target.value)} 
-                  placeholder="이벤트에 대한 자세한 설명을 입력하세요..."
+                <RichTextEditor
+                  value={description}
+                  onChange={setDescription}
+                  placeholder="이벤트에 대한 자세한 설명을 입력하세요. 글씨 크기, 굵게, 기울임, 링크 등을 사용할 수 있습니다."
+                  className="w-full"
                 />
               </div>
 

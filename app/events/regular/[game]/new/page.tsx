@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { hasEventManagementPermission } from '@/lib/client-permissions'
+import RichTextEditor from '@/components/RichTextEditor'
 
 // 게임 이름 매핑
 const gameNames: Record<string, string> = {
@@ -496,13 +497,11 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
                   <label className="block text-sm font-semibold text-gray-300 mb-2">
                     이벤트 설명 *
                   </label>
-                  <textarea
+                  <RichTextEditor
                     value={formData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
-                    rows={4}
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-white resize-none"
-                    placeholder="이벤트에 대한 상세 설명을 입력하세요"
-                    required
+                    onChange={(value) => handleInputChange('description', value)}
+                    placeholder="이벤트에 대한 상세 설명을 입력하세요. 글씨 크기, 굵게, 기울임, 링크 등을 사용할 수 있습니다."
+                    className="w-full"
                   />
                 </div>
               </div>

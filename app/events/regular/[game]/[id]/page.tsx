@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import ParticipationSection from '@/components/ParticipationSection'
 import TrackVotingPanel from '@/components/TrackVotingPanel'
+import RichTextEditor from '@/components/RichTextEditor'
 import { hasEventManagementPermission } from '@/lib/client-permissions'
 
 interface RegularEventDetailPageProps {
@@ -338,18 +339,10 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
                 {event.description && (
                   <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
                     <p className="text-gray-400 text-sm mb-2">설명</p>
-                    {event.link ? (
-                      <a 
-                        href={event.link} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-blue-400 hover:text-blue-300 underline leading-relaxed transition-colors"
-                      >
-                        {event.description}
-                      </a>
-                    ) : (
-                      <p className="text-gray-200 leading-relaxed">{event.description}</p>
-                    )}
+                    <div 
+                      className="text-white leading-relaxed prose prose-invert max-w-none"
+                      dangerouslySetInnerHTML={{ __html: event.description }}
+                    />
                   </div>
                 )}
               </div>
@@ -414,12 +407,11 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">설명</label>
-                  <textarea
+                  <RichTextEditor
                     value={editForm.description}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
-                    rows={4}
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none"
-                    placeholder="이벤트에 대한 상세 설명을 입력하세요"
+                    onChange={(value) => setEditForm(prev => ({ ...prev, description: value }))}
+                    placeholder="이벤트에 대한 상세 설명을 입력하세요. 글씨 크기, 굵게, 기울임, 링크 등을 사용할 수 있습니다."
+                    className="w-full"
                   />
                 </div>
                 
