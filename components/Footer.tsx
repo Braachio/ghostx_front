@@ -6,7 +6,7 @@ import Link from 'next/link'
 
 export default function Footer() {
   return (
-    <footer className="bg-black text-white text-sm py-8 mt-12 border-t border-cyan-500/30">
+    <footer className="bg-gradient-to-b from-gray-900 via-black to-black text-white text-sm py-8 border-t border-cyan-500/30">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-6">
         
         {/* 상단: 로고 + 언어 + SNS */}
