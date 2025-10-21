@@ -41,7 +41,7 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
       try {
         // 병렬로 API 호출하여 성능 개선
         const [interestResponse, eventsResponse] = await Promise.all([
-          fetch('/api/user/interest-games'),
+          fetch('/api/user-interest-games'),
           fetch('/api/multis')
         ])
         
