@@ -144,6 +144,15 @@ export default function FullPageLayout({
             <div className="hidden md:flex items-center gap-3">
               {user ? (
                 <>
+                  {/* 갤멀 선택하기 버튼 */}
+                  <Link
+                    href="/events"
+                    className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-sm font-medium rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg shadow-cyan-500/30 flex items-center gap-2"
+                  >
+                    🏁 갤멀 선택하기
+                    <span className="text-xs">→</span>
+                  </Link>
+
                   {/* 권한에 따른 버튼 표시 */}
                   {user.role === 'admin' || user.role === 'event_manager' ? (
                     <>
@@ -318,15 +327,6 @@ export default function FullPageLayout({
               {language === 'ko' ? '모든 갤멀 일정을 한눈에 확인하세요' : 'View all gallery multi schedules at a glance'}
             </p> */}
             
-            {/* 이벤트 선택 버튼 추가 */}
-            <Link 
-              href="/events"
-              className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-bold rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-105 mb-8"
-            >
-              <span className="text-xl">🏁</span>
-              <span>갤멀 선택하기</span>
-              <span className="text-lg">→</span>
-            </Link>
           </div>
           
           {/* 관심 게임 알림 배너 */}
