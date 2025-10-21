@@ -200,7 +200,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
         console.log('삭제 성공 데이터:', data)
         alert(data.message || '이벤트가 삭제되었습니다.')
         // 이벤트 목록 페이지로 리다이렉트
-        window.location.href = `/events/regular/${game}`
+        window.location.href = `/events/regular/${decodedGame}`
       } else {
         const errorData = await response.json()
         console.error('삭제 실패:', errorData)
@@ -225,7 +225,9 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
     )
   }
 
-  const gameName = gameNames[game] || game
+  // URL 디코딩 처리
+  const decodedGame = decodeURIComponent(game)
+  const gameName = gameNames[decodedGame] || decodedGame
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 text-white py-6 sm:py-8">
@@ -233,7 +235,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
         {/* 헤더 */}
         <div className="text-center">
           <Link 
-            href={`/events/regular/${game}`}
+            href={`/events/regular/${decodedGame}`}
             className="inline-flex items-center text-cyan-400 hover:text-cyan-300 mb-4"
           >
             ← {gameName} 정기 이벤트로 돌아가기
