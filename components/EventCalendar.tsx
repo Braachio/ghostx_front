@@ -257,9 +257,10 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
               </div>
               <div className="space-y-1">
                 {regularEvents.slice(0, 2).map((event) => (
-                  <div
+                  <Link
                     key={event.id}
-                    className={`p-1 text-white text-xs rounded truncate ${getGameColor(event.game)} border border-white/10`}
+                    href={`/events/regular/${event.game}/${event.id}`}
+                    className={`block p-1 text-white text-xs rounded truncate hover:opacity-80 transition-all duration-200 ${getGameColor(event.game)} border border-white/10`}
                     title={`${event.title} (${event.game})`}
                   >
                     <div className="flex items-center gap-1">
@@ -268,7 +269,7 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
                       </span>
                       <span className="truncate">{event.title}</span>
                     </div>
-                  </div>
+                  </Link>
                 ))}
                 {regularEvents.length > 2 && (
                   <div className="text-xs text-gray-400 text-center">
@@ -389,12 +390,17 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
                 {getRegularGalleryEvents()
                   .filter(event => event.multi_day && event.multi_day.includes(DAYS_OF_WEEK[expandedDate.getDay()]))
                   .map(event => (
-                    <div key={`regular-${event.id}`} className={`px-3 py-2 rounded bg-gray-800 border border-gray-700 text-white text-sm ${getGameColor(event.game)}`}>
+                    <Link
+                      key={`regular-${event.id}`}
+                      href={`/events/regular/${event.game}/${event.id}`}
+                      className={`block px-3 py-2 rounded bg-gray-800 border border-gray-700 text-white text-sm hover:opacity-90 transition-colors ${getGameColor(event.game)}`}
+                      title={`${event.title} (${event.game})`}
+                    >
                       <div className="flex items-center gap-2">
                         <span>{GAME_OPTIONS.find(g => g.id === event.game)?.icon || '🎮'}</span>
                         <span className="truncate">{event.title}</span>
                       </div>
-                    </div>
+                    </Link>
                 ))}
               </div>
             </div>
