@@ -43,6 +43,7 @@ interface Multi {
   created_at: string
   author_id: string | null
   link?: string
+  views?: number
 }
 
 interface MeResponse {
@@ -197,6 +198,14 @@ export default function MultiDetailPage() {
                       <span className="text-white font-medium">{multi.multi_race}</span>
                     </div>
                   )}
+                  {/* 조회수 표시 */}
+                  <div className="flex items-center gap-3">
+                    <span className="text-green-400">👁️</span>
+                    <span className="text-gray-300">조회수:</span>
+                    <span className="text-white font-bold text-lg">
+                      {multi.views !== undefined ? multi.views.toLocaleString() : '0'}
+                    </span>
+                  </div>
                 </div>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
