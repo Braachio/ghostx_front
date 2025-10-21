@@ -19,7 +19,7 @@ export async function GET() {
     try {
       const { data: games, error: gamesError } = await supabase
         .from('user_interest_games')
-        .select('game')
+        .select('game_name')
         .eq('user_id', user.id)
 
       if (gamesError) {
@@ -33,7 +33,7 @@ export async function GET() {
       }
 
       return NextResponse.json({ 
-        games: games?.map(g => g.game) || [],
+        games: games?.map(g => g.game_name) || [],
         success: true 
       })
     } catch (tableError) {
@@ -95,7 +95,7 @@ export async function POST(req: Request) {
           .insert(
             gameIds.map(gameId => ({
               user_id: user.id,
-              game: gameId,
+              game_name: gameId,
               created_at: new Date().toISOString()
             }))
           )
