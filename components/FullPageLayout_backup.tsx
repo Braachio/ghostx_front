@@ -64,7 +64,7 @@ export default function FullPageLayout({
         scrollToSection(0)
       } else if (e.key === 'End') {
         e.preventDefault()
-        scrollToSection(2)
+        scrollToSection(3)
       }
     }
 
@@ -96,6 +96,12 @@ export default function FullPageLayout({
       mainTitle: '갤멀 일정을 한눈에 확인하고',
       mainSubtitle: '참여할 멀티를 선택하세요',
       mainDescription: '정기 갤멀부터 기습 갤멀까지, 모든 레이싱 이벤트를 캘린더로 관리하세요',
+      quickActions: '빠른 액션',
+      todayEvents: '오늘의 갤멀',
+      thisWeekEvents: '이번주 갤멀',
+      allEvents: '전체 갤멀',
+      gameFilter: '게임별 필터',
+      mobileMenu: '메뉴',
       scrollHint: '스크롤하여 더 보기',
       keyboardHint: '키보드 화살표로 네비게이션'
     },
@@ -111,6 +117,12 @@ export default function FullPageLayout({
       mainTitle: 'Check Gallery Multi Schedules',
       mainSubtitle: 'and Choose Your Events',
       mainDescription: 'Manage all racing events from regular to flash events with our calendar system',
+      quickActions: 'Quick Actions',
+      todayEvents: "Today's Events",
+      thisWeekEvents: "This Week's Events",
+      allEvents: 'All Events',
+      gameFilter: 'Game Filter',
+      mobileMenu: 'Menu',
       scrollHint: 'Scroll to see more',
       keyboardHint: 'Use arrow keys to navigate'
     }
@@ -314,19 +326,9 @@ export default function FullPageLayout({
             <h2 className="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
               🗓️ {t[language].gallerySchedule}
             </h2>
-            <p className="text-lg text-gray-400 mb-6">
+            <p className="text-lg text-gray-400">
               {language === 'ko' ? '모든 갤멀 일정을 한눈에 확인하세요' : 'View all gallery multi schedules at a glance'}
             </p>
-            
-            {/* 이벤트 선택 버튼 추가 */}
-            <Link 
-              href="/events"
-              className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-bold rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-105 mb-8"
-            >
-              <span className="text-xl">🏁</span>
-              <span>이벤트 선택하기</span>
-              <span className="text-lg">→</span>
-            </Link>
           </div>
           
           {/* 관심 게임 알림 배너 */}
@@ -349,7 +351,195 @@ export default function FullPageLayout({
         </div>
       </section>
 
-      {/* Section 3: 프로필 섹션 */}
+      {/* Section 3: 이벤트 카테고리 섹션 */}
+      <section className="fullpage-section min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-20 bg-gray-900/50">
+        <div className="max-w-7xl mx-auto">
+          {/* 헤더 - 체크 플래그와 타이틀 */}
+          <div className="text-center mb-12">
+            <div className="inline-block mb-6">
+              <div className="text-7xl animate-pulse">🏁</div>
+            </div>
+            <h2 className="text-5xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent mb-4">
+              RACING EVENTS
+            </h2>
+            <p className="text-gray-400 text-lg">
+              {language === 'ko' ? '참여할 멀티 이벤트를 선택하세요' : 'Select the multi-event you want to participate in'}
+            </p>
+            <div className="mt-6 h-px w-96 mx-auto bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
+          </div>
+
+          {/* 정기 멀티 - 상단 전체 폭 */}
+          <div className="mb-12">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-cyan-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
+              <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-blue-500/40 rounded-2xl p-8 backdrop-blur-sm hover:border-blue-400/60 transition-all duration-300">
+                <div className="text-center mb-8">
+                  <div className="text-6xl mb-4">📅</div>
+                  <h3 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-3">
+                    정기 멀티
+                  </h3>
+                  <p className="text-gray-300 text-lg mb-6 leading-relaxed">
+                    {language === 'ko' ? '매주 정해진 시간에 열리는 정규 레이싱 이벤트' : 'Regular racing events held at a fixed time every week'}
+                  </p>
+                  <div className="inline-block mb-6 px-4 py-2 bg-blue-900/30 rounded-full border border-blue-500/30">
+                    <span className="text-blue-300 text-sm font-semibold">게임별 전용 페이지</span>
+                  </div>
+                </div>
+                
+                {/* 게임별 버튼 - 가로 한줄 */}
+                <div className="flex flex-wrap justify-center gap-3">
+                  <Link 
+                    href="/events/regular/iracing" 
+                    className="relative group/btn overflow-hidden px-6 py-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40 hover:scale-105"
+                  >
+                    <span className="relative z-10"> 아이레이싱</span>
+                  </Link>
+                  <Link 
+                    href="/events/regular/assettocorsa" 
+                    className="relative group/btn overflow-hidden px-6 py-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40 hover:scale-105"
+                  >
+                    <span className="relative z-10"> 아세토코르사</span>
+                  </Link>
+                  <Link 
+                    href="/events/regular/gran-turismo7" 
+                    className="relative group/btn overflow-hidden px-6 py-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40 hover:scale-105"
+                  >
+                    <span className="relative z-10"> 그란투리스모7</span>
+                  </Link>
+                  <Link 
+                    href="/events/regular/competizione" 
+                    className="relative group/btn overflow-hidden px-6 py-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40 hover:scale-105"
+                  >
+                    <span className="relative z-10"> 컴페티치오네</span>
+                  </Link>
+                  <Link 
+                    href="/events/regular/lemans" 
+                    className="relative group/btn overflow-hidden px-6 py-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40 hover:scale-105"
+                  >
+                    <span className="relative z-10"> 르망얼티밋</span>
+                  </Link>
+                  <Link 
+                    href="/events/regular/f1-25" 
+                    className="relative group/btn overflow-hidden px-6 py-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40 hover:scale-105"
+                  >
+                    <span className="relative z-10"> F1 25</span>
+                  </Link>
+                  <Link 
+                    href="/events/regular/automobilista2" 
+                    className="relative group/btn overflow-hidden px-6 py-3 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg text-center text-sm text-blue-300 hover:text-blue-200 transition-all border border-blue-500/20 hover:border-blue-400/40 hover:scale-105"
+                  >
+                    <span className="relative z-10"> 오토모빌리스타2</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 다른 이벤트 타입들 - 하단 3개 */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* 상시 서버 */}
+            <Link href="/events/always-on" className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-600/20 to-emerald-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
+              <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-green-500/40 rounded-2xl p-8 backdrop-blur-sm hover:border-green-400/60 transition-all duration-300 hover:scale-105 cursor-pointer">
+                <div className="text-center">
+                  <div className="text-5xl mb-4">🌐</div>
+                  <h3 className="text-2xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent mb-3">
+                    상시 서버
+                  </h3>
+                  <p className="text-gray-300 text-sm mb-6 leading-relaxed">
+                    {language === 'ko' ? (
+                      <>24시간 언제든 접속 가능한<br />상시 운영 서버</>
+                    ) : (
+                      <>Always-on server accessible<br />24 hours a day, anytime</>
+                    )}
+                  </p>
+                  <div className="inline-block px-4 py-2 bg-green-900/30 rounded-full border border-green-500/30">
+                    <span className="text-green-300 text-sm font-semibold">모든 게임 통합 페이지</span>
+                  </div>
+                  
+                  {/* 호버 효과 */}
+                  <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="text-green-400 text-sm font-semibold">
+                      클릭하여 입장 →
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* 리그 */}
+            <Link href="/events/league" className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
+              <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-purple-500/40 rounded-2xl p-8 backdrop-blur-sm hover:border-purple-400/60 transition-all duration-300 hover:scale-105 cursor-pointer">
+                <div className="text-center">
+                  <div className="text-5xl mb-4">🏆</div>
+                  <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-3">
+                    리그
+                  </h3>
+                  <p className="text-gray-300 text-sm mb-6 leading-relaxed">
+                    {language === 'ko' ? (
+                      <>정식 리그 시스템으로 운영되는<br />공식 레이싱 이벤트</>
+                    ) : (
+                      <>Official racing events operated<br />with a formal league system</>
+                    )}
+                  </p>
+                  <div className="inline-block px-4 py-2 bg-purple-900/30 rounded-full border border-purple-500/30">
+                    <span className="text-purple-300 text-sm font-semibold">모든 게임 통합 페이지</span>
+                  </div>
+                  
+                  {/* 호버 효과 */}
+                  <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="text-purple-400 text-sm font-semibold">
+                      클릭하여 입장 →
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* 기습 갤멀 */}
+            <Link href="/multis" className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-600/20 to-red-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
+              <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-orange-500/40 rounded-2xl p-8 backdrop-blur-sm hover:border-orange-400/60 transition-all duration-300 hover:scale-105 cursor-pointer">
+                <div className="text-center">
+                  <div className="text-5xl mb-4">⚡</div>
+                  <h3 className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent mb-3">
+                    기습 갤멀
+                  </h3>
+                  <p className="text-gray-300 text-sm mb-6 leading-relaxed">
+                    {language === 'ko' ? (
+                      <>예고 없이 갑작스럽게 열리는<br />일회성 레이싱 이벤트</>
+                    ) : (
+                      <>One-time racing events that open<br />suddenly without notice</>
+                    )}
+                  </p>
+                  <div className="inline-block px-4 py-2 bg-orange-900/30 rounded-full border border-orange-500/30">
+                    <span className="text-orange-300 text-sm font-semibold">시간 기반 필터링</span>
+                  </div>
+                  
+                  {/* 호버 효과 */}
+                  <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="text-orange-400 text-sm font-semibold animate-pulse">
+                      지금 참가하기 →
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          </div>
+
+          {/* 추가 정보 섹션 */}
+          <div className="mt-16 text-center">
+            <div className="inline-block p-6 bg-gray-900/50 border border-gray-700 rounded-xl backdrop-blur-sm">
+              <p className="text-gray-400 text-sm">
+                💡 <span className="text-cyan-400 font-semibold">팁:</span> 각 이벤트 유형을 클릭하여 상세 일정을 확인하세요
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section 4: 프로필 섹션 */}
       <section className="fullpage-section min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-20">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
@@ -426,7 +616,8 @@ export default function FullPageLayout({
           {[
             { index: 0, label: '소개', icon: '👻' },
             { index: 1, label: '캘린더', icon: '🗓️' },
-            { index: 2, label: '프로필', icon: '👤' }
+            { index: 2, label: '이벤트', icon: '🏁' },
+            { index: 3, label: '프로필', icon: '👤' }
           ].map(({ index, label, icon }, arrayIndex) => (
             <div key={index} className="flex flex-col items-center">
               <button
@@ -443,7 +634,7 @@ export default function FullPageLayout({
               </button>
               
               {/* 연결점 (마지막 항목 제외) */}
-              {arrayIndex < 2 && (
+              {arrayIndex < 3 && (
                 <div className="flex flex-col items-center my-8">
                   <div className={`w-1 h-8 transition-all duration-300 ${
                     currentSection === index || currentSection === index + 1
@@ -469,4 +660,3 @@ export default function FullPageLayout({
     </div>
   )
 }
-
