@@ -32,93 +32,53 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
   const [dismissed, setDismissed] = useState(false)
 
   useEffect(() => {
-    console.log('🔔 Banner: useEffect 시작, userId:', userId)
-    
     if (!userId) {
-      console.log('🔔 Banner: userId가 없음, 종료')
       setLoading(false)
       return
     }
 
     const fetchData = async () => {
       try {
-        console.log('🔔 Banner: fetchData 시작')
-        
-        // 관심 게임 로드
-        console.log('🔔 Banner: 관심 게임 API 호출 중...')
-        const interestResponse = await fetch('/api/user/interest-games')
-        console.log('🔔 Banner: 관심 게임 응답 상태:', interestResponse.status)
+        // 병렬로 API 호출하여 성능 개선
+        const [interestResponse, eventsResponse] = await Promise.all([
+          fetch('/api/user/interest-games'),
+          fetch('/api/multis')
+        ])
         
         let interestGamesList: string[] = []
         
         if (interestResponse.ok) {
           const interestData = await interestResponse.json()
-          console.log('🔔 Banner: 관심 게임 데이터:', interestData)
           interestGamesList = interestData.games || []
           setInterestGames(interestGamesList)
-        } else {
-          console.error('🔔 Banner: 관심 게임 로드 실패:', interestResponse.status)
         }
-
-        // 최근 이벤트 로드 (관심 게임 관련)
-        console.log('🔔 Banner: 이벤트 API 호출 중...')
-        const eventsResponse = await fetch('/api/multis')
-        console.log('🔔 Banner: 이벤트 응답 상태:', eventsResponse.status)
         
         if (eventsResponse.ok) {
           const eventsData = await eventsResponse.json()
-          console.log('🔔 Banner: 전체 이벤트 수:', eventsData.length)
           
           const now = new Date()
           const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000)
-          console.log('🔔 Banner: 24시간 전 시간:', oneDayAgo.toISOString())
           
+          // 최근 기습 갤멀 이벤트 필터링
           const recent = eventsData.filter((event: { created_at: string; game: string; event_type: string }) => {
             const eventDate = new Date(event.created_at)
             const isRecent = eventDate > oneDayAgo
             const isInterestGame = interestGamesList.includes(event.game)
             const isFlashEvent = event.event_type === 'flash_event'
             
-            console.log('🔔 Banner: 이벤트 체크:', {
-              title: event.title,
-              game: event.game,
-              event_type: event.event_type,
-              created_at: event.created_at,
-              isRecent,
-              isInterestGame,
-              isFlashEvent,
-              interestGames: interestGamesList
-            })
-            
             return isRecent && isInterestGame && isFlashEvent
-          }).slice(0, 3) // 최대 3개
+          }).slice(0, 3)
 
-          console.log('🔔 Banner: 매칭된 최근 이벤트:', recent)
           setRecentEvents(recent)
 
           // 오늘의 정기 멀티 이벤트 찾기
-          const today = new Date().getDay() // 0=일요일, 1=월요일, ...
+          const today = new Date().getDay()
           const dayNames = ['일', '월', '화', '수', '목', '금', '토']
           const todayName = dayNames[today]
-          
-          console.log('🔔 Banner: 오늘 요일:', todayName)
-          console.log('🔔 Banner: 관심 게임 목록:', interestGamesList)
-          
-          // 정기 멀티 이벤트만 먼저 필터링
-          const regularEvents = eventsData.filter((event: { event_type: string }) => event.event_type === 'regular_schedule')
-          console.log('🔔 Banner: 모든 정기 멀티 이벤트:', regularEvents.map((e: { title: string; game: string; day_of_week: string; event_type: string; multi_day?: string | string[]; start_time?: string }) => ({
-            title: e.title,
-            game: e.game,
-            day_of_week: e.day_of_week,
-            event_type: e.event_type,
-            multi_day: e.multi_day,
-            start_time: e.start_time
-          })))
           
           const todayRegular = eventsData.filter((event: { id: string; title: string; game: string; day_of_week?: string; multi_day?: string | string[]; start_time: string; event_type: string }) => {
             const isRegularEvent = event.event_type === 'regular_schedule'
             
-            // multi_day 필드에서 오늘 요일 확인 (정기 멀티 이벤트는 multi_day에 배열로 저장됨)
             let isToday = false
             if (event.multi_day) {
               if (Array.isArray(event.multi_day)) {
@@ -132,59 +92,30 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
             
             const isInterestGame = interestGamesList.includes(event.game)
             
-            console.log('🔔 Banner: 정기 이벤트 체크:', {
-              title: event.title,
-              game: event.game,
-              day_of_week: event.day_of_week,
-              multi_day: event.multi_day,
-              event_type: event.event_type,
-              isRegularEvent,
-              isToday,
-              isInterestGame
-            })
-            
             return isRegularEvent && isToday && isInterestGame
           })
 
-          console.log('🔔 Banner: 오늘의 정기 멀티 이벤트:', todayRegular)
           setTodayRegularEvents(todayRegular)
-        } else {
-          console.error('🔔 Banner: 이벤트 로드 실패:', eventsResponse.status)
         }
       } catch (error) {
-        console.error('🔔 Banner: 데이터 로드 실패:', error)
+        console.error('관심 게임 배너 데이터 로드 실패:', error)
       } finally {
         setLoading(false)
-        console.log('🔔 Banner: fetchData 완료')
       }
     }
 
     fetchData()
   }, [userId])
 
-  // 렌더링 조건 체크
-  console.log('🔔 Banner: 렌더링 조건 체크:', {
-    userId: !!userId,
-    interestGamesLength: interestGames.length,
-    dismissed,
-    loading,
-    recentEventsLength: recentEvents.length,
-    todayRegularEventsLength: todayRegularEvents.length
-  })
-
   // 로그인하지 않았거나 관심 게임이 없으면 표시하지 않음
   if (!userId || interestGames.length === 0 || dismissed || loading) {
-    console.log('🔔 Banner: 조건 미충족으로 배너 숨김')
     return null
   }
 
   // 최근 이벤트나 오늘의 정기 멀티가 없으면 표시하지 않음
   if (recentEvents.length === 0 && todayRegularEvents.length === 0) {
-    console.log('🔔 Banner: 표시할 이벤트 없음으로 배너 숨김')
     return null
   }
-
-  console.log('🔔 Banner: 배너 표시!')
 
   return (
     <div className="relative mb-8 group">
