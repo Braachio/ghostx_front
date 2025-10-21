@@ -54,21 +54,18 @@ export default function GameInterestModal({ isOpen, onClose, onComplete }: GameI
         return
       }
 
-      // 관심게임 데이터 저장
-      const { error: saveError } = await supabase
-        .from('user_interest_games')
-        .upsert(
-          selectedGames.map(gameId => ({
-            user_id: user.id,
-            game: gameId,
-            created_at: new Date().toISOString()
-          })),
-          { onConflict: 'user_id,game' }
-        )
+      // API를 통해 관심게임 저장
+      const response = await fetch('/api/user-interest-games', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ gameIds: selectedGames })
+      })
 
-      if (saveError) {
-        console.error('관심게임 저장 오류:', saveError)
-        setError('관심게임 저장에 실패했습니다.')
+      if (!response.ok) {
+        const errorData = await response.json()
+        setError(errorData.error || '관심게임 저장에 실패했습니다.')
         return
       }
 
