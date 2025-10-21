@@ -5,17 +5,14 @@ import Cookies from 'js-cookie'
 
 export default function CookieConsentBanner() {
   const [isVisible, setIsVisible] = useState(false)
-  const [hasConsent, setHasConsent] = useState<string | null>(null)
 
   useEffect(() => {
     const consent = Cookies.get('cookie_consent')
-    setHasConsent(consent || null)
     setIsVisible(!consent)
   }, [])
 
   const handleAccept = (type: 'essential' | 'all') => {
     Cookies.set('cookie_consent', type, { expires: 365 })
-    setHasConsent(type)
     setIsVisible(false)
   }
 
