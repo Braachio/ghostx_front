@@ -323,12 +323,12 @@ export default function FullPageLayout({
       <section className="fullpage-section min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-20">
         <div className="max-w-7xl mx-auto w-full">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+            {/* <h2 className="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
               🗓️ {t[language].gallerySchedule}
-            </h2>
-            <p className="text-lg text-gray-400">
+            </h2> */}
+            {/* <p className="text-lg text-gray-400">
               {language === 'ko' ? '모든 갤멀 일정을 한눈에 확인하세요' : 'View all gallery multi schedules at a glance'}
-            </p>
+            </p> */}
           </div>
           
           {/* 관심 게임 알림 배너 */}

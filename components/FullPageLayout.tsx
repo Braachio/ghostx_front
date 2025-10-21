@@ -311,12 +311,12 @@ export default function FullPageLayout({
       <section className="fullpage-section min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-20">
         <div className="max-w-7xl mx-auto w-full">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+            {/* <h2 className="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
               🗓️ {t[language].gallerySchedule}
             </h2>
             <p className="text-lg text-gray-400 mb-6">
               {language === 'ko' ? '모든 갤멀 일정을 한눈에 확인하세요' : 'View all gallery multi schedules at a glance'}
-            </p>
+            </p> */}
             
             {/* 이벤트 선택 버튼 추가 */}
             <Link 
@@ -324,7 +324,7 @@ export default function FullPageLayout({
               className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-bold rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-105 mb-8"
             >
               <span className="text-xl">🏁</span>
-              <span>이벤트 선택하기</span>
+              <span>갤멀 선택하기</span>
               <span className="text-lg">→</span>
             </Link>
           </div>
