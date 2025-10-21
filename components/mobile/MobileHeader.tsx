@@ -12,18 +12,18 @@ export default function MobileHeader({ user }: MobileHeaderProps) {
   const [showMenu, setShowMenu] = useState(false)
 
   return (
-    <header className="mobile-header bg-gradient-to-r from-slate-900 to-slate-800 shadow-lg">
-      <div className="flex items-center justify-between mobile-px-4 mobile-py-4">
+    <header className="mobile-header bg-white border-b border-gray-200 shadow-sm">
+      <div className="flex items-center justify-between px-4 py-3">
         {/* 로고 */}
         <Link href="/mobile" className="flex items-center space-x-3 group">
-          <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-            <span className="text-xl">👻</span>
+          <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+            <span className="text-lg">👻</span>
           </div>
           <div>
-            <span className="mobile-text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+            <span className="text-lg font-semibold text-gray-900">
               Ghost-X
             </span>
-            <div className="mobile-text-xs text-slate-400">모바일</div>
+            <div className="text-xs text-gray-500">모바일</div>
           </div>
         </Link>
 
@@ -33,20 +33,20 @@ export default function MobileHeader({ user }: MobileHeaderProps) {
             <div className="relative">
               <button
                 onClick={() => setShowMenu(!showMenu)}
-                className="flex items-center space-x-2 mobile-px-4 mobile-py-2 bg-slate-700/50 backdrop-blur-sm rounded-xl border border-slate-600/50 touch-button hover:bg-slate-600/50 transition-all"
+                className="flex items-center space-x-2 px-3 py-2 bg-gray-50 rounded-lg touch-button hover:bg-gray-100 transition-all"
               >
-                <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full flex items-center justify-center shadow-md">
-                  <span className="text-sm font-bold text-white">
+                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                  <span className="text-sm font-semibold text-white">
                     {user.email?.charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div className="hidden sm:block">
-                  <div className="mobile-text-sm font-medium text-slate-200">
+                  <div className="text-sm font-medium text-gray-900">
                     {user.email?.split('@')[0]}
                   </div>
-                  <div className="mobile-text-xs text-slate-400">온라인</div>
+                  <div className="text-xs text-gray-500">온라인</div>
                 </div>
-                <svg className={`w-4 h-4 transition-transform ${showMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className={`w-4 h-4 text-gray-500 transition-transform ${showMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
