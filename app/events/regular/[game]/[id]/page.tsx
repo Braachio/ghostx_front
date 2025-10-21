@@ -259,6 +259,14 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
                   <span>{event.multi_day?.join(', ') || 'TBD'}</span>
                 </div>
               </div>
+              
+              {/* 조회수 표시 */}
+              <div className="text-right">
+                <div className="text-gray-400 text-sm">조회</div>
+                <div className="text-white font-medium text-lg">
+                  {event.views !== undefined ? event.views.toLocaleString() : '0'}
+                </div>
+              </div>
               {user && event.author_id === user.id && (
                 <div className="flex gap-3">
                   {!isEditing ? (
@@ -304,7 +312,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
               // 읽기 모드 - 단순한 정보 표시
               <div className="space-y-6">
                 {/* 기본 정보 그리드 */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
                     <p className="text-gray-400 text-sm mb-1">트랙</p>
                     <p className="text-white font-medium">{event.game_track || 'TBD'}</p>
@@ -323,17 +331,6 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
                   <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
                     <p className="text-gray-400 text-sm mb-1">지속시간</p>
                     <p className="text-white font-medium">{event.duration_hours ? `${event.duration_hours}시간` : 'TBD'}</p>
-                  </div>
-                  
-                  {/* 조회수 카드 */}
-                  <div className="bg-gradient-to-br from-blue-900/30 to-cyan-900/30 border border-blue-500/30 rounded-lg p-4">
-                    <p className="text-blue-300 text-sm mb-1 flex items-center gap-1">
-                      <span>👁️</span>
-                      <span>조회수</span>
-                    </p>
-                    <p className="text-white font-bold text-lg">
-                      {event.views !== undefined ? event.views.toLocaleString() : '0'}
-                    </p>
                   </div>
                 </div>
                 

@@ -166,12 +166,21 @@ export default function MultiDetailPage() {
                     <span className="bg-cyan-600/20 px-3 py-1 rounded-lg text-sm">{multi.game}</span>
                   </div>
                 </div>
-                <div className={`px-4 py-2 rounded-lg font-semibold ${
-                  multi.is_open 
-                    ? 'bg-green-600 text-white shadow-lg shadow-green-500/25' 
-                    : 'bg-gray-700 text-gray-300'
-                }`}>
-                  {multi.is_open ? '✅ ON' : '❌ OFF'}
+                <div className="flex items-center gap-4">
+                  {/* 조회수 표시 */}
+                  <div className="text-right">
+                    <div className="text-gray-400 text-sm">조회</div>
+                    <div className="text-white font-medium text-lg">
+                      {multi.views !== undefined ? multi.views.toLocaleString() : '0'}
+                    </div>
+                  </div>
+                  <div className={`px-4 py-2 rounded-lg font-semibold ${
+                    multi.is_open 
+                      ? 'bg-green-600 text-white shadow-lg shadow-green-500/25' 
+                      : 'bg-gray-700 text-gray-300'
+                  }`}>
+                    {multi.is_open ? '✅ ON' : '❌ OFF'}
+                  </div>
                 </div>
               </div>
             </div>
@@ -198,14 +207,6 @@ export default function MultiDetailPage() {
                       <span className="text-white font-medium">{multi.multi_race}</span>
                     </div>
                   )}
-                  {/* 조회수 표시 */}
-                  <div className="flex items-center gap-3">
-                    <span className="text-green-400">👁️</span>
-                    <span className="text-gray-300">조회수:</span>
-                    <span className="text-white font-bold text-lg">
-                      {multi.views !== undefined ? multi.views.toLocaleString() : '0'}
-                    </span>
-                  </div>
                 </div>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
