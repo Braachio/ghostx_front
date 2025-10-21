@@ -11,6 +11,8 @@ import type { Database } from '@/lib/database.types'
 interface MeResponse {
   id: string
   nickname: string
+  email: string
+  role: string
 }
 
 type Multi = Database['public']['Tables']['multis']['Row']
@@ -71,51 +73,27 @@ export default function HomePage() {
           setUser(null)
         }
 
-        // 테스트 API 호출
-        console.log('=== 테스트 API 호출 시작 ===')
-        try {
-          const testRes = await fetch('/api/test')
-          const testData = await testRes.json()
-          console.log('테스트 API 응답:', testData)
-        } catch (testError) {
-          console.error('테스트 API 에러:', testError)
-        }
-        console.log('=== 테스트 API 호출 완료 ===')
-
         // 이벤트 데이터 가져오기
-        console.log('=== 이벤트 데이터 가져오기 시작 ===')
-        console.log('fetch 시작 전')
-        
         try {
           const eventsRes = await fetch('/api/multis')
-          console.log('API 응답 상태:', eventsRes.status)
-          console.log('API 응답 헤더:', eventsRes.headers)
-        
+          
           if (eventsRes.ok) {
             const responseData = await eventsRes.json()
-            console.log('API 응답 데이터:', responseData)
             
-            // 응답이 배열인지 확인
             if (Array.isArray(responseData)) {
               setEvents(responseData)
-              console.log('이벤트 설정 완료:', responseData.length, '개')
             } else {
-              console.log('응답이 배열이 아님:', responseData)
               setEvents([])
             }
           } else {
-            console.error('API 요청 실패:', eventsRes.status, eventsRes.statusText)
-            const errorText = await eventsRes.text()
-            console.error('에러 응답 내용:', errorText)
             setEvents([])
           }
-        } catch (fetchError) {
-          console.error('fetch 에러:', fetchError)
+        } catch (error) {
+          console.error('이벤트 데이터 가져오기 실패:', error)
           setEvents([])
         }
         
         setEventsLoading(false)
-        console.log('=== 이벤트 데이터 가져오기 완료 ===')
 
       } catch (err) {
         console.error('데이터 로드 실패:', err)

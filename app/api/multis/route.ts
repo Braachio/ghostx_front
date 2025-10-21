@@ -7,47 +7,10 @@ import { hasEventManagementPermission } from '@/lib/permissions'
 
 export async function GET(req: NextRequest) {
   try {
-    console.log('=== /api/multis GET 요청 시작 ===')
-    console.log('요청 URL:', req.url)
-    console.log('요청 시간:', new Date().toISOString())
-    console.log('multis API 호출됨')
-    
-    const cookieStore = await cookies()
+    const cookieStore = cookies()
     const supabase = createRouteHandlerClient<Database>({
       cookies: () => cookieStore,
     })
-    
-    // 인증 상태 확인
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    console.log('인증 상태:', { user: user?.id, email: user?.email, authError })
-    
-    // RLS 정책 확인을 위한 테스트 쿼리
-    console.log('=== RLS 정책 테스트 ===')
-    const { data: testData, error: testError } = await supabase
-      .from('multis')
-      .select('count(*)')
-      .limit(1)
-    console.log('RLS 테스트 결과:', { testData, testError })
-
-    // 이벤트 상태 정리 작업 실행 (백그라운드에서)
-    try {
-      const cleanupResponse = await fetch(`${req.nextUrl.origin}/api/multis/cleanup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      
-      if (cleanupResponse.ok) {
-        const cleanupResult = await cleanupResponse.json()
-        if (cleanupResult.updatedCount > 0) {
-          console.log(`🧹 자동 정리 완료: ${cleanupResult.updatedCount}개 이벤트 종료됨`)
-        }
-      }
-    } catch (cleanupError) {
-      console.error('자동 정리 작업 실패:', cleanupError)
-      // 정리 작업 실패해도 메인 기능은 계속 진행
-    }
 
     const start = req.nextUrl.searchParams.get('start')
     const end = req.nextUrl.searchParams.get('end')
@@ -76,61 +39,14 @@ export async function GET(req: NextRequest) {
       query = query.gte('created_at', start).lte('created_at', end)
     }
 
-    // RLS 우회를 위한 서비스 키 사용 시도
-    console.log('=== 서비스 키로 쿼리 시도 ===')
     const { data, error } = await query.order('created_at', { ascending: false })
-
-    console.log('=== /api/multis 디버깅 정보 ===')
-    console.log('데이터 개수:', data?.length || 0)
-    console.log('에러:', error?.message || '없음')
-    console.log('첫 번째 아이템:', data?.[0] || '없음')
-    
-    // 게임 필드 값들 확인
-    if (data && data.length > 0) {
-      const gameValues = [...new Set(data.map(event => event.game))]
-      console.log('실제 게임 필드 값들:', gameValues)
-      
-      // 각 게임별 개수 확인
-      gameValues.forEach(game => {
-        const count = data.filter(event => event.game === game).length
-        console.log(`${game}: ${count}개`)
-      })
-    }
-    
-    console.log('전체 데이터:', data)
-    console.log('===============================')
 
     if (error) {
       console.error('Supabase 에러:', error)
-      console.error('에러 상세:', {
-        message: error.message,
-        code: error.code,
-        details: error.details,
-        hint: error.hint
-      })
       return NextResponse.json({ error: '데이터 조회 실패' }, { status: 500 })
     }
 
-    console.log('multis 데이터 조회 성공:', data?.length || 0, '개')
-    
-    if (!data || data.length === 0) {
-      console.log('Supabase에 데이터가 없음 - 빈 배열 반환')
-      return NextResponse.json([])
-    }
-
-    console.log('실제 Supabase 데이터 반환:', data.length, '개')
-    if (data && data.length > 0) {
-      const firstEvent = data[0]
-      console.log('첫 번째 이벤트:', {
-        id: firstEvent.id,
-        title: firstEvent.title,
-        year: firstEvent.year,
-        week: firstEvent.week,
-        multi_day: firstEvent.multi_day
-      })
-    }
-
-    return NextResponse.json(data)
+    return NextResponse.json(data || [])
   } catch (error) {
     console.error('multis API 에러:', error)
     return NextResponse.json({ error: '서버 오류' }, { status: 500 })
@@ -152,8 +68,6 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json()
   const now = new Date()
-
-  console.log('POST /api/multis - 클라이언트 데이터:', body)
 
   // 정기 이벤트인 경우
   if (body.event_type === 'regular_schedule') {
@@ -192,15 +106,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: insertError.message }, { status: 500 })
     }
 
-    console.log('정기 이벤트 기본 정보 등록 성공:', eventData.id)
-
     // 2. 투표 옵션 저장 (투표가 활성화된 경우)
     if (body.voting_enabled && body.track_options && body.track_options.length > 0) {
       const currentYear = now.getFullYear()
       const currentWeek = Math.ceil((((+now - +new Date(now.getFullYear(), 0, 1)) / 86400000) + new Date(now.getFullYear(), 0, 1).getDay() + 1) / 7)
 
       // 트랙 옵션들 저장
-      const trackOptions = body.track_options.map(track => ({
+      const trackOptions = body.track_options.map((track: string) => ({
         regular_event_id: eventData.id,
         week_number: currentWeek,
         year: currentYear,
@@ -216,8 +128,6 @@ export async function POST(req: NextRequest) {
       if (optionsError) {
         console.error('투표 옵션 저장 실패:', optionsError)
         // 투표 옵션 저장 실패해도 이벤트는 생성된 상태
-      } else {
-        console.log('투표 옵션 저장 성공:', trackOptions.length, '개')
       }
     }
 
@@ -241,8 +151,6 @@ export async function POST(req: NextRequest) {
     if (scheduleError) {
       console.error('정기 이벤트 스케줄 생성 실패:', scheduleError)
       // 스케줄 생성 실패해도 기본 이벤트는 생성된 상태
-    } else {
-      console.log('정기 이벤트 스케줄 생성 성공')
     }
 
     return NextResponse.json({ success: true, eventId: eventData.id })
@@ -253,12 +161,6 @@ export async function POST(req: NextRequest) {
   const year = body.year || now.getFullYear()
   const week = body.week || Math.ceil((((+now - +new Date(now.getFullYear(), 0, 1)) / 86400000) + new Date(now.getFullYear(), 0, 1).getDay() + 1) / 7)
 
-  console.log('POST /api/multis - 일반 이벤트 데이터:', {
-    clientYear: body.year,
-    clientWeek: body.week,
-    finalYear: year,
-    finalWeek: week
-  })
 
   const { error: insertError } = await supabase.from('multis').insert({
     ...body,
@@ -287,7 +189,9 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: '이벤트 ID가 필요합니다' }, { status: 400 })
     }
 
-    const supabase = createClient()
+    const supabase = createRouteHandlerClient<Database>({
+      cookies: () => cookies(),
+    })
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {

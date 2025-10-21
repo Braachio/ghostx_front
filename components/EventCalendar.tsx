@@ -32,36 +32,12 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
 
   // 게임별 이벤트 필터링
   useEffect(() => {
-    console.log('=== EventCalendar 필터링 시작 ===')
-    console.log('전체 이벤트:', events.length, '개')
-    console.log('선택된 게임:', selectedGame)
-    
-    // 실제 게임 필드 값들 확인
-    if (events.length > 0) {
-      const gameValues = [...new Set(events.map(event => event.game))]
-      console.log('실제 게임 필드 값들:', gameValues)
-      
-      // GAME_OPTIONS의 id 값들 확인
-      const optionIds = GAME_OPTIONS.map(option => option.id)
-      console.log('GAME_OPTIONS id 값들:', optionIds)
-      
-      // 매칭 확인
-      gameValues.forEach(gameValue => {
-        const matched = optionIds.includes(gameValue)
-        console.log(`게임 "${gameValue}" 매칭 여부:`, matched)
-      })
-    }
-    
     if (selectedGame === 'all') {
       setFilteredEvents(events)
-      console.log('전체 이벤트 표시:', events.length, '개')
     } else {
       const filtered = events.filter(event => event.game === selectedGame)
       setFilteredEvents(filtered)
-      console.log('필터링된 이벤트:', filtered.length, '개')
-      console.log('필터링 조건:', `event.game === "${selectedGame}"`)
     }
-    console.log('=== EventCalendar 필터링 완료 ===')
   }, [events, selectedGame])
 
 
@@ -116,7 +92,7 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
       
       if (!isFlash) return false
       
-      const eventDateStr = (event.event_date.includes('T')
+      const eventDateStr = (event.event_date?.includes('T')
         ? event.event_date.split('T')[0]
         : event.event_date)
       return eventDateStr === dateStr
