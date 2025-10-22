@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 interface RichTextEditorProps {
   value: string
@@ -16,6 +16,10 @@ export default function RichTextEditor({
   className = "" 
 }: RichTextEditorProps) {
   const [isPreview, setIsPreview] = useState(false)
+  const [fontSize, setFontSize] = useState('12')
+  const [fontFamily, setFontFamily] = useState('맑은 고딕')
+  const [textColor, setTextColor] = useState('#000000')
+  const [editorHeight, setEditorHeight] = useState(200)
   const editorRef = useRef<HTMLDivElement>(null)
 
   const execCommand = (command: string, value?: string) => {
@@ -43,6 +47,37 @@ export default function RichTextEditor({
     setTimeout(() => {
       editorRef.current?.focus()
     }, 10)
+  }
+
+  const changeFontSize = (size: string) => {
+    setFontSize(size)
+    execCommand('fontSize', size)
+  }
+
+  const changeFontFamily = (family: string) => {
+    setFontFamily(family)
+    execCommand('fontName', family)
+  }
+
+  const changeTextColor = (color: string) => {
+    setTextColor(color)
+    execCommand('foreColor', color)
+  }
+
+  const insertTable = () => {
+    const tableHtml = `
+      <table border="1" style="border-collapse: collapse; width: 100%;">
+        <tr>
+          <td style="padding: 4px;">&nbsp;</td>
+          <td style="padding: 4px;">&nbsp;</td>
+        </tr>
+        <tr>
+          <td style="padding: 4px;">&nbsp;</td>
+          <td style="padding: 4px;">&nbsp;</td>
+        </tr>
+      </table>
+    `
+    execCommand('insertHTML', tableHtml)
   }
 
   const insertLink = () => {
@@ -106,186 +141,172 @@ export default function RichTextEditor({
     }`
 
   return (
-    <div className={`relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-gray-700/50 rounded-xl overflow-hidden shadow-xl backdrop-blur-sm ${className}`}>
-      {/* 툴바 */}
-      <div className="bg-gradient-to-r from-gray-800/90 to-gray-700/90 border-b border-gray-600/50 p-4 backdrop-blur-sm">
-        <div className="flex flex-wrap gap-3">
-          {/* 텍스트 서식 */}
-          <div className="flex gap-1 border-r border-gray-600/50 pr-4 mr-4">
-            <button
-              type="button"
-              onClick={() => formatText('bold')}
-              className={getButtonClass()}
-              title="굵게 (Ctrl+B)"
-            >
-              <span className="font-bold">B</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => formatText('italic')}
-              className={getButtonClass()}
-              title="기울임 (Ctrl+I)"
-            >
-              <span className="italic">I</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => formatText('underline')}
-              className={getButtonClass()}
-              title="밑줄 (Ctrl+U)"
-            >
-              <span className="underline">U</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => formatText('strikeThrough')}
-              className={getButtonClass()}
-              title="취소선"
-            >
-              <span className="line-through">S</span>
-            </button>
-          </div>
+    <div className={`bg-white border border-gray-300 rounded ${className}`}>
+      {/* 디시인사이드 스타일 툴바 */}
+      <div className="bg-gray-100 border-b border-gray-300 p-2 flex items-center gap-2 flex-wrap">
+        {/* 폰트 선택 */}
+        <select 
+          value={fontFamily} 
+          onChange={(e) => changeFontFamily(e.target.value)}
+          className="px-2 py-1 text-xs border border-gray-300 rounded bg-white"
+        >
+          <option value="맑은 고딕">맑은 고딕</option>
+          <option value="굴림">굴림</option>
+          <option value="돋움">돋움</option>
+          <option value="바탕">바탕</option>
+          <option value="궁서">궁서</option>
+          <option value="Arial">Arial</option>
+          <option value="Times New Roman">Times New Roman</option>
+        </select>
 
-          {/* 글씨 크기 */}
-          <div className="flex gap-1 border-r border-gray-600/50 pr-4 mr-4">
-            <button
-              type="button"
-              onClick={() => {
-                const selection = window.getSelection()
-                if (selection && selection.rangeCount > 0) {
-                  const range = selection.getRangeAt(0)
-                  const selectedText = range.toString()
-                  if (selectedText.trim()) {
-                    execCommand('insertHTML', `<span style="font-size: 1.5em;">${selectedText}</span>`)
-                  } else {
-                    execCommand('insertHTML', '<span style="font-size: 1.5em;">큰 글씨</span>')
-                  }
-                }
-              }}
-              className={getButtonClass()}
-              title="큰 글씨"
-            >
-              <span className="text-lg font-bold">A</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                const selection = window.getSelection()
-                if (selection && selection.rangeCount > 0) {
-                  const range = selection.getRangeAt(0)
-                  const selectedText = range.toString()
-                  if (selectedText.trim()) {
-                    execCommand('insertHTML', `<span style="font-size: 1.2em;">${selectedText}</span>`)
-                  } else {
-                    execCommand('insertHTML', '<span style="font-size: 1.2em;">중간 글씨</span>')
-                  }
-                }
-              }}
-              className={getButtonClass()}
-              title="중간 글씨"
-            >
-              <span className="font-bold">A</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                const selection = window.getSelection()
-                if (selection && selection.rangeCount > 0) {
-                  const range = selection.getRangeAt(0)
-                  const selectedText = range.toString()
-                  if (selectedText.trim()) {
-                    execCommand('insertHTML', `<span style="font-size: 0.8em;">${selectedText}</span>`)
-                  } else {
-                    execCommand('insertHTML', '<span style="font-size: 0.8em;">작은 글씨</span>')
-                  }
-                }
-              }}
-              className={getButtonClass()}
-              title="작은 글씨"
-            >
-              <span className="text-xs font-bold">A</span>
-            </button>
-          </div>
+        {/* 폰트 크기 */}
+        <select 
+          value={fontSize} 
+          onChange={(e) => changeFontSize(e.target.value)}
+          className="px-2 py-1 text-xs border border-gray-300 rounded bg-white"
+        >
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+          <option value="11">11</option>
+          <option value="12">12</option>
+          <option value="14">14</option>
+          <option value="16">16</option>
+          <option value="18">18</option>
+          <option value="20">20</option>
+          <option value="24">24</option>
+          <option value="28">28</option>
+          <option value="32">32</option>
+        </select>
 
-          {/* 정렬 */}
-          <div className="flex gap-1 border-r border-gray-600/50 pr-4 mr-4">
-            <button
-              type="button"
-              onClick={() => formatText('justifyLeft')}
-              className={getButtonClass()}
-              title="왼쪽 정렬"
-            >
-              <span className="text-lg">⬅️</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => formatText('justifyCenter')}
-              className={getButtonClass()}
-              title="가운데 정렬"
-            >
-              <span className="text-lg">↔️</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => formatText('justifyRight')}
-              className={getButtonClass()}
-              title="오른쪽 정렬"
-            >
-              <span className="text-lg">➡️</span>
-            </button>
-          </div>
-
-          {/* 리스트 */}
-          <div className="flex gap-1 border-r border-gray-600/50 pr-4 mr-4">
-            <button
-              type="button"
-              onClick={() => insertList('unordered')}
-              className={getButtonClass()}
-              title="순서 없는 목록"
-            >
-              <span className="text-lg">•</span>
-              <span className="ml-1 text-xs">목록</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => insertList('ordered')}
-              className={getButtonClass()}
-              title="순서 있는 목록"
-            >
-              <span className="text-lg">1.</span>
-              <span className="ml-1 text-xs">목록</span>
-            </button>
-          </div>
-
-          {/* 링크 */}
+        {/* 텍스트 서식 버튼들 */}
+        <div className="flex gap-1">
           <button
             type="button"
-            onClick={insertLink}
-            className={getButtonClass()}
-            title="링크 삽입"
+            onClick={() => formatText('bold')}
+            className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50 font-bold"
+            title="굵게"
           >
-            <span className="text-lg">🔗</span>
-            <span className="ml-1 text-xs">링크</span>
+            가
           </button>
-
-          {/* 미리보기 토글 */}
           <button
             type="button"
-            onClick={() => setIsPreview(!isPreview)}
-            className={getButtonClass(isPreview)}
-            title="미리보기"
+            onClick={() => formatText('italic')}
+            className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50 italic"
+            title="기울임"
           >
-            <span className="text-lg">👁️</span>
-            <span className="ml-1 text-xs">미리보기</span>
+            가
+          </button>
+          <button
+            type="button"
+            onClick={() => formatText('underline')}
+            className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50 underline"
+            title="밑줄"
+          >
+            가
+          </button>
+          <button
+            type="button"
+            onClick={() => formatText('strikeThrough')}
+            className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50 line-through"
+            title="취소선"
+          >
+            가
           </button>
         </div>
+
+        {/* 색상 선택 */}
+        <div className="flex items-center gap-1">
+          <input
+            type="color"
+            value={textColor}
+            onChange={(e) => changeTextColor(e.target.value)}
+            className="w-6 h-6 border border-gray-300 rounded cursor-pointer"
+            title="글자 색상"
+          />
+          <button
+            type="button"
+            onClick={() => changeTextColor('#000000')}
+            className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50"
+            title="기본 색상"
+          >
+            가
+          </button>
+        </div>
+
+        {/* 테이블 */}
+        <button
+          type="button"
+          onClick={insertTable}
+          className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50"
+          title="표 삽입"
+        >
+          ⊞
+        </button>
+
+        {/* 리스트 */}
+        <button
+          type="button"
+          onClick={() => insertList('unordered')}
+          className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50"
+          title="순서 없는 목록"
+        >
+          •
+        </button>
+        <button
+          type="button"
+          onClick={() => insertList('ordered')}
+          className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50"
+          title="순서 있는 목록"
+        >
+          1.
+        </button>
+
+        {/* 정렬 */}
+        <button
+          type="button"
+          onClick={() => formatText('justifyLeft')}
+          className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50"
+          title="왼쪽 정렬"
+        >
+          ⬅
+        </button>
+
+        {/* 실행 취소/다시 실행 */}
+        <button
+          type="button"
+          onClick={() => execCommand('undo')}
+          className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50"
+          title="실행 취소"
+        >
+          ↶
+        </button>
+        <button
+          type="button"
+          onClick={() => execCommand('redo')}
+          className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50"
+          title="다시 실행"
+        >
+          ↷
+        </button>
+
+        {/* 링크 */}
+        <button
+          type="button"
+          onClick={insertLink}
+          className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50"
+          title="링크 삽입"
+        >
+          🔗
+        </button>
       </div>
 
       {/* 에디터 영역 */}
-      <div className="relative bg-gradient-to-br from-gray-900/50 to-black/50">
+      <div className="relative bg-white">
         {isPreview ? (
           <div 
-            className="p-6 min-h-[200px] prose prose-invert max-w-none prose-headings:text-white prose-p:text-gray-300 prose-strong:text-white prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline"
+            className="p-4 min-h-[200px] border border-gray-200"
+            style={{ minHeight: `${editorHeight}px` }}
             dangerouslySetInnerHTML={{ __html: value }}
           />
         ) : (
@@ -294,10 +315,11 @@ export default function RichTextEditor({
             contentEditable
             onInput={handleInput}
             onKeyDown={handleKeyDown}
-            className="p-6 min-h-[200px] focus:outline-none text-gray-200 leading-relaxed"
+            className="p-4 focus:outline-none text-black leading-normal"
             style={{ 
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word',
+              minHeight: `${editorHeight}px`,
+              fontSize: `${fontSize}px`,
+              fontFamily: fontFamily,
               direction: 'ltr',
               textAlign: 'left',
               unicodeBidi: 'normal'
@@ -309,13 +331,41 @@ export default function RichTextEditor({
         )}
         
         {!value && !isPreview && (
-          <div className="absolute top-6 left-6 text-gray-500 pointer-events-none text-sm">
+          <div className="absolute top-4 left-4 text-gray-400 pointer-events-none text-sm">
             {placeholder}
           </div>
         )}
       </div>
 
-
+      {/* 하단 크기 조절 바 */}
+      <div className="bg-gray-100 border-t border-gray-300 p-2 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-gray-600">크기:</span>
+          <input
+            type="range"
+            min="150"
+            max="500"
+            value={editorHeight}
+            onChange={(e) => setEditorHeight(Number(e.target.value))}
+            className="w-20"
+          />
+          <span className="text-xs text-gray-600">{editorHeight}px</span>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setIsPreview(!isPreview)}
+            className={`px-3 py-1 text-xs rounded ${
+              isPreview 
+                ? 'bg-blue-500 text-white' 
+                : 'bg-white border border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            {isPreview ? '편집' : '미리보기'}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
