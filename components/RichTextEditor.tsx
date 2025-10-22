@@ -45,42 +45,42 @@ export default function RichTextEditor({
   }
 
   const getButtonClass = (isActive?: boolean) => 
-    `px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+    `relative px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 group ${
       isActive 
-        ? 'bg-blue-600 text-white shadow-lg' 
-        : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'
+        ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' 
+        : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600 hover:text-white hover:shadow-md'
     }`
 
   return (
-    <div className={`border border-gray-600 rounded-lg overflow-hidden ${className}`}>
+    <div className={`relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-gray-700/50 rounded-xl overflow-hidden shadow-xl backdrop-blur-sm ${className}`}>
       {/* 툴바 */}
-      <div className="bg-gray-800 border-b border-gray-600 p-3">
-        <div className="flex flex-wrap gap-2">
+      <div className="bg-gradient-to-r from-gray-800/90 to-gray-700/90 border-b border-gray-600/50 p-4 backdrop-blur-sm">
+        <div className="flex flex-wrap gap-3">
           {/* 텍스트 서식 */}
-          <div className="flex gap-1 border-r border-gray-600 pr-3 mr-3">
+          <div className="flex gap-1 border-r border-gray-600/50 pr-4 mr-4">
             <button
               type="button"
               onClick={() => formatText('bold')}
               className={getButtonClass()}
-              title="굵게"
+              title="굵게 (Ctrl+B)"
             >
-              <strong>B</strong>
+              <span className="font-bold">B</span>
             </button>
             <button
               type="button"
               onClick={() => formatText('italic')}
               className={getButtonClass()}
-              title="기울임"
+              title="기울임 (Ctrl+I)"
             >
-              <em>I</em>
+              <span className="italic">I</span>
             </button>
             <button
               type="button"
               onClick={() => formatText('underline')}
               className={getButtonClass()}
-              title="밑줄"
+              title="밑줄 (Ctrl+U)"
             >
-              <u>U</u>
+              <span className="underline">U</span>
             </button>
             <button
               type="button"
@@ -88,19 +88,19 @@ export default function RichTextEditor({
               className={getButtonClass()}
               title="취소선"
             >
-              <s>S</s>
+              <span className="line-through">S</span>
             </button>
           </div>
 
           {/* 글씨 크기 */}
-          <div className="flex gap-1 border-r border-gray-600 pr-3 mr-3">
+          <div className="flex gap-1 border-r border-gray-600/50 pr-4 mr-4">
             <button
               type="button"
               onClick={() => formatText('fontSize', '3')}
               className={getButtonClass()}
               title="큰 글씨"
             >
-              <span className="text-lg">A</span>
+              <span className="text-lg font-bold">A</span>
             </button>
             <button
               type="button"
@@ -108,7 +108,7 @@ export default function RichTextEditor({
               className={getButtonClass()}
               title="중간 글씨"
             >
-              <span>A</span>
+              <span className="font-bold">A</span>
             </button>
             <button
               type="button"
@@ -116,19 +116,19 @@ export default function RichTextEditor({
               className={getButtonClass()}
               title="작은 글씨"
             >
-              <span className="text-xs">A</span>
+              <span className="text-xs font-bold">A</span>
             </button>
           </div>
 
           {/* 정렬 */}
-          <div className="flex gap-1 border-r border-gray-600 pr-3 mr-3">
+          <div className="flex gap-1 border-r border-gray-600/50 pr-4 mr-4">
             <button
               type="button"
               onClick={() => formatText('justifyLeft')}
               className={getButtonClass()}
               title="왼쪽 정렬"
             >
-              ⬅️
+              <span className="text-lg">⬅️</span>
             </button>
             <button
               type="button"
@@ -136,7 +136,7 @@ export default function RichTextEditor({
               className={getButtonClass()}
               title="가운데 정렬"
             >
-              ↔️
+              <span className="text-lg">↔️</span>
             </button>
             <button
               type="button"
@@ -144,19 +144,20 @@ export default function RichTextEditor({
               className={getButtonClass()}
               title="오른쪽 정렬"
             >
-              ➡️
+              <span className="text-lg">➡️</span>
             </button>
           </div>
 
           {/* 리스트 */}
-          <div className="flex gap-1 border-r border-gray-600 pr-3 mr-3">
+          <div className="flex gap-1 border-r border-gray-600/50 pr-4 mr-4">
             <button
               type="button"
               onClick={() => insertList('unordered')}
               className={getButtonClass()}
               title="순서 없는 목록"
             >
-              • 목록
+              <span className="text-lg">•</span>
+              <span className="ml-1 text-xs">목록</span>
             </button>
             <button
               type="button"
@@ -164,7 +165,8 @@ export default function RichTextEditor({
               className={getButtonClass()}
               title="순서 있는 목록"
             >
-              1. 목록
+              <span className="text-lg">1.</span>
+              <span className="ml-1 text-xs">목록</span>
             </button>
           </div>
 
@@ -175,7 +177,8 @@ export default function RichTextEditor({
             className={getButtonClass()}
             title="링크 삽입"
           >
-            🔗 링크
+            <span className="text-lg">🔗</span>
+            <span className="ml-1 text-xs">링크</span>
           </button>
 
           {/* 미리보기 토글 */}
@@ -185,16 +188,17 @@ export default function RichTextEditor({
             className={getButtonClass(isPreview)}
             title="미리보기"
           >
-            👁️ 미리보기
+            <span className="text-lg">👁️</span>
+            <span className="ml-1 text-xs">미리보기</span>
           </button>
         </div>
       </div>
 
       {/* 에디터 영역 */}
-      <div className="bg-gray-900">
+      <div className="relative bg-gradient-to-br from-gray-900/50 to-black/50">
         {isPreview ? (
           <div 
-            className="p-4 min-h-[200px] prose prose-invert max-w-none"
+            className="p-6 min-h-[200px] prose prose-invert max-w-none prose-headings:text-white prose-p:text-gray-300 prose-strong:text-white prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline"
             dangerouslySetInnerHTML={{ __html: value }}
           />
         ) : (
@@ -202,7 +206,7 @@ export default function RichTextEditor({
             ref={editorRef}
             contentEditable
             onInput={handleInput}
-            className="p-4 min-h-[200px] focus:outline-none"
+            className="p-6 min-h-[200px] focus:outline-none text-gray-200 leading-relaxed"
             style={{ 
               whiteSpace: 'pre-wrap',
               wordBreak: 'break-word'
@@ -213,15 +217,24 @@ export default function RichTextEditor({
         )}
         
         {!value && !isPreview && (
-          <div className="absolute top-4 left-4 text-gray-500 pointer-events-none">
+          <div className="absolute top-6 left-6 text-gray-500 pointer-events-none text-sm">
             {placeholder}
           </div>
         )}
       </div>
 
       {/* 도움말 */}
-      <div className="bg-gray-800 px-4 py-2 text-xs text-gray-400 border-t border-gray-600">
-        💡 <strong>사용법:</strong> 텍스트를 선택하고 서식 버튼을 클릭하거나, 단축키를 사용하세요 (Ctrl+B: 굵게, Ctrl+I: 기울임)
+      <div className="bg-gradient-to-r from-gray-800/80 to-gray-700/80 px-6 py-3 text-xs text-gray-400 border-t border-gray-600/50 backdrop-blur-sm">
+        <div className="flex items-center gap-2">
+          <span className="text-yellow-400">💡</span>
+          <span><strong>사용법:</strong> 텍스트를 선택하고 서식 버튼을 클릭하거나, 단축키를 사용하세요</span>
+          <span className="text-gray-500">•</span>
+          <span className="text-blue-400">Ctrl+B: 굵게</span>
+          <span className="text-gray-500">•</span>
+          <span className="text-blue-400">Ctrl+I: 기울임</span>
+          <span className="text-gray-500">•</span>
+          <span className="text-blue-400">Ctrl+U: 밑줄</span>
+        </div>
       </div>
     </div>
   )
