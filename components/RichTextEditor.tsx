@@ -109,14 +109,10 @@ export default function RichTextEditor({
     }
   }
 
-  const handleInput = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleInput = () => {
     if (editorRef.current) {
       const content = editorRef.current.innerHTML
-      // 중복 입력 방지를 위한 디바운싱
-      setTimeout(() => {
-        onChange(content)
-      }, 10)
+      onChange(content)
     }
   }
 
@@ -135,14 +131,14 @@ export default function RichTextEditor({
 
 
   return (
-    <div className={`bg-white border border-gray-300 rounded ${className}`}>
-      {/* 디시인사이드 스타일 툴바 */}
-      <div className="bg-gray-100 border-b border-gray-300 p-2 flex items-center gap-2 flex-wrap">
+    <div className={`bg-gray-900 border border-gray-700 rounded-lg ${className}`}>
+      {/* 다크모드 툴바 */}
+      <div className="bg-gray-800 border-b border-gray-700 p-2 flex items-center gap-2 flex-wrap">
         {/* 폰트 선택 */}
         <select 
           value={fontFamily} 
           onChange={(e) => changeFontFamily(e.target.value)}
-          className="px-2 py-1 text-xs border border-gray-300 rounded bg-white"
+          className="px-2 py-1 text-xs border border-gray-600 rounded bg-gray-700 text-white"
         >
           <option value="맑은 고딕">맑은 고딕</option>
           <option value="굴림">굴림</option>
@@ -157,7 +153,7 @@ export default function RichTextEditor({
         <select 
           value={fontSize} 
           onChange={(e) => changeFontSize(e.target.value)}
-          className="px-2 py-1 text-xs border border-gray-300 rounded bg-white"
+          className="px-2 py-1 text-xs border border-gray-600 rounded bg-gray-700 text-white"
         >
           <option value="8">8</option>
           <option value="9">9</option>
@@ -178,7 +174,7 @@ export default function RichTextEditor({
           <button
             type="button"
             onClick={() => formatText('bold')}
-            className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50 font-bold"
+            className="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded hover:bg-gray-600 text-white font-bold"
             title="굵게"
           >
             가
@@ -186,7 +182,7 @@ export default function RichTextEditor({
           <button
             type="button"
             onClick={() => formatText('italic')}
-            className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50 italic"
+            className="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded hover:bg-gray-600 text-white italic"
             title="기울임"
           >
             가
@@ -194,7 +190,7 @@ export default function RichTextEditor({
           <button
             type="button"
             onClick={() => formatText('underline')}
-            className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50 underline"
+            className="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded hover:bg-gray-600 text-white underline"
             title="밑줄"
           >
             가
@@ -202,7 +198,7 @@ export default function RichTextEditor({
           <button
             type="button"
             onClick={() => formatText('strikeThrough')}
-            className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50 line-through"
+            className="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded hover:bg-gray-600 text-white line-through"
             title="취소선"
           >
             가
@@ -220,8 +216,8 @@ export default function RichTextEditor({
           />
           <button
             type="button"
-            onClick={() => changeTextColor('#000000')}
-            className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50"
+            onClick={() => changeTextColor('#ffffff')}
+            className="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded hover:bg-gray-600 text-white"
             title="기본 색상"
           >
             가
@@ -232,7 +228,7 @@ export default function RichTextEditor({
         <button
           type="button"
           onClick={insertTable}
-          className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50"
+          className="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded hover:bg-gray-600 text-white"
           title="표 삽입"
         >
           ⊞
@@ -242,7 +238,7 @@ export default function RichTextEditor({
         <button
           type="button"
           onClick={() => insertList('unordered')}
-          className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50"
+          className="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded hover:bg-gray-600 text-white"
           title="순서 없는 목록"
         >
           •
@@ -250,7 +246,7 @@ export default function RichTextEditor({
         <button
           type="button"
           onClick={() => insertList('ordered')}
-          className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50"
+          className="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded hover:bg-gray-600 text-white"
           title="순서 있는 목록"
         >
           1.
@@ -260,7 +256,7 @@ export default function RichTextEditor({
         <button
           type="button"
           onClick={() => formatText('justifyLeft')}
-          className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50"
+          className="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded hover:bg-gray-600 text-white"
           title="왼쪽 정렬"
         >
           ⬅
@@ -270,7 +266,7 @@ export default function RichTextEditor({
         <button
           type="button"
           onClick={() => execCommand('undo')}
-          className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50"
+          className="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded hover:bg-gray-600 text-white"
           title="실행 취소"
         >
           ↶
@@ -278,7 +274,7 @@ export default function RichTextEditor({
         <button
           type="button"
           onClick={() => execCommand('redo')}
-          className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50"
+          className="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded hover:bg-gray-600 text-white"
           title="다시 실행"
         >
           ↷
@@ -288,7 +284,7 @@ export default function RichTextEditor({
         <button
           type="button"
           onClick={insertLink}
-          className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50"
+          className="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded hover:bg-gray-600 text-white"
           title="링크 삽입"
         >
           🔗
@@ -296,10 +292,10 @@ export default function RichTextEditor({
       </div>
 
       {/* 에디터 영역 */}
-      <div className="relative bg-white">
+      <div className="relative bg-gray-900">
         {isPreview ? (
           <div 
-            className="p-4 min-h-[200px] border border-gray-200"
+            className="p-4 min-h-[200px] border border-gray-700 text-white"
             style={{ minHeight: `${editorHeight}px` }}
             dangerouslySetInnerHTML={{ __html: value }}
           />
@@ -309,7 +305,7 @@ export default function RichTextEditor({
             contentEditable
             onInput={handleInput}
             onKeyDown={handleKeyDown}
-            className="p-4 focus:outline-none text-black leading-normal"
+            className="p-4 focus:outline-none text-white leading-normal"
             style={{ 
               minHeight: `${editorHeight}px`,
               fontSize: `${fontSize}px`,
@@ -319,22 +315,21 @@ export default function RichTextEditor({
               unicodeBidi: 'normal'
             }}
             dir="ltr"
-            dangerouslySetInnerHTML={{ __html: value }}
             suppressContentEditableWarning={true}
           />
         )}
         
         {!value && !isPreview && (
-          <div className="absolute top-4 left-4 text-gray-400 pointer-events-none text-sm">
+          <div className="absolute top-4 left-4 text-gray-500 pointer-events-none text-sm">
             {placeholder}
           </div>
         )}
       </div>
 
       {/* 하단 크기 조절 바 */}
-      <div className="bg-gray-100 border-t border-gray-300 p-2 flex items-center justify-between">
+      <div className="bg-gray-800 border-t border-gray-700 p-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-600">크기:</span>
+          <span className="text-xs text-gray-300">크기:</span>
           <input
             type="range"
             min="150"
@@ -343,7 +338,7 @@ export default function RichTextEditor({
             onChange={(e) => setEditorHeight(Number(e.target.value))}
             className="w-20"
           />
-          <span className="text-xs text-gray-600">{editorHeight}px</span>
+          <span className="text-xs text-gray-300">{editorHeight}px</span>
         </div>
         
         <div className="flex items-center gap-2">
@@ -352,8 +347,8 @@ export default function RichTextEditor({
             onClick={() => setIsPreview(!isPreview)}
             className={`px-3 py-1 text-xs rounded ${
               isPreview 
-                ? 'bg-blue-500 text-white' 
-                : 'bg-white border border-gray-300 hover:bg-gray-50'
+                ? 'bg-blue-600 text-white' 
+                : 'bg-gray-700 border border-gray-600 hover:bg-gray-600 text-white'
             }`}
           >
             {isPreview ? '편집' : '미리보기'}
