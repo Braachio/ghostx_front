@@ -62,7 +62,7 @@ export default function ParticipationSection({ eventId, isOwner = false, onParti
       const response = await fetch(`/api/multis/${eventId}/participants`)
       if (response.ok) {
         const data = await response.json()
-        const userParticipant = data.participants?.find((p: any) => p.user_id === user.id)
+        const userParticipant = data.participants?.find((p: { user_id: string }) => p.user_id === user.id)
         const isParticipant = !!userParticipant
         console.log('API를 통한 참가 상태 확인:', isParticipant)
         return isParticipant
