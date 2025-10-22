@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 
 interface RichTextEditorProps {
   value: string
@@ -133,12 +133,6 @@ export default function RichTextEditor({
     }
   }
 
-  const getButtonClass = (isActive?: boolean) => 
-    `relative px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 group ${
-      isActive 
-        ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' 
-        : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600 hover:text-white hover:shadow-md'
-    }`
 
   return (
     <div className={`bg-white border border-gray-300 rounded ${className}`}>
