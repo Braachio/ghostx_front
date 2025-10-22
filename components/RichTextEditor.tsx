@@ -19,8 +19,12 @@ export default function RichTextEditor({
   const editorRef = useRef<HTMLDivElement>(null)
 
   const execCommand = (command: string, value?: string) => {
-    document.execCommand(command, false, value)
     editorRef.current?.focus()
+    document.execCommand(command, false, value)
+    // 포커스를 다시 맞춰서 커서가 제대로 위치하도록 함
+    setTimeout(() => {
+      editorRef.current?.focus()
+    }, 10)
   }
 
   const insertLink = () => {
@@ -31,7 +35,25 @@ export default function RichTextEditor({
   }
 
   const insertList = (type: 'ordered' | 'unordered') => {
-    execCommand(type === 'ordered' ? 'insertOrderedList' : 'insertUnorderedList')
+    // 현재 선택된 텍스트가 있는지 확인
+    const selection = window.getSelection()
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0)
+      const selectedText = range.toString()
+      
+      if (selectedText.trim()) {
+        // 선택된 텍스트가 있으면 리스트로 변환
+        execCommand(type === 'ordered' ? 'insertOrderedList' : 'insertUnorderedList')
+      } else {
+        // 선택된 텍스트가 없으면 새 리스트 항목 생성
+        const listItem = type === 'ordered' ? '<ol><li></li></ol>' : '<ul><li></li></ul>'
+        execCommand('insertHTML', listItem)
+      }
+    } else {
+      // 선택이 없으면 새 리스트 항목 생성
+      const listItem = type === 'ordered' ? '<ol><li></li></ol>' : '<ul><li></li></ul>'
+      execCommand('insertHTML', listItem)
+    }
   }
 
   const handleInput = () => {
@@ -40,8 +62,16 @@ export default function RichTextEditor({
     }
   }
 
-  const formatText = (command: string) => {
-    execCommand(command)
+  const formatText = (command: string, value?: string) => {
+    execCommand(command, value)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // 엔터 키 처리 개선
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      execCommand('insertHTML', '<br>')
+    }
   }
 
   const getButtonClass = (isActive?: boolean) => 
@@ -96,7 +126,18 @@ export default function RichTextEditor({
           <div className="flex gap-1 border-r border-gray-600/50 pr-4 mr-4">
             <button
               type="button"
-              onClick={() => formatText('fontSize', '3')}
+              onClick={() => {
+                const selection = window.getSelection()
+                if (selection && selection.rangeCount > 0) {
+                  const range = selection.getRangeAt(0)
+                  const selectedText = range.toString()
+                  if (selectedText.trim()) {
+                    execCommand('insertHTML', `<span style="font-size: 1.5em;">${selectedText}</span>`)
+                  } else {
+                    execCommand('insertHTML', '<span style="font-size: 1.5em;">큰 글씨</span>')
+                  }
+                }
+              }}
               className={getButtonClass()}
               title="큰 글씨"
             >
@@ -104,7 +145,18 @@ export default function RichTextEditor({
             </button>
             <button
               type="button"
-              onClick={() => formatText('fontSize', '2')}
+              onClick={() => {
+                const selection = window.getSelection()
+                if (selection && selection.rangeCount > 0) {
+                  const range = selection.getRangeAt(0)
+                  const selectedText = range.toString()
+                  if (selectedText.trim()) {
+                    execCommand('insertHTML', `<span style="font-size: 1.2em;">${selectedText}</span>`)
+                  } else {
+                    execCommand('insertHTML', '<span style="font-size: 1.2em;">중간 글씨</span>')
+                  }
+                }
+              }}
               className={getButtonClass()}
               title="중간 글씨"
             >
@@ -112,7 +164,18 @@ export default function RichTextEditor({
             </button>
             <button
               type="button"
-              onClick={() => formatText('fontSize', '1')}
+              onClick={() => {
+                const selection = window.getSelection()
+                if (selection && selection.rangeCount > 0) {
+                  const range = selection.getRangeAt(0)
+                  const selectedText = range.toString()
+                  if (selectedText.trim()) {
+                    execCommand('insertHTML', `<span style="font-size: 0.8em;">${selectedText}</span>`)
+                  } else {
+                    execCommand('insertHTML', '<span style="font-size: 0.8em;">작은 글씨</span>')
+                  }
+                }
+              }}
               className={getButtonClass()}
               title="작은 글씨"
             >
@@ -206,6 +269,7 @@ export default function RichTextEditor({
             ref={editorRef}
             contentEditable
             onInput={handleInput}
+            onKeyDown={handleKeyDown}
             className="p-6 min-h-[200px] focus:outline-none text-gray-200 leading-relaxed"
             style={{ 
               whiteSpace: 'pre-wrap',
