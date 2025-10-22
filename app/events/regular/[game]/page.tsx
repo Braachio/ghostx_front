@@ -50,7 +50,30 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
   useEffect(() => {
     const loadParams = async () => {
       const resolvedParams = await params
-      setGame(resolvedParams.game)
+
+      // 한글/퍼센트 인코딩으로 들어온 값을 안전하게 디코딩하고 표준 슬러그로 변환
+      const decoded = (() => {
+        try {
+          return decodeURIComponent(resolvedParams.game)
+        } catch {
+          return resolvedParams.game
+        }
+      })()
+
+      // 한글 → 영문 슬러그 정규화 맵
+      const toSlug: Record<string, string> = {
+        '아이레이싱': 'iracing',
+        '아세토코르사': 'assettocorsa',
+        '그란투리스모7': 'gran-turismo7',
+        '오토모빌리스타2': 'automobilista2',
+        '컴페티치오네': 'competizione',
+        '르망얼티밋': 'lemans',
+        'F1 25': 'f1-25',
+        'EA WRC': 'ea-wrc',
+      }
+
+      const normalized = toSlug[decoded] || decoded.toLowerCase()
+      setGame(normalized)
     }
     loadParams()
   }, [params])
