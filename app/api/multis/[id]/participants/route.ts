@@ -35,6 +35,16 @@ export async function GET(
 
     if (participantsError) {
       console.error(`참가자 목록 조회 실패 - Event ID: ${id}, Error:`, participantsError.message)
+      // 406 오류나 RLS 문제인 경우 빈 배열로 반환
+      if (participantsError.message.includes('406') || participantsError.message.includes('RLS')) {
+        console.log('RLS 또는 권한 문제로 빈 배열 반환')
+        return NextResponse.json({
+          participants: [],
+          total: 0,
+          confirmed: 0,
+          pending: 0
+        })
+      }
       return NextResponse.json({ error: participantsError.message }, { status: 500 })
     }
 

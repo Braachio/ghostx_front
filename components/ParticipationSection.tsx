@@ -54,41 +54,26 @@ export default function ParticipationSection({ eventId, isOwner = false, onParti
     }
   }, [eventId])
 
-  // 현재 사용자의 참가 상태 확인 (Supabase 직접 사용)
+  // 현재 사용자의 참가 상태 확인 (API를 통해서만)
   const checkParticipationStatus = useCallback(async () => {
     if (!user) return false
     
     try {
-      const supabase = createClientComponentClient()
-      
-      const { data: participant, error } = await supabase
-        .from('participants')
-        .select('id, user_id, status')
-        .eq('event_id', eventId)
-        .eq('user_id', user.id)
-        .single()
-
-      console.log('Supabase 참가 상태 확인:', { 
-        eventId, 
-        userId: user.id, 
-        participant, 
-        error: error?.message,
-        errorCode: error?.code 
-      })
-      
-      if (error && error.code !== 'PGRST116') { // PGRST116은 "no rows returned" 오류
-        console.error('참가 상태 확인 오류:', error)
+      const response = await fetch(`/api/multis/${eventId}/participants`)
+      if (response.ok) {
+        const data = await response.json()
+        const userParticipant = data.participants?.find((p: any) => p.user_id === user.id)
+        const isParticipant = !!userParticipant
+        console.log('API를 통한 참가 상태 확인:', isParticipant)
+        return isParticipant
+      } else {
+        console.log('참가 상태 확인 API 실패:', response.status)
         return false
       }
-      
-      const isParticipant = !!participant
-      console.log('최종 참가 상태:', isParticipant)
-      return isParticipant
-      
     } catch (error) {
       console.error('참가 상태 확인 실패:', error)
+      return false
     }
-    return false
   }, [user, eventId])
 
   useEffect(() => {
