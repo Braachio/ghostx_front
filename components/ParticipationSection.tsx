@@ -44,19 +44,10 @@ export default function ParticipationSection({ eventId, isOwner = false, onParti
         console.log('참가자 수 업데이트:', data.total)
       } else {
         console.error('참가자 목록 API 오류:', response.status, response.statusText)
-        // API 오류 시 Supabase에서 직접 확인
-        const supabase = createClientComponentClient()
-        const { data: directParticipants, error } = await supabase
-          .from('participants')
-          .select('id, user_id, nickname, status')
-          .eq('event_id', eventId)
-        
-        if (!error && directParticipants) {
-          console.log('Supabase 직접 조회 결과:', directParticipants)
-          setParticipants(directParticipants)
-          setParticipantCount(directParticipants.length)
-          console.log('Supabase 직접 조회로 참가자 수 업데이트:', directParticipants.length)
-        }
+        // API 오류 시 빈 배열로 설정하여 UI가 깨지지 않도록 함
+        setParticipants([])
+        setParticipantCount(0)
+        console.log('API 오류로 인해 참가자 목록을 빈 배열로 설정')
       }
     } catch (error) {
       console.error('참가자 목록 가져오기 실패:', error)

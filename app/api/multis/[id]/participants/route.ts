@@ -19,28 +19,12 @@ export async function GET(
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (authError || !user) {
-      console.log('참가자 목록 조회 실패 - 인증 오류')
+      console.log('참가자 목록 조회 실패 - 인증 오류:', authError?.message)
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
-    // 사용자 권한 확인 (관리자 또는 event_manager만 접근 가능)
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (profileError || !profile) {
-      console.log('참가자 목록 조회 실패 - 프로필 조회 오류')
-      return NextResponse.json({ error: '사용자 정보를 확인할 수 없습니다.' }, { status: 403 })
-    }
-
-    if (profile.role !== 'admin' && profile.role !== 'event_manager') {
-      console.log('참가자 목록 조회 실패 - 권한 부족:', profile.role)
-      return NextResponse.json({ error: '참가자 목록 조회 권한이 없습니다.' }, { status: 403 })
-    }
-
-    console.log('참가자 목록 조회 권한 확인됨:', { userId: user.id, role: profile.role })
+    // 모든 인증된 사용자가 참가자 목록을 볼 수 있도록 허용
+    console.log('참가자 목록 조회 권한 확인됨:', { userId: user.id })
 
     // 1) 참가자 목록 조회 (조인 없이 먼저 가져오기)
     const { data: participants, error: participantsError } = await supabase

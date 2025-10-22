@@ -361,7 +361,7 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
 
             {/* 요일 고정 정기 갤멀 안내 */}
             <div className="px-5 pb-5">
-              <div className="text-sm text-gray-300 mb-2">해당 요일 정기 갤멀</div>
+              <div className="text-sm text-gray-300 mb-2">정기 갤멀</div>
               <div className="space-y-2">
                 {getRegularGalleryEvents()
                   .filter(event => event.multi_day && event.multi_day.includes(DAYS_OF_WEEK[expandedDate.getDay()]))
