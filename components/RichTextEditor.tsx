@@ -27,18 +27,11 @@ export default function RichTextEditor({
     
     editorRef.current.focus()
     
-    // 선택 영역이 없으면 커서 위치에 선택 영역 생성
-    const selection = window.getSelection()
-    if (!selection || selection.rangeCount === 0) {
-      const range = document.createRange()
-      range.selectNodeContents(editorRef.current)
-      range.collapse(false) // 끝으로 이동
-      selection?.removeAllRanges()
-      selection?.addRange(range)
-    }
-    
     try {
-      document.execCommand(command, false, value)
+      const success = document.execCommand(command, false, value)
+      if (!success) {
+        console.warn('Command failed:', command)
+      }
     } catch (error) {
       console.warn('Command execution failed:', command, error)
     }
@@ -124,8 +117,8 @@ export default function RichTextEditor({
     // 엔터 키 처리 개선
     if (e.key === 'Enter') {
       e.preventDefault()
-      // 단순한 줄바꿈 대신 div 요소 사용
-      execCommand('insertHTML', '<div></div>')
+      // 단순한 줄바꿈
+      execCommand('insertHTML', '<br>')
     }
   }
 
@@ -315,6 +308,7 @@ export default function RichTextEditor({
               unicodeBidi: 'normal'
             }}
             dir="ltr"
+            dangerouslySetInnerHTML={{ __html: value }}
             suppressContentEditableWarning={true}
           />
         )}
