@@ -19,9 +19,27 @@ export default function RichTextEditor({
   const editorRef = useRef<HTMLDivElement>(null)
 
   const execCommand = (command: string, value?: string) => {
-    editorRef.current?.focus()
-    document.execCommand(command, false, value)
-    // 포커스를 다시 맞춰서 커서가 제대로 위치하도록 함
+    if (!editorRef.current) return
+    
+    editorRef.current.focus()
+    
+    // 선택 영역이 없으면 커서 위치에 선택 영역 생성
+    const selection = window.getSelection()
+    if (!selection || selection.rangeCount === 0) {
+      const range = document.createRange()
+      range.selectNodeContents(editorRef.current)
+      range.collapse(false) // 끝으로 이동
+      selection?.removeAllRanges()
+      selection?.addRange(range)
+    }
+    
+    try {
+      document.execCommand(command, false, value)
+    } catch (error) {
+      console.warn('Command execution failed:', command, error)
+    }
+    
+    // 포커스 유지
     setTimeout(() => {
       editorRef.current?.focus()
     }, 10)
@@ -56,9 +74,14 @@ export default function RichTextEditor({
     }
   }
 
-  const handleInput = () => {
+  const handleInput = (e: React.FormEvent) => {
+    e.preventDefault()
     if (editorRef.current) {
-      onChange(editorRef.current.innerHTML)
+      const content = editorRef.current.innerHTML
+      // 중복 입력 방지를 위한 디바운싱
+      setTimeout(() => {
+        onChange(content)
+      }, 10)
     }
   }
 
@@ -70,7 +93,8 @@ export default function RichTextEditor({
     // 엔터 키 처리 개선
     if (e.key === 'Enter') {
       e.preventDefault()
-      execCommand('insertHTML', '<br>')
+      // 단순한 줄바꿈 대신 div 요소 사용
+      execCommand('insertHTML', '<div></div>')
     }
   }
 
@@ -273,8 +297,12 @@ export default function RichTextEditor({
             className="p-6 min-h-[200px] focus:outline-none text-gray-200 leading-relaxed"
             style={{ 
               whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word'
+              wordBreak: 'break-word',
+              direction: 'ltr',
+              textAlign: 'left',
+              unicodeBidi: 'normal'
             }}
+            dir="ltr"
             dangerouslySetInnerHTML={{ __html: value }}
             suppressContentEditableWarning={true}
           />
@@ -287,19 +315,7 @@ export default function RichTextEditor({
         )}
       </div>
 
-      {/* 도움말 */}
-      <div className="bg-gradient-to-r from-gray-800/80 to-gray-700/80 px-6 py-3 text-xs text-gray-400 border-t border-gray-600/50 backdrop-blur-sm">
-        <div className="flex items-center gap-2">
-          <span className="text-yellow-400">💡</span>
-          <span><strong>사용법:</strong> 텍스트를 선택하고 서식 버튼을 클릭하거나, 단축키를 사용하세요</span>
-          <span className="text-gray-500">•</span>
-          <span className="text-blue-400">Ctrl+B: 굵게</span>
-          <span className="text-gray-500">•</span>
-          <span className="text-blue-400">Ctrl+I: 기울임</span>
-          <span className="text-gray-500">•</span>
-          <span className="text-blue-400">Ctrl+U: 밑줄</span>
-        </div>
-      </div>
+
     </div>
   )
 }
