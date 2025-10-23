@@ -56,10 +56,13 @@ export async function GET(
     let steamIdByUserId: Record<string, string | null> = {}
 
     if (userIds.length > 0) {
+      console.log('프로필 조회할 사용자 IDs:', userIds)
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('id, steam_id')
         .in('id', userIds)
+
+      console.log('프로필 조회 결과:', { profiles, profilesError })
 
       if (profilesError) {
         console.warn('프로필 조회 실패(무시하고 계속 진행):', profilesError.message)
@@ -69,6 +72,7 @@ export async function GET(
           acc[cur.id] = cur.steam_id ?? null
           return acc
         }, {})
+        console.log('Steam ID 매핑 결과:', steamIdByUserId)
       }
     }
 
@@ -76,6 +80,8 @@ export async function GET(
       ...p,
       steam_id: steamIdByUserId[p.user_id] ?? null,
     }))
+
+    console.log('최종 참가자 데이터:', participantsWithSteamId)
 
     return NextResponse.json({
       participants: participantsWithSteamId,
