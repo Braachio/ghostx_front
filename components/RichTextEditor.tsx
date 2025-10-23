@@ -155,34 +155,8 @@ export default function RichTextEditor({
     if (e.key === 'Enter') {
       e.preventDefault()
       
-      // 더 간단하고 확실한 방법으로 줄바꿈 처리
-      const selection = window.getSelection()
-      if (selection && selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0)
-        
-        // br 태그 삽입
-        const br = document.createElement('br')
-        range.deleteContents()
-        range.insertNode(br)
-        
-        // br 다음에 빈 텍스트 노드 추가 (커서가 위치할 곳)
-        const textNode = document.createTextNode('\u00A0') // non-breaking space
-        range.insertNode(textNode)
-        
-        // 커서를 새 텍스트 노드 끝으로 이동
-        range.setStart(textNode, 1)
-        range.setEnd(textNode, 1)
-        selection.removeAllRanges()
-        selection.addRange(range)
-        
-        // 포커스 유지
-        if (editorRef.current) {
-          editorRef.current.focus()
-        }
-      } else {
-        // 선택이 없으면 단순히 br 삽입
-        execCommand('insertHTML', '<br>')
-      }
+      // execCommand를 사용한 간단한 줄바꿈 처리
+      execCommand('insertHTML', '<br><br>')
       
       // 텍스트 방향 강제 설정
       if (editorRef.current) {
