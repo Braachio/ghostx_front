@@ -148,6 +148,11 @@ export default function ParticipationButton({
   if (!user) {
     return (
       <div className="flex items-center justify-center gap-4">
+        <div className="flex items-center gap-2 text-sm text-gray-400">
+          <span>🔐</span>
+          <span>Steam 로그인 필요</span>
+        </div>
+        
         <button 
           onClick={() => window.location.href = '/login'}
           className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center gap-2"
@@ -171,6 +176,11 @@ export default function ParticipationButton({
   if (!isSteamUser) {
     return (
       <div className="flex items-center justify-center gap-4">
+        <div className="flex items-center gap-2 text-sm text-gray-400">
+          <span>⚠️</span>
+          <span>Steam 로그인 필요</span>
+        </div>
+        
         <button 
           onClick={() => window.location.href = '/login'}
           className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center gap-2"
