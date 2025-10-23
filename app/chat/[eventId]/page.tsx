@@ -34,30 +34,6 @@ export default function ChatPage() {
     return `ㅇㅇ#${generateTag()}`
   }, [generateTag])
 
-  useEffect(() => {
-    const savedNickname = localStorage.getItem(`chat_nickname_${eventId}`)
-    const savedColor = localStorage.getItem(`chat_color_${eventId}`)
-    
-    if (savedNickname) {
-      setNickname(savedNickname)
-      setUserColor(savedColor || colors[0])
-      setIsJoined(true)
-    } else {
-      setNickname(generateNickname())
-      setUserColor(colors[Math.floor(Math.random() * colors.length)])
-    }
-
-    loadMessages()
-  }, [eventId, colors, generateNickname, loadMessages])
-
-  useEffect(() => {
-    scrollToBottom()
-  }, [messages])
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-
   const loadMessages = useCallback(async () => {
     try {
       const response = await fetch(`/api/chat/${eventId}`)
@@ -79,6 +55,30 @@ export default function ChatPage() {
       setMessages([])
     }
   }, [eventId])
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  useEffect(() => {
+    const savedNickname = localStorage.getItem(`chat_nickname_${eventId}`)
+    const savedColor = localStorage.getItem(`chat_color_${eventId}`)
+    
+    if (savedNickname) {
+      setNickname(savedNickname)
+      setUserColor(savedColor || colors[0])
+      setIsJoined(true)
+    } else {
+      setNickname(generateNickname())
+      setUserColor(colors[Math.floor(Math.random() * colors.length)])
+    }
+
+    loadMessages()
+  }, [eventId, colors, generateNickname, loadMessages])
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
 
   const joinChat = () => {
     setIsJoined(true)

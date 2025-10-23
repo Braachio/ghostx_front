@@ -35,6 +35,51 @@ export default function ChatPage({ params }: ChatPageProps) {
     '#dda0dd', '#98d8c8', '#f7dc6f', '#bb8fce', '#85c1e9'
   ]
 
+  const loadMessages = useCallback(() => {
+    try {
+      const savedMessages = localStorage.getItem(`chat_${eventId}`)
+      if (savedMessages) {
+        const parsedMessages = JSON.parse(savedMessages)
+        setMessages(parsedMessages)
+      } else {
+        setMessages([])
+      }
+    } catch (error) {
+      console.error('메시지 로드 중 오류:', error)
+      setMessages([])
+    }
+  }, [eventId])
+
+  const loadEventInfo = useCallback(async () => {
+    try {
+      const response = await fetch('/api/multis')
+      if (response.ok) {
+        const data = await response.json()
+        const event = data.find((e: { id: string }) => e.id === eventId)
+        if (event) {
+          setEventTitle(event.title)
+          setGameDisplayName(event.game)
+        }
+      }
+    } catch (error) {
+      console.error('이벤트 정보 로드 실패:', error)
+    } finally {
+      setLoading(false)
+    }
+  }, [eventId])
+
+  const initializeNickname = useCallback(async () => {
+    if (!game) return
+    
+    try {
+      const gameNickname = await initializeGameNickname(game)
+      setNickname(gameNickname)
+    } catch (error) {
+      console.error('닉네임 초기화 실패:', error)
+      setNickname(`게스트_${Math.floor(Math.random() * 9999)}`)
+    }
+  }, [game])
+
   useEffect(() => {
     const loadParams = async () => {
       const resolvedParams = await params
@@ -57,18 +102,6 @@ export default function ChatPage({ params }: ChatPageProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventId, game])
 
-  const initializeNickname = useCallback(async () => {
-    if (!game) return
-    
-    try {
-      const gameNickname = await initializeGameNickname(game)
-      setNickname(gameNickname)
-    } catch (error) {
-      console.error('닉네임 초기화 실패:', error)
-      setNickname(`게스트_${Math.floor(Math.random() * 9999)}`)
-    }
-  }, [game])
-
   // 로컬 스토리지 변경 감지 (다른 탭에서 메시지 전송 시)
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
@@ -80,39 +113,6 @@ export default function ChatPage({ params }: ChatPageProps) {
     window.addEventListener('storage', handleStorageChange)
     return () => window.removeEventListener('storage', handleStorageChange)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eventId])
-
-  const loadEventInfo = useCallback(async () => {
-    try {
-      const response = await fetch('/api/multis')
-      if (response.ok) {
-        const data = await response.json()
-        const event = data.find((e: { id: string }) => e.id === eventId)
-        if (event) {
-          setEventTitle(event.title)
-          setGameDisplayName(event.game)
-        }
-      }
-    } catch (error) {
-      console.error('이벤트 정보 로드 실패:', error)
-    } finally {
-      setLoading(false)
-    }
-  }, [eventId])
-
-  const loadMessages = useCallback(() => {
-    try {
-      const savedMessages = localStorage.getItem(`chat_${eventId}`)
-      if (savedMessages) {
-        const parsedMessages = JSON.parse(savedMessages)
-        setMessages(parsedMessages)
-      } else {
-        setMessages([])
-      }
-    } catch (error) {
-      console.error('메시지 로드 중 오류:', error)
-      setMessages([])
-    }
   }, [eventId])
 
   const handleSendMessage = (e: React.FormEvent) => {
