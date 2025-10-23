@@ -121,9 +121,6 @@ export default function ParticipationButton({ eventId, onParticipationChange }: 
           Steam 로그인하기
         </button>
         
-        <div className="text-sm text-gray-400">
-          참가자: {participantCount}명
-        </div>
       </div>
     )
   }
@@ -145,9 +142,6 @@ export default function ParticipationButton({ eventId, onParticipationChange }: 
           Steam 로그인하기
         </button>
         
-        <div className="text-sm text-gray-400">
-          참가자: {participantCount}명
-        </div>
       </div>
     )
   }
@@ -174,9 +168,6 @@ export default function ParticipationButton({ eventId, onParticipationChange }: 
         </button>
       )}
       
-      <div className="text-sm text-gray-400">
-        참가자: {participantCount}명
-      </div>
     </div>
   )
 }
