@@ -147,16 +147,16 @@ export default function ParticipationButton({
 
   if (!user) {
     return (
-      <div className="bg-gradient-to-br from-gray-800/95 to-gray-900/95 rounded-xl p-6 border border-gray-600 shadow-lg">
-        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-          <span className="text-2xl">👥</span>
+      <div className="bg-gradient-to-br from-gray-800/95 to-gray-900/95 rounded-lg p-4 border border-gray-600 shadow-lg">
+        <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+          <span className="text-xl">👥</span>
           참가신청
         </h3>
         <div className="text-center">
-          <p className="text-gray-400 mb-4">참가신청을 하려면 Steam 로그인이 필요합니다.</p>
+          <p className="text-gray-400 mb-3 text-sm">참가신청을 하려면 Steam 로그인이 필요합니다.</p>
           <button 
             onClick={() => window.location.href = '/login'}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold text-sm"
           >
             Steam 로그인하기
           </button>
@@ -172,17 +172,17 @@ export default function ParticipationButton({
 
   if (!isSteamUser) {
     return (
-      <div className="bg-gradient-to-br from-gray-800/95 to-gray-900/95 rounded-xl p-6 border border-gray-600 shadow-lg">
-        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-          <span className="text-2xl">👥</span>
+      <div className="bg-gradient-to-br from-gray-800/95 to-gray-900/95 rounded-lg p-4 border border-gray-600 shadow-lg">
+        <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+          <span className="text-xl">👥</span>
           참가신청
         </h3>
         <div className="text-center">
-          <p className="text-gray-400 mb-4">참가신청을 하려면 Steam 로그인이 필요합니다.</p>
-          <p className="text-gray-500 text-sm mb-4">현재 익명으로 로그인되어 있습니다.</p>
+          <p className="text-gray-400 mb-2 text-sm">참가신청을 하려면 Steam 로그인이 필요합니다.</p>
+          <p className="text-gray-500 text-xs mb-3">현재 익명으로 로그인되어 있습니다.</p>
           <button 
             onClick={() => window.location.href = '/login'}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold text-sm"
           >
             Steam 로그인하기
           </button>
@@ -192,40 +192,40 @@ export default function ParticipationButton({
   }
 
   return (
-    <div className="bg-gradient-to-br from-gray-800/95 to-gray-900/95 rounded-xl p-6 border border-gray-600 shadow-lg">
-      <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
-        <span className="text-2xl">👥</span>
+    <div className="bg-gradient-to-br from-gray-800/95 to-gray-900/95 rounded-lg p-4 border border-gray-600 shadow-lg">
+      <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+        <span className="text-xl">👥</span>
         참가신청
-        <div className="ml-auto text-sm text-gray-300 bg-gray-700 px-3 py-1 rounded-full">
+        <div className="ml-auto text-xs text-gray-300 bg-gray-700 px-2 py-1 rounded-full">
           {participantCount}명
         </div>
       </h3>
 
       <div className="text-center">
         {isParticipant ? (
-          <div className="p-4 bg-green-900/20 border border-green-600/30 rounded-lg">
-            <p className="text-green-400 mb-4 flex items-center justify-center gap-2">
-              <span className="text-lg">✅</span>
+          <div className="p-3 bg-green-900/20 border border-green-600/30 rounded-lg">
+            <p className="text-green-400 mb-3 flex items-center justify-center gap-2 text-sm">
+              <span className="text-base">✅</span>
               참가신청 완료
             </p>
             <button 
               onClick={handleLeave}
               disabled={joining}
-              className="px-8 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-all font-semibold shadow-lg hover:shadow-red-500/25"
+              className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-all font-semibold text-sm"
             >
               {joining ? '처리 중...' : '참가 취소'}
             </button>
           </div>
         ) : (
-          <div className="p-4 bg-gray-700/20 border border-gray-600/30 rounded-lg">
-            <p className="text-gray-400 mb-4 flex items-center justify-center gap-2">
-              <span className="text-lg">⏳</span>
+          <div className="p-3 bg-gray-700/20 border border-gray-600/30 rounded-lg">
+            <p className="text-gray-400 mb-3 flex items-center justify-center gap-2 text-sm">
+              <span className="text-base">⏳</span>
               아직 참가신청하지 않았습니다
             </p>
             <button 
               onClick={handleJoin}
               disabled={joining}
-              className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-all font-semibold shadow-lg hover:shadow-green-500/25"
+              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-all font-semibold text-sm"
             >
               {joining ? '참가신청 중...' : '참가신청하기'}
             </button>
