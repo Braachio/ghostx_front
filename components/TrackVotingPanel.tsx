@@ -387,9 +387,12 @@ export default function TrackVotingPanel({
   }
 
   return (
-    <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-white">🏁 트랙 투표</h3>
+    <div className="bg-gradient-to-br from-gray-800/95 to-gray-900/95 rounded-xl p-6 border border-gray-600 shadow-lg">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-xl font-bold text-white flex items-center gap-3">
+          <span className="text-2xl">🏁</span>
+          트랙 투표
+        </h3>
         <div className="flex items-center gap-3">
           {voteData.votingOpen && (
             <div className="text-sm text-blue-400">
@@ -467,7 +470,7 @@ export default function TrackVotingPanel({
         </div>
       )}
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         {voteData.trackOptions.map((option) => {
           const isSelected = voteData.userVote?.track_option_id === option.id
           const percentage = voteData.participantCount > 0 
@@ -475,27 +478,36 @@ export default function TrackVotingPanel({
             : 0
 
           return (
-            <div key={option.id} className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-3 cursor-pointer">
+            <div key={option.id} className={`p-4 rounded-lg border transition-all ${
+              isSelected 
+                ? 'bg-blue-900/20 border-blue-500/50' 
+                : 'bg-gray-700/30 border-gray-600 hover:bg-gray-700/50'
+            }`}>
+              <div className="flex items-center justify-between mb-3">
+                <label className="flex items-center gap-4 cursor-pointer flex-1">
                   <input
                     type="radio"
                     name="track-vote"
                     checked={isSelected}
                     onChange={() => handleVote(option.id)}
                     disabled={!voteData.votingOpen || voting}
-                    className="w-4 h-4 text-blue-600 bg-gray-800 border-gray-600 focus:ring-blue-500"
+                    className="w-5 h-5 text-blue-600 bg-gray-800 border-gray-600 focus:ring-blue-500"
                   />
-                  <span className="text-white font-medium">{option.option_value}</span>
+                  <span className="text-white font-semibold text-lg">{option.option_value}</span>
                 </label>
-                <div className="text-sm text-gray-400">
-                  {option.votes_count}표 ({percentage}%)
+                <div className="text-right">
+                  <div className="text-lg font-bold text-blue-400">
+                    {option.votes_count}표
+                  </div>
+                  <div className="text-sm text-gray-400">
+                    {percentage}%
+                  </div>
                 </div>
               </div>
               
-              <div className="w-full bg-gray-700 rounded-full h-2">
+              <div className="w-full bg-gray-600 rounded-full h-3">
                 <div
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500"
                   style={{ width: `${percentage}%` }}
                 />
               </div>

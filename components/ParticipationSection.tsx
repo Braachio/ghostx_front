@@ -326,17 +326,26 @@ export default function ParticipationSection({ eventId, isOwner = false, onParti
   }
 
   return (
-    <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
-      <h3 className="text-lg font-semibold text-white mb-4">참가신청</h3>
+    <div className="bg-gradient-to-br from-gray-800/95 to-gray-900/95 rounded-xl p-6 border border-gray-600 shadow-lg">
+      <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+        <span className="text-2xl">👥</span>
+        참가신청
+        <div className="ml-auto text-sm text-gray-300 bg-gray-700 px-3 py-1 rounded-full">
+          {participantCount}명
+        </div>
+      </h3>
       <p className="text-gray-400 text-sm mb-4">
         참가신청을 완료한 사용자만 투표할 수 있습니다.
       </p>
 
       {/* 참가자 수 표시 */}
-      <div className="mb-4 p-3 bg-gray-700/50 rounded-lg">
+      <div className="mb-6 p-4 bg-gray-700/30 rounded-lg border border-gray-600">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-300">현재 참가자</span>
-          <span className="text-lg font-bold text-blue-400">{participantCount}명</span>
+          <span className="text-white font-semibold flex items-center gap-2">
+            <span className="text-lg">👥</span>
+            현재 참가자
+          </span>
+          <span className="text-xl font-bold text-blue-400">{participantCount}명</span>
         </div>
         
         {/* 관리자에게만 Steam ID 목록 표시 */}
@@ -390,23 +399,29 @@ export default function ParticipationSection({ eventId, isOwner = false, onParti
       {/* 참가신청/취소 버튼 */}
       <div className="text-center">
         {isParticipant ? (
-          <div>
-            <p className="text-green-400 mb-4">✅ 참가신청 완료</p>
+          <div className="p-4 bg-green-900/20 border border-green-600/30 rounded-lg">
+            <p className="text-green-400 mb-4 flex items-center justify-center gap-2">
+              <span className="text-lg">✅</span>
+              참가신청 완료
+            </p>
             <button 
               onClick={handleLeave}
               disabled={joining}
-              className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors font-semibold"
+              className="px-8 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-all font-semibold shadow-lg hover:shadow-red-500/25"
             >
               {joining ? '처리 중...' : '참가 취소'}
             </button>
           </div>
         ) : (
-          <div>
-            <p className="text-gray-400 mb-4">아직 참가신청하지 않았습니다.</p>
+          <div className="p-4 bg-gray-700/20 border border-gray-600/30 rounded-lg">
+            <p className="text-gray-400 mb-4 flex items-center justify-center gap-2">
+              <span className="text-lg">⏳</span>
+              아직 참가신청하지 않았습니다
+            </p>
             <button 
               onClick={handleJoin}
               disabled={joining}
-              className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors font-semibold"
+              className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-all font-semibold shadow-lg hover:shadow-green-500/25"
             >
               {joining ? '참가신청 중...' : '참가신청하기'}
             </button>

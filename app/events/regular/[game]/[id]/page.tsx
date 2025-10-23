@@ -441,18 +441,20 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
           </div>
         )}
 
-        {/* 기능 섹션들 */}
-        <div className="space-y-6">
+        {/* 기능 섹션들 - 그리드 레이아웃 */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          
+          {/* 왼쪽 컬럼 - 참가신청 */}
+          <div className="space-y-6">
+            <ParticipationSection 
+              eventId={eventId} 
+              isOwner={user && event && event.author_id === user.id || false}
+            />
+          </div>
 
-          {/* 참가신청 섹션 */}
-          <ParticipationSection 
-            eventId={eventId} 
-            isOwner={user && event && event.author_id === user.id || false}
-          />
-
-          {/* 투표 섹션 */}
+          {/* 오른쪽 컬럼 - 투표 */}
           {event && (
-            <div className="space-y-4">
+            <div className="space-y-6">
               {event.voting_enabled && (
                 <TrackVotingPanel 
                   regularEventId={eventId}

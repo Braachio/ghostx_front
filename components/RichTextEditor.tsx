@@ -418,9 +418,7 @@ export default function RichTextEditor({
           </span>
         </div>
         
-        <div className="text-xs text-gray-400">
-          리치 텍스트 에디터
-        </div>
+
       </div>
     </div>
   )
