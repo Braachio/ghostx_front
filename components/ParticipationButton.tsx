@@ -153,12 +153,38 @@ export default function ParticipationButton({
           참가신청
         </h3>
         <div className="text-center">
-          <p className="text-gray-400 mb-4">참가신청을 하려면 로그인이 필요합니다.</p>
+          <p className="text-gray-400 mb-4">참가신청을 하려면 Steam 로그인이 필요합니다.</p>
           <button 
             onClick={() => window.location.href = '/login'}
             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
           >
-            로그인하기
+            Steam 로그인하기
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // Steam 사용자인지 확인
+  const isSteamUser = user.app_metadata?.provider === 'steam' || 
+                     user.user_metadata?.provider === 'steam' ||
+                     user.identities?.some(identity => identity.provider === 'steam')
+
+  if (!isSteamUser) {
+    return (
+      <div className="bg-gradient-to-br from-gray-800/95 to-gray-900/95 rounded-xl p-6 border border-gray-600 shadow-lg">
+        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
+          <span className="text-2xl">👥</span>
+          참가신청
+        </h3>
+        <div className="text-center">
+          <p className="text-gray-400 mb-4">참가신청을 하려면 Steam 로그인이 필요합니다.</p>
+          <p className="text-gray-500 text-sm mb-4">현재 익명으로 로그인되어 있습니다.</p>
+          <button 
+            onClick={() => window.location.href = '/login'}
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+          >
+            Steam 로그인하기
           </button>
         </div>
       </div>

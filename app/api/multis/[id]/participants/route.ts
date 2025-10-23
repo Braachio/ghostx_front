@@ -121,6 +121,16 @@ export async function POST(
 
     console.log('인증된 사용자:', { userId: user.id, email: user.email })
 
+    // Steam 사용자인지 확인
+    const isSteamUser = user.app_metadata?.provider === 'steam' || 
+                       user.user_metadata?.provider === 'steam' ||
+                       user.identities?.some(identity => identity.provider === 'steam')
+
+    if (!isSteamUser) {
+      console.log('참가 신청 실패 - Steam 로그인이 필요함')
+      return NextResponse.json({ error: '참가신청을 하려면 Steam 로그인이 필요합니다.' }, { status: 403 })
+    }
+
     // 이미 참가했는지 확인 (더 안전한 방법)
     const { data: existingParticipants, error: checkError } = await supabase
       .from('participants')
