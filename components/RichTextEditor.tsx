@@ -36,6 +36,14 @@ export default function RichTextEditor({
       console.warn('Command execution failed:', command, error)
     }
     
+    // 텍스트 방향 강제 설정
+    if (editorRef.current) {
+      editorRef.current.style.direction = 'ltr'
+      editorRef.current.style.textAlign = 'left'
+      editorRef.current.style.unicodeBidi = 'normal'
+      editorRef.current.style.writingMode = 'horizontal-tb'
+    }
+    
     // 포커스 유지
     setTimeout(() => {
       editorRef.current?.focus()
@@ -104,6 +112,12 @@ export default function RichTextEditor({
 
   const handleInput = () => {
     if (editorRef.current) {
+      // 텍스트 방향 강제 설정
+      editorRef.current.style.direction = 'ltr'
+      editorRef.current.style.textAlign = 'left'
+      editorRef.current.style.unicodeBidi = 'normal'
+      editorRef.current.style.writingMode = 'horizontal-tb'
+      
       const content = editorRef.current.innerHTML
       onChange(content)
     }
@@ -298,14 +312,16 @@ export default function RichTextEditor({
             contentEditable
             onInput={handleInput}
             onKeyDown={handleKeyDown}
-            className="p-4 focus:outline-none text-white leading-normal"
+            className="p-4 focus:outline-none text-white leading-normal [direction:ltr] [text-align:left] [unicode-bidi:normal] [writing-mode:horizontal-tb]"
             style={{ 
               minHeight: `${editorHeight}px`,
               fontSize: `${fontSize}px`,
               fontFamily: fontFamily,
               direction: 'ltr',
               textAlign: 'left',
-              unicodeBidi: 'normal'
+              unicodeBidi: 'normal',
+              writingMode: 'horizontal-tb',
+              textOrientation: 'mixed'
             }}
             dir="ltr"
             dangerouslySetInnerHTML={{ __html: value }}
