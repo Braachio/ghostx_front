@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import type { Database } from '@/lib/database.types'
 import { User } from '@supabase/supabase-js'
+import { toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 interface ParticipationButtonProps {
   eventId: string
@@ -11,11 +12,7 @@ interface ParticipationButtonProps {
   onParticipationChange?: () => void
 }
 
-export default function ParticipationButton({ 
-  eventId, 
-  isOwner = false, 
-  onParticipationChange 
-}: ParticipationButtonProps) {
+export default function ParticipationButton({ eventId, isOwner = false, onParticipationChange }: ParticipationButtonProps) {
   const [user, setUser] = useState<User | null>(null)
   const [isParticipant, setIsParticipant] = useState(false)
   const [joining, setJoining] = useState(false)
@@ -23,58 +20,39 @@ export default function ParticipationButton({
   const [participantCount, setParticipantCount] = useState(0)
 
   useEffect(() => {
-    const checkUser = async () => {
-      const supabase = createClientComponentClient<Database>()
+    const checkUserAndParticipation = async () => {
+      setLoading(true)
+      const supabase = createClientComponentClient()
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
+
+      if (user) {
+        // Fetch participant count
+        try {
+          const response = await fetch(`/api/multis/${eventId}/participants`)
+          if (response.ok) {
+            const data = await response.json()
+            setParticipantCount(data.total || 0)
+            const userParticipant = data.participants?.find((p: { user_id: string }) => p.user_id === user.id)
+            setIsParticipant(!!userParticipant)
+          }
+        } catch (error) {
+          console.error('참가자 수 및 상태 가져오기 실패:', error)
+        }
+      } else {
+        setParticipantCount(0)
+        setIsParticipant(false)
+      }
       setLoading(false)
     }
-    checkUser()
-  }, [])
-
-  useEffect(() => {
-    if (eventId && user) {
-      fetchParticipantCount()
-      checkParticipationStatus()
-    } else if (!user && !loading) {
-      setParticipantCount(0)
-      setIsParticipant(false)
-    }
-  }, [eventId, user, loading])
-
-  const fetchParticipantCount = async () => {
-    try {
-      const response = await fetch(`/api/multis/${eventId}/participants`)
-      if (response.ok) {
-        const data = await response.json()
-        setParticipantCount(data.total || 0)
-      }
-    } catch (error) {
-      console.error('참가자 수 가져오기 실패:', error)
-    }
-  }
-
-  const checkParticipationStatus = async () => {
-    if (!user) return false
-    
-    try {
-      const response = await fetch(`/api/multis/${eventId}/participants`)
-      if (response.ok) {
-        const data = await response.json()
-        const userParticipant = data.participants?.find((p: { user_id: string }) => p.user_id === user.id)
-        const isParticipant = !!userParticipant
-        setIsParticipant(isParticipant)
-        return isParticipant
-      }
-      return false
-    } catch (error) {
-      console.error('참가 상태 확인 실패:', error)
-      return false
-    }
-  }
+    checkUserAndParticipation()
+  }, [eventId, user?.id]) // user.id를 의존성 배열에 추가하여 사용자 변경 시 재실행
 
   const handleJoin = async () => {
-    if (!user) return
+    if (!user) {
+      toast.error('로그인이 필요합니다.')
+      return
+    }
 
     try {
       setJoining(true)
@@ -85,24 +63,16 @@ export default function ParticipationButton({
       })
 
       if (response.ok) {
+        toast.success('참가 신청이 완료되었습니다!')
         setIsParticipant(true)
-        await fetchParticipantCount()
-        alert('참가신청이 완료되었습니다! 이제 투표할 수 있습니다.')
-        onParticipationChange?.()
+        if (onParticipationChange) onParticipationChange()
       } else {
         const errorData = await response.json()
-        if (errorData.error === '이미 참가 신청하셨습니다.') {
-          setIsParticipant(true)
-          await fetchParticipantCount()
-          alert('이미 참가신청이 완료되어 있습니다.')
-          onParticipationChange?.()
-        } else {
-          alert(`참가신청 실패: ${errorData.error}`)
-        }
+        toast.error(errorData.error || '참가 신청에 실패했습니다.')
       }
     } catch (error) {
-      console.error('참가신청 오류:', error)
-      alert('참가신청 중 오류가 발생했습니다.')
+      console.error('참가 신청 오류:', error)
+      toast.error(error instanceof Error ? error.message : '참가 신청 중 오류가 발생했습니다.')
     } finally {
       setJoining(false)
     }
@@ -118,17 +88,16 @@ export default function ParticipationButton({
       })
 
       if (response.ok) {
+        toast.info('참가 신청이 취소되었습니다.')
         setIsParticipant(false)
-        await fetchParticipantCount()
-        alert('참가가 취소되었습니다.')
-        onParticipationChange?.()
+        if (onParticipationChange) onParticipationChange()
       } else {
         const errorData = await response.json()
-        alert(`참가취소 실패: ${errorData.error}`)
+        toast.error(errorData.error || '참가 취소에 실패했습니다.')
       }
     } catch (error) {
-      console.error('참가취소 오류:', error)
-      alert('참가취소 중 오류가 발생했습니다.')
+      console.error('참가 취소 오류:', error)
+      toast.error(error instanceof Error ? error.message : '참가 취소 중 오류가 발생했습니다.')
     } finally {
       setJoining(false)
     }
@@ -136,11 +105,9 @@ export default function ParticipationButton({
 
   if (loading) {
     return (
-      <div className="bg-gradient-to-br from-gray-800/95 to-gray-900/95 rounded-xl p-6 border border-gray-600 shadow-lg">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto mb-2"></div>
-          <p className="text-gray-400 text-sm">참가 상태 확인 중...</p>
-        </div>
+      <div className="flex items-center justify-center gap-4">
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+        <span className="text-gray-400 text-sm">로딩 중...</span>
       </div>
     )
   }
@@ -170,8 +137,8 @@ export default function ParticipationButton({
 
   // Steam 사용자인지 확인
   const isSteamUser = user.app_metadata?.provider === 'steam' || 
-                     user.user_metadata?.provider === 'steam' ||
-                     user.identities?.some(identity => identity.provider === 'steam')
+                    user.user_metadata?.provider === 'steam' ||
+                    user.identities?.some(identity => identity.provider === 'steam')
 
   if (!isSteamUser) {
     return (

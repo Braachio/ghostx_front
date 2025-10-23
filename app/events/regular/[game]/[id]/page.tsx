@@ -262,233 +262,229 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
           <p className="text-gray-400">{gameName}</p>
         </div>
 
-        {/* 통합 이벤트 컨테이너 */}
-        <div className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 rounded-2xl p-8 shadow-2xl border border-gray-600 backdrop-blur-sm">
-          {/* 참가신청 섹션 */}
-          <div className="mb-6">
-            <ParticipationButton 
-              eventId={eventId} 
-              isOwner={user && event && event.author_id === user.id || false}
-              onParticipationChange={fetchParticipantCount}
-            />
-          </div>
+        {/* 참가신청 섹션 */}
+        <ParticipationButton 
+          eventId={eventId} 
+          isOwner={user && event && event.author_id === user.id || false}
+          onParticipationChange={fetchParticipantCount}
+        />
 
-          {/* 액션 버튼들 */}
-          <div className="flex flex-wrap gap-4 justify-center mb-8">
-            {/* 트랙투표 버튼 */}
-            {event && event.voting_enabled && (
-              <button
-                onClick={() => setShowVotingModal(true)}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-semibold shadow-lg hover:shadow-blue-500/25 flex items-center gap-2"
-              >
-                <span className="text-xl">🏁</span>
-                트랙 투표하기
-              </button>
-            )}
+        {/* 액션 버튼들 */}
+        <div className="flex flex-wrap gap-4 justify-center">
+          {/* 트랙투표 버튼 */}
+          {event && event.voting_enabled && (
+            <button
+              onClick={() => setShowVotingModal(true)}
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-semibold shadow-lg hover:shadow-blue-500/25 flex items-center gap-2"
+            >
+              <span className="text-xl">🏁</span>
+              트랙 투표하기
+            </button>
+          )}
 
-            {/* 참가자 목록 버튼 (관리자/작성자만) */}
-            {(user && event && event.author_id === user.id) || hasManagementPermission ? (
-              <button
-                onClick={() => setShowParticipantModal(true)}
-                className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all font-semibold shadow-lg hover:shadow-gray-500/25 flex items-center gap-2"
-              >
-                <span className="text-xl">👥</span>
-                참가자 목록 ({participantCount}명)
-              </button>
-            ) : (
-              <div className="px-6 py-3 bg-gray-700 text-gray-300 rounded-lg flex items-center gap-2">
-                <span className="text-xl">👥</span>
-                참가자: {participantCount}명
-              </div>
-            )}
-          </div>
+          {/* 참가자 목록 버튼 (관리자/작성자만) */}
+          {(user && event && event.author_id === user.id) || hasManagementPermission ? (
+            <button
+              onClick={() => setShowParticipantModal(true)}
+              className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all font-semibold shadow-lg hover:shadow-gray-500/25 flex items-center gap-2"
+            >
+              <span className="text-xl">👥</span>
+              참가자 목록 ({participantCount}명)
+            </button>
+          ) : (
+            <div className="px-6 py-3 bg-gray-700 text-gray-300 rounded-lg flex items-center gap-2">
+              <span className="text-xl">👥</span>
+              참가자: {participantCount}명
+            </div>
+          )}
+        </div>
 
-          {/* 이벤트 정보 */}
-          {event ? (
-            <>
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h2 className="text-3xl font-bold text-white mb-2">
-                    {event.title}
-                  </h2>
-                  <div className="flex items-center gap-4 text-gray-400">
-                    <span>{event.game}</span>
-                    <span>•</span>
-                    <span>{event.multi_day?.join(', ') || 'TBD'}</span>
-                  </div>
+        {/* 이벤트 정보 */}
+        {event ? (
+          <div className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 rounded-2xl p-8 shadow-2xl border border-gray-600 backdrop-blur-sm">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-3xl font-bold text-white mb-2">
+                  {event.title}
+                </h2>
+                <div className="flex items-center gap-4 text-gray-400">
+                  <span>{event.game}</span>
+                  <span>•</span>
+                  <span>{event.multi_day?.join(', ') || 'TBD'}</span>
                 </div>
-                
-                {/* 조회수 표시 */}
-                <div className="text-right">
-                  <div className="text-gray-400 text-sm">조회</div>
-                  <div className="text-white font-medium text-lg">
-                    {event.views !== undefined ? event.views.toLocaleString() : '0'}
-                  </div>
-                </div>
-                {user && event.author_id === user.id && (
-                  <div className="flex gap-3">
-                    {!isEditing ? (
-                      <>
-                        {hasManagementPermission && (
-                          <>
-                            <button
-                              onClick={handleEditStart}
-                              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-                            >
-                              수정
-                            </button>
-                            <button
-                              onClick={handleDelete}
-                              className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
-                            >
-                              삭제
-                            </button>
-                          </>
-                        )}
-                      </>
-                    ) : (
-                      <div className="flex gap-2">
-                        <button
-                          onClick={handleEditSave}
-                          className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
-                        >
-                          저장
-                        </button>
-                        <button
-                          onClick={handleEditCancel}
-                          className="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors"
-                        >
-                          취소
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
-
-              {!isEditing ? (
-                // 읽기 모드 - 단순한 정보 표시
-                <div className="space-y-6">
-                  {/* 기본 정보 그리드 */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-                      <p className="text-gray-400 text-sm mb-1">트랙</p>
-                      <p className="text-white font-medium">{event.game_track || 'TBD'}</p>
-                    </div>
-                    
-                    <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-                      <p className="text-gray-400 text-sm mb-1">클래스</p>
-                      <p className="text-white font-medium">{event.multi_class || 'TBD'}</p>
-                    </div>
-                    
-                    <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-                      <p className="text-gray-400 text-sm mb-1">시작 시간</p>
-                      <p className="text-white font-medium">{event.multi_time || 'TBD'}</p>
-                    </div>
-                    
-                    <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-                      <p className="text-gray-400 text-sm mb-1">지속시간</p>
-                      <p className="text-white font-medium">{event.duration_hours ? `${event.duration_hours}시간` : 'TBD'}</p>
-                    </div>
-                  </div>
-                  
-                  {/* 설명 섹션 */}
-                  {event.description && (
-                    <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-                      <p className="text-gray-400 text-sm mb-2">설명</p>
-                      <div 
-                        className="text-white leading-relaxed prose prose-invert max-w-none"
-                        dangerouslySetInnerHTML={{ __html: event.description }}
-                      />
+              
+              {/* 조회수 표시 */}
+              <div className="text-right">
+                <div className="text-gray-400 text-sm">조회</div>
+                <div className="text-white font-medium text-lg">
+                  {event.views !== undefined ? event.views.toLocaleString() : '0'}
+                </div>
+              </div>
+              {user && event.author_id === user.id && (
+                <div className="flex gap-3">
+                  {!isEditing ? (
+                    <>
+                      {hasManagementPermission && (
+                        <>
+                          <button
+                            onClick={handleEditStart}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                          >
+                            수정
+                          </button>
+                          <button
+                            onClick={handleDelete}
+                            className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+                          >
+                            삭제
+                          </button>
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleEditSave}
+                        className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
+                      >
+                        저장
+                      </button>
+                      <button
+                        onClick={handleEditCancel}
+                        className="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors"
+                      >
+                        취소
+                      </button>
                     </div>
                   )}
                 </div>
-              ) : (
-                // 편집 모드 - 단순한 입력 폼
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">제목</label>
-                    <input
-                      type="text"
-                      value={editForm.title}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, title: e.target.value }))}
-                      className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
-                    />
+              )}
+            </div>
+
+            {!isEditing ? (
+              // 읽기 모드 - 단순한 정보 표시
+              <div className="space-y-6">
+                {/* 기본 정보 그리드 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+                    <p className="text-gray-400 text-sm mb-1">트랙</p>
+                    <p className="text-white font-medium">{event.game_track || 'TBD'}</p>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">트랙</label>
-                      <input
-                        type="text"
-                        value={editForm.game_track || ''}
-                        onChange={(e) => setEditForm(prev => ({ ...prev, game_track: e.target.value }))}
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
-                        placeholder="트랙명을 입력하세요"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">클래스</label>
-                      <input
-                        type="text"
-                        value={editForm.multi_class || ''}
-                        onChange={(e) => setEditForm(prev => ({ ...prev, multi_class: e.target.value }))}
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
-                        placeholder="차량 클래스를 입력하세요"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">시작 시간</label>
-                      <input
-                        type="time"
-                        value={editForm.multi_time}
-                        onChange={(e) => setEditForm(prev => ({ ...prev, multi_time: e.target.value }))}
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">지속시간 (시간)</label>
-                      <input
-                        type="number"
-                        min="1"
-                        max="24"
-                        value={editForm.duration_hours}
-                        onChange={(e) => setEditForm(prev => ({ ...prev, duration_hours: parseInt(e.target.value) || 1 }))}
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
-                      />
-                    </div>
+                  <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+                    <p className="text-gray-400 text-sm mb-1">클래스</p>
+                    <p className="text-white font-medium">{event.multi_class || 'TBD'}</p>
                   </div>
                   
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">설명</label>
-                    <RichTextEditor
-                      value={editForm.description}
-                      onChange={(value) => setEditForm(prev => ({ ...prev, description: value }))}
-                      placeholder="이벤트에 대한 상세 설명을 입력하세요. 글씨 크기, 굵게, 기울임, 링크 등을 사용할 수 있습니다."
-                      className="w-full"
-                    />
+                  <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+                    <p className="text-gray-400 text-sm mb-1">시작 시간</p>
+                    <p className="text-white font-medium">{event.multi_time || 'TBD'}</p>
                   </div>
                   
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">링크 (참여/원문)</label>
-                    <input
-                      type="url"
-                      value={editForm.link}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, link: e.target.value }))}
-                      className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
-                      placeholder="https://gall.dcinside.com/..."
-                    />
-                    <p className="text-gray-400 text-sm mt-1">
-                      링크가 있으면 설명이 클릭 가능한 링크로 표시됩니다.
-                    </p>
+                  <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+                    <p className="text-gray-400 text-sm mb-1">지속시간</p>
+                    <p className="text-white font-medium">{event.duration_hours ? `${event.duration_hours}시간` : 'TBD'}</p>
                   </div>
                 </div>
-              )}
-            </>
-          )
+                
+                {/* 설명 섹션 */}
+                {event.description && (
+                  <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+                    <p className="text-gray-400 text-sm mb-2">설명</p>
+                    <div 
+                      className="text-white leading-relaxed prose prose-invert max-w-none"
+                      dangerouslySetInnerHTML={{ __html: event.description }}
+                    />
+                  </div>
+                )}
+              </div>
+            ) : (
+              // 편집 모드 - 단순한 입력 폼
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">제목</label>
+                  <input
+                    type="text"
+                    value={editForm.title}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, title: e.target.value }))}
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">트랙</label>
+                    <input
+                      type="text"
+                      value={editForm.game_track || ''}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, game_track: e.target.value }))}
+                      className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                      placeholder="트랙명을 입력하세요"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">클래스</label>
+                    <input
+                      type="text"
+                      value={editForm.multi_class || ''}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, multi_class: e.target.value }))}
+                      className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                      placeholder="차량 클래스를 입력하세요"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">시작 시간</label>
+                    <input
+                      type="time"
+                      value={editForm.multi_time}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, multi_time: e.target.value }))}
+                      className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">지속시간 (시간)</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="24"
+                      value={editForm.duration_hours}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, duration_hours: parseInt(e.target.value) || 1 }))}
+                      className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">설명</label>
+                  <RichTextEditor
+                    value={editForm.description}
+                    onChange={(value) => setEditForm(prev => ({ ...prev, description: value }))}
+                    placeholder="이벤트에 대한 상세 설명을 입력하세요. 글씨 크기, 굵게, 기울임, 링크 등을 사용할 수 있습니다."
+                    className="w-full"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">링크 (참여/원문)</label>
+                  <input
+                    type="url"
+                    value={editForm.link}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, link: e.target.value }))}
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                    placeholder="https://gall.dcinside.com/..."
+                  />
+                  <p className="text-gray-400 text-sm mt-1">
+                    링크가 있으면 설명이 클릭 가능한 링크로 표시됩니다.
+                  </p>
+                </div>
+              </div>
+            )}
+
+          </div>
         ) : eventLoading ? (
           <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700 text-center">
             <p className="text-gray-400">이벤트 정보를 불러오는 중...</p>
@@ -498,8 +494,6 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
             <p className="text-red-400">이벤트를 찾을 수 없습니다.</p>
           </div>
         )}
-        </div>
-
 
         {/* 모달들 */}
         <ParticipantListModal
