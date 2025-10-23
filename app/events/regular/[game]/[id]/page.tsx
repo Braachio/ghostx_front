@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import ParticipationSection from '@/components/ParticipationSection'
-import TrackVotingPanel from '@/components/TrackVotingPanel'
+import ParticipationButton from '@/components/ParticipationButton'
+import ParticipantListModal from '@/components/ParticipantListModal'
+import TrackVotingModal from '@/components/TrackVotingModal'
 import RichTextEditor from '@/components/RichTextEditor'
 import { hasEventManagementPermission } from '@/lib/client-permissions'
 
@@ -56,6 +57,9 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
     game_track: '',
     multi_class: ''
   })
+  const [showParticipantModal, setShowParticipantModal] = useState(false)
+  const [showVotingModal, setShowVotingModal] = useState(false)
+  const [participantCount, setParticipantCount] = useState(0)
 
   useEffect(() => {
     const loadParams = async () => {
@@ -127,7 +131,20 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
     }
 
     fetchEvent()
+    fetchParticipantCount()
   }, [eventId])
+
+  const fetchParticipantCount = async () => {
+    try {
+      const response = await fetch(`/api/multis/${eventId}/participants`)
+      if (response.ok) {
+        const data = await response.json()
+        setParticipantCount(data.total || 0)
+      }
+    } catch (error) {
+      console.error('참가자 수 가져오기 실패:', error)
+    }
+  }
 
   // 이벤트 수정 함수들
   const handleEditStart = () => {
@@ -441,30 +458,62 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
           </div>
         )}
 
-        {/* 기능 섹션들 - 그리드 레이아웃 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* 기능 섹션들 */}
+        <div className="space-y-6">
           
-          {/* 왼쪽 컬럼 - 참가신청 */}
-          <div className="space-y-6">
-            <ParticipationSection 
-              eventId={eventId} 
-              isOwner={user && event && event.author_id === user.id || false}
-            />
-          </div>
+          {/* 참가신청 버튼 */}
+          <ParticipationButton 
+            eventId={eventId} 
+            isOwner={user && event && event.author_id === user.id || false}
+            onParticipationChange={fetchParticipantCount}
+          />
 
-          {/* 오른쪽 컬럼 - 투표 */}
-          {event && (
-            <div className="space-y-6">
-              {event.voting_enabled && (
-                <TrackVotingPanel 
-                  regularEventId={eventId}
-                  isOwner={hasManagementPermission}
-                  game={game}
-                />
-              )}
-            </div>
-          )}
+          {/* 액션 버튼들 */}
+          <div className="flex flex-wrap gap-4 justify-center">
+            {/* 트랙투표 버튼 */}
+            {event && event.voting_enabled && (
+              <button
+                onClick={() => setShowVotingModal(true)}
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-semibold shadow-lg hover:shadow-blue-500/25 flex items-center gap-2"
+              >
+                <span className="text-xl">🏁</span>
+                트랙 투표하기
+              </button>
+            )}
+
+            {/* 참가자 목록 버튼 (관리자/작성자만) */}
+            {(user && event && event.author_id === user.id) || hasManagementPermission ? (
+              <button
+                onClick={() => setShowParticipantModal(true)}
+                className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all font-semibold shadow-lg hover:shadow-gray-500/25 flex items-center gap-2"
+              >
+                <span className="text-xl">👥</span>
+                참가자 목록 ({participantCount}명)
+              </button>
+            ) : (
+              <div className="px-6 py-3 bg-gray-700 text-gray-300 rounded-lg flex items-center gap-2">
+                <span className="text-xl">👥</span>
+                참가자: {participantCount}명
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* 모달들 */}
+        <ParticipantListModal
+          isOpen={showParticipantModal}
+          onClose={() => setShowParticipantModal(false)}
+          eventId={eventId}
+          isOwner={(user && event && event.author_id === user.id) || hasManagementPermission}
+        />
+
+        <TrackVotingModal
+          isOpen={showVotingModal}
+          onClose={() => setShowVotingModal(false)}
+          regularEventId={eventId}
+          isOwner={hasManagementPermission}
+          game={game}
+        />
 
       </div>
     </div>
