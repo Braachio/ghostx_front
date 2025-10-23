@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { User } from '@supabase/supabase-js'
-import { toast } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
 
 interface ParticipationButtonProps {
   eventId: string
@@ -50,7 +48,7 @@ export default function ParticipationButton({ eventId, isOwner = false, onPartic
 
   const handleJoin = async () => {
     if (!user) {
-      toast.error('로그인이 필요합니다.')
+      alert('로그인이 필요합니다.')
       return
     }
 
@@ -63,16 +61,16 @@ export default function ParticipationButton({ eventId, isOwner = false, onPartic
       })
 
       if (response.ok) {
-        toast.success('참가 신청이 완료되었습니다!')
+        alert('참가 신청이 완료되었습니다!')
         setIsParticipant(true)
         if (onParticipationChange) onParticipationChange()
       } else {
         const errorData = await response.json()
-        toast.error(errorData.error || '참가 신청에 실패했습니다.')
+        alert(errorData.error || '참가 신청에 실패했습니다.')
       }
     } catch (error) {
       console.error('참가 신청 오류:', error)
-      toast.error(error instanceof Error ? error.message : '참가 신청 중 오류가 발생했습니다.')
+      alert(error instanceof Error ? error.message : '참가 신청 중 오류가 발생했습니다.')
     } finally {
       setJoining(false)
     }
@@ -88,16 +86,16 @@ export default function ParticipationButton({ eventId, isOwner = false, onPartic
       })
 
       if (response.ok) {
-        toast.info('참가 신청이 취소되었습니다.')
+        alert('참가 신청이 취소되었습니다.')
         setIsParticipant(false)
         if (onParticipationChange) onParticipationChange()
       } else {
         const errorData = await response.json()
-        toast.error(errorData.error || '참가 취소에 실패했습니다.')
+        alert(errorData.error || '참가 취소에 실패했습니다.')
       }
     } catch (error) {
       console.error('참가 취소 오류:', error)
-      toast.error(error instanceof Error ? error.message : '참가 취소 중 오류가 발생했습니다.')
+      alert(error instanceof Error ? error.message : '참가 취소 중 오류가 발생했습니다.')
     } finally {
       setJoining(false)
     }
