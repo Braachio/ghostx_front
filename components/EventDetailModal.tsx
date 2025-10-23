@@ -135,7 +135,7 @@ export default function EventDetailModal({
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-bold text-white mb-1">{event.title}</h3>
+                  {/* <h3 className="text-xl font-bold text-white mb-1">{event.title}</h3> */}
                   <div className="flex items-center gap-4 text-gray-400">
                     <span>{event.game}</span>
                     <span>•</span>
@@ -143,13 +143,12 @@ export default function EventDetailModal({
                   </div>
                 </div>
                 
-                {/* 조회수 표시 */}
-                <div className="text-right">
-                  <div className="text-gray-400 text-sm">조회</div>
-                  <div className="text-white font-medium text-lg">
-                    {event.views !== undefined ? event.views.toLocaleString() : '0'}
-                  </div>
-                </div>
+                 {/* 조회수 표시 */}
+                 <div className="text-right">
+                   <div className="text-gray-400 text-sm">
+                     조회 {event.views !== undefined ? event.views.toLocaleString() : '0'}
+                   </div>
+                 </div>
               </div>
 
               {/* 기본 정보 그리드 */}
