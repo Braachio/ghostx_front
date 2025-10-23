@@ -47,7 +47,7 @@ export default function EventDetailModal({
     if (isOpen && event) {
       fetchParticipantCount()
     }
-  }, [isOpen, event])
+  }, [isOpen, event, fetchParticipantCount])
 
   const fetchParticipantCount = async () => {
     if (!event) return

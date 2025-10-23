@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 interface Participant {
   id: string
@@ -28,7 +27,7 @@ export default function ParticipantListModal({ isOpen, onClose, eventId, isOwner
     if (isOpen && eventId) {
       fetchParticipants()
     }
-  }, [isOpen, eventId])
+  }, [isOpen, eventId, fetchParticipants])
 
   const fetchParticipants = async () => {
     setLoading(true)

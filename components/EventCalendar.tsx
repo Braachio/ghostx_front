@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
 import type { Database } from '@/lib/database.types'
 
 type Multi = Database['public']['Tables']['multis']['Row']

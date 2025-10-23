@@ -465,53 +465,6 @@ export default function FullPageLayout({
           </div>
         </div>
       </section>
-
-      {/* 좌측 세로 네비게이션 */}
-      <div className="fixed left-8 top-1/2 transform -translate-y-1/2 z-40 hidden lg:block">
-        <div className="flex flex-col items-center">
-          {[
-            { index: 0, label: '소개', icon: '👻' },
-            { index: 1, label: '캘린더', icon: '🗓️' },
-            { index: 2, label: '프로필', icon: '👤' }
-          ].map(({ index, label, icon }, arrayIndex) => (
-            <div key={index} className="flex flex-col items-center">
-              <button
-                onClick={() => scrollToSection(index)}
-                className={`flex items-center gap-4 px-3 py-3 rounded-lg transition-all duration-300 group ${
-                  currentSection === index
-                    ? 'text-cyan-400 scale-110'
-                    : 'text-gray-400 hover:text-white hover:scale-105'
-                }`}
-                title={label}
-              >
-                <span className="text-2xl">{icon}</span>
-                <span className="text-sm font-medium">{label}</span>
-              </button>
-              
-              {/* 연결점 (마지막 항목 제외) */}
-              {arrayIndex < 2 && (
-                <div className="flex flex-col items-center my-8">
-                  <div className={`w-1 h-8 transition-all duration-300 ${
-                    currentSection === index || currentSection === index + 1
-                      ? 'bg-cyan-400/60'
-                      : 'bg-gray-600/30'
-                  }`}></div>
-                  <div className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    currentSection === index || currentSection === index + 1
-                      ? 'bg-cyan-400'
-                      : 'bg-gray-600'
-                  }`}></div>
-                  <div className={`w-1 h-8 transition-all duration-300 ${
-                    currentSection === index || currentSection === index + 1
-                      ? 'bg-cyan-400/60'
-                      : 'bg-gray-600/30'
-                  }`}></div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   )
 }

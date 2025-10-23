@@ -6,7 +6,6 @@ import ParticipationButton from '@/components/ParticipationButton'
 import ParticipantListModal from '@/components/ParticipantListModal'
 import TrackVotingModal from '@/components/TrackVotingModal'
 import EventDescriptionModal from '@/components/EventDescriptionModal'
-import RichTextEditor from '@/components/RichTextEditor'
 import { hasEventManagementPermission } from '@/lib/client-permissions'
 
 interface RegularEventDetailPageProps {
@@ -134,7 +133,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
 
     fetchEvent()
     fetchParticipantCount()
-  }, [eventId])
+  }, [eventId, fetchParticipantCount])
 
   const fetchParticipantCount = async () => {
     try {
@@ -320,9 +319,9 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
             {/* 이벤트 정보 */}
             <div className="flex items-center justify-between mb-8">
               <div>
-                {/* <h2 className="text-3xl font-bold text-white mb-2">
+                <h2 className="text-3xl font-bold text-white mb-2">
                   {event.title}
-                </h2> */}
+                </h2>
                 <div className="flex items-center gap-4 text-gray-400">
                   <span>{event.game}</span>
                   <span>•</span>

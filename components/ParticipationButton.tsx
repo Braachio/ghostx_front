@@ -6,11 +6,10 @@ import { User } from '@supabase/supabase-js'
 
 interface ParticipationButtonProps {
   eventId: string
-  isOwner?: boolean
   onParticipationChange?: () => void
 }
 
-export default function ParticipationButton({ eventId, isOwner = false, onParticipationChange }: ParticipationButtonProps) {
+export default function ParticipationButton({ eventId, onParticipationChange }: ParticipationButtonProps) {
   const [user, setUser] = useState<User | null>(null)
   const [isParticipant, setIsParticipant] = useState(false)
   const [joining, setJoining] = useState(false)

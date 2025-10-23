@@ -26,7 +26,7 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
     if (isOpen && regularEventId) {
       fetchTrackOptions()
     }
-  }, [isOpen, regularEventId])
+  }, [isOpen, regularEventId, fetchTrackOptions])
 
   const fetchTrackOptions = async () => {
     setLoading(true)
