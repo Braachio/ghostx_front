@@ -84,12 +84,12 @@ export default function EventDetailModal({
             {/* Steam 로그인 안내문 */}
             <div className="mb-4 text-center">
               <p className="text-gray-400 text-sm">
-                참가 신청 및 트랙 투표를 위해서는 Steam 로그인이 필요합니다
+                ⚠️참가 신청 및 트랙 투표를 위해서는 Steam 로그인이 필요합니다
               </p>
             </div>
 
             {/* 모든 버튼들을 한 줄로 배치 */}
-            <div className="flex flex-wrap gap-4 justify-center mb-6">
+            <div className="flex flex-wrap gap-4 justify-start mb-6">
               {/* 참가신청 버튼 */}
               <ParticipationButton 
                 eventId={event.id} 
@@ -112,13 +112,13 @@ export default function EventDetailModal({
               {(user && event.author_id === user.id) || hasManagementPermission ? (
                 <button
                   onClick={() => setShowParticipantModal(true)}
-                  className="px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all font-semibold shadow-lg hover:shadow-gray-500/25 flex items-center gap-2"
+                  className="px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all font-semibold shadow-lg hover:shadow-gray-500/25 flex items-center gap-2 ml-auto"
                 >
                   <span className="text-lg">👥</span>
                   참가자 목록 ({participantCount}명)
                 </button>
               ) : (
-                <div className="px-4 py-2 bg-gray-700 text-gray-300 rounded-lg flex items-center gap-2">
+                <div className="px-4 py-2 bg-gray-700 text-gray-300 rounded-lg flex items-center gap-2 ml-auto">
                   <span className="text-lg">👥</span>
                   참가자: {participantCount}명
                 </div>
