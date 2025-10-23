@@ -92,12 +92,25 @@ export default function EventDetailModal({
 
             {/* 모든 버튼들을 한 줄로 배치 */}
             <div className="flex flex-wrap gap-4 justify-start mb-6">
-              {/* 참가신청 버튼 */}
-              <ParticipationButton 
-                eventId={event.id} 
-                isOwner={user && event.author_id === user.id || false}
-                onParticipationChange={fetchParticipantCount}
-              />
+              {/* 관리자/작성자가 아닌 경우에만 참가신청 버튼 표시 */}
+              {!((user && event.author_id === user.id) || hasManagementPermission) && (
+                <ParticipationButton 
+                  eventId={event.id} 
+                  isOwner={false}
+                  onParticipationChange={fetchParticipantCount}
+                />
+              )}
+
+              {/* 관리자/작성자인 경우 참가자 목록 버튼 표시 */}
+              {((user && event.author_id === user.id) || hasManagementPermission) && (
+                <button
+                  onClick={() => setShowParticipantModal(true)}
+                  className="px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all font-semibold shadow-lg hover:shadow-gray-500/25 flex items-center gap-2"
+                >
+                  <span className="text-lg">👥</span>
+                  참가자 목록 ({participantCount}명)
+                </button>
+              )}
 
               {/* 트랙투표 버튼 */}
               {event.voting_enabled && (
@@ -110,16 +123,8 @@ export default function EventDetailModal({
                 </button>
               )}
 
-              {/* 참가자 목록 버튼 (관리자/작성자만) */}
-              {(user && event.author_id === user.id) || hasManagementPermission ? (
-                <button
-                  onClick={() => setShowParticipantModal(true)}
-                  className="px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all font-semibold shadow-lg hover:shadow-gray-500/25 flex items-center gap-2 ml-auto"
-                >
-                  <span className="text-lg">👥</span>
-                  참가자 목록 ({participantCount}명)
-                </button>
-              ) : (
+              {/* 일반 사용자에게는 참가자 수만 표시 */}
+              {!((user && event.author_id === user.id) || hasManagementPermission) && (
                 <div className="px-4 py-2 bg-gray-700 text-gray-300 rounded-lg flex items-center gap-2 ml-auto">
                   <span className="text-lg">👥</span>
                   참가자: {participantCount}명
