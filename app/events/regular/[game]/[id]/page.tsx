@@ -5,6 +5,7 @@ import Link from 'next/link'
 import ParticipationButton from '@/components/ParticipationButton'
 import ParticipantListModal from '@/components/ParticipantListModal'
 import TrackVotingModal from '@/components/TrackVotingModal'
+import EventDescriptionModal from '@/components/EventDescriptionModal'
 import RichTextEditor from '@/components/RichTextEditor'
 import { hasEventManagementPermission } from '@/lib/client-permissions'
 
@@ -59,6 +60,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
   })
   const [showParticipantModal, setShowParticipantModal] = useState(false)
   const [showVotingModal, setShowVotingModal] = useState(false)
+  const [showDescriptionModal, setShowDescriptionModal] = useState(false)
   const [participantCount, setParticipantCount] = useState(0)
 
   useEffect(() => {
@@ -262,46 +264,60 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
           <p className="text-gray-400">{gameName}</p>
         </div>
 
-        {/* 참가신청 섹션 */}
-        <ParticipationButton 
-          eventId={eventId} 
-          isOwner={user && event && event.author_id === user.id || false}
-          onParticipationChange={fetchParticipantCount}
-        />
-
-        {/* 액션 버튼들 */}
-        <div className="flex flex-wrap gap-4 justify-center">
-          {/* 트랙투표 버튼 */}
-          {event && event.voting_enabled && (
-            <button
-              onClick={() => setShowVotingModal(true)}
-              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-semibold shadow-lg hover:shadow-blue-500/25 flex items-center gap-2"
-            >
-              <span className="text-xl">🏁</span>
-              트랙 투표하기
-            </button>
-          )}
-
-          {/* 참가자 목록 버튼 (관리자/작성자만) */}
-          {(user && event && event.author_id === user.id) || hasManagementPermission ? (
-            <button
-              onClick={() => setShowParticipantModal(true)}
-              className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all font-semibold shadow-lg hover:shadow-gray-500/25 flex items-center gap-2"
-            >
-              <span className="text-xl">👥</span>
-              참가자 목록 ({participantCount}명)
-            </button>
-          ) : (
-            <div className="px-6 py-3 bg-gray-700 text-gray-300 rounded-lg flex items-center gap-2">
-              <span className="text-xl">👥</span>
-              참가자: {participantCount}명
-            </div>
-          )}
-        </div>
-
-        {/* 이벤트 정보 */}
+        {/* 통합 이벤트 컨테이너 */}
         {event ? (
           <div className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 rounded-2xl p-8 shadow-2xl border border-gray-600 backdrop-blur-sm">
+            {/* 참가신청 섹션 */}
+            <div className="mb-6">
+              <ParticipationButton 
+                eventId={eventId} 
+                isOwner={user && event && event.author_id === user.id || false}
+                onParticipationChange={fetchParticipantCount}
+              />
+            </div>
+
+            {/* 액션 버튼들 */}
+            <div className="flex flex-wrap gap-4 justify-center mb-8">
+              {/* 트랙투표 버튼 */}
+              {event.voting_enabled && (
+                <button
+                  onClick={() => setShowVotingModal(true)}
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-semibold shadow-lg hover:shadow-blue-500/25 flex items-center gap-2"
+                >
+                  <span className="text-xl">🏁</span>
+                  트랙 투표하기
+                </button>
+              )}
+
+              {/* 참가자 목록 버튼 (관리자/작성자만) */}
+              {(user && event.author_id === user.id) || hasManagementPermission ? (
+                <button
+                  onClick={() => setShowParticipantModal(true)}
+                  className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all font-semibold shadow-lg hover:shadow-gray-500/25 flex items-center gap-2"
+                >
+                  <span className="text-xl">👥</span>
+                  참가자 목록 ({participantCount}명)
+                </button>
+              ) : (
+                <div className="px-6 py-3 bg-gray-700 text-gray-300 rounded-lg flex items-center gap-2">
+                  <span className="text-xl">👥</span>
+                  참가자: {participantCount}명
+                </div>
+              )}
+
+              {/* 상세정보 버튼 */}
+              {event.description && (
+                <button
+                  onClick={() => setShowDescriptionModal(true)}
+                  className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all font-semibold shadow-lg hover:shadow-purple-500/25 flex items-center gap-2"
+                >
+                  <span className="text-xl">📋</span>
+                  상세정보
+                </button>
+              )}
+            </div>
+
+            {/* 이벤트 정보 */}
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h2 className="text-3xl font-bold text-white mb-2">
@@ -387,17 +403,6 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
                     <p className="text-white font-medium">{event.duration_hours ? `${event.duration_hours}시간` : 'TBD'}</p>
                   </div>
                 </div>
-                
-                {/* 설명 섹션 */}
-                {event.description && (
-                  <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-                    <p className="text-gray-400 text-sm mb-2">설명</p>
-                    <div 
-                      className="text-white leading-relaxed prose prose-invert max-w-none"
-                      dangerouslySetInnerHTML={{ __html: event.description }}
-                    />
-                  </div>
-                )}
               </div>
             ) : (
               // 편집 모드 - 단순한 입력 폼
@@ -459,16 +464,6 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">설명</label>
-                  <RichTextEditor
-                    value={editForm.description}
-                    onChange={(value) => setEditForm(prev => ({ ...prev, description: value }))}
-                    placeholder="이벤트에 대한 상세 설명을 입력하세요. 글씨 크기, 굵게, 기울임, 링크 등을 사용할 수 있습니다."
-                    className="w-full"
-                  />
-                </div>
-                
-                <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">링크 (참여/원문)</label>
                   <input
                     type="url"
@@ -509,6 +504,13 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
           regularEventId={eventId}
           isOwner={hasManagementPermission}
           game={game}
+        />
+
+        <EventDescriptionModal
+          isOpen={showDescriptionModal}
+          onClose={() => setShowDescriptionModal(false)}
+          title={event?.title || ''}
+          description={event?.description || ''}
         />
 
       </div>
