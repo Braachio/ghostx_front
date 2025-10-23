@@ -31,6 +31,17 @@ export default function RichTextEditor({
         editorRef.current.style.setProperty('unicode-bidi', 'normal', 'important')
         editorRef.current.style.setProperty('writing-mode', 'horizontal-tb', 'important')
         editorRef.current.style.setProperty('text-direction', 'ltr', 'important')
+        
+        // 모든 자식 요소에도 방향 강제 적용
+        const allElements = editorRef.current.querySelectorAll('*')
+        allElements.forEach((element: Element) => {
+          const htmlElement = element as HTMLElement
+          htmlElement.style.setProperty('direction', 'ltr', 'important')
+          htmlElement.style.setProperty('text-align', 'left', 'important')
+          htmlElement.style.setProperty('unicode-bidi', 'normal', 'important')
+          htmlElement.style.setProperty('writing-mode', 'horizontal-tb', 'important')
+          htmlElement.style.setProperty('text-direction', 'ltr', 'important')
+        })
       }
     }
 
@@ -64,6 +75,17 @@ export default function RichTextEditor({
       editorRef.current.style.setProperty('unicode-bidi', 'normal', 'important')
       editorRef.current.style.setProperty('writing-mode', 'horizontal-tb', 'important')
       editorRef.current.style.setProperty('text-direction', 'ltr', 'important')
+      
+      // 모든 자식 요소에도 방향 강제 적용
+      const allElements = editorRef.current.querySelectorAll('*')
+      allElements.forEach((element: Element) => {
+        const htmlElement = element as HTMLElement
+        htmlElement.style.setProperty('direction', 'ltr', 'important')
+        htmlElement.style.setProperty('text-align', 'left', 'important')
+        htmlElement.style.setProperty('unicode-bidi', 'normal', 'important')
+        htmlElement.style.setProperty('writing-mode', 'horizontal-tb', 'important')
+        htmlElement.style.setProperty('text-direction', 'ltr', 'important')
+      })
     }
     
     // 포커스 유지
@@ -140,6 +162,17 @@ export default function RichTextEditor({
       editorRef.current.style.setProperty('unicode-bidi', 'normal', 'important')
       editorRef.current.style.setProperty('writing-mode', 'horizontal-tb', 'important')
       editorRef.current.style.setProperty('text-direction', 'ltr', 'important')
+      
+      // 모든 자식 요소에도 방향 강제 적용
+      const allElements = editorRef.current.querySelectorAll('*')
+      allElements.forEach((element: Element) => {
+        const htmlElement = element as HTMLElement
+        htmlElement.style.setProperty('direction', 'ltr', 'important')
+        htmlElement.style.setProperty('text-align', 'left', 'important')
+        htmlElement.style.setProperty('unicode-bidi', 'normal', 'important')
+        htmlElement.style.setProperty('writing-mode', 'horizontal-tb', 'important')
+        htmlElement.style.setProperty('text-direction', 'ltr', 'important')
+      })
       
       const content = editorRef.current.innerHTML
       onChange(content)
