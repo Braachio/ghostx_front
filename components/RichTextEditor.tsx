@@ -15,7 +15,6 @@ export default function RichTextEditor({
   placeholder = "설명을 입력하세요...", 
   className = "" 
 }: RichTextEditorProps) {
-  const [isPreview, setIsPreview] = useState(false)
   const [fontSize, setFontSize] = useState('16')
   const [fontFamily, setFontFamily] = useState('맑은 고딕')
   const [textColor, setTextColor] = useState('#ffffff')
@@ -370,37 +369,28 @@ export default function RichTextEditor({
 
       {/* 에디터 영역 */}
       <div className="relative bg-gray-900">
-        {isPreview ? (
-          <div 
-            className="p-4 min-h-[200px] border border-gray-700 text-white"
-            style={{ minHeight: `${editorHeight}px` }}
-            dangerouslySetInnerHTML={{ __html: value }}
-          />
-        ) : (
-          <div
-            ref={editorRef}
-            contentEditable
-            onInput={handleInput}
-            onKeyDown={handleKeyDown}
-            className="p-4 focus:outline-none text-white leading-normal"
-            style={{ 
-              minHeight: `${editorHeight}px`,
-              fontSize: `${fontSize}px`,
-              fontFamily: fontFamily,
-              direction: 'ltr !important',
-              textAlign: 'left !important',
-              unicodeBidi: 'normal !important',
-              writingMode: 'horizontal-tb !important',
-              textOrientation: 'mixed !important',
-              textDirection: 'ltr !important'
-            }}
-            dir="ltr"
-            dangerouslySetInnerHTML={{ __html: value }}
-            suppressContentEditableWarning={true}
-          />
-        )}
+        <div
+          ref={editorRef}
+          contentEditable
+          onInput={handleInput}
+          onKeyDown={handleKeyDown}
+          className="p-4 focus:outline-none text-white leading-normal"
+          style={{ 
+            minHeight: `${editorHeight}px`,
+            fontSize: `${fontSize}px`,
+            fontFamily: fontFamily,
+            direction: 'ltr !important',
+            textAlign: 'left !important',
+            unicodeBidi: 'normal !important',
+            writingMode: 'horizontal-tb !important',
+            textOrientation: 'mixed !important',
+            textDirection: 'ltr !important'
+          }}
+          dir="ltr"
+          suppressContentEditableWarning={true}
+        />
         
-        {!value && !isPreview && (
+        {!value && (
           <div className="absolute top-4 left-4 text-gray-500 pointer-events-none text-sm">
             {placeholder}
           </div>
@@ -422,19 +412,6 @@ export default function RichTextEditor({
           <span className="text-xs text-gray-300">{editorHeight}px</span>
         </div>
         
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setIsPreview(!isPreview)}
-            className={`px-3 py-1 text-xs rounded ${
-              isPreview 
-                ? 'bg-blue-600 text-white' 
-                : 'bg-gray-700 border border-gray-600 hover:bg-gray-600 text-white'
-            }`}
-          >
-            {isPreview ? '편집' : '미리보기'}
-          </button>
-        </div>
       </div>
     </div>
   )
