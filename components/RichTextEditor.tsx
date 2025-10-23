@@ -176,29 +176,6 @@ export default function RichTextEditor({
       
       const content = editorRef.current.innerHTML
       onChange(content)
-      
-      // 커서를 가장 오른쪽으로 이동
-      setTimeout(() => {
-        const selection = window.getSelection()
-        if (selection && editorRef.current) {
-          const range = document.createRange()
-          const textNodes = editorRef.current.childNodes
-          if (textNodes.length > 0) {
-            const lastNode = textNodes[textNodes.length - 1]
-            if (lastNode.nodeType === Node.TEXT_NODE) {
-              const textNode = lastNode as Text
-              const textLength = textNode.textContent?.length || 0
-              range.setStart(textNode, textLength)
-              range.setEnd(textNode, textLength)
-            } else {
-              range.selectNodeContents(editorRef.current)
-              range.collapse(false) // false = end of range
-            }
-            selection.removeAllRanges()
-            selection.addRange(range)
-          }
-        }
-      }, 10)
     }
   }
 
@@ -418,7 +395,6 @@ export default function RichTextEditor({
               textDirection: 'ltr !important'
             }}
             dir="ltr"
-            dangerouslySetInnerHTML={{ __html: value }}
             suppressContentEditableWarning={true}
           />
         )}
