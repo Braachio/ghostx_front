@@ -458,45 +458,41 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
           </div>
         )}
 
-        {/* 기능 섹션들 */}
-        <div className="space-y-6">
-          
-          {/* 참가신청 버튼 */}
-          <ParticipationButton 
-            eventId={eventId} 
-            isOwner={user && event && event.author_id === user.id || false}
-            onParticipationChange={fetchParticipantCount}
-          />
+        {/* 참가신청 섹션 - 맨 위로 이동 */}
+        <ParticipationButton 
+          eventId={eventId} 
+          isOwner={user && event && event.author_id === user.id || false}
+          onParticipationChange={fetchParticipantCount}
+        />
 
-          {/* 액션 버튼들 */}
-          <div className="flex flex-wrap gap-4 justify-center">
-            {/* 트랙투표 버튼 */}
-            {event && event.voting_enabled && (
-              <button
-                onClick={() => setShowVotingModal(true)}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-semibold shadow-lg hover:shadow-blue-500/25 flex items-center gap-2"
-              >
-                <span className="text-xl">🏁</span>
-                트랙 투표하기
-              </button>
-            )}
+        {/* 액션 버튼들 */}
+        <div className="flex flex-wrap gap-4 justify-center">
+          {/* 트랙투표 버튼 */}
+          {event && event.voting_enabled && (
+            <button
+              onClick={() => setShowVotingModal(true)}
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-semibold shadow-lg hover:shadow-blue-500/25 flex items-center gap-2"
+            >
+              <span className="text-xl">🏁</span>
+              트랙 투표하기
+            </button>
+          )}
 
-            {/* 참가자 목록 버튼 (관리자/작성자만) */}
-            {(user && event && event.author_id === user.id) || hasManagementPermission ? (
-              <button
-                onClick={() => setShowParticipantModal(true)}
-                className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all font-semibold shadow-lg hover:shadow-gray-500/25 flex items-center gap-2"
-              >
-                <span className="text-xl">👥</span>
-                참가자 목록 ({participantCount}명)
-              </button>
-            ) : (
-              <div className="px-6 py-3 bg-gray-700 text-gray-300 rounded-lg flex items-center gap-2">
-                <span className="text-xl">👥</span>
-                참가자: {participantCount}명
-              </div>
-            )}
-          </div>
+          {/* 참가자 목록 버튼 (관리자/작성자만) */}
+          {(user && event && event.author_id === user.id) || hasManagementPermission ? (
+            <button
+              onClick={() => setShowParticipantModal(true)}
+              className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all font-semibold shadow-lg hover:shadow-gray-500/25 flex items-center gap-2"
+            >
+              <span className="text-xl">👥</span>
+              참가자 목록 ({participantCount}명)
+            </button>
+          ) : (
+            <div className="px-6 py-3 bg-gray-700 text-gray-300 rounded-lg flex items-center gap-2">
+              <span className="text-xl">👥</span>
+              참가자: {participantCount}명
+            </div>
+          )}
         </div>
 
         {/* 모달들 */}
