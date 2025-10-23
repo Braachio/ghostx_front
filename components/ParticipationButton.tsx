@@ -120,10 +120,21 @@ export default function ParticipationButton({ eventId, onParticipationChange }: 
     )
   }
 
-  // Steam 사용자인지 확인
+  // Steam 사용자인지 확인 (더 관대한 조건)
   const isSteamUser = user.app_metadata?.provider === 'steam' || 
                     user.user_metadata?.provider === 'steam' ||
-                    user.identities?.some(identity => identity.provider === 'steam')
+                    user.identities?.some(identity => identity.provider === 'steam') ||
+                    user.email?.includes('steam') ||
+                    user.user_metadata?.steam_id ||
+                    user.app_metadata?.steam_id
+
+  console.log('Steam 사용자 확인:', {
+    user: user?.id,
+    app_metadata: user?.app_metadata,
+    user_metadata: user?.user_metadata,
+    identities: user?.identities,
+    isSteamUser
+  })
 
   if (!isSteamUser) {
     return (
