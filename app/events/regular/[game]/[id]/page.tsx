@@ -262,6 +262,13 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
           <p className="text-gray-400">{gameName}</p>
         </div>
 
+        {/* 참가신청 섹션 - 이벤트 정보 위로 이동 */}
+        <ParticipationButton 
+          eventId={eventId} 
+          isOwner={user && event && event.author_id === user.id || false}
+          onParticipationChange={fetchParticipantCount}
+        />
+
         {/* 이벤트 정보 */}
         {event ? (
           <div className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 rounded-2xl p-8 shadow-2xl border border-gray-600 backdrop-blur-sm">
@@ -457,13 +464,6 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
             <p className="text-red-400">이벤트를 찾을 수 없습니다.</p>
           </div>
         )}
-
-        {/* 참가신청 섹션 - 맨 위로 이동 */}
-        <ParticipationButton 
-          eventId={eventId} 
-          isOwner={user && event && event.author_id === user.id || false}
-          onParticipationChange={fetchParticipantCount}
-        />
 
         {/* 액션 버튼들 */}
         <div className="flex flex-wrap gap-4 justify-center">
