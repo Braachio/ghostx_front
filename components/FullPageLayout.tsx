@@ -155,62 +155,86 @@ export default function FullPageLayout({
                 {/* 드롭다운 메뉴 */}
                 <div className="absolute top-full left-0 mt-2 w-64 bg-gray-800 rounded-lg shadow-xl border border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                   <div className="p-2">
-                    <Link href="/events/regular/competizione/chat" target="_blank" className="block px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3">
+                    <button 
+                      onClick={() => window.open('/events/regular/competizione/chat', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes')}
+                      className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
+                    >
                       <span className="text-lg">🏁</span>
                       <div>
                         <div className="font-medium">컴페티치오네</div>
                         <div className="text-xs text-gray-400">Competizione 채팅</div>
                       </div>
-                    </Link>
-                    <Link href="/events/regular/lemans/chat" target="_blank" className="block px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3">
+                    </button>
+                    <button 
+                      onClick={() => window.open('/events/regular/lemans/chat', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes')}
+                      className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
+                    >
                       <span className="text-lg">🏎️</span>
                       <div>
                         <div className="font-medium">르망얼티밋</div>
                         <div className="text-xs text-gray-400">Le Mans Ultimate 채팅</div>
                       </div>
-                    </Link>
-                    <Link href="/events/regular/iracing/chat" target="_blank" className="block px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3">
+                    </button>
+                    <button 
+                      onClick={() => window.open('/events/regular/iracing/chat', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes')}
+                      className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
+                    >
                       <span className="text-lg">🏆</span>
                       <div>
                         <div className="font-medium">아이레이싱</div>
                         <div className="text-xs text-gray-400">iRacing 채팅</div>
                       </div>
-                    </Link>
-                    <Link href="/events/regular/assettocorsa/chat" target="_blank" className="block px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3">
+                    </button>
+                    <button 
+                      onClick={() => window.open('/events/regular/assettocorsa/chat', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes')}
+                      className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
+                    >
                       <span className="text-lg">🏎️</span>
                       <div>
                         <div className="font-medium">아세토코르사</div>
                         <div className="text-xs text-gray-400">Assetto Corsa 채팅</div>
                       </div>
-                    </Link>
-                    <Link href="/events/regular/gran-turismo7/chat" target="_blank" className="block px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3">
+                    </button>
+                    <button 
+                      onClick={() => window.open('/events/regular/gran-turismo7/chat', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes')}
+                      className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
+                    >
                       <span className="text-lg">🏁</span>
                       <div>
                         <div className="font-medium">그란투리스모7</div>
                         <div className="text-xs text-gray-400">Gran Turismo 7 채팅</div>
                       </div>
-                    </Link>
-                    <Link href="/events/regular/automobilista2/chat" target="_blank" className="block px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3">
+                    </button>
+                    <button 
+                      onClick={() => window.open('/events/regular/automobilista2/chat', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes')}
+                      className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
+                    >
                       <span className="text-lg">🏎️</span>
                       <div>
                         <div className="font-medium">오토모빌리스타2</div>
                         <div className="text-xs text-gray-400">Automobilista 2 채팅</div>
                       </div>
-                    </Link>
-                    <Link href="/events/regular/f1-25/chat" target="_blank" className="block px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3">
+                    </button>
+                    <button 
+                      onClick={() => window.open('/events/regular/f1-25/chat', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes')}
+                      className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
+                    >
                       <span className="text-lg">🏁</span>
                       <div>
                         <div className="font-medium">F1 25</div>
                         <div className="text-xs text-gray-400">F1 25 채팅</div>
                       </div>
-                    </Link>
-                    <Link href="/events/regular/ea-wrc/chat" target="_blank" className="block px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3">
+                    </button>
+                    <button 
+                      onClick={() => window.open('/events/regular/ea-wrc/chat', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes')}
+                      className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
+                    >
                       <span className="text-lg">🏎️</span>
                       <div>
                         <div className="font-medium">EA WRC</div>
                         <div className="text-xs text-gray-400">EA WRC 채팅</div>
                       </div>
-                    </Link>
+                    </button>
                   </div>
                 </div>
               </div>
