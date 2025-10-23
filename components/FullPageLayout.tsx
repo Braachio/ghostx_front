@@ -126,9 +126,9 @@ export default function FullPageLayout({
           ? 'bg-black/95 backdrop-blur-md border-b border-gray-800' 
           : 'bg-transparent'
       }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* 로고 */}
+            {/* 로고 - 왼쪽 끝으로 이동 */}
             <Link href="/" className="flex items-center gap-3">
               <Image 
                 src="/logo/ghost-x-symbol.svg" 
@@ -146,14 +146,6 @@ export default function FullPageLayout({
             <div className="hidden md:flex items-center gap-3">
               {user ? (
                 <>
-                  {/* 갤멀 선택하기 버튼 */}
-                  <Link
-                    href="/events"
-                    className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-sm font-medium rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg shadow-cyan-500/30 flex items-center gap-2"
-                  >
-                    🏁 갤멀 선택하기
-                    <span className="text-xs">→</span>
-                  </Link>
 
                   {/* 권한에 따른 버튼 표시 */}
                   {user.role === 'admin' || user.role === 'event_manager' ? (
@@ -237,7 +229,7 @@ export default function FullPageLayout({
 
       {/* Section 1: Ghost-X 소개 섹션 */}
       <section className="fullpage-section min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 relative">
-        <div className="max-w-7xl mx-auto text-center">
+        <div className="w-full text-center">
           {/* Ghost-X 브랜딩 */}
           <div className="mb-16">
             <div className="inline-block mb-8">
@@ -363,7 +355,7 @@ export default function FullPageLayout({
 
       {/* Section 2: 캘린더 섹션 */}
       <section id="calendar-section" className="fullpage-section min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-20">
-        <div className="max-w-7xl mx-auto w-full">
+        <div className="w-full">
           <div className="text-center mb-12">
             {/* <h2 className="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
               🗓️ {t[language].gallerySchedule}
@@ -397,7 +389,7 @@ export default function FullPageLayout({
 
       {/* Section 3: 프로필 섹션 */}
       <section className="fullpage-section min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-20 bg-gradient-to-b from-gray-900 via-black to-gray-900">
-        <div className="max-w-7xl mx-auto">
+        <div className="w-full">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               👤 사용자 프로필
