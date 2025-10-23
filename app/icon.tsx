@@ -16,7 +16,7 @@ export default function Icon() {
     (
       <div
         style={{
-          fontSize: 32,
+          fontSize: 28,
           background: 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #06b6d4 100%)',
           width: '100%',
           height: '100%',
@@ -24,14 +24,14 @@ export default function Icon() {
           alignItems: 'center',
           justifyContent: 'center',
           color: 'white',
-          borderRadius: '12px',
-          fontWeight: '900',
+          borderRadius: '50%',
+          fontWeight: 'bold',
           fontFamily: 'system-ui, -apple-system, sans-serif',
           boxShadow: '0 8px 24px rgba(139, 92, 246, 0.4)',
-          border: '2px solid rgba(255, 255, 255, 0.1)',
+          border: '2px solid rgba(255, 255, 255, 0.2)',
         }}
       >
-        GX
+        👻
       </div>
     ),
     {
