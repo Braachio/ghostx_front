@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 interface TrackOption {
   id: string
@@ -28,7 +28,7 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
     }
   }, [isOpen, regularEventId, fetchTrackOptions])
 
-  const fetchTrackOptions = async () => {
+  const fetchTrackOptions = useCallback(async () => {
     setLoading(true)
     try {
       const response = await fetch(`/api/regular-events/${regularEventId}/vote-options`)
@@ -41,7 +41,7 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
     } finally {
       setLoading(false)
     }
-  }
+  }, [regularEventId])
 
   const handleVote = async (optionId: string) => {
     setVoting(true)

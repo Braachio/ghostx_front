@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import ParticipationButton from '@/components/ParticipationButton'
 import ParticipantListModal from '@/components/ParticipantListModal'
@@ -135,7 +135,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
     fetchParticipantCount()
   }, [eventId, fetchParticipantCount])
 
-  const fetchParticipantCount = async () => {
+  const fetchParticipantCount = useCallback(async () => {
     try {
       const response = await fetch(`/api/multis/${eventId}/participants`)
       if (response.ok) {
@@ -145,7 +145,7 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
     } catch (error) {
       console.error('참가자 수 가져오기 실패:', error)
     }
-  }
+  }, [eventId])
 
   // 이벤트 수정 함수들
   const handleEditStart = () => {

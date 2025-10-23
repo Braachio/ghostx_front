@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 interface Participant {
   id: string
@@ -29,7 +29,7 @@ export default function ParticipantListModal({ isOpen, onClose, eventId, isOwner
     }
   }, [isOpen, eventId, fetchParticipants])
 
-  const fetchParticipants = async () => {
+  const fetchParticipants = useCallback(async () => {
     setLoading(true)
     try {
       const response = await fetch(`/api/multis/${eventId}/participants`)
@@ -42,7 +42,7 @@ export default function ParticipantListModal({ isOpen, onClose, eventId, isOwner
     } finally {
       setLoading(false)
     }
-  }
+  }, [eventId])
 
   const handleStatusChange = async (participantId: string, newStatus: string) => {
     setActionLoading(participantId)

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import ParticipationButton from '@/components/ParticipationButton'
 import ParticipantListModal from '@/components/ParticipantListModal'
 import TrackVotingModal from '@/components/TrackVotingModal'
@@ -49,7 +49,7 @@ export default function EventDetailModal({
     }
   }, [isOpen, event, fetchParticipantCount])
 
-  const fetchParticipantCount = async () => {
+  const fetchParticipantCount = useCallback(async () => {
     if (!event) return
     
     try {
@@ -61,7 +61,7 @@ export default function EventDetailModal({
     } catch (error) {
       console.error('참가자 수 가져오기 실패:', error)
     }
-  }
+  }, [event])
 
   if (!isOpen || !event) return null
 
