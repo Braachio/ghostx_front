@@ -10,6 +10,7 @@ interface EventCalendarProps {
   events: Multi[]
   selectedGame?: string
   onGameChange?: (game: string) => void
+  onEventClick?: (event: Multi) => void
 }
 
 const GAME_OPTIONS = [
@@ -25,7 +26,7 @@ const GAME_OPTIONS = [
 
 const DAYS_OF_WEEK = ['일', '월', '화', '수', '목', '금', '토']
 
-export default function EventCalendar({ events, selectedGame = 'all', onGameChange }: EventCalendarProps) {
+export default function EventCalendar({ events, selectedGame = 'all', onGameChange, onEventClick }: EventCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [filteredEvents, setFilteredEvents] = useState<Multi[]>([])
   const [expandedDate, setExpandedDate] = useState<Date | null>(null)
@@ -233,10 +234,10 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
               </div>
               <div className="space-y-1">
                 {regularEvents.slice(0, 2).map((event) => (
-                  <Link
+                  <button
                     key={event.id}
-                    href={`/events/regular/${event.game}/${event.id}`}
-                    className={`block p-1 text-white text-xs rounded truncate hover:opacity-80 transition-all duration-200 ${getGameColor(event.game)} border border-white/10`}
+                    onClick={() => onEventClick?.(event)}
+                    className={`block w-full p-1 text-white text-xs rounded truncate hover:opacity-80 transition-all duration-200 ${getGameColor(event.game)} border border-white/10`}
                     title={`${event.title} (${event.game})`}
                   >
                     <div className="flex items-center gap-1">
@@ -245,7 +246,7 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
                       </span>
                       <span className="truncate">{event.title}</span>
                     </div>
-                  </Link>
+                  </button>
                 ))}
                 {regularEvents.length > 2 && (
                   <div className="text-xs text-gray-400 text-center">
@@ -283,10 +284,10 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
               {/* 이벤트 목록 */}
               <div className="space-y-1">
                 {dayEvents.slice(0, 3).map((event) => (
-                  <Link
+                  <button
                     key={event.id}
-                    href={`/events/regular/${event.game}/${event.id}`}
-                    className={`block p-1 text-white text-xs rounded hover:opacity-80 transition-all duration-200 truncate ${getGameColor(event.game)}`}
+                    onClick={() => onEventClick?.(event)}
+                    className={`block w-full p-1 text-white text-xs rounded hover:opacity-80 transition-all duration-200 truncate ${getGameColor(event.game)}`}
                     title={`${event.title} (${event.game})`}
                   >
                     <div className="flex items-center gap-1">
@@ -295,7 +296,7 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
                       </span>
                       <span className="truncate">{event.title}</span>
                     </div>
-                  </Link>
+                  </button>
                 ))}
                 {dayEvents.length > 3 && (
                   <div className="text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded">
@@ -338,10 +339,10 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
               ) : (
                 <div className="space-y-2">
                   {getEventsForDate(expandedDate).map((event) => (
-                    <Link
+                    <button
                       key={event.id}
-                      href={`/events/regular/${event.game}/${event.id}`}
-                      className={`block px-3 py-2 rounded border border-gray-700 ${getGameColor(event.game)} hover:opacity-90 transition-colors`}
+                      onClick={() => onEventClick?.(event)}
+                      className={`block w-full px-3 py-2 rounded border border-gray-700 ${getGameColor(event.game)} hover:opacity-90 transition-colors`}
                       title={`${event.title} (${event.game})`}
                     >
                       <div className="flex items-center justify-between gap-3">
@@ -353,7 +354,7 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
                           <span className="text-xs text-gray-200 bg-gray-800 px-2 py-1 rounded border border-gray-700">{event.multi_time}</span>
                         )}
                       </div>
-                    </Link>
+                    </button>
                   ))}
                 </div>
               )}
@@ -366,18 +367,18 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
                 {getRegularGalleryEvents()
                   .filter(event => event.multi_day && event.multi_day.includes(DAYS_OF_WEEK[expandedDate.getDay()]))
                   .map(event => (
-                    <Link
+                    <button
                       key={`regular-${event.id}`}
-                      href={`/events/regular/${event.game}/${event.id}`}
-                      className={`block px-3 py-2 rounded bg-gray-800 border border-gray-700 text-white text-sm hover:opacity-90 transition-colors ${getGameColor(event.game)}`}
+                      onClick={() => onEventClick?.(event)}
+                      className={`block w-full px-3 py-2 rounded bg-gray-800 border border-gray-700 text-white text-sm hover:opacity-90 transition-colors ${getGameColor(event.game)}`}
                       title={`${event.title} (${event.game})`}
                     >
                       <div className="flex items-center gap-2">
                         <span>{GAME_OPTIONS.find(g => g.id === event.game)?.icon || '🎮'}</span>
                         <span className="truncate">{event.title}</span>
                       </div>
-                    </Link>
-                ))}
+                    </button>
+                  ))}
               </div>
             </div>
           </div>

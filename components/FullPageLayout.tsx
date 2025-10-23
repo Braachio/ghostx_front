@@ -26,6 +26,7 @@ interface FullPageLayoutProps {
   onGameChange: (game: string) => void
   onLanguageChange: (lang: 'ko' | 'en') => void
   onLogout: () => void
+  onEventClick?: (event: Multi) => void
 }
 
 export default function FullPageLayout({
@@ -36,7 +37,8 @@ export default function FullPageLayout({
   selectedGame,
   onGameChange,
   onLanguageChange,
-  onLogout
+  onLogout,
+  onEventClick
 }: FullPageLayoutProps) {
   const [currentSection, setCurrentSection] = useState(0)
   const [isScrolled, setIsScrolled] = useState(false)
@@ -344,6 +346,7 @@ export default function FullPageLayout({
               events={events}
               selectedGame={selectedGame}
               onGameChange={onGameChange}
+              onEventClick={onEventClick}
             />
           )}
         </div>

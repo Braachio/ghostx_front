@@ -5,6 +5,7 @@ import { useSupabaseClient } from '@supabase/auth-helpers-react'
 import Footer from '@/components/Footer'
 import CookieConsentBanner from '@/components/CookieConsentBanner'
 import GameInterestModal from '@/components/GameInterestModal'
+import EventDetailModal from '@/components/EventDetailModal'
 import FullPageLayout from '@/components/FullPageLayout'
 import type { Database } from '@/lib/database.types'
 
@@ -27,11 +28,33 @@ export default function HomePage() {
   const [events, setEvents] = useState<Multi[]>([])
   const [selectedGame, setSelectedGame] = useState('all')
   const [eventsLoading, setEventsLoading] = useState(true)
+  const [showEventModal, setShowEventModal] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState<Multi | null>(null)
+  const [hasManagementPermission, setHasManagementPermission] = useState(false)
   const supabase = useSupabaseClient()
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
     location.reload()
+  }
+
+  const handleEventClick = async (event: Multi) => {
+    setSelectedEvent(event)
+    setShowEventModal(true)
+    
+    // 관리자 권한 확인
+    if (user) {
+      try {
+        const response = await fetch(`/api/check-management-permission?eventId=${event.id}`)
+        if (response.ok) {
+          const { hasPermission } = await response.json()
+          setHasManagementPermission(hasPermission)
+        }
+      } catch (error) {
+        console.error('권한 확인 실패:', error)
+        setHasManagementPermission(false)
+      }
+    }
   }
 
   useEffect(() => {
@@ -127,6 +150,7 @@ export default function HomePage() {
         onGameChange={handleGameChange}
         onLanguageChange={setLanguage}
         onLogout={handleLogout}
+        onEventClick={handleEventClick}
       />
       
       {/* Footer */}
@@ -140,6 +164,15 @@ export default function HomePage() {
         isOpen={showGameInterestModal}
         onClose={handleGameInterestClose}
         onComplete={handleGameInterestComplete}
+      />
+
+      {/* Event Detail Modal */}
+      <EventDetailModal
+        isOpen={showEventModal}
+        onClose={() => setShowEventModal(false)}
+        event={selectedEvent}
+        user={user}
+        hasManagementPermission={hasManagementPermission}
       />
     </>
   )
