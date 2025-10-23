@@ -267,6 +267,7 @@ export default function FullPageLayout({
 
           {/* 주요 기능 소개 */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            {/* 갤멀 일정 관리 */}
             <button 
               onClick={() => {
                 const calendarSection = document.getElementById('calendar-section')
@@ -274,30 +275,60 @@ export default function FullPageLayout({
                   calendarSection.scrollIntoView({ behavior: 'smooth' })
                 }
               }}
-              className="bg-gray-900/50 rounded-2xl p-6 border border-cyan-500/30 hover:border-cyan-400/50 hover:bg-gray-800/50 transition-all duration-300 cursor-pointer group"
+              className="relative group overflow-hidden"
             >
-              <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">🗓️</div>
-              <h3 className="text-xl font-bold mb-3 text-cyan-400 group-hover:text-cyan-300 transition-colors duration-300">갤멀 일정 관리</h3>
-              <p className="text-gray-300 text-sm group-hover:text-gray-200 transition-colors duration-300">
-                {language === 'ko' ? '정기/기습 갤멀 일정을 캘린더로 관리' : 'Manage regular/flash gallery schedules with calendar'}
-              </p>
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-600/20 to-blue-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
+              <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-cyan-500/40 rounded-2xl p-6 backdrop-blur-sm hover:border-cyan-400/60 transition-all duration-300 hover:scale-105 cursor-pointer">
+                <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">🗓️</div>
+                <h3 className="text-xl font-bold mb-3 text-cyan-400 group-hover:text-cyan-300 transition-colors duration-300">갤멀 일정 관리</h3>
+                <p className="text-gray-300 text-sm group-hover:text-gray-200 transition-colors duration-300">
+                  {language === 'ko' ? '정기/기습 갤멀 일정을 캘린더로 관리' : 'Manage regular/flash gallery schedules with calendar'}
+                </p>
+                
+                {/* 호버 효과 */}
+                <div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="text-cyan-400 text-sm font-semibold">
+                    클릭하여 캘린더로 이동 →
+                  </div>
+                </div>
+              </div>
             </button>
-            <Link href="/events/always-on" className="relative group">
-              <div className="bg-gray-900/50 rounded-2xl p-6 border border-green-500/30">
-                <div className="text-4xl mb-4">🌐</div>
-                <h3 className="text-xl font-bold mb-3 text-green-400">상시 서버</h3>
-                <p className="text-gray-300 text-sm">
+
+            {/* 상시 서버 */}
+            <Link href="/events/always-on" className="relative group overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-600/20 to-emerald-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
+              <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-green-500/40 rounded-2xl p-6 backdrop-blur-sm hover:border-green-400/60 transition-all duration-300 hover:scale-105 cursor-pointer">
+                <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">🌐</div>
+                <h3 className="text-xl font-bold mb-3 text-green-400 group-hover:text-green-300 transition-colors duration-300">상시 서버</h3>
+                <p className="text-gray-300 text-sm group-hover:text-gray-200 transition-colors duration-300">
                   {language === 'ko' ? '24시간 언제든 접속 가능한 상시 운영 서버' : '24/7 always-on server accessible anytime'}
                 </p>
+                
+                {/* 호버 효과 */}
+                <div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="text-green-400 text-sm font-semibold">
+                    클릭하여 입장 →
+                  </div>
+                </div>
               </div>
             </Link>
-            <Link href="/events/league" className="relative group">
-              <div className="bg-gray-900/50 rounded-2xl p-6 border border-orange-500/30">
-                <div className="text-4xl mb-4">🏆</div>
-                <h3 className="text-xl font-bold mb-3 text-orange-400">리그 운영</h3>
-                <p className="text-gray-300 text-sm">
+
+            {/* 리그 운영 */}
+            <Link href="/events/league" className="relative group overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
+              <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-purple-500/40 rounded-2xl p-6 backdrop-blur-sm hover:border-purple-400/60 transition-all duration-300 hover:scale-105 cursor-pointer">
+                <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">🏆</div>
+                <h3 className="text-xl font-bold mb-3 text-purple-400 group-hover:text-purple-300 transition-colors duration-300">리그 운영</h3>
+                <p className="text-gray-300 text-sm group-hover:text-gray-200 transition-colors duration-300">
                   {language === 'ko' ? '정식 리그 시스템으로 공식 레이싱 이벤트 운영' : 'Official racing events with formal league system'}
                 </p>
+                
+                {/* 호버 효과 */}
+                <div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="text-purple-400 text-sm font-semibold">
+                    클릭하여 입장 →
+                  </div>
+                </div>
               </div>
             </Link>
           </div>
