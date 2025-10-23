@@ -61,15 +61,17 @@ export async function GET(
         .from('profiles')
         .select('id, steam_id')
         .in('id', userIds)
+        .not('steam_id', 'is', null)
 
       console.log('프로필 조회 결과:', { profiles, profilesError })
 
       if (profilesError) {
         console.warn('프로필 조회 실패(무시하고 계속 진행):', profilesError.message)
       } else if (profiles) {
-        const typedProfiles = profiles as Array<{ id: string; steam_id: string | null }>
+        const typedProfiles = profiles as Array<{ id: string; steam_id: string | number | null }>
         steamIdByUserId = typedProfiles.reduce((acc: Record<string, string | null>, cur) => {
-          acc[cur.id] = cur.steam_id ?? null
+          // Steam ID를 문자열로 변환
+          acc[cur.id] = cur.steam_id ? String(cur.steam_id) : null
           return acc
         }, {})
         console.log('Steam ID 매핑 결과:', steamIdByUserId)
