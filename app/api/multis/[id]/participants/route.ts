@@ -121,10 +121,22 @@ export async function POST(
 
     console.log('인증된 사용자:', { userId: user.id, email: user.email })
 
-    // Steam 사용자인지 확인
+    // Steam 사용자인지 확인 (더 관대한 조건)
     const isSteamUser = user.app_metadata?.provider === 'steam' || 
                        user.user_metadata?.provider === 'steam' ||
-                       user.identities?.some(identity => identity.provider === 'steam')
+                       user.identities?.some(identity => identity.provider === 'steam') ||
+                       user.email?.includes('steam') ||
+                       user.user_metadata?.steam_id ||
+                       user.app_metadata?.steam_id
+
+    console.log('Steam 사용자 확인 (API):', {
+      userId: user.id,
+      app_metadata: user.app_metadata,
+      user_metadata: user.user_metadata,
+      identities: user.identities,
+      email: user.email,
+      isSteamUser
+    })
 
     if (!isSteamUser) {
       console.log('참가 신청 실패 - Steam 로그인이 필요함')
