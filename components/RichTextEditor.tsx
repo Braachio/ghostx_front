@@ -156,6 +156,14 @@ export default function RichTextEditor({
 
   const handleInput = () => {
     if (editorRef.current) {
+      // 현재 커서 위치 저장
+      const selection = window.getSelection()
+      let cursorPosition = 0
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0)
+        cursorPosition = range.startOffset
+      }
+      
       // 텍스트 방향 강제 설정
       editorRef.current.style.setProperty('direction', 'ltr', 'important')
       editorRef.current.style.setProperty('text-align', 'left', 'important')
@@ -176,6 +184,24 @@ export default function RichTextEditor({
       
       const content = editorRef.current.innerHTML
       onChange(content)
+      
+      // 커서 위치 복원
+      setTimeout(() => {
+        if (selection && selection.rangeCount > 0) {
+          const range = selection.getRangeAt(0)
+          const textNodes = editorRef.current?.childNodes
+          if (textNodes && textNodes.length > 0) {
+            const textNode = textNodes[textNodes.length - 1] as Text
+            if (textNode && textNode.nodeType === Node.TEXT_NODE) {
+              const newPosition = Math.min(cursorPosition + 1, textNode.textContent?.length || 0)
+              range.setStart(textNode, newPosition)
+              range.setEnd(textNode, newPosition)
+              selection.removeAllRanges()
+              selection.addRange(range)
+            }
+          }
+        }
+      }, 10)
     }
   }
 
