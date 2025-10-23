@@ -274,18 +274,18 @@ export default function FullPageLayout({
                 {language === 'ko' ? '정기/기습 갤멀 일정을 캘린더로 관리' : 'Manage regular/flash gallery schedules with calendar'}
               </p>
             </div>
-            <div className="bg-gray-900/50 rounded-2xl p-6 border border-green-500/30">
-              <div className="text-4xl mb-4">🏆</div>
-              <h3 className="text-xl font-bold mb-3 text-green-400">리그 운영</h3>
-              <p className="text-gray-300 text-sm">
-                {language === 'ko' ? '정식 리그 시스템으로 공식 레이싱 이벤트 운영' : 'Official racing events with formal league system'}
-              </p>
-            </div>
             <div className="bg-gray-900/50 rounded-2xl p-6 border border-orange-500/30">
               <div className="text-4xl mb-4">🌐</div>
               <h3 className="text-xl font-bold mb-3 text-orange-400">상시 서버</h3>
               <p className="text-gray-300 text-sm">
                 {language === 'ko' ? '24시간 언제든 접속 가능한 상시 운영 서버' : '24/7 always-on server accessible anytime'}
+              </p>
+            </div>
+            <div className="bg-gray-900/50 rounded-2xl p-6 border border-green-500/30">
+              <div className="text-4xl mb-4">🏆</div>
+              <h3 className="text-xl font-bold mb-3 text-green-400">리그 운영</h3>
+              <p className="text-gray-300 text-sm">
+                {language === 'ko' ? '정식 리그 시스템으로 공식 레이싱 이벤트 운영' : 'Official racing events with formal league system'}
               </p>
             </div>
           </div>

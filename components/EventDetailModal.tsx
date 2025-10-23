@@ -81,17 +81,22 @@ export default function EventDetailModal({
         <div className="p-6 overflow-y-auto max-h-[70vh]">
           {/* 통합 이벤트 컨테이너 */}
           <div className="bg-gradient-to-br from-gray-700/90 to-gray-800/90 rounded-2xl p-6 shadow-2xl border border-gray-600 backdrop-blur-sm">
-            {/* 참가신청 섹션 */}
-            <div className="mb-6">
+            {/* Steam 로그인 안내문 */}
+            <div className="mb-4 text-center">
+              <p className="text-gray-400 text-sm">
+                참가 신청 및 트랙 투표를 위해서는 Steam 로그인이 필요합니다
+              </p>
+            </div>
+
+            {/* 모든 버튼들을 한 줄로 배치 */}
+            <div className="flex flex-wrap gap-4 justify-center mb-6">
+              {/* 참가신청 버튼 */}
               <ParticipationButton 
                 eventId={event.id} 
                 isOwner={user && event.author_id === user.id || false}
                 onParticipationChange={fetchParticipantCount}
               />
-            </div>
 
-            {/* 액션 버튼들 */}
-            <div className="flex flex-wrap gap-4 justify-center mb-6">
               {/* 트랙투표 버튼 */}
               {event.voting_enabled && (
                 <button
@@ -118,7 +123,6 @@ export default function EventDetailModal({
                   참가자: {participantCount}명
                 </div>
               )}
-
             </div>
 
             {/* 이벤트 정보 */}
