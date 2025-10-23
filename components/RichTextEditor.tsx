@@ -395,6 +395,7 @@ export default function RichTextEditor({
               textDirection: 'ltr !important'
             }}
             dir="ltr"
+            dangerouslySetInnerHTML={{ __html: value }}
             suppressContentEditableWarning={true}
           />
         )}
