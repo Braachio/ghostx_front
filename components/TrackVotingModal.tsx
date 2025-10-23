@@ -25,10 +25,17 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
   const fetchTrackOptions = useCallback(async () => {
     setLoading(true)
     try {
+      console.log('트랙 옵션 가져오기 시작:', { regularEventId })
       const response = await fetch(`/api/regular-events/${regularEventId}/vote-options`)
+      console.log('트랙 옵션 API 응답:', { status: response.status, ok: response.ok })
+      
       if (response.ok) {
         const data = await response.json()
+        console.log('트랙 옵션 데이터:', data)
         setTrackOptions(data.options || [])
+      } else {
+        const errorData = await response.json()
+        console.error('트랙 옵션 API 오류:', errorData)
       }
     } catch (error) {
       console.error('트랙 옵션 가져오기 실패:', error)
@@ -116,17 +123,17 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
           ) : (
             <div className="space-y-4">
               {trackOptions.map((option) => (
-                <div key={option.id} className="bg-gradient-to-r from-gray-700 to-gray-800 rounded-xl p-6 border border-gray-600 shadow-lg hover:shadow-xl transition-all">
+                <div key={option.id} className="bg-gray-700 rounded-lg p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      <h3 className="text-white font-bold text-xl mb-3">{option.track_name}</h3>
-                      <div className="flex items-center gap-6">
-                        <div className="flex items-center gap-2 bg-gray-600 px-3 py-1 rounded-lg">
-                          <span className="text-gray-300 text-sm">투표수:</span>
-                          <span className="text-white font-bold text-lg">{option.votes}표</span>
+                      <h3 className="text-white font-medium text-lg">{option.track_name}</h3>
+                      <div className="flex items-center gap-4 mt-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-400 text-sm">투표수:</span>
+                          <span className="text-white font-semibold">{option.votes}표</span>
                         </div>
                         {option.user_voted && (
-                          <span className="text-green-400 text-sm font-medium bg-green-900/30 px-3 py-1 rounded-lg">✓ 투표완료</span>
+                          <span className="text-green-400 text-sm font-medium">✓ 투표완료</span>
                         )}
                       </div>
                     </div>
@@ -136,14 +143,12 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
                         <button
                           onClick={() => handleVote(option.id)}
                           disabled={voting}
-                          className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 transition-all font-semibold shadow-lg hover:shadow-blue-500/25 flex items-center gap-2"
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
                         >
-                          <span className="text-lg">🗳️</span>
                           {voting ? '투표 중...' : '투표하기'}
                         </button>
                       ) : (
-                        <span className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg font-semibold flex items-center gap-2">
-                          <span className="text-lg">✅</span>
+                        <span className="px-4 py-2 bg-green-600 text-white rounded-lg">
                           투표완료
                         </span>
                       )}
