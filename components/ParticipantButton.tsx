@@ -156,7 +156,7 @@ export default function ParticipantButton({ eventId }: ParticipantButtonProps) {
             disabled={joining}
             className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors font-semibold"
           >
-            {joining ? '참가신청 중...' : '참가신청하기'}
+            {joining ? '참가신청 중...' : '참가 하기'}
           </button>
         </div>
       )}
