@@ -131,10 +131,6 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
       }
     }
 
-    fetchEvent()
-    fetchParticipantCount()
-  }, [eventId, fetchParticipantCount])
-
   const fetchParticipantCount = useCallback(async () => {
     try {
       const response = await fetch(`/api/multis/${eventId}/participants`)
@@ -146,6 +142,29 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
       console.error('참가자 수 가져오기 실패:', error)
     }
   }, [eventId])
+
+  useEffect(() => {
+    const fetchEvent = async () => {
+      setEventLoading(true)
+      try {
+        const response = await fetch(`/api/multis/${eventId}`)
+        if (response.ok) {
+          const data = await response.json()
+          setEvent(data)
+        } else {
+          setEvent(null)
+        }
+      } catch (error) {
+        console.error('이벤트 정보 가져오기 실패:', error)
+        setEvent(null)
+      } finally {
+        setEventLoading(false)
+      }
+    }
+
+    fetchEvent()
+    fetchParticipantCount()
+  }, [eventId, fetchParticipantCount])
 
   // 이벤트 수정 함수들
   const handleEditStart = () => {

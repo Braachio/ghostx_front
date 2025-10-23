@@ -22,12 +22,6 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
   const [loading, setLoading] = useState(false)
   const [voting, setVoting] = useState(false)
 
-  useEffect(() => {
-    if (isOpen && regularEventId) {
-      fetchTrackOptions()
-    }
-  }, [isOpen, regularEventId, fetchTrackOptions])
-
   const fetchTrackOptions = useCallback(async () => {
     setLoading(true)
     try {
@@ -42,6 +36,12 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
       setLoading(false)
     }
   }, [regularEventId])
+
+  useEffect(() => {
+    if (isOpen && regularEventId) {
+      fetchTrackOptions()
+    }
+  }, [isOpen, regularEventId, fetchTrackOptions])
 
   const handleVote = async (optionId: string) => {
     setVoting(true)

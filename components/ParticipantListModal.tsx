@@ -23,12 +23,6 @@ export default function ParticipantListModal({ isOpen, onClose, eventId, isOwner
   const [loading, setLoading] = useState(false)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (isOpen && eventId) {
-      fetchParticipants()
-    }
-  }, [isOpen, eventId, fetchParticipants])
-
   const fetchParticipants = useCallback(async () => {
     setLoading(true)
     try {
@@ -43,6 +37,12 @@ export default function ParticipantListModal({ isOpen, onClose, eventId, isOwner
       setLoading(false)
     }
   }, [eventId])
+
+  useEffect(() => {
+    if (isOpen && eventId) {
+      fetchParticipants()
+    }
+  }, [isOpen, eventId, fetchParticipants])
 
   const handleStatusChange = async (participantId: string, newStatus: string) => {
     setActionLoading(participantId)

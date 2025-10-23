@@ -43,12 +43,6 @@ export default function EventDetailModal({
   const [showDescriptionModal, setShowDescriptionModal] = useState(false)
   const [participantCount, setParticipantCount] = useState(0)
 
-  useEffect(() => {
-    if (isOpen && event) {
-      fetchParticipantCount()
-    }
-  }, [isOpen, event, fetchParticipantCount])
-
   const fetchParticipantCount = useCallback(async () => {
     if (!event) return
     
@@ -62,6 +56,12 @@ export default function EventDetailModal({
       console.error('참가자 수 가져오기 실패:', error)
     }
   }, [event])
+
+  useEffect(() => {
+    if (isOpen && event) {
+      fetchParticipantCount()
+    }
+  }, [isOpen, event, fetchParticipantCount])
 
   if (!isOpen || !event) return null
 
