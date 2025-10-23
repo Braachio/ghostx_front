@@ -154,8 +154,33 @@ export default function RichTextEditor({
     // 엔터 키 처리 개선
     if (e.key === 'Enter') {
       e.preventDefault()
-      // 단순한 줄바꿈
-      execCommand('insertHTML', '<br>')
+      
+      // 현재 커서 위치에 줄바꿈 삽입
+      const selection = window.getSelection()
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0)
+        const br = document.createElement('br')
+        range.deleteContents()
+        range.insertNode(br)
+        
+        // 커서를 br 다음으로 이동
+        range.setStartAfter(br)
+        range.setEndAfter(br)
+        selection.removeAllRanges()
+        selection.addRange(range)
+      } else {
+        // 선택이 없으면 단순히 br 삽입
+        execCommand('insertHTML', '<br>')
+      }
+      
+      // 텍스트 방향 강제 설정
+      if (editorRef.current) {
+        editorRef.current.style.setProperty('direction', 'ltr', 'important')
+        editorRef.current.style.setProperty('text-align', 'left', 'important')
+        editorRef.current.style.setProperty('unicode-bidi', 'normal', 'important')
+        editorRef.current.style.setProperty('writing-mode', 'horizontal-tb', 'important')
+        editorRef.current.style.setProperty('text-direction', 'ltr', 'important')
+      }
     }
   }
 
