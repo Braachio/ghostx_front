@@ -153,10 +153,10 @@ export default function FullPageLayout({
                 </button>
                 
                 {/* 드롭다운 메뉴 */}
-                <div className="absolute top-full left-0 mt-2 w-64 bg-gray-800 rounded-lg shadow-xl border border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="absolute top-full right-0 mt-2 w-64 bg-gray-800 rounded-lg shadow-xl border border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                   <div className="p-2">
                     <button 
-                      onClick={() => window.open('/events/regular/competizione/chat', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes')}
+                      onClick={() => window.open('/events/regular/competizione/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
                       className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
                     >
                       <span className="text-lg">🏁</span>
@@ -166,7 +166,7 @@ export default function FullPageLayout({
                       </div>
                     </button>
                     <button 
-                      onClick={() => window.open('/events/regular/lemans/chat', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes')}
+                      onClick={() => window.open('/events/regular/lemans/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
                       className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
                     >
                       <span className="text-lg">🏎️</span>
@@ -176,7 +176,7 @@ export default function FullPageLayout({
                       </div>
                     </button>
                     <button 
-                      onClick={() => window.open('/events/regular/iracing/chat', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes')}
+                      onClick={() => window.open('/events/regular/iracing/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
                       className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
                     >
                       <span className="text-lg">🏆</span>
@@ -186,7 +186,7 @@ export default function FullPageLayout({
                       </div>
                     </button>
                     <button 
-                      onClick={() => window.open('/events/regular/assettocorsa/chat', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes')}
+                      onClick={() => window.open('/events/regular/assettocorsa/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
                       className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
                     >
                       <span className="text-lg">🏎️</span>
@@ -196,7 +196,7 @@ export default function FullPageLayout({
                       </div>
                     </button>
                     <button 
-                      onClick={() => window.open('/events/regular/gran-turismo7/chat', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes')}
+                      onClick={() => window.open('/events/regular/gran-turismo7/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
                       className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
                     >
                       <span className="text-lg">🏁</span>
@@ -206,7 +206,7 @@ export default function FullPageLayout({
                       </div>
                     </button>
                     <button 
-                      onClick={() => window.open('/events/regular/automobilista2/chat', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes')}
+                      onClick={() => window.open('/events/regular/automobilista2/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
                       className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
                     >
                       <span className="text-lg">🏎️</span>
@@ -216,7 +216,7 @@ export default function FullPageLayout({
                       </div>
                     </button>
                     <button 
-                      onClick={() => window.open('/events/regular/f1-25/chat', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes')}
+                      onClick={() => window.open('/events/regular/f1-25/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
                       className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
                     >
                       <span className="text-lg">🏁</span>
@@ -226,7 +226,7 @@ export default function FullPageLayout({
                       </div>
                     </button>
                     <button 
-                      onClick={() => window.open('/events/regular/ea-wrc/chat', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes')}
+                      onClick={() => window.open('/events/regular/ea-wrc/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
                       className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
                     >
                       <span className="text-lg">🏎️</span>
