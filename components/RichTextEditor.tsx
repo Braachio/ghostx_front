@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 interface RichTextEditorProps {
   value: string
@@ -22,6 +22,27 @@ export default function RichTextEditor({
   const [editorHeight, setEditorHeight] = useState(200)
   const editorRef = useRef<HTMLDivElement>(null)
 
+  // 컴포넌트 마운트 시 텍스트 방향 강제 설정
+  useEffect(() => {
+    const forceTextDirection = () => {
+      if (editorRef.current) {
+        editorRef.current.style.setProperty('direction', 'ltr', 'important')
+        editorRef.current.style.setProperty('text-align', 'left', 'important')
+        editorRef.current.style.setProperty('unicode-bidi', 'normal', 'important')
+        editorRef.current.style.setProperty('writing-mode', 'horizontal-tb', 'important')
+        editorRef.current.style.setProperty('text-direction', 'ltr', 'important')
+      }
+    }
+
+    // 초기 설정
+    forceTextDirection()
+    
+    // 주기적으로 재설정 (브라우저가 스타일을 덮어쓸 수 있음)
+    const interval = setInterval(forceTextDirection, 100)
+    
+    return () => clearInterval(interval)
+  }, [])
+
   const execCommand = (command: string, value?: string) => {
     if (!editorRef.current) return
     
@@ -38,10 +59,11 @@ export default function RichTextEditor({
     
     // 텍스트 방향 강제 설정
     if (editorRef.current) {
-      editorRef.current.style.direction = 'ltr'
-      editorRef.current.style.textAlign = 'left'
-      editorRef.current.style.unicodeBidi = 'normal'
-      editorRef.current.style.writingMode = 'horizontal-tb'
+      editorRef.current.style.setProperty('direction', 'ltr', 'important')
+      editorRef.current.style.setProperty('text-align', 'left', 'important')
+      editorRef.current.style.setProperty('unicode-bidi', 'normal', 'important')
+      editorRef.current.style.setProperty('writing-mode', 'horizontal-tb', 'important')
+      editorRef.current.style.setProperty('text-direction', 'ltr', 'important')
     }
     
     // 포커스 유지
@@ -113,10 +135,11 @@ export default function RichTextEditor({
   const handleInput = () => {
     if (editorRef.current) {
       // 텍스트 방향 강제 설정
-      editorRef.current.style.direction = 'ltr'
-      editorRef.current.style.textAlign = 'left'
-      editorRef.current.style.unicodeBidi = 'normal'
-      editorRef.current.style.writingMode = 'horizontal-tb'
+      editorRef.current.style.setProperty('direction', 'ltr', 'important')
+      editorRef.current.style.setProperty('text-align', 'left', 'important')
+      editorRef.current.style.setProperty('unicode-bidi', 'normal', 'important')
+      editorRef.current.style.setProperty('writing-mode', 'horizontal-tb', 'important')
+      editorRef.current.style.setProperty('text-direction', 'ltr', 'important')
       
       const content = editorRef.current.innerHTML
       onChange(content)
@@ -312,19 +335,19 @@ export default function RichTextEditor({
             contentEditable
             onInput={handleInput}
             onKeyDown={handleKeyDown}
-            className="p-4 focus:outline-none text-white leading-normal [direction:ltr] [text-align:left] [unicode-bidi:normal] [writing-mode:horizontal-tb]"
+            className="p-4 focus:outline-none text-white leading-normal"
             style={{ 
               minHeight: `${editorHeight}px`,
               fontSize: `${fontSize}px`,
               fontFamily: fontFamily,
-              direction: 'ltr',
-              textAlign: 'left',
-              unicodeBidi: 'normal',
-              writingMode: 'horizontal-tb',
-              textOrientation: 'mixed'
+              direction: 'ltr !important',
+              textAlign: 'left !important',
+              unicodeBidi: 'normal !important',
+              writingMode: 'horizontal-tb !important',
+              textOrientation: 'mixed !important',
+              textDirection: 'ltr !important'
             }}
             dir="ltr"
-            dangerouslySetInnerHTML={{ __html: value }}
             suppressContentEditableWarning={true}
           />
         )}
