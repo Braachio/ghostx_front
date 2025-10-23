@@ -16,7 +16,7 @@ export default function RichTextEditor({
   className = "" 
 }: RichTextEditorProps) {
   const [isPreview, setIsPreview] = useState(false)
-  const [fontSize, setFontSize] = useState('12')
+  const [fontSize, setFontSize] = useState('16')
   const [fontFamily, setFontFamily] = useState('맑은 고딕')
   const [textColor, setTextColor] = useState('#000000')
   const [editorHeight, setEditorHeight] = useState(200)
@@ -195,18 +195,18 @@ export default function RichTextEditor({
           onChange={(e) => changeFontSize(e.target.value)}
           className="px-2 py-1 text-xs border border-gray-600 rounded bg-gray-700 text-white"
         >
-          <option value="8">8</option>
-          <option value="9">9</option>
-          <option value="10">10</option>
-          <option value="11">11</option>
           <option value="12">12</option>
           <option value="14">14</option>
           <option value="16">16</option>
           <option value="18">18</option>
           <option value="20">20</option>
+          <option value="22">22</option>
           <option value="24">24</option>
           <option value="28">28</option>
           <option value="32">32</option>
+          <option value="36">36</option>
+          <option value="40">40</option>
+          <option value="48">48</option>
         </select>
 
         {/* 텍스트 서식 버튼들 */}
