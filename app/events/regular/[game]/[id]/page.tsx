@@ -99,38 +99,6 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
     loadUser()
   }, [eventId])
 
-  // 이벤트 데이터 로드
-  useEffect(() => {
-    const fetchEvent = async () => {
-      if (!eventId) return
-
-      try {
-        console.log('이벤트 로드 시작 - ID:', eventId)
-        setEventLoading(true)
-        const response = await fetch('/api/multis')
-        console.log('이벤트 목록 응답 상태:', response.status)
-        
-        if (response.ok) {
-          const data = await response.json()
-          console.log('이벤트 목록 데이터:', data)
-          const eventData = data.find((e: { id: string }) => e.id === eventId)
-          console.log('찾은 이벤트 데이터:', eventData)
-          
-          if (eventData) {
-            setEvent(eventData)
-          } else {
-            console.log('해당 ID의 이벤트를 찾을 수 없음:', eventId)
-          }
-        } else {
-          console.error('이벤트 목록 로드 실패:', response.status)
-        }
-      } catch (error) {
-        console.error('이벤트 로드 실패:', error)
-      } finally {
-        setEventLoading(false)
-      }
-    }
-
   const fetchParticipantCount = useCallback(async () => {
     try {
       const response = await fetch(`/api/multis/${eventId}/participants`)
@@ -143,8 +111,11 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
     }
   }, [eventId])
 
+  // 이벤트 데이터 로드
   useEffect(() => {
     const fetchEvent = async () => {
+      if (!eventId) return
+
       setEventLoading(true)
       try {
         const response = await fetch(`/api/multis/${eventId}`)
