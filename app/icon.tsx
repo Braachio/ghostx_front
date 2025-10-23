@@ -5,8 +5,8 @@ export const runtime = 'edge'
 
 // Image metadata
 export const size = {
-  width: 64,
-  height: 64,
+  width: 32,
+  height: 32,
 }
 export const contentType = 'image/png'
 
@@ -16,8 +16,8 @@ export default function Icon() {
     (
       <div
         style={{
-          fontSize: 28,
-          background: 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #06b6d4 100%)',
+          fontSize: 24,
+          background: 'linear-gradient(90deg, #1f2937 0%, #111827 100%)',
           width: '100%',
           height: '100%',
           display: 'flex',
@@ -25,10 +25,6 @@ export default function Icon() {
           justifyContent: 'center',
           color: 'white',
           borderRadius: '50%',
-          fontWeight: 'bold',
-          fontFamily: 'system-ui, -apple-system, sans-serif',
-          boxShadow: '0 8px 24px rgba(139, 92, 246, 0.4)',
-          border: '2px solid rgba(255, 255, 255, 0.2)',
         }}
       >
         👻

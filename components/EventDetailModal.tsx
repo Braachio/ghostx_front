@@ -81,12 +81,14 @@ export default function EventDetailModal({
         <div className="p-6 overflow-y-auto max-h-[70vh]">
           {/* 통합 이벤트 컨테이너 */}
           <div className="bg-gradient-to-br from-gray-700/90 to-gray-800/90 rounded-2xl p-6 shadow-2xl border border-gray-600 backdrop-blur-sm">
-            {/* Steam 로그인 안내문 */}
-            <div className="mb-4 text-center">
-              <p className="text-gray-400 text-sm">
-                ⚠️참가 신청 및 트랙 투표를 위해서는 Steam 로그인이 필요합니다
-              </p>
-            </div>
+            {/* Steam 로그인 안내문 (로그인되지 않은 경우만) */}
+            {!user && (
+              <div className="mb-4 text-center">
+                <p className="text-gray-400 text-sm">
+                  ⚠️참가 신청 및 트랙 투표를 위해서는 Steam 로그인이 필요합니다
+                </p>
+              </div>
+            )}
 
             {/* 모든 버튼들을 한 줄로 배치 */}
             <div className="flex flex-wrap gap-4 justify-start mb-6">
