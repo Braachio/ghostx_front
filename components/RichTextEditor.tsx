@@ -18,7 +18,7 @@ export default function RichTextEditor({
   const [isPreview, setIsPreview] = useState(false)
   const [fontSize, setFontSize] = useState('16')
   const [fontFamily, setFontFamily] = useState('맑은 고딕')
-  const [textColor, setTextColor] = useState('#000000')
+  const [textColor, setTextColor] = useState('#ffffff')
   const [editorHeight, setEditorHeight] = useState(200)
   const editorRef = useRef<HTMLDivElement>(null)
 
@@ -247,21 +247,25 @@ export default function RichTextEditor({
 
         {/* 색상 선택 */}
         <div className="flex items-center gap-1">
-          <input
-            type="color"
+          <select
             value={textColor}
             onChange={(e) => changeTextColor(e.target.value)}
-            className="w-6 h-6 border border-gray-300 rounded cursor-pointer"
+            className="px-2 py-1 text-xs border border-gray-600 rounded bg-gray-700 text-white"
             title="글자 색상"
-          />
-          <button
-            type="button"
-            onClick={() => changeTextColor('#ffffff')}
-            className="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded hover:bg-gray-600 text-white"
-            title="기본 색상"
           >
-            가
-          </button>
+            <option value="#ffffff">⚪ 흰색</option>
+            <option value="#ffff00">🟡 노란색</option>
+            <option value="#00ff00">🟢 초록색</option>
+            <option value="#00ffff">🔵 청록색</option>
+            <option value="#ff00ff">🟣 자홍색</option>
+            <option value="#ffa500">🟠 주황색</option>
+            <option value="#ff6b6b">🔴 빨간색</option>
+            <option value="#4ecdc4">🟢 민트색</option>
+            <option value="#45b7d1">🔵 하늘색</option>
+            <option value="#96ceb4">🟢 연두색</option>
+            <option value="#feca57">🟡 황금색</option>
+            <option value="#ff9ff3">🟣 핑크색</option>
+          </select>
         </div>
 
         {/* 테이블 */}
