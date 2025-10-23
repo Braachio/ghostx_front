@@ -11,6 +11,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="ko">
+      <head>
+        <link rel="icon" href="/favicon.ico" />
+      </head>
       <body className="bg-black" suppressHydrationWarning={true}>
         <SessionContextProvider supabaseClient={supabase}>
           {children}
