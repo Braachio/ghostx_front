@@ -14,7 +14,6 @@ export default function ParticipationButton({ eventId, onParticipationChange }: 
   const [isParticipant, setIsParticipant] = useState(false)
   const [joining, setJoining] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [participantCount, setParticipantCount] = useState(0)
 
   useEffect(() => {
     const checkUserAndParticipation = async () => {
@@ -29,15 +28,13 @@ export default function ParticipationButton({ eventId, onParticipationChange }: 
           const response = await fetch(`/api/multis/${eventId}/participants`)
           if (response.ok) {
             const data = await response.json()
-            setParticipantCount(data.total || 0)
             const userParticipant = data.participants?.find((p: { user_id: string }) => p.user_id === user.id)
             setIsParticipant(!!userParticipant)
           }
         } catch (error) {
-          console.error('참가자 수 및 상태 가져오기 실패:', error)
+          console.error('참가자 상태 가져오기 실패:', error)
         }
       } else {
-        setParticipantCount(0)
         setIsParticipant(false)
       }
       setLoading(false)
@@ -112,7 +109,6 @@ export default function ParticipationButton({ eventId, onParticipationChange }: 
   if (!user) {
     return (
       <div className="flex items-center justify-center gap-4">
-        
         <button 
           onClick={() => window.location.href = '/login'}
           className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center gap-2"
@@ -120,7 +116,6 @@ export default function ParticipationButton({ eventId, onParticipationChange }: 
           <span className="text-lg">🔐</span>
           Steam 로그인하기
         </button>
-        
       </div>
     )
   }
@@ -133,7 +128,6 @@ export default function ParticipationButton({ eventId, onParticipationChange }: 
   if (!isSteamUser) {
     return (
       <div className="flex items-center justify-center gap-4">
-
         <button 
           onClick={() => window.location.href = '/login'}
           className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center gap-2"
@@ -141,7 +135,6 @@ export default function ParticipationButton({ eventId, onParticipationChange }: 
           <span className="text-lg">🔐</span>
           Steam 로그인하기
         </button>
-        
       </div>
     )
   }
