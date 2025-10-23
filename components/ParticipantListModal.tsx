@@ -157,6 +157,9 @@ export default function ParticipantListModal({
                     <div>
                       <div className="text-white font-semibold">{participant.nickname}</div>
                       <div className="text-gray-400 text-sm">
+                        Steam ID: {participant.steam_id || '없음'}
+                      </div>
+                      <div className="text-gray-500 text-xs">
                         {new Date(participant.joined_at).toLocaleString('ko-KR', { 
                           dateStyle: 'short', 
                           timeStyle: 'short' 
