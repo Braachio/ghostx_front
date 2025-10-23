@@ -275,9 +275,9 @@ export default function FullPageLayout({
                   calendarSection.scrollIntoView({ behavior: 'smooth' })
                 }
               }}
-              className="relative group overflow-hidden"
+              className="relative group p-2"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-600/20 to-blue-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
+              <div className="absolute inset-2 bg-gradient-to-br from-cyan-600/20 to-blue-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
               <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-cyan-500/40 rounded-2xl p-6 backdrop-blur-sm hover:border-cyan-400/60 transition-all duration-300 hover:scale-105 cursor-pointer">
                 <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">🗓️</div>
                 <h3 className="text-xl font-bold mb-3 text-cyan-400 group-hover:text-cyan-300 transition-colors duration-300">갤멀 일정 관리</h3>
@@ -295,8 +295,8 @@ export default function FullPageLayout({
             </button>
 
             {/* 상시 서버 */}
-            <Link href="/events/always-on" className="relative group overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-green-600/20 to-emerald-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
+            <Link href="/events/always-on" className="relative group p-2">
+              <div className="absolute inset-2 bg-gradient-to-br from-green-600/20 to-emerald-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
               <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-green-500/40 rounded-2xl p-6 backdrop-blur-sm hover:border-green-400/60 transition-all duration-300 hover:scale-105 cursor-pointer">
                 <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">🌐</div>
                 <h3 className="text-xl font-bold mb-3 text-green-400 group-hover:text-green-300 transition-colors duration-300">상시 서버</h3>
@@ -314,8 +314,8 @@ export default function FullPageLayout({
             </Link>
 
             {/* 리그 운영 */}
-            <Link href="/events/league" className="relative group overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
+            <Link href="/events/league" className="relative group p-2">
+              <div className="absolute inset-2 bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
               <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-purple-500/40 rounded-2xl p-6 backdrop-blur-sm hover:border-purple-400/60 transition-all duration-300 hover:scale-105 cursor-pointer">
                 <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">🏆</div>
                 <h3 className="text-xl font-bold mb-3 text-purple-400 group-hover:text-purple-300 transition-colors duration-300">리그 운영</h3>
