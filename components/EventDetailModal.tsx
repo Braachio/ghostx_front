@@ -119,16 +119,6 @@ export default function EventDetailModal({
                 </div>
               )}
 
-              {/* 상세정보 버튼 */}
-              {event.description && (
-                <button
-                  onClick={() => setShowDescriptionModal(true)}
-                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all font-semibold shadow-lg hover:shadow-purple-500/25 flex items-center gap-2"
-                >
-                  <span className="text-lg">📋</span>
-                  상세정보
-                </button>
-              )}
             </div>
 
             {/* 이벤트 정보 */}
@@ -145,7 +135,7 @@ export default function EventDetailModal({
                 
                  {/* 조회수 표시 */}
                  <div className="text-right">
-                   <div className="text-gray-400 text-sm">
+                   <div className="text-gray-500 text-sm">
                      조회 {event.views !== undefined ? event.views.toLocaleString() : '0'}
                    </div>
                  </div>
@@ -154,22 +144,22 @@ export default function EventDetailModal({
               {/* 기본 정보 그리드 */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-                  <p className="text-gray-400 text-sm mb-1">트랙</p>
+                  <p className="text-gray-400 text-sm mb-1">🏁트랙</p>
                   <p className="text-white font-medium">{event.game_track || 'TBD'}</p>
                 </div>
                 
                 <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-                  <p className="text-gray-400 text-sm mb-1">클래스</p>
+                  <p className="text-gray-400 text-sm mb-1">🏎️클래스</p>
                   <p className="text-white font-medium">{event.multi_class || 'TBD'}</p>
                 </div>
                 
                 <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-                  <p className="text-gray-400 text-sm mb-1">시작 시간</p>
+                  <p className="text-gray-400 text-sm mb-1">🕗시작 시간</p>
                   <p className="text-white font-medium">{event.multi_time || 'TBD'}</p>
                 </div>
                 
                 <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-                  <p className="text-gray-400 text-sm mb-1">지속시간</p>
+                  <p className="text-gray-400 text-sm mb-1">⏰지속시간</p>
                   <p className="text-white font-medium">{event.duration_hours ? `${event.duration_hours}시간` : 'TBD'}</p>
                 </div>
               </div>
@@ -177,7 +167,19 @@ export default function EventDetailModal({
           </div>
         </div>
 
-        <div className="flex items-center justify-end p-6 border-t border-gray-700">
+        <div className="flex items-center justify-between p-6 border-t border-gray-700">
+          {/* 상세정보 버튼 (왼쪽) */}
+          {event.description && (
+            <button
+              onClick={() => setShowDescriptionModal(true)}
+              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all font-semibold shadow-lg hover:shadow-purple-500/25 flex items-center gap-2"
+            >
+              <span className="text-lg">📋</span>
+              상세정보
+            </button>
+          )}
+          
+          {/* 닫기 버튼 (오른쪽) */}
           <button
             onClick={onClose}
             className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-semibold"
