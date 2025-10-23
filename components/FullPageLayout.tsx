@@ -142,10 +142,11 @@ export default function FullPageLayout({
               </span>
             </Link>
 
-            {/* 채팅 채널 드롭다운 */}
-            <div className="hidden md:flex items-center gap-3">
+            {/* 네비게이션 메뉴 */}
+            <div className="hidden md:flex items-center gap-8">
+              {/* 채팅 채널 드롭다운 */}
               <div className="relative group">
-                <button className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg shadow-green-500/30 flex items-center gap-2">
+                <button className="text-white text-sm font-medium hover:text-cyan-400 transition-colors flex items-center gap-2">
                   💬 채팅 채널
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -153,7 +154,7 @@ export default function FullPageLayout({
                 </button>
                 
                 {/* 드롭다운 메뉴 */}
-                <div className="absolute top-full right-0 mt-2 w-64 bg-gray-800 rounded-lg shadow-xl border border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="absolute top-full left-0 mt-2 w-64 bg-gray-800 rounded-lg shadow-xl border border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                   <div className="p-2">
                     <button 
                       onClick={() => window.open('/events/regular/competizione/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
@@ -241,7 +242,7 @@ export default function FullPageLayout({
             </div>
 
             {/* 사용자 메뉴 */}
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-6">
               {user ? (
                 <>
 
@@ -250,13 +251,13 @@ export default function FullPageLayout({
                     <>
                       <Link
                         href="/events/regular/new"
-                        className="px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all shadow-lg shadow-blue-500/30"
+                        className="text-white text-sm font-medium hover:text-cyan-400 transition-colors"
                       >
                         📅 정기 갤멀 생성
                       </Link>
                       <Link
                         href="/multis/new"
-                        className="px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white text-sm font-medium rounded-lg hover:from-orange-700 hover:to-red-700 transition-all shadow-lg shadow-orange-500/30"
+                        className="text-white text-sm font-medium hover:text-orange-400 transition-colors"
                       >
                         ⚡ 기습 갤멀 생성
                       </Link>
@@ -264,17 +265,17 @@ export default function FullPageLayout({
                   ) : (
                     <Link
                       href="/multis/new"
-                      className="px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white text-sm font-medium rounded-lg hover:from-orange-700 hover:to-red-700 transition-all shadow-lg shadow-orange-500/30"
+                      className="text-white text-sm font-medium hover:text-orange-400 transition-colors"
                     >
                       ⚡ 기습 갤멀 생성
                     </Link>
                   )}
-                  <span className="text-sm bg-gray-800/50 px-3 py-2 rounded-lg border border-gray-700 text-cyan-400">
+                  <span className="text-sm text-cyan-400">
                     👤 {t[language].welcome(user.nickname)}
                   </span>
                   <button
                     onClick={onLogout}
-                    className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white text-sm font-medium rounded-lg hover:from-red-700 hover:to-red-800 transition-all shadow-lg shadow-red-500/30"
+                    className="text-white text-sm font-medium hover:text-red-400 transition-colors"
                   >
                     {t[language].logout}
                   </button>
@@ -282,7 +283,7 @@ export default function FullPageLayout({
               ) : (
                 <Link
                   href="/login"
-                  className="px-6 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-sm font-medium rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all shadow-lg shadow-cyan-500/50"
+                  className="text-white text-sm font-medium hover:text-cyan-400 transition-colors"
                 >
                   {t[language].getStarted}
                 </Link>
