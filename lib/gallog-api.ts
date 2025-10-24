@@ -386,6 +386,27 @@ export class GallogApi {
       password: '1234'
     })
   }
+
+  /**
+   * 갤로그 API 연결 테스트
+   */
+  async testConnection(gallogId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      console.log(`갤로그 API 연결 테스트: ${gallogId}`)
+      
+      // 테스트 메시지 전송
+      const testMessage = `테스트 메시지 - ${new Date().toLocaleString('ko-KR')}`
+      const result = await this.sendVisitMessage(gallogId, testMessage, { isSecret: true })
+      
+      return result
+    } catch (error) {
+      console.error('갤로그 API 테스트 실패:', error)
+      return {
+        success: false,
+        error: `갤로그 API 테스트 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`
+      }
+    }
+  }
 }
 
 // 갤로그 API 인스턴스 생성
