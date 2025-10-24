@@ -100,16 +100,13 @@ export class GallogApi {
   }): Promise<{ success: boolean; error?: string }> {
     try {
       // 갤로그 방명록 작성 API 엔드포인트 (갤로그 전용 API)
-      const url = `https://gall.dcinside.com/board/visit`
+      const url = `https://gallog.dcinside.com/${gallogId}/guestbook`
       
       // 갤로그 방명록 작성 시 사용되는 폼 데이터 구조
       const formData = new URLSearchParams()
-      formData.append('id', 'simracing') // 갤러리 ID
-      formData.append('no', gallogId) // 갤로그 식별 코드
-      formData.append('comment', message) // 방명록 내용
+      formData.append('memo', message) // 방명록 내용
       formData.append('password', options.password || '1234') // 방명록 비밀번호
-      formData.append('secret', options.isSecret ? '1' : '0') // 비밀글 여부
-      formData.append('mode', 'write') // 작성 모드
+      formData.append('is_secret', options.isSecret ? '1' : '0') // 비밀글 여부
 
       console.log('API 방식 - 갤로그 방명록 전송 시도:', {
         gallogId,
@@ -124,7 +121,7 @@ export class GallogApi {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
           'User-Agent': this.config.userAgent,
-          'Referer': `https://gallog.dcinside.com/board/visit/${gallogId}`,
+          'Referer': `https://gallog.dcinside.com/${gallogId}/guestbook`,
           'Origin': 'https://gallog.dcinside.com',
           'Cookie': this.config.sessionCookie || '',
           'X-Requested-With': 'XMLHttpRequest'
