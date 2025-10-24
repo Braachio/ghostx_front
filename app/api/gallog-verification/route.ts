@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
       console.error('갤로그 인증 코드 생성 오류:', error)
       return NextResponse.json({ 
         error: `인증 코드 생성에 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}` 
-      }, { status: 500 })
+      }, { status: 500 });
     }
 
   } catch (error) {
