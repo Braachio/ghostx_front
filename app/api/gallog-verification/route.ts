@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
           if (insertError.message.includes('does not exist')) {
             return NextResponse.json({ 
               error: '갤로그 인증 테이블이 존재하지 않습니다. 관리자에게 문의하세요.' 
-            }, { status: 500 })
+            }, { status: 500 });
           }
         }
 
