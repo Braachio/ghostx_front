@@ -103,6 +103,12 @@ export async function POST(req: NextRequest) {
             '3. 아래 입력란에 인증 코드를 입력하세요'
           ]
         });
+      } else {
+        console.error('갤로그 방명록 전송 실패:', gallogResult.error)
+        return NextResponse.json({ 
+          error: `갤로그 방명록 전송에 실패했습니다: ${gallogResult.error}` 
+        }, { status: 500 });
+      }
     } catch (error) {
       console.error('갤로그 인증 코드 생성 오류:', error)
       return NextResponse.json({ 
