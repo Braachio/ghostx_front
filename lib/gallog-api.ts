@@ -237,12 +237,12 @@ export class GallogApi {
       try {
         // 1차 시도: 일반적인 셀렉터
         commentElement = await page.waitForSelector('textarea[name="comment"], input[name="comment"]', { timeout: 5000 })
-      } catch (error) {
+      } catch {
         console.log('1차 셀렉터 실패, 2차 시도...')
         try {
           // 2차 시도: 갤로그 특화 셀렉터
           commentElement = await page.waitForSelector('textarea, input[type="text"]', { timeout: 5000 })
-        } catch (error2) {
+        } catch {
           console.log('2차 셀렉터 실패, 3차 시도...')
           // 3차 시도: 더 넓은 범위의 셀렉터
           commentElement = await page.waitForSelector('textarea, input', { timeout: 5000 })

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 
 interface Application {
@@ -40,7 +40,7 @@ export default function EventManagerApplicationsPage() {
     fetchApplications()
   }, [selectedStatus, fetchApplications])
 
-  const fetchApplications = async () => {
+  const fetchApplications = useCallback(async () => {
     try {
       const response = await fetch(`/api/event-manager-applications?status=${selectedStatus}`)
       if (response.ok) {
@@ -54,7 +54,7 @@ export default function EventManagerApplicationsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [selectedStatus])
 
   const handleReview = async (applicationId: string, status: 'approved' | 'rejected') => {
     setIsReviewing(true)

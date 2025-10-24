@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import EventManagerApplicationForm from 'components/EventManagerApplicationForm'
 
@@ -26,7 +26,7 @@ export default function EventManagerApplicationPage() {
     checkUserAndApplication()
   }, [checkUserAndApplication])
 
-  const checkUserAndApplication = async () => {
+  const checkUserAndApplication = useCallback(async () => {
     try {
       // 사용자 정보 확인
       const userResponse = await fetch('/api/me')
@@ -61,7 +61,7 @@ export default function EventManagerApplicationPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [router])
 
   const [message, setMessage] = useState('')
 
