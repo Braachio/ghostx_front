@@ -113,7 +113,11 @@ export class GallogApi {
         url,
         formDataString: formData.toString(),
         hasSessionCookie: !!this.config.sessionCookie,
-        cookieLength: this.config.sessionCookie?.length || 0
+        cookieLength: this.config.sessionCookie?.length || 0,
+        cookiePreview: this.config.sessionCookie?.substring(0, 100) + '...' || 'undefined',
+        cookieContainsPHPSESSID: this.config.sessionCookie?.includes('PHPSESSID') || false,
+        cookieContainsPHPSESSKEY: this.config.sessionCookie?.includes('PHPSESSKEY') || false,
+        cookieContainsGID: this.config.sessionCookie?.includes('GID') || false
       })
 
       const response = await fetch(url, {
@@ -131,7 +135,8 @@ export class GallogApi {
 
       console.log('API 방식 - 갤로그 API 응답:', {
         status: response.status,
-        statusText: response.statusText
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries())
       })
 
       if (response.ok) {
@@ -148,6 +153,14 @@ export class GallogApi {
           }
         }
       } else {
+        // 에러 응답 내용도 로깅
+        const errorText = await response.text()
+        console.log('API 방식 - 갤로그 API 에러 응답:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorContent: errorText.substring(0, 500)
+        })
+        
         // 403 Forbidden의 경우 로그인 문제일 가능성
         if (response.status === 403) {
           return { 
