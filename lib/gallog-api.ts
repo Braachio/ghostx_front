@@ -101,13 +101,16 @@ export class GallogApi {
   }): Promise<{ success: boolean; error?: string }> {
     try {
       // 갤로그 방명록 작성 API 엔드포인트 (갤로그 전용 API)
-      const url = `https://gallog.dcinside.com/${gallogId}/guestbook`
+      const url = `https://gallog.dcinside.com/board/visit`
       
       // 갤로그 방명록 작성 시 사용되는 폼 데이터 구조
       const formData = new URLSearchParams()
-      formData.append('memo', message) // 방명록 내용
+      formData.append('id', 'simracing') // 갤러리 ID
+      formData.append('no', gallogId) // 갤로그 식별 코드
+      formData.append('comment', message) // 방명록 내용
       formData.append('password', options.password || '1234') // 방명록 비밀번호
-      formData.append('is_secret', options.isSecret ? '1' : '0') // 비밀글 여부
+      formData.append('secret', options.isSecret ? '1' : '0') // 비밀글 여부
+      formData.append('mode', 'write') // 작성 모드
 
       console.log('API 방식 - 갤로그 방명록 전송 시도:', {
         gallogId,
@@ -124,7 +127,7 @@ export class GallogApi {
       const requestHeaders = {
         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
         'User-Agent': this.config.userAgent,
-        'Referer': `https://gallog.dcinside.com/${gallogId}/guestbook`,
+        'Referer': `https://gallog.dcinside.com/board/visit/${gallogId}`,
         'Origin': 'https://gallog.dcinside.com',
         'Cookie': this.config.sessionCookie || '',
         'X-Requested-With': 'XMLHttpRequest',
@@ -272,9 +275,29 @@ export class GallogApi {
         await page.setCookie(...cookies)
       }
       
-      // 갤로그 방명록 페이지로 이동
+      // 갤로그 방명록 페이지로 이동 (프레임 분리 에러 방지)
       const url = `https://gallog.dcinside.com/${gallogId}/guestbook`
-      await page.goto(url, { waitUntil: 'networkidle2' })
+      
+      // 재시도 로직으로 프레임 분리 에러 방지
+      let retryCount = 0
+      const maxRetries = 3
+      
+      while (retryCount < maxRetries) {
+        try {
+          await page.goto(url, { 
+            waitUntil: 'domcontentloaded',
+            timeout: 30000
+          })
+          break
+        } catch (error) {
+          retryCount++
+          console.log(`페이지 로딩 재시도 ${retryCount}/${maxRetries}:`, error)
+          if (retryCount >= maxRetries) {
+            throw error
+          }
+          await new Promise(resolve => setTimeout(resolve, 2000))
+        }
+      }
       
       console.log('웹 스크래핑 방식 - 갤로그 페이지 로드 완료:', url)
       
