@@ -12,11 +12,13 @@
   "build": {
     "env": {
       "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD": "false",
-      "PUPPETEER_CACHE_DIR": "/tmp/.cache/puppeteer"
+      "PUPPETEER_CACHE_DIR": "/tmp/.cache/puppeteer",
+      "PUPPETEER_EXECUTABLE_PATH": "/tmp/.cache/puppeteer/chrome/linux-141.0.7390.122/chrome-linux64/chrome"
     }
   },
   "env": {
     "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD": "false",
-    "PUPPETEER_CACHE_DIR": "/tmp/.cache/puppeteer"
+    "PUPPETEER_CACHE_DIR": "/tmp/.cache/puppeteer",
+    "PUPPETEER_EXECUTABLE_PATH": "/tmp/.cache/puppeteer/chrome/linux-141.0.7390.122/chrome-linux64/chrome"
   }
 }

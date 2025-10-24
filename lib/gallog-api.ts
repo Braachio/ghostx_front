@@ -63,21 +63,16 @@ export class GallogApi {
       isSecret: options.isSecret
     })
 
-    // Vercel 환경에서는 웹 스크래핑 건너뛰기
-    if (process.env.VERCEL) {
-      console.log('Vercel 환경 감지: 웹 스크래핑 건너뛰고 API 방식만 사용')
-    } else {
-      // 1단계: 웹 스크래핑 방식 우선 시도 (로컬 환경에서만)
-      console.log('1단계: 웹 스크래핑 방식 시도')
-      const scrapingResult = await this.tryWebScrapingMethod(gallogId, message, options)
-      
-      if (scrapingResult.success) {
-        console.log('✅ 웹 스크래핑 방식 성공')
-        return { ...scrapingResult, method: 'WebScraping' }
-      }
-      
-      console.log('❌ 웹 스크래핑 방식 실패:', scrapingResult.error)
+    // 1단계: 웹 스크래핑 방식 우선 시도 (로컬과 Vercel 모두)
+    console.log('1단계: 웹 스크래핑 방식 시도')
+    const scrapingResult = await this.tryWebScrapingMethod(gallogId, message, options)
+    
+    if (scrapingResult.success) {
+      console.log('✅ 웹 스크래핑 방식 성공')
+      return { ...scrapingResult, method: 'WebScraping' }
     }
+    
+    console.log('❌ 웹 스크래핑 방식 실패:', scrapingResult.error)
     
     console.log('2단계: API 방식으로 전환')
     
@@ -228,11 +223,31 @@ export class GallogApi {
         isSecret: options.isSecret
       })
 
+      // Vercel 환경에서 Chrome 경로 설정
+      const launchOptions = {
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-accelerated-2d-canvas',
+          '--no-first-run',
+          '--no-zygote',
+          '--single-process',
+          '--disable-gpu'
+        ]
+      }
+
+      // Vercel 환경에서 Chrome 경로 설정
+      if (process.env.VERCEL) {
+        launchOptions.executablePath = '/tmp/.cache/puppeteer/chrome/linux-141.0.7390.122/chrome-linux64/chrome'
+        console.log('Vercel 환경: Chrome 경로 설정:', launchOptions.executablePath)
+      }
+
+      console.log('웹 스크래핑 방식 - 브라우저 실행 옵션:', launchOptions)
+
       // 브라우저 실행
-      browser = await puppeteer.launch({
-        headless: true, // 헤드리스 모드
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
-      })
+      browser = await puppeteer.launch(launchOptions)
       
       const page = await browser.newPage()
       
