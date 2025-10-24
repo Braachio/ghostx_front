@@ -22,7 +22,9 @@ export class GallogApi {
   constructor(config?: Partial<GallogApiConfig>) {
     this.config = {
       baseUrl: 'https://gall.dcinside.com',
-      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      userAgent: process.env.VERCEL 
+        ? 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
       sessionCookie: process.env.DCINSIDE_SESSION_COOKIE,
       ...config
     }
@@ -34,7 +36,11 @@ export class GallogApi {
       cookiePreview: this.config.sessionCookie?.substring(0, 50) + '...' || 'undefined',
       environment: process.env.VERCEL ? 'Vercel' : 'Local',
       cookieContainsPHPSESSID: this.config.sessionCookie?.includes('PHPSESSID') || false,
-      cookieContainsPHPSESSKEY: this.config.sessionCookie?.includes('PHPSESSKEY') || false
+      cookieContainsPHPSESSKEY: this.config.sessionCookie?.includes('PHPSESSKEY') || false,
+      rawEnvVar: process.env.DCINSIDE_SESSION_COOKIE ? 'EXISTS' : 'MISSING',
+      envVarLength: process.env.DCINSIDE_SESSION_COOKIE?.length || 0,
+      nodeEnv: process.env.NODE_ENV,
+      vercelEnv: process.env.VERCEL_ENV
     })
   }
 
@@ -120,16 +126,31 @@ export class GallogApi {
         cookieContainsGID: this.config.sessionCookie?.includes('GID') || false
       })
 
+      const requestHeaders = {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'User-Agent': this.config.userAgent,
+        'Referer': `https://gallog.dcinside.com/${gallogId}/guestbook`,
+        'Origin': 'https://gallog.dcinside.com',
+        'Cookie': this.config.sessionCookie || '',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'ko-KR,ko;q=0.9,en;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1'
+      }
+
+      console.log('API 방식 - 갤로그 API 요청 상세:', {
+        url,
+        method: 'POST',
+        headers: requestHeaders,
+        bodyLength: Buffer.from(formData.toString(), 'utf8').length,
+        environment: process.env.VERCEL ? 'Vercel' : 'Local'
+      })
+
       const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-          'User-Agent': this.config.userAgent,
-          'Referer': `https://gallog.dcinside.com/${gallogId}/guestbook`,
-          'Origin': 'https://gallog.dcinside.com',
-          'Cookie': this.config.sessionCookie || '',
-          'X-Requested-With': 'XMLHttpRequest'
-        },
+        headers: requestHeaders,
         body: Buffer.from(formData.toString(), 'utf8')
       })
 
