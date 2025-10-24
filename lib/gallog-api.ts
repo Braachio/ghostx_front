@@ -84,7 +84,7 @@ export class GallogApi {
     console.log('❌ API 방식도 실패:', apiResult.error)
     return { 
       success: false, 
-      error: `모든 방식 실패 - WebScraping: ${scrapingResult.error}, API: ${apiResult.error}`,
+      error: `API 방식 실패: ${apiResult.error}`,
       method: 'Failed'
     }
   }
