@@ -245,7 +245,6 @@ export class GallogApi {
       if (process.env.VERCEL) {
         // Vercel 환경 - 동적으로 Chrome 경로 찾기
         const fs = await import('fs')
-        const path = await import('path')
         
         const possiblePaths = [
           '/tmp/.cache/puppeteer/chrome/linux-141.0.7390.122/chrome-linux64/chrome',
