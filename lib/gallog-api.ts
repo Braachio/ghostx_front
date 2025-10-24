@@ -45,8 +45,8 @@ export class GallogApi {
   }
 
   /**
-   * 갤로그 방명록에 메시지 전송 (수동 방식)
-   * 웹 스크래핑이 불안정하므로 사용자가 직접 작성하도록 안내
+   * 갤로그 방명록에 메시지 전송 (자동 방식)
+   * 개선된 웹 스크래핑 방식 사용
    * @param gallogId 갤로그 식별 코드 (예: comic1164)
    * @param message 전송할 메시지
    * @param options 추가 옵션
@@ -56,23 +56,27 @@ export class GallogApi {
     isSecret?: boolean
   } = {}): Promise<{ success: boolean; error?: string; method?: string }> {
     
-    console.log('갤로그 방명록 전송 (수동 방식):', {
+    console.log('갤로그 방명록 전송 (자동 방식):', {
       gallogId,
       message: message.substring(0, 50) + '...',
       isSecret: options.isSecret
     })
 
-    // 수동 방식으로 변경 - 사용자가 직접 갤로그에 작성
+    // 개선된 웹 스크래핑 방식 시도
+    console.log('자동 웹 스크래핑 방식 시도')
+    const scrapingResult = await this.tryWebScrapingMethod(gallogId, message, options)
+    
+    if (scrapingResult.success) {
+      console.log('✅ 자동 웹 스크래핑 방식 성공')
+      return { ...scrapingResult, method: 'Auto' }
+    }
+    
+    console.log('❌ 자동 웹 스크래핑 방식 실패:', scrapingResult.error)
+    
     return { 
-      success: true, 
-      method: 'Manual',
-      instructions: [
-        `1. https://gallog.dcinside.com/${gallogId}/guestbook 에 접속하세요`,
-        `2. 방명록에 다음 메시지를 작성하세요:`,
-        `   ${message}`,
-        options.isSecret ? '3. 비밀글로 설정하세요' : '3. 공개글로 작성하세요',
-        '4. 작성 완료 후 인증 코드를 입력하세요'
-      ]
+      success: false, 
+      error: `자동 전송 실패: ${scrapingResult.error}`,
+      method: 'Failed'
     }
   }
 
@@ -207,7 +211,7 @@ export class GallogApi {
         isSecret: options.isSecret
       })
 
-      // Vercel 환경에서 Chrome 경로 설정
+      // 개선된 Chrome 실행 옵션
       const launchOptions = {
         headless: true,
         args: [
@@ -217,8 +221,23 @@ export class GallogApi {
           '--disable-accelerated-2d-canvas',
           '--no-first-run',
           '--no-zygote',
-          '--single-process',
-          '--disable-gpu'
+          '--disable-gpu',
+          '--disable-web-security',
+          '--disable-features=VizDisplayCompositor',
+          '--disable-background-timer-throttling',
+          '--disable-backgrounding-occluded-windows',
+          '--disable-renderer-backgrounding',
+          '--disable-extensions',
+          '--disable-plugins',
+          '--disable-default-apps',
+          '--disable-sync',
+          '--disable-translate',
+          '--hide-scrollbars',
+          '--mute-audio',
+          '--no-default-browser-check',
+          '--no-pings',
+          '--password-store=basic',
+          '--use-mock-keychain'
         ]
       }
 
@@ -273,17 +292,32 @@ export class GallogApi {
             console.log('쿠키 설정 완료')
           }
           
-          // 페이지 로딩
+          // 페이지 로딩 (더 안정적인 방식)
           console.log('페이지 로딩 시작:', url)
+          
+          // 페이지 로딩 전 대기
+          await new Promise(resolve => setTimeout(resolve, 1000))
+          
           await page.goto(url, { 
-            waitUntil: 'domcontentloaded',
-            timeout: 30000
+            waitUntil: 'networkidle0',
+            timeout: 60000
           })
+          
+          // 추가 대기 시간
+          await new Promise(resolve => setTimeout(resolve, 2000))
           
           // 페이지 로딩 확인
           const pageTitle = await page.title()
-          console.log('페이지 로딩 완료, 제목:', pageTitle)
-          break
+          const currentUrl = page.url()
+          console.log('페이지 로딩 완료:', { title: pageTitle, url: currentUrl })
+          
+          // 페이지가 정상적으로 로드되었는지 확인
+          if (currentUrl.includes('gallog.dcinside.com')) {
+            console.log('갤로그 페이지 로딩 성공')
+            break
+          } else {
+            throw new Error(`잘못된 페이지로 리다이렉트됨: ${currentUrl}`)
+          }
           
         } catch (error) {
           retryCount++
