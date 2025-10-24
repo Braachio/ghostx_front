@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { Database } from 'lib/database.types'
+import { GallogApi } from '../../../lib/gallog-api'
 
 // POST - 갤로그 API 테스트
 export async function POST(req: NextRequest) {
@@ -39,8 +40,6 @@ export async function POST(req: NextRequest) {
 
     // 갤로그 API 테스트
     try {
-      const { GallogApi } = await import('../../../lib/gallog-api')
-      
       console.log('갤로그 API 테스트 시작:', test_nickname, test_gallog_id)
       
       // 갤로그 API 인스턴스 생성 (환경 변수 자동 로드)

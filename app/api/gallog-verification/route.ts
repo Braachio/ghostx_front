@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { Database } from 'lib/database.types'
+import { GallogApi } from '../../../lib/gallog-api'
 
 // POST - 갤로그 방명록에 인증 코드 전송
 export async function POST(req: NextRequest) {
@@ -61,9 +62,6 @@ export async function POST(req: NextRequest) {
     
     // 실제 갤로그 API 연동
     try {
-      // 갤로그 API 모듈 import
-      const { GallogApi } = await import('../../../lib/gallog-api')
-      
       console.log(`갤로그 방명록 전송 시도: ${gallery_nickname}에게 ${verificationCode} 전송`)
       
       // 갤로그 API 인스턴스 생성 (환경 변수 자동 로드)
