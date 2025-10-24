@@ -38,6 +38,8 @@ interface ProfileData {
   recentGames: SteamGame[]
   totalGames: number
   totalPlaytime: number
+  gallery_nickname?: string
+  gallery_gallog_id?: string
 }
 
 export default function ProfilePage() {
@@ -313,6 +315,39 @@ export default function ProfilePage() {
                     </div>
                   )}
                 </div>
+                
+                {/* 갤로그 정보 표시 */}
+                {(profileData.gallery_nickname || profileData.gallery_gallog_id) && (
+                  <div className="mb-4 p-4 bg-gradient-to-r from-cyan-900/30 to-blue-900/30 border border-cyan-500/30 rounded-lg">
+                    <h3 className="text-lg font-semibold text-cyan-400 mb-2">🎮 갤로그 정보</h3>
+                    <div className="flex flex-wrap gap-4 text-sm">
+                      {profileData.gallery_nickname && (
+                        <div className="bg-gray-800/50 px-3 py-1 rounded-lg border border-gray-700">
+                          <span className="text-gray-400">갤러리 닉네임:</span>{' '}
+                          <span className="text-cyan-400 font-semibold">{profileData.gallery_nickname}</span>
+                        </div>
+                      )}
+                      {profileData.gallery_gallog_id && (
+                        <div className="bg-gray-800/50 px-3 py-1 rounded-lg border border-gray-700">
+                          <span className="text-gray-400">갤로그 ID:</span>{' '}
+                          <span className="text-blue-400 font-mono">{profileData.gallery_gallog_id}</span>
+                        </div>
+                      )}
+                    </div>
+                    {profileData.gallery_gallog_id && (
+                      <a
+                        href={`https://gallog.dcinside.com/${profileData.gallery_gallog_id}/guestbook`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 mt-3 px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 rounded-lg transition-all text-white text-sm font-semibold"
+                      >
+                        <span>갤로그 방명록 보기</span>
+                        <span className="text-lg">→</span>
+                      </a>
+                    )}
+                  </div>
+                )}
+                
                 <a
                   href={profile.profileUrl}
                   target="_blank"

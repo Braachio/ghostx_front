@@ -47,10 +47,10 @@ export async function GET() {
       )
     }
 
-    // 사용자 프로필에서 Steam ID 가져오기
+    // 사용자 프로필에서 Steam ID와 갤로그 정보 가져오기
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('steam_id')
+      .select('steam_id, gallery_nickname, gallery_gallog_id')
       .eq('id', session.user.id)
       .single()
 
@@ -154,6 +154,8 @@ export async function GET() {
       })),
       totalRacingGames: racingGames.length,
       totalRacingPlaytime: racingGames.reduce((sum, game) => sum + game.playtime_forever, 0),
+      gallery_nickname: profile.gallery_nickname,
+      gallery_gallog_id: profile.gallery_gallog_id,
     })
   } catch (error) {
     console.error('Steam profile fetch error:', error)

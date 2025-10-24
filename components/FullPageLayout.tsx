@@ -536,23 +536,26 @@ export default function FullPageLayout({
               </Link>
             )}
 
-            {/* 추가 정보 카드 */}
-            <div className="bg-gradient-to-br from-gray-900/95 to-black/95 border border-gray-500/40 rounded-2xl p-8 backdrop-blur-sm">
-              <div className="text-center">
-                <div className="text-6xl mb-6">🚀</div>
-                <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-                  {language === 'ko' ? '빠른 시작' : 'Quick Start'}
-                </h3>
-                <p className="text-gray-300 text-lg leading-relaxed mb-6">
-                  {language === 'ko' ? '키보드 화살표로 섹션 간 이동이 가능합니다' : 'Use arrow keys to navigate between sections'}
-                </p>
-                <div className="space-y-2 text-sm text-gray-400">
-                  <div>⬆️⬇️ 섹션 이동</div>
-                  <div>🏠 홈으로</div>
-                  <div>🔚 끝으로</div>
+            {/* 빵장 신청 카드 */}
+            {user && user.role !== 'admin' && user.role !== 'event_manager' && (
+              <Link href="/event-manager-application" className="group">
+                <div className="bg-gradient-to-br from-orange-900/95 to-red-900/95 border border-orange-500/40 rounded-2xl p-8 backdrop-blur-sm hover:border-orange-400/60 transition-all duration-300 hover:scale-105">
+                  <div className="text-center">
+                    <div className="text-6xl mb-6">🍞</div>
+                    <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
+                      빵장 신청
+                    </h3>
+                    <p className="text-gray-300 text-lg leading-relaxed mb-6">
+                      {language === 'ko' ? '커뮤니티 이벤트를 관리하고 운영하는 빵장이 되어보세요' : 'Become a community event manager'}
+                    </p>
+                    <div className="inline-block px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
+                      신청하기 →
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </Link>
+            )}
+
           </div>
         </div>
       </section>
