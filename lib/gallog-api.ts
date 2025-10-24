@@ -45,9 +45,8 @@ export class GallogApi {
   }
 
   /**
-   * 갤로그 방명록에 메시지 전송 (하이브리드 방식)
-   * 1. API 방식 우선 시도
-   * 2. 실패 시 웹 스크래핑 방식으로 폴백
+   * 갤로그 방명록에 메시지 전송 (웹 스크래핑 방식)
+   * 갤로그는 공개 API가 없으므로 웹 스크래핑만 사용
    * @param gallogId 갤로그 식별 코드 (예: comic1164)
    * @param message 전송할 메시지
    * @param options 추가 옵션
@@ -57,14 +56,14 @@ export class GallogApi {
     isSecret?: boolean
   } = {}): Promise<{ success: boolean; error?: string; method?: string }> {
     
-    console.log('갤로그 방명록 전송 시작 (웹 스크래핑 우선 방식):', {
+    console.log('갤로그 방명록 전송 시작 (웹 스크래핑 방식):', {
       gallogId,
       message: message.substring(0, 50) + '...',
       isSecret: options.isSecret
     })
 
-    // 1단계: 웹 스크래핑 방식 우선 시도 (로컬과 Vercel 모두)
-    console.log('1단계: 웹 스크래핑 방식 시도')
+    // 웹 스크래핑 방식만 사용 (갤로그는 공개 API가 없음)
+    console.log('웹 스크래핑 방식 시도')
     const scrapingResult = await this.tryWebScrapingMethod(gallogId, message, options)
     
     if (scrapingResult.success) {
@@ -74,20 +73,9 @@ export class GallogApi {
     
     console.log('❌ 웹 스크래핑 방식 실패:', scrapingResult.error)
     
-    console.log('2단계: API 방식으로 전환')
-    
-    // 2단계: API 방식으로 폴백
-    const apiResult = await this.tryApiMethod(gallogId, message, options)
-    
-    if (apiResult.success) {
-      console.log('✅ API 방식 성공')
-      return { ...apiResult, method: 'API' }
-    }
-    
-    console.log('❌ API 방식도 실패:', apiResult.error)
     return { 
       success: false, 
-      error: `API 방식 실패: ${apiResult.error}`,
+      error: `웹 스크래핑 실패: ${scrapingResult.error}`,
       method: 'Failed'
     }
   }
