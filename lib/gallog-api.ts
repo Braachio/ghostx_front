@@ -243,9 +243,31 @@ export class GallogApi {
 
       // 환경별 Chrome 경로 설정
       if (process.env.VERCEL) {
-        // Vercel 환경
-        launchOptions.executablePath = '/tmp/.cache/puppeteer/chrome/linux-141.0.7390.122/chrome-linux64/chrome'
-        console.log('Vercel 환경: Chrome 경로 설정:', launchOptions.executablePath)
+        // Vercel 환경 - 동적으로 Chrome 경로 찾기
+        const fs = await import('fs')
+        const path = await import('path')
+        
+        const possiblePaths = [
+          '/tmp/.cache/puppeteer/chrome/linux-141.0.7390.122/chrome-linux64/chrome',
+          '/tmp/.cache/puppeteer/chrome/linux-141.0.7390.122/chrome-linux64/chrome-linux64/chrome',
+          '/tmp/.cache/puppeteer/chrome/linux-141.0.7390.122/chrome-linux64/chrome-linux64/chrome-linux64/chrome'
+        ]
+        
+        let chromePath = null
+        for (const possiblePath of possiblePaths) {
+          if (fs.existsSync(possiblePath)) {
+            chromePath = possiblePath
+            break
+          }
+        }
+        
+        if (chromePath) {
+          launchOptions.executablePath = chromePath
+          console.log('Vercel 환경: Chrome 경로 발견:', chromePath)
+        } else {
+          console.log('Vercel 환경: Chrome 경로를 찾을 수 없음, 기본 경로 사용')
+          launchOptions.executablePath = '/tmp/.cache/puppeteer/chrome/linux-141.0.7390.122/chrome-linux64/chrome'
+        }
       } else {
         // 로컬 환경 (Windows)
         const { platform, homedir } = await import('os')
