@@ -39,11 +39,14 @@ export async function POST(req: NextRequest) {
 
     // 갤로그 API 테스트
     try {
-      const { testGallogApi } = await import('lib/gallog-api')
+      const { GallogApi } = await import('lib/gallog-api')
       
       console.log('갤로그 API 테스트 시작:', test_nickname, test_gallog_id)
       
-      const testResult = await testGallogApi(test_gallog_id)
+      // 갤로그 API 인스턴스 생성 (환경 변수 자동 로드)
+      const gallogApi = new GallogApi()
+      
+      const testResult = await gallogApi.testConnection(test_gallog_id)
       
       console.log('갤로그 API 테스트 결과:', testResult)
       

@@ -19,10 +19,11 @@ interface GallogApiConfig {
 export class GallogApi {
   private config: GallogApiConfig
 
-  constructor(config: GallogApiConfig) {
+  constructor(config?: Partial<GallogApiConfig>) {
     this.config = {
       baseUrl: 'https://gall.dcinside.com',
       userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      sessionCookie: process.env.GALLOG_SESSION_COOKIE,
       ...config
     }
   }

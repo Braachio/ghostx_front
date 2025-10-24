@@ -62,9 +62,12 @@ export async function POST(req: NextRequest) {
     // 실제 갤로그 API 연동
     try {
       // 갤로그 API 모듈 import
-      const { gallogApi } = await import('lib/gallog-api')
+      const { GallogApi } = await import('lib/gallog-api')
       
       console.log(`갤로그 방명록 전송 시도: ${gallery_nickname}에게 ${verificationCode} 전송`)
+      
+      // 갤로그 API 인스턴스 생성 (환경 변수 자동 로드)
+      const gallogApi = new GallogApi()
       
       // 실제 갤로그 API를 통해 방명록에 인증 코드 전송
       const gallogResult = await gallogApi.sendVerificationCode(gallog_id, verificationCode)
