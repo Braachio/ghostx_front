@@ -15,11 +15,16 @@ export default function EventManagerApplicationPage() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [hasExistingApplication, setHasExistingApplication] = useState(false)
-  const [existingApplication, setExistingApplication] = useState<any>(null)
+  const [existingApplication, setExistingApplication] = useState<{
+    id: string
+    status: string
+    created_at: string
+    review_notes?: string
+  } | null>(null)
 
   useEffect(() => {
     checkUserAndApplication()
-  }, [])
+  }, [checkUserAndApplication])
 
   const checkUserAndApplication = async () => {
     try {
@@ -44,7 +49,7 @@ export default function EventManagerApplicationPage() {
       if (applicationResponse.ok) {
         const applicationData = await applicationResponse.json()
         if (applicationData.applications && applicationData.applications.length > 0) {
-          const pendingApplication = applicationData.applications.find((app: any) => app.status === 'pending')
+          const pendingApplication = applicationData.applications.find((app: { status: string }) => app.status === 'pending')
           if (pendingApplication) {
             setHasExistingApplication(true)
             setExistingApplication(pendingApplication)

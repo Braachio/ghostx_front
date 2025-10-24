@@ -1,14 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 
 export default function GallogTestPage() {
-  const router = useRouter()
   const [testNickname, setTestNickname] = useState('')
   const [testGallogId, setTestGallogId] = useState('')
   const [isTesting, setIsTesting] = useState(false)
-  const [testResult, setTestResult] = useState<any>(null)
+  const [testResult, setTestResult] = useState<{ success: boolean; error?: string; method?: string } | null>(null)
 
   const handleTest = async (e: React.FormEvent) => {
     e.preventDefault()

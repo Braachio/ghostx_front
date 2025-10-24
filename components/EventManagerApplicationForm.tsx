@@ -15,7 +15,7 @@ export default function EventManagerApplicationForm({
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState('')
-  const [verificationCode, setVerificationCode] = useState('')
+  // const [verificationCode, setVerificationCode] = useState('')
   const [isGeneratingCode, setIsGeneratingCode] = useState(false)
   
   const [formData, setFormData] = useState({

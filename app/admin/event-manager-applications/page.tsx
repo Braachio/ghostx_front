@@ -38,7 +38,7 @@ export default function EventManagerApplicationsPage() {
 
   useEffect(() => {
     fetchApplications()
-  }, [selectedStatus])
+  }, [selectedStatus, fetchApplications])
 
   const fetchApplications = async () => {
     try {

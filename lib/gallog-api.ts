@@ -9,12 +9,12 @@ interface GallogApiConfig {
   userAgent: string
 }
 
-interface VisitMessage {
-  gallogId: string  // 갤로그 식별 코드 (예: comic1164)
-  message: string
-  password?: string
-  isSecret?: boolean
-}
+// interface VisitMessage {
+//   gallogId: string  // 갤로그 식별 코드 (예: comic1164)
+//   message: string
+//   password?: string
+//   isSecret?: boolean
+// }
 
 export class GallogApi {
   private config: GallogApiConfig
@@ -272,7 +272,7 @@ export class GallogApi {
         try {
           // 1차 시도: 일반적인 비밀글 체크박스
           secretCheckbox = await page.$('input[name="secret"], input[type="checkbox"]')
-        } catch (error) {
+        } catch {
           console.log('1차 비밀글 체크박스 셀렉터 실패, 2차 시도...')
           // 2차 시도: 갤로그 특화 셀렉터
           secretCheckbox = await page.$('input[type="checkbox"], input[value="1"]')
@@ -292,7 +292,7 @@ export class GallogApi {
         // 1차 시도: 일반적인 submit 버튼
         submitButton = await page.$('button[type="submit"], input[type="submit"]')
         console.log('1차 submit 버튼 셀렉터 시도')
-      } catch (error) {
+      } catch {
         console.log('1차 submit 버튼 셀렉터 실패, 2차 시도...')
         // 2차 시도: 텍스트 기반 셀렉터
         submitButton = await page.$('button:contains("등록"), button:contains("작성"), button:contains("전송")')

@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 import { Database } from 'lib/database.types'
 
 // GET - 갤러리 인증 코드 생성
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const cookieStore = await cookies()
     const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore })
