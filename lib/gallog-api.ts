@@ -27,11 +27,12 @@ export class GallogApi {
       ...config
     }
     
-    // 환경 변수 디버깅 로그
-    console.log('갤로그 API 환경 변수 확인:', {
+    // Vercel 환경 변수 디버깅 로그
+    console.log('Vercel 갤로그 API 환경 변수 확인:', {
       hasSessionCookie: !!this.config.sessionCookie,
       cookieLength: this.config.sessionCookie?.length || 0,
-      cookiePreview: this.config.sessionCookie?.substring(0, 50) + '...' || 'undefined'
+      cookiePreview: this.config.sessionCookie?.substring(0, 50) + '...' || 'undefined',
+      environment: process.env.VERCEL ? 'Vercel' : 'Local'
     })
   }
 
