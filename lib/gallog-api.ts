@@ -245,14 +245,13 @@ export class GallogApi {
         console.log('Vercel 환경: Chrome 경로 설정:', launchOptions.executablePath)
       } else {
         // 로컬 환경 (Windows)
-        const os = require('os')
-        const platform = os.platform()
-        if (platform === 'win32') {
+        const { platform, homedir } = await import('os')
+        if (platform() === 'win32') {
           launchOptions.executablePath = 'C:\\Users\\josan\\.cache\\puppeteer\\chrome\\win64-141.0.7390.122\\chrome-win64\\chrome.exe'
           console.log('로컬 Windows 환경: Chrome 경로 설정:', launchOptions.executablePath)
         } else {
           // Linux/Mac 환경
-          launchOptions.executablePath = os.homedir() + '/.cache/puppeteer/chrome/linux-141.0.7390.122/chrome-linux64/chrome'
+          launchOptions.executablePath = homedir() + '/.cache/puppeteer/chrome/linux-141.0.7390.122/chrome-linux64/chrome'
           console.log('로컬 Linux/Mac 환경: Chrome 경로 설정:', launchOptions.executablePath)
         }
       }
