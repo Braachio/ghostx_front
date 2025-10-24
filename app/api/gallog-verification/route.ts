@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { Database } from 'lib/database.types'
-import { GallogApi } from '../../../lib/gallog-api'
+import { GallogApi } from 'lib/gallog-api'
 
 // POST - 갤로그 방명록에 인증 코드 전송
 export async function POST(req: NextRequest) {

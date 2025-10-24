@@ -261,7 +261,7 @@ export class GallogApi {
       // 브라우저 실행
       browser = await puppeteer.launch(launchOptions)
       
-      const page = await browser.newPage()
+      let page = await browser.newPage()
       
       // User-Agent 설정
       await page.setUserAgent(this.config.userAgent)
