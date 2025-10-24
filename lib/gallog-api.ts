@@ -238,10 +238,23 @@ export class GallogApi {
         ]
       }
 
-      // Vercel 환경에서 Chrome 경로 설정
+      // 환경별 Chrome 경로 설정
       if (process.env.VERCEL) {
+        // Vercel 환경
         launchOptions.executablePath = '/tmp/.cache/puppeteer/chrome/linux-141.0.7390.122/chrome-linux64/chrome'
         console.log('Vercel 환경: Chrome 경로 설정:', launchOptions.executablePath)
+      } else {
+        // 로컬 환경 (Windows)
+        const os = require('os')
+        const platform = os.platform()
+        if (platform === 'win32') {
+          launchOptions.executablePath = 'C:\\Users\\josan\\.cache\\puppeteer\\chrome\\win64-141.0.7390.122\\chrome-win64\\chrome.exe'
+          console.log('로컬 Windows 환경: Chrome 경로 설정:', launchOptions.executablePath)
+        } else {
+          // Linux/Mac 환경
+          launchOptions.executablePath = os.homedir() + '/.cache/puppeteer/chrome/linux-141.0.7390.122/chrome-linux64/chrome'
+          console.log('로컬 Linux/Mac 환경: Chrome 경로 설정:', launchOptions.executablePath)
+        }
       }
 
       console.log('웹 스크래핑 방식 - 브라우저 실행 옵션:', launchOptions)
