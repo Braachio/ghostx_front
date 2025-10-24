@@ -45,8 +45,8 @@ export class GallogApi {
   }
 
   /**
-   * 갤로그 방명록에 메시지 전송 (웹 스크래핑 방식)
-   * 갤로그는 공개 API가 없으므로 웹 스크래핑만 사용
+   * 갤로그 방명록에 메시지 전송 (수동 방식)
+   * 웹 스크래핑이 불안정하므로 사용자가 직접 작성하도록 안내
    * @param gallogId 갤로그 식별 코드 (예: comic1164)
    * @param message 전송할 메시지
    * @param options 추가 옵션
@@ -56,27 +56,23 @@ export class GallogApi {
     isSecret?: boolean
   } = {}): Promise<{ success: boolean; error?: string; method?: string }> {
     
-    console.log('갤로그 방명록 전송 시작 (웹 스크래핑 방식):', {
+    console.log('갤로그 방명록 전송 (수동 방식):', {
       gallogId,
       message: message.substring(0, 50) + '...',
       isSecret: options.isSecret
     })
 
-    // 웹 스크래핑 방식만 사용 (갤로그는 공개 API가 없음)
-    console.log('웹 스크래핑 방식 시도')
-    const scrapingResult = await this.tryWebScrapingMethod(gallogId, message, options)
-    
-    if (scrapingResult.success) {
-      console.log('✅ 웹 스크래핑 방식 성공')
-      return { ...scrapingResult, method: 'WebScraping' }
-    }
-    
-    console.log('❌ 웹 스크래핑 방식 실패:', scrapingResult.error)
-    
+    // 수동 방식으로 변경 - 사용자가 직접 갤로그에 작성
     return { 
-      success: false, 
-      error: `웹 스크래핑 실패: ${scrapingResult.error}`,
-      method: 'Failed'
+      success: true, 
+      method: 'Manual',
+      instructions: [
+        `1. https://gallog.dcinside.com/${gallogId}/guestbook 에 접속하세요`,
+        `2. 방명록에 다음 메시지를 작성하세요:`,
+        `   ${message}`,
+        options.isSecret ? '3. 비밀글로 설정하세요' : '3. 공개글로 작성하세요',
+        '4. 작성 완료 후 인증 코드를 입력하세요'
+      ]
     }
   }
 

@@ -64,14 +64,8 @@ export async function POST(req: NextRequest) {
     try {
       console.log(`갤로그 방명록 전송 시도: ${gallery_nickname}에게 ${verificationCode} 전송`)
       
-      // 갤로그 API 인스턴스 생성 (환경 변수 자동 로드)
-      const gallogApi = new GallogApi()
-      
-      // 실제 갤로그 API를 통해 방명록에 인증 코드 전송
-      const gallogResult = await gallogApi.sendVerificationCode(gallog_id, verificationCode)
-      
-      if (gallogResult.success) {
-        console.log('갤로그 방명록 전송 성공:', gallery_nickname)
+      // 수동 방식으로 변경 - 자동 전송 대신 사용자 안내
+      console.log('갤로그 수동 인증 방식으로 변경')
         
         // 인증 코드를 DB에 저장
         const { error: insertError } = await supabase
@@ -95,25 +89,20 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({ 
           success: true,
-          message: `${gallery_nickname}님의 갤로그 방명록에 인증 코드를 전송했습니다.`,
+          message: `인증 코드가 생성되었습니다. 아래 안내에 따라 갤로그에 직접 작성해주세요.`,
           verification_code: verificationCode,
           instructions: [
-            '1. 갤로그에 로그인하여 방명록을 확인하세요',
-            '2. 비밀글에 있는 인증 코드(예: BAK12345678)를 복사하세요',
-            '3. 아래 입력란에 인증 코드를 입력하세요'
+            `1. https://gallog.dcinside.com/${gallog_id}/guestbook 에 접속하세요`,
+            `2. 방명록에 다음 메시지를 작성하세요:`,
+            `   ${verificationCode}`,
+            '3. 비밀글로 설정하세요',
+            '4. 작성 완료 후 아래 입력란에 인증 코드를 입력하세요'
           ]
         })
-      } else {
-        console.error('갤로그 방명록 전송 실패:', gallogResult.error)
-        return NextResponse.json({ 
-          error: `갤로그 방명록 전송에 실패했습니다: ${gallogResult.error}` 
-        }, { status: 500 })
-      }
-
     } catch (error) {
-      console.error('갤로그 API 호출 오류:', error)
+      console.error('갤로그 인증 코드 생성 오류:', error)
       return NextResponse.json({ 
-        error: `갤로그 방명록 전송에 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}` 
+        error: `인증 코드 생성에 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}` 
       }, { status: 500 })
     }
 
