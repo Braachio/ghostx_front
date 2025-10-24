@@ -249,51 +249,65 @@ export class GallogApi {
       // 브라우저 실행
       browser = await puppeteer.launch(launchOptions)
       
-      let page = await browser.newPage()
+      // 브라우저 연결 상태 확인
+      const pages = await browser.pages()
+      console.log('브라우저 실행 완료, 기존 페이지 수:', pages.length)
       
-      // User-Agent 설정
-      await page.setUserAgent(this.config.userAgent)
-      
-      // 쿠키 설정
-      if (this.config.sessionCookie) {
-        const cookies = this.parseCookies(this.config.sessionCookie)
-        await page.setCookie(...cookies)
-      }
-      
-      // 갤로그 방명록 페이지로 이동 (프레임 분리 에러 방지)
+      // 갤로그 방명록 페이지로 이동
       const url = `https://gallog.dcinside.com/${gallogId}/guestbook`
       
-      // 프레임 분리 에러 방지를 위한 새로운 페이지 생성
+      // 안정적인 페이지 생성 및 로딩
+      let page;
       let retryCount = 0
       const maxRetries = 3
       
       while (retryCount < maxRetries) {
         try {
-          // 매번 새로운 페이지 생성
-          if (retryCount > 0) {
-            await page.close()
-            page = await browser.newPage()
-            await page.setUserAgent(this.config.userAgent)
-            
-            // 쿠키 재설정
-            if (this.config.sessionCookie) {
-              const cookies = this.parseCookies(this.config.sessionCookie)
-              await page.setCookie(...cookies)
-            }
+          // 새로운 페이지 생성
+          page = await browser.newPage()
+          console.log(`페이지 생성 완료 (시도 ${retryCount + 1}/${maxRetries})`)
+          
+          // User-Agent 설정
+          await page.setUserAgent(this.config.userAgent)
+          
+          // 쿠키 설정
+          if (this.config.sessionCookie) {
+            const cookies = this.parseCookies(this.config.sessionCookie)
+            await page.setCookie(...cookies)
+            console.log('쿠키 설정 완료')
           }
           
+          // 페이지 로딩
+          console.log('페이지 로딩 시작:', url)
           await page.goto(url, { 
             waitUntil: 'domcontentloaded',
             timeout: 30000
           })
+          
+          // 페이지 로딩 확인
+          const pageTitle = await page.title()
+          console.log('페이지 로딩 완료, 제목:', pageTitle)
           break
+          
         } catch (error) {
           retryCount++
           console.log(`페이지 로딩 재시도 ${retryCount}/${maxRetries}:`, error)
+          
+          // 페이지 정리
+          if (page) {
+            try {
+              await page.close()
+            } catch (closeError) {
+              console.log('페이지 정리 중 오류:', closeError)
+            }
+          }
+          
           if (retryCount >= maxRetries) {
             throw error
           }
-          await new Promise(resolve => setTimeout(resolve, 3000))
+          
+          // 재시도 전 대기
+          await new Promise(resolve => setTimeout(resolve, 2000))
         }
       }
       
@@ -439,7 +453,13 @@ export class GallogApi {
       }
     } finally {
       if (browser) {
-        await browser.close()
+        try {
+          console.log('브라우저 종료 중...')
+          await browser.close()
+          console.log('브라우저 종료 완료')
+        } catch (closeError) {
+          console.log('브라우저 종료 중 오류:', closeError)
+        }
       }
     }
   }
