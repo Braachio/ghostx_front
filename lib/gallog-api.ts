@@ -55,17 +55,23 @@ export class GallogApi {
       isSecret: options.isSecret
     })
 
-    // 1단계: 웹 스크래핑 방식 우선 시도 (로그인 문제로 인해)
-    console.log('1단계: 웹 스크래핑 방식 시도')
-    const scrapingResult = await this.tryWebScrapingMethod(gallogId, message, options)
-    
-    if (scrapingResult.success) {
-      console.log('✅ 웹 스크래핑 방식 성공')
-      return { ...scrapingResult, method: 'WebScraping' }
+    // Vercel 환경에서는 웹 스크래핑 건너뛰기
+    if (process.env.VERCEL) {
+      console.log('Vercel 환경 감지: 웹 스크래핑 건너뛰고 API 방식만 사용')
+    } else {
+      // 1단계: 웹 스크래핑 방식 우선 시도 (로컬 환경에서만)
+      console.log('1단계: 웹 스크래핑 방식 시도')
+      const scrapingResult = await this.tryWebScrapingMethod(gallogId, message, options)
+      
+      if (scrapingResult.success) {
+        console.log('✅ 웹 스크래핑 방식 성공')
+        return { ...scrapingResult, method: 'WebScraping' }
+      }
+      
+      console.log('❌ 웹 스크래핑 방식 실패:', scrapingResult.error)
     }
     
-    console.log('❌ 웹 스크래핑 방식 실패:', scrapingResult.error)
-    console.log('2단계: API 방식으로 폴백')
+    console.log('2단계: API 방식으로 전환')
     
     // 2단계: API 방식으로 폴백
     const apiResult = await this.tryApiMethod(gallogId, message, options)

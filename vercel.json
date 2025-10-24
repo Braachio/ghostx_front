@@ -1,17 +1,18 @@
 {
   "functions": {
     "app/api/gallog-verification/route.ts": {
-      "maxDuration": 30
+      "maxDuration": 30,
+      "memory": 1024
     },
     "app/api/gallog-test/route.ts": {
-      "maxDuration": 30
+      "maxDuration": 30,
+      "memory": 1024
     }
   },
   "build": {
     "env": {
       "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD": "false",
-      "PUPPETEER_CACHE_DIR": "/tmp/.cache/puppeteer",
-      "PUPPETEER_EXECUTABLE_PATH": "/tmp/.cache/puppeteer/chrome/linux-141.0.7390.122/chrome-linux64/chrome"
+      "PUPPETEER_CACHE_DIR": "/tmp/.cache/puppeteer"
     }
   },
   "env": {
