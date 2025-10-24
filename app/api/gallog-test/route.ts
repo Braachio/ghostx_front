@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
     // 갤로그 API 테스트
     try {
-      const { GallogApi } = await import('lib/gallog-api')
+      const { GallogApi } = await import('../../../lib/gallog-api')
       
       console.log('갤로그 API 테스트 시작:', test_nickname, test_gallog_id)
       
