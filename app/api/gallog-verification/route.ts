@@ -112,7 +112,7 @@ export async function POST(req: NextRequest) {
 
   } catch (error) {
     console.error('갤로그 인증 오류:', error)
-    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 })
+    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 });
   }
 }
 
