@@ -101,16 +101,13 @@ export class GallogApi {
   }): Promise<{ success: boolean; error?: string }> {
     try {
       // 갤로그 방명록 작성 API 엔드포인트 (갤로그 전용 API)
-      const url = `https://gallog.dcinside.com/board/visit`
+      const url = `https://gallog.dcinside.com/${gallogId}/guestbook`
       
       // 갤로그 방명록 작성 시 사용되는 폼 데이터 구조
       const formData = new URLSearchParams()
-      formData.append('id', 'simracing') // 갤러리 ID
-      formData.append('no', gallogId) // 갤로그 식별 코드
-      formData.append('comment', message) // 방명록 내용
+      formData.append('memo', message) // 방명록 내용
       formData.append('password', options.password || '1234') // 방명록 비밀번호
-      formData.append('secret', options.isSecret ? '1' : '0') // 비밀글 여부
-      formData.append('mode', 'write') // 작성 모드
+      formData.append('is_secret', options.isSecret ? '1' : '0') // 비밀글 여부
 
       console.log('API 방식 - 갤로그 방명록 전송 시도:', {
         gallogId,
@@ -127,7 +124,7 @@ export class GallogApi {
       const requestHeaders = {
         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
         'User-Agent': this.config.userAgent,
-        'Referer': `https://gallog.dcinside.com/board/visit/${gallogId}`,
+        'Referer': `https://gallog.dcinside.com/${gallogId}/guestbook`,
         'Origin': 'https://gallog.dcinside.com',
         'Cookie': this.config.sessionCookie || '',
         'X-Requested-With': 'XMLHttpRequest',
@@ -278,12 +275,25 @@ export class GallogApi {
       // 갤로그 방명록 페이지로 이동 (프레임 분리 에러 방지)
       const url = `https://gallog.dcinside.com/${gallogId}/guestbook`
       
-      // 재시도 로직으로 프레임 분리 에러 방지
+      // 프레임 분리 에러 방지를 위한 새로운 페이지 생성
       let retryCount = 0
       const maxRetries = 3
       
       while (retryCount < maxRetries) {
         try {
+          // 매번 새로운 페이지 생성
+          if (retryCount > 0) {
+            await page.close()
+            page = await browser.newPage()
+            await page.setUserAgent(this.config.userAgent)
+            
+            // 쿠키 재설정
+            if (this.config.sessionCookie) {
+              const cookies = this.parseCookies(this.config.sessionCookie)
+              await page.setCookie(...cookies)
+            }
+          }
+          
           await page.goto(url, { 
             waitUntil: 'domcontentloaded',
             timeout: 30000
@@ -295,7 +305,7 @@ export class GallogApi {
           if (retryCount >= maxRetries) {
             throw error
           }
-          await new Promise(resolve => setTimeout(resolve, 2000))
+          await new Promise(resolve => setTimeout(resolve, 3000))
         }
       }
       
