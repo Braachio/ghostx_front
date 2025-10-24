@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
             '2. 비밀글에 있는 인증 코드(예: BAK12345678)를 복사하세요',
             '3. 아래 입력란에 인증 코드를 입력하세요'
           ]
-        })
+        });
     } catch (error) {
       console.error('갤로그 인증 코드 생성 오류:', error)
       return NextResponse.json({ 
