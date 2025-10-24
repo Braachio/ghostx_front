@@ -32,7 +32,9 @@ export class GallogApi {
       hasSessionCookie: !!this.config.sessionCookie,
       cookieLength: this.config.sessionCookie?.length || 0,
       cookiePreview: this.config.sessionCookie?.substring(0, 50) + '...' || 'undefined',
-      environment: process.env.VERCEL ? 'Vercel' : 'Local'
+      environment: process.env.VERCEL ? 'Vercel' : 'Local',
+      cookieContainsPHPSESSID: this.config.sessionCookie?.includes('PHPSESSID') || false,
+      cookieContainsPHPSESSKEY: this.config.sessionCookie?.includes('PHPSESSKEY') || false
     })
   }
 
@@ -97,10 +99,10 @@ export class GallogApi {
     isSecret?: boolean
   }): Promise<{ success: boolean; error?: string }> {
     try {
-      // 갤로그 방명록 작성 API 엔드포인트 (실제 갤로그 API)
-      const url = `https://gallog.dcinside.com/board/visit`
+      // 갤로그 방명록 작성 API 엔드포인트 (갤로그 전용 API)
+      const url = `https://gall.dcinside.com/board/visit`
       
-      // 실제 갤로그 방명록 작성 시 사용되는 폼 데이터 구조
+      // 갤로그 방명록 작성 시 사용되는 폼 데이터 구조
       const formData = new URLSearchParams()
       formData.append('id', 'simracing') // 갤러리 ID
       formData.append('no', gallogId) // 갤로그 식별 코드
