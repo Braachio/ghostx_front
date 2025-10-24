@@ -54,7 +54,7 @@ export default function EventManagerApplicationsPage() {
     } finally {
       setLoading(false)
     }
-  }, [selectedStatus])
+  }, [selectedStatus, router])
 
   const handleReview = async (applicationId: string, status: 'approved' | 'rejected') => {
     setIsReviewing(true)
