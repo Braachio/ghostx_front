@@ -93,7 +93,7 @@ export default function EventManagerApplicationForm({
       if (response.ok) {
         const data = await response.json()
         setMessage(data.message)
-        setVerificationCode(data.verification_code)
+        // setVerificationCode(data.verification_code) // 주석 처리됨
       } else {
         const errorData = await response.json()
         setMessage(errorData.error || '인증 코드 전송에 실패했습니다.')
