@@ -21,6 +21,7 @@ export default function EventManagerApplicationPage() {
     created_at: string
     review_notes?: string
   } | null>(null)
+  const [message, setMessage] = useState('')
 
   useEffect(() => {
     checkUserAndApplication()
@@ -62,8 +63,6 @@ export default function EventManagerApplicationPage() {
       setLoading(false)
     }
   }, [router])
-
-  const [message, setMessage] = useState('')
 
   const handleSuccess = () => {
     setMessage('빵장 신청이 완료되었습니다. 관리자 검토 후 결과를 알려드리겠습니다.')
