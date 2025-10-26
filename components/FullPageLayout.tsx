@@ -498,8 +498,8 @@ export default function FullPageLayout({
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Steam 프로필 카드 */}
+          <div className="flex justify-center">
+            {/* Steam 프로필 카드 - 가운데 배치 */}
             {user ? (
               <Link href="/profile" className="group">
                 <div className="bg-gradient-to-br from-gray-900/95 to-black/95 border border-purple-500/40 rounded-2xl p-8 backdrop-blur-sm hover:border-purple-400/60 transition-all duration-300 hover:scale-105">
@@ -530,26 +530,6 @@ export default function FullPageLayout({
                     </p>
                     <div className="inline-block px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
                       로그인하기 →
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            )}
-
-            {/* 빵장 신청 카드 */}
-            {user && user.role !== 'admin' && user.role !== 'event_manager' && (
-              <Link href="/event-manager-application" className="group">
-                <div className="bg-gradient-to-br from-orange-900/95 to-red-900/95 border border-orange-500/40 rounded-2xl p-8 backdrop-blur-sm hover:border-orange-400/60 transition-all duration-300 hover:scale-105">
-                  <div className="text-center">
-                    <div className="text-6xl mb-6">🍞</div>
-                    <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
-                      빵장 신청
-                    </h3>
-                    <p className="text-gray-300 text-lg leading-relaxed mb-6">
-                      {language === 'ko' ? '커뮤니티 이벤트를 관리하고 운영하는 빵장이 되어보세요' : 'Become a community event manager'}
-                    </p>
-                    <div className="inline-block px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
-                      신청하기 →
                     </div>
                   </div>
                 </div>
