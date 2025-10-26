@@ -30,6 +30,7 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
   const [todayRegularEvents, setTodayRegularEvents] = useState<RegularEvent[]>([])
   const [loading, setLoading] = useState(true)
   const [dismissed, setDismissed] = useState(false)
+  const [joiningEvents, setJoiningEvents] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     if (!userId) {
@@ -107,6 +108,58 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
     fetchData()
   }, [userId])
 
+  // 참가 신청 함수
+  const handleJoinEvent = async (eventId: string, eventTitle: string) => {
+    if (!userId) {
+      alert('로그인이 필요합니다.')
+      return
+    }
+
+    // 이미 참가 신청 중인지 확인
+    if (joiningEvents.has(eventId)) {
+      return
+    }
+
+    try {
+      // 참가 신청 중 상태로 설정
+      setJoiningEvents(prev => new Set(prev).add(eventId))
+
+      const response = await fetch(`/api/multis/${eventId}/participants`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response.ok) {
+        alert(`"${eventTitle}" 이벤트에 참가신청이 완료되었습니다!`)
+        // 성공한 이벤트는 목록에서 제거
+        setRecentEvents(prev => prev.filter(event => event.id !== eventId))
+        setTodayRegularEvents(prev => prev.filter(event => event.id !== eventId))
+      } else {
+        const errorData = await response.json()
+        if (errorData.error === '이미 참가 신청하셨습니다.') {
+          alert('이미 참가신청이 완료되어 있습니다.')
+          // 이미 참가한 이벤트는 목록에서 제거
+          setRecentEvents(prev => prev.filter(event => event.id !== eventId))
+          setTodayRegularEvents(prev => prev.filter(event => event.id !== eventId))
+        } else {
+          alert(`참가신청 실패: ${errorData.error}`)
+        }
+      }
+    } catch (error) {
+      console.error('참가신청 오류:', error)
+      alert('참가신청 중 오류가 발생했습니다.')
+    } finally {
+      // 참가 신청 중 상태 해제
+      setJoiningEvents(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(eventId)
+        return newSet
+      })
+    }
+  }
+
   // 로그인하지 않았거나 관심 게임이 없으면 표시하지 않음
   if (!userId || interestGames.length === 0 || dismissed || loading) {
     return null
@@ -154,12 +207,13 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
                     <div className="text-white font-medium">{event.title}</div>
                     <div className="text-gray-400 text-sm">{event.game} • 기습 갤멀</div>
                   </div>
-                  <Link
-                    href={`/multis?id=${event.id}`}
-                    className="px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded text-sm transition-colors"
+                  <button
+                    onClick={() => handleJoinEvent(event.id, event.title)}
+                    disabled={joiningEvents.has(event.id)}
+                    className="px-3 py-1 bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed text-white rounded text-sm transition-colors"
                   >
-                    참여하기
-                  </Link>
+                    {joiningEvents.has(event.id) ? '참여 중...' : '참여하기'}
+                  </button>
                 </div>
               ))}
               
@@ -171,12 +225,13 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
                     <div className="text-white font-medium">{event.title}</div>
                     <div className="text-gray-400 text-sm">{event.game} • 정기 멀티 • {event.start_time}</div>
                   </div>
-                  <Link
-                    href={`/events/regular/${encodeURIComponent(event.game)}/${event.id}`}
-                    className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm transition-colors"
+                  <button
+                    onClick={() => handleJoinEvent(event.id, event.title)}
+                    disabled={joiningEvents.has(event.id)}
+                    className="px-3 py-1 bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white rounded text-sm transition-colors"
                   >
-                    참여하기
-                  </Link>
+                    {joiningEvents.has(event.id) ? '참여 중...' : '참여하기'}
+                  </button>
                 </div>
               ))}
             </div>
