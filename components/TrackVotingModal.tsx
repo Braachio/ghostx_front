@@ -23,6 +23,7 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
   const [voting, setVoting] = useState(false)
   const [newOptionValue, setNewOptionValue] = useState('')
   const [addingOption, setAddingOption] = useState(false)
+  const [isVotingClosed, setIsVotingClosed] = useState(false)
 
   const fetchTrackOptions = useCallback(async () => {
     setLoading(true)
@@ -54,11 +55,25 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
     }
   }, [regularEventId])
 
+  const fetchVoteStatus = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/regular-events/${regularEventId}/vote-status`)
+      if (response.ok) {
+        const data = await response.json()
+        console.log('투표 상태:', data)
+        setIsVotingClosed(data.isVotingClosed || false)
+      }
+    } catch (error) {
+      console.error('투표 상태 확인 실패:', error)
+    }
+  }, [regularEventId])
+
   useEffect(() => {
     if (isOpen && regularEventId) {
       fetchTrackOptions()
+      fetchVoteStatus()
     }
-  }, [isOpen, regularEventId, fetchTrackOptions])
+  }, [isOpen, regularEventId, fetchTrackOptions, fetchVoteStatus])
 
   const handleVote = async (optionId: string) => {
     setVoting(true)
@@ -136,13 +151,98 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
     }
   }
 
+  const handleDeleteOption = async (optionId: string) => {
+    if (!isOwner) return
+    
+    if (!confirm('이 투표 옵션을 삭제하시겠습니까?')) return
+
+    try {
+      const response = await fetch(`/api/regular-events/${regularEventId}/vote-options/${optionId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || '옵션 삭제에 실패했습니다.')
+      }
+
+      await fetchTrackOptions()
+    } catch (error) {
+      console.error('옵션 삭제 실패:', error)
+      alert(error instanceof Error ? error.message : '옵션 삭제 중 오류가 발생했습니다.')
+    }
+  }
+
+  const handleStartVoting = async () => {
+    if (!isOwner) return
+    
+    try {
+      const response = await fetch(`/api/regular-events/${regularEventId}/vote/close`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          voting_closed: false
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || '투표 시작에 실패했습니다.')
+      }
+
+      await fetchTrackOptions()
+      await fetchVoteStatus()
+      alert('투표가 시작되었습니다.')
+    } catch (error) {
+      console.error('투표 시작 실패:', error)
+      alert(error instanceof Error ? error.message : '투표 시작 중 오류가 발생했습니다.')
+    }
+  }
+
+  const handleStopVoting = async () => {
+    if (!isOwner) return
+    
+    if (!confirm('투표를 종료하시겠습니까? 종료 후에는 다시 시작할 수 없습니다.')) return
+    
+    try {
+      const response = await fetch(`/api/regular-events/${regularEventId}/vote/close`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          voting_closed: true
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || '투표 종료에 실패했습니다.')
+      }
+
+      await fetchTrackOptions()
+      await fetchVoteStatus()
+      alert('투표가 종료되었습니다.')
+    } catch (error) {
+      console.error('투표 종료 실패:', error)
+      alert(error instanceof Error ? error.message : '투표 종료 중 오류가 발생했습니다.')
+    }
+  }
+
   if (!isOpen) return null
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-gray-800 rounded-xl max-w-4xl w-full max-h-[80vh] overflow-hidden">
         <div className="flex items-center justify-between p-6 border-b border-gray-700">
-          <h2 className="text-xl font-bold text-white">트랙 투표</h2>
+          <div>
+            <h2 className="text-xl font-bold text-white">트랙 투표</h2>
+            {isVotingClosed && (
+              <p className="text-red-400 text-sm mt-1">투표가 종료되었습니다</p>
+            )}
+          </div>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white text-2xl"
@@ -208,15 +308,26 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
                       {!option.user_voted ? (
                         <button
                           onClick={() => handleVote(option.id)}
-                          disabled={voting}
+                          disabled={voting || isVotingClosed}
                           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
                         >
-                          {voting ? '투표 중...' : '투표하기'}
+                          {voting ? '투표 중...' : isVotingClosed ? '투표 종료됨' : '투표하기'}
                         </button>
                       ) : (
                         <span className="px-4 py-2 bg-green-600 text-white rounded-lg">
                           투표완료
                         </span>
+                      )}
+                      
+                      {/* 이벤트 소유자용 삭제 버튼 */}
+                      {isOwner && (
+                        <button
+                          onClick={() => handleDeleteOption(option.id)}
+                          className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                          title="투표 옵션 삭제"
+                        >
+                          🗑️
+                        </button>
                       )}
                     </div>
                   </div>
@@ -254,13 +365,25 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
             {game} 트랙 투표
           </div>
           <div className="flex gap-3">
+            {/* 이벤트 소유자용 투표 관리 버튼들 */}
             {isOwner && (
-              <button
-                onClick={handleCloseVoting}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-              >
-                투표 종료
-              </button>
+              <>
+                {isVotingClosed ? (
+                  <button
+                    onClick={handleStartVoting}
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    투표 시작
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleStopVoting}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  >
+                    투표 종료
+                  </button>
+                )}
+              </>
             )}
             <button
               onClick={onClose}
