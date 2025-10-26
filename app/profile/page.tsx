@@ -82,6 +82,14 @@ export default function ProfilePage() {
     }
   }
 
+  // 알림 차단
+  const handleBlockNotifications = () => {
+    if (confirm('알림을 차단하시겠습니까? 브라우저 설정에서 다시 허용할 수 있습니다.')) {
+      // 브라우저 알림 차단은 사용자가 직접 브라우저 설정에서 해야 함
+      alert('브라우저 설정에서 알림을 차단해주세요.\n\nChrome: 설정 > 개인정보 보호 및 보안 > 사이트 설정 > 알림\nFirefox: 설정 > 개인정보 보호 및 보안 > 권한 > 알림')
+    }
+  }
+
   async function fetchProfile() {
     try {
       setLoading(true)
@@ -512,12 +520,20 @@ export default function ProfilePage() {
                   )}
                   
                   {permission === 'granted' && (
-                    <button
-                      onClick={handleTestNotification}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
-                    >
-                      테스트 알림
-                    </button>
+                    <>
+                      <button
+                        onClick={handleTestNotification}
+                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
+                      >
+                        테스트 알림
+                      </button>
+                      <button
+                        onClick={handleBlockNotifications}
+                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                      >
+                        알림 차단
+                      </button>
+                    </>
                   )}
                 </div>
                 
