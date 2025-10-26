@@ -16,7 +16,6 @@ export default function MultiCard({
   multi: Multi
   currentUserId: string | null
 }) {
-  const supabase = createClientComponentClient<Database>()
   const [isOpen, setIsOpen] = useState(multi.is_open)
   
   // 이벤트 토글 훅 사용

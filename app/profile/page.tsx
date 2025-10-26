@@ -6,7 +6,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { findRacingGame, isRacingGame } from '@/lib/racingGames'
 import RacingStats from '@/components/RacingStats'
-import AchievementProgress from '@/components/AchievementProgress'
 import { useNotificationPermission } from '@/hooks/useNotificationPermission'
 
 // 게임 목록 (관심 게임 선택용)
@@ -48,7 +47,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [profileData, setProfileData] = useState<ProfileData | null>(null)
-  const [filter, setFilter] = useState<'all' | 'racing'>('racing')
+  const [filter] = useState<'all' | 'racing'>('racing')
   const [interestGames, setInterestGames] = useState<string[]>([])
   const [notificationSettings, setNotificationSettings] = useState({
     flash_event_notifications: true,
@@ -57,7 +56,6 @@ export default function ProfilePage() {
     push_notifications: true
   })
   const [savingInterestGames, setSavingInterestGames] = useState(false)
-  const [savingNotificationSettings, setSavingNotificationSettings] = useState(false)
   const [savingNotifications, setSavingNotifications] = useState(false)
   
   // 알림 권한 관리
@@ -270,18 +268,11 @@ export default function ProfilePage() {
     return null
   }
 
-  const { profile, games, totalGames, totalPlaytime } = profileData
+  const { profile, games } = profileData
 
   // 레이싱 게임만 필터링 (games가 undefined일 경우 빈 배열 사용)
   const racingGames = (games || []).filter(game => isRacingGame(game.appId))
   const displayGames = filter === 'racing' ? racingGames : (games || [])
-
-  // 레이싱 게임 통계
-  const totalRacingPlaytime = racingGames.reduce(
-    (sum, game) => sum + game.playtimeForever,
-    0
-  )
-  const totalRacingGames = racingGames.length
 
   // 플레이 시간 포맷
   function formatPlaytime(minutes: number): string {

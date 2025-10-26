@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
 
       try {
         // 사용자의 알림 설정 조회
-        const { data: notificationSettings, error: settingsError } = await supabase
+        const { data: notificationSettings } = await supabase
           .from('user_notification_settings')
           .select('*')
           .eq('user_id', userId)

@@ -13,7 +13,6 @@ interface EventCardProps {
 }
 
 export default function EventCard({ multi, currentUserId }: EventCardProps) {
-  const supabase = createClientComponentClient<Database>()
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(multi.is_open)
   

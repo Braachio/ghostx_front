@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 import type { Database } from '@/lib/database.types'
 
 // GET - 내가 관리하는 이벤트 목록 조회
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const cookieStore = await cookies()
     const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore })
@@ -103,7 +103,7 @@ export async function GET(req: NextRequest) {
         })
 
         // 투표 옵션 개수 조회
-        const { data: voteOptions, error: voteOptionsError } = await supabase
+        const { data: voteOptions } = await supabase
           .from('regular_event_vote_options')
           .select('id, option_value, votes_count, voting_closed')
           .eq('regular_event_id', event.id)

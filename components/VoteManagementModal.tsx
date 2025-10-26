@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { X, Plus, Trash2, Play, Pause, Vote, Users } from 'lucide-react'
 
 interface VoteOption {
@@ -23,6 +23,7 @@ export default function VoteManagementModal({
   onClose, 
   eventId, 
   eventTitle, 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   userId 
 }: VoteManagementModalProps) {
   const [voteOptions, setVoteOptions] = useState<VoteOption[]>([])
@@ -34,7 +35,7 @@ export default function VoteManagementModal({
   const [userVote, setUserVote] = useState<{ id: string; track_option_id: string } | null>(null)
 
   // 투표 상태 조회
-  const fetchVoteStatus = async () => {
+  const fetchVoteStatus = useCallback(async () => {
     try {
       setLoading(true)
       const response = await fetch(`/api/regular-events/${eventId}/vote`)
@@ -56,7 +57,7 @@ export default function VoteManagementModal({
     } finally {
       setLoading(false)
     }
-  }
+  }, [eventId])
 
   // 새 투표 옵션 추가
   const handleAddOption = async () => {
@@ -222,7 +223,7 @@ export default function VoteManagementModal({
     if (isOpen && eventId) {
       fetchVoteStatus()
     }
-  }, [isOpen, eventId])
+  }, [isOpen, eventId, fetchVoteStatus])
 
   if (!isOpen) return null
 
