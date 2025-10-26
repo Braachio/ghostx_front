@@ -25,10 +25,9 @@ export default function EventDescriptionModal({ isOpen, onClose, title, descript
 
         <div className="p-6 overflow-y-auto max-h-[60vh]">
           {description ? (
-            <div 
-              className="text-white leading-relaxed prose prose-invert max-w-none"
-              dangerouslySetInnerHTML={{ __html: description }}
-            />
+            <div className="text-white leading-relaxed whitespace-pre-wrap">
+              {description}
+            </div>
           ) : (
             <div className="text-center py-8 text-gray-400">
               설명이 없습니다.

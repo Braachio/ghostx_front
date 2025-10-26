@@ -325,7 +325,7 @@ export default function EventDetailModal({
                       placeholder="이벤트 설명을 입력하세요"
                     />
                   ) : (
-                    <p className="text-white text-sm">{event.description}</p>
+                    <p className="text-white text-sm whitespace-pre-wrap">{event.description}</p>
                   )}
                 </div>
               )}
