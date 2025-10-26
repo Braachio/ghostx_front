@@ -1,8 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import type { Database } from '@/lib/database.types'
 import { useRouter } from 'next/navigation'
 import { MultiWithTemplate } from '@/types/events'
 import { useEventToggle } from '@/hooks/useEventToggle'

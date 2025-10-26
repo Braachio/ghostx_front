@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 import type { Database } from '@/lib/database.types'
 
 // GET - 내가 관리하는 이벤트 목록 조회
-export async function GET(_req: NextRequest) {
+export async function GET() {
   try {
     const cookieStore = await cookies()
     const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore })

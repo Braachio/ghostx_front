@@ -1,12 +1,18 @@
 'use client'
 
 import { useState } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import type { Database } from '@/lib/database.types'
 import Link from 'next/link'
 import { useEventToggle } from '@/hooks/useEventToggle'
 
-type Multi = Database['public']['Tables']['multis']['Row']
+type Multi = {
+  id: string
+  title: string
+  game: string
+  event_type: string
+  is_open: boolean
+  event_date: string | null
+  author_id: string
+}
 
 export default function MultiCard({
   multi,

@@ -119,26 +119,6 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
     }
   }
 
-  const handleCloseVoting = async () => {
-    if (!isOwner) return
-    
-    try {
-      const response = await fetch(`/api/regular-events/${regularEventId}/close-voting`, {
-        method: 'POST'
-      })
-
-      if (response.ok) {
-        alert('투표가 종료되었습니다.')
-        onClose()
-      } else {
-        const errorData = await response.json()
-        alert(errorData.error || '투표 종료에 실패했습니다.')
-      }
-    } catch (error) {
-      console.error('투표 종료 오류:', error)
-      alert('투표 종료 중 오류가 발생했습니다.')
-    }
-  }
 
   const handleAddOption = async () => {
     if (!newOptionValue.trim() || !isOwner) return
