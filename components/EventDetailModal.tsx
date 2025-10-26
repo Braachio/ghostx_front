@@ -53,6 +53,7 @@ export default function EventDetailModal({
   })
   const [isSaving, setIsSaving] = useState(false)
   const [currentDescription, setCurrentDescription] = useState('')
+  const [viewCount, setViewCount] = useState(0)
 
   const fetchParticipantCount = useCallback(async () => {
     if (!event) return
@@ -68,12 +69,30 @@ export default function EventDetailModal({
     }
   }, [event])
 
+  const incrementViewCount = useCallback(async () => {
+    if (!event) return
+    
+    try {
+      const response = await fetch(`/api/events/${event.id}/increment-view`, {
+        method: 'POST'
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setViewCount(data.view_count || 0)
+      }
+    } catch (error) {
+      console.error('조회수 증가 실패:', error)
+    }
+  }, [event])
+
   useEffect(() => {
     if (isOpen && event) {
       fetchParticipantCount()
       setCurrentDescription(event.description || '')
+      setViewCount(event.views || 0)
+      incrementViewCount() // 조회수 증가
     }
-  }, [isOpen, event, fetchParticipantCount])
+  }, [isOpen, event, fetchParticipantCount, incrementViewCount])
 
   // 이벤트 편집 시작 함수
   const handleEditStart = () => {
@@ -243,7 +262,7 @@ export default function EventDetailModal({
                  {/* 조회수 표시 */}
                  <div className="text-right">
                    <div className="text-gray-500 text-sm">
-                     조회 {event.views !== undefined ? event.views.toLocaleString() : '0'}
+                     조회 {viewCount.toLocaleString()}
                    </div>
                  </div>
               </div>

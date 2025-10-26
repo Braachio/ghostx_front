@@ -80,7 +80,7 @@ export async function GET(
 
     const participantsWithSteamId = safeParticipants.map(p => ({
       ...p,
-      nickname: '익명', // 기본 닉네임
+      nickname: 'ㅇㅇ', // 기본 닉네임
       status: 'confirmed', // 기본 상태
       steam_id: steamIdByUserId[p.user_id] ?? null,
     }))
