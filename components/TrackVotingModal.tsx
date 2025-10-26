@@ -25,6 +25,15 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
   const [addingOption, setAddingOption] = useState(false)
   const [isVotingClosed, setIsVotingClosed] = useState(false)
 
+  // 디버깅을 위한 로그 추가
+  console.log('TrackVotingModal 렌더링:', { 
+    isOpen, 
+    regularEventId, 
+    isOwner, 
+    game,
+    trackOptionsCount: trackOptions.length 
+  })
+
   const fetchTrackOptions = useCallback(async () => {
     setLoading(true)
     try {
@@ -367,12 +376,22 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
                       {/* 이벤트 소유자용 삭제 버튼 */}
                       {isOwner && (
                         <button
-                          onClick={() => handleDeleteOption(option.id)}
+                          onClick={() => {
+                            console.log('삭제 버튼 클릭:', { optionId: option.id, isOwner })
+                            handleDeleteOption(option.id)
+                          }}
                           className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
                           title="투표 옵션 삭제"
                         >
                           🗑️
                         </button>
+                      )}
+                      
+                      {/* 디버깅: isOwner 상태 표시 */}
+                      {!isOwner && (
+                        <span className="text-xs text-gray-500">
+                          (소유자 아님: {isOwner.toString()})
+                        </span>
                       )}
                     </div>
                   </div>
