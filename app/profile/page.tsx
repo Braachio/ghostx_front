@@ -59,6 +59,9 @@ export default function ProfilePage() {
   const [savingInterestGames, setSavingInterestGames] = useState(false)
   const [savingNotificationSettings, setSavingNotificationSettings] = useState(false)
   
+  // 알림 권한 관리
+  const { permission, isSupported, requestPermission, sendTestNotification } = useNotificationPermission()
+  
   // 알림 권한 요청
   const handleRequestNotificationPermission = async () => {
     const granted = await requestPermission()
