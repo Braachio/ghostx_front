@@ -1,40 +1,31 @@
 import { useState, useEffect } from 'react'
 
-interface NotificationPermission {
-  permission: NotificationPermission
-  isSupported: boolean
-}
-
 export function useNotificationPermission() {
-  const [permission, setPermission] = useState<NotificationPermission>({
-    permission: 'default',
-    isSupported: false
-  })
+  const [permission, setPermission] = useState<NotificationPermission>('default')
+  const [isSupported, setIsSupported] = useState(false)
 
   useEffect(() => {
     // 브라우저 알림 지원 여부 확인
-    const isSupported = 'Notification' in window
-    const currentPermission = isSupported ? Notification.permission : 'denied'
+    const supported = 'Notification' in window
+    const currentPermission = supported ? Notification.permission : 'denied'
     
-    setPermission({
-      permission: currentPermission,
-      isSupported
-    })
+    setPermission(currentPermission)
+    setIsSupported(supported)
   }, [])
 
   const requestPermission = async (): Promise<boolean> => {
-    if (!permission.isSupported) {
+    if (!isSupported) {
       console.log('이 브라우저는 알림을 지원하지 않습니다.')
       return false
     }
 
-    if (permission.permission === 'granted') {
+    if (permission === 'granted') {
       return true
     }
 
     try {
       const result = await Notification.requestPermission()
-      setPermission(prev => ({ ...prev, permission: result }))
+      setPermission(result)
       
       if (result === 'granted') {
         console.log('✅ 알림 권한이 허용되었습니다!')
@@ -53,7 +44,7 @@ export function useNotificationPermission() {
   }
 
   const sendTestNotification = () => {
-    if (permission.permission === 'granted') {
+    if (permission === 'granted') {
       new Notification('테스트 알림', {
         body: '알림이 정상적으로 작동합니다! 🎉',
         icon: '/favicon.ico',
@@ -63,7 +54,8 @@ export function useNotificationPermission() {
   }
 
   return {
-    ...permission,
+    permission,
+    isSupported,
     requestPermission,
     sendTestNotification
   }

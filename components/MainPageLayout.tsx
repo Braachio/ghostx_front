@@ -147,8 +147,14 @@ export default function MainPageLayout({
                     >
                       ➕ {t[language].createEvent}
                     </Link>
+                    <Link
+                      href="/profile"
+                      className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg shadow-blue-500/30"
+                    >
+                      👤 프로필 보기
+                    </Link>
                     <span className="text-sm bg-gray-800/50 px-3 py-2 rounded-lg border border-gray-700 text-cyan-400">
-                      👤 {t[language].welcome(user.nickname)}
+                      {t[language].welcome(user.nickname)}
                     </span>
                     <button
                       onClick={onLogout}
