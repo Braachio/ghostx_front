@@ -18,7 +18,7 @@ export async function GET(
 
     // 투표 옵션 조회
     const { data: options, error } = await supabase
-      .from('vote_options')
+      .from('regular_event_vote_options')
       .select('id, option_type, option_value, votes_count, created_at')
       .eq('regular_event_id', id)
       .order('option_type', { ascending: true })
@@ -78,7 +78,7 @@ export async function POST(
 
     // 투표 옵션 추가
     const { data: newOption, error: insertError } = await supabase
-      .from('vote_options')
+      .from('regular_event_vote_options')
       .insert({
         regular_event_id: id,
         option_type: option_type,
@@ -144,7 +144,7 @@ export async function PATCH(
 
     // 투표 옵션 수정
     const { data: updatedOption, error: updateError } = await supabase
-      .from('vote_options')
+      .from('regular_event_vote_options')
       .update({
         option_value: option_value,
         updated_at: new Date().toISOString()
@@ -208,7 +208,7 @@ export async function DELETE(
 
     // 투표 옵션 삭제
     const { error: deleteError } = await supabase
-      .from('vote_options')
+      .from('regular_event_vote_options')
       .delete()
       .eq('id', option_id)
       .eq('regular_event_id', id)

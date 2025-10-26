@@ -48,7 +48,7 @@ export async function POST(
 
     // 투표 옵션이 존재하는지 확인
     const { data: trackOption, error: optionError } = await supabase
-      .from('vote_options')
+      .from('regular_event_vote_options')
       .select('id, option_value')
       .eq('id', track_option_id)
       .eq('regular_event_id', id)
@@ -163,7 +163,7 @@ export async function GET(
 
     // 투표 옵션 조회
     const { data: trackOptions, error: optionsError } = await supabase
-      .from('vote_options')
+      .from('regular_event_vote_options')
       .select('id, option_value, votes_count')
       .eq('regular_event_id', id)
       .eq('option_type', 'track')
