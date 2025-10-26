@@ -92,23 +92,6 @@ export async function POST(req: NextRequest) {
           ? `⚡ 새로운 기습 갤멀이 활성화되었습니다!\n\n🎮 ${eventTitle}\n📅 ${eventGame}`
           : `📅 새로운 정기 갤멀이 활성화되었습니다!\n\n🎮 ${eventTitle}\n📅 매주 ${eventGame}`
 
-        // 알림 기록 저장 (선택사항)
-        const { error: notificationError } = await supabase
-          .from('notifications')
-          .insert({
-            user_id: userId,
-            title: eventType === 'flash_event' ? '기습 갤멀 활성화' : '정기 갤멀 활성화',
-            message: notificationMessage,
-            type: eventType === 'flash_event' ? 'flash_event' : 'regular_event',
-            event_id: eventId,
-            is_read: false
-          })
-
-        if (notificationError) {
-          console.log(`알림 기록 저장 실패 (사용자: ${user.nickname}):`, notificationError)
-          // 알림 기록 저장 실패해도 계속 진행
-        }
-
         // 실제 푸시 알림 전송 (여기서는 로그로 대체)
         console.log(`📱 푸시 알림 전송: ${user.nickname} (${user.email})`)
         console.log(`메시지: ${notificationMessage}`)
