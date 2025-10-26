@@ -16,16 +16,27 @@ export async function GET(
 
     console.log('투표 옵션 조회:', { regularEventId: id })
 
-    // 투표 옵션 조회
+    // 현재 주차와 연도 계산
+    const now = new Date()
+    const currentYear = now.getFullYear()
+    const currentWeek = Math.ceil((((+now - +new Date(now.getFullYear(), 0, 1)) / 86400000) + new Date(now.getFullYear(), 0, 1).getDay() + 1) / 7)
+
+    console.log('현재 주차 정보:', { currentYear, currentWeek })
+
+    // 투표 옵션 조회 (현재 주차만)
     const { data: options, error } = await supabase
       .from('regular_event_vote_options')
       .select('id, option_type, option_value, votes_count, created_at')
       .eq('regular_event_id', id)
+      .eq('week_number', currentWeek)
+      .eq('year', currentYear)
       .order('option_type', { ascending: true })
       .order('votes_count', { ascending: false })
 
     console.log('투표 옵션 조회 결과:', { 
       regularEventId: id, 
+      currentWeek,
+      currentYear,
       optionsCount: options?.length || 0, 
       options: options,
       error: error 
@@ -83,11 +94,20 @@ export async function POST(
       return NextResponse.json({ error: '유효하지 않은 옵션 타입입니다.' }, { status: 400 })
     }
 
+    // 현재 주차와 연도 계산
+    const now = new Date()
+    const currentYear = now.getFullYear()
+    const currentWeek = Math.ceil((((+now - +new Date(now.getFullYear(), 0, 1)) / 86400000) + new Date(now.getFullYear(), 0, 1).getDay() + 1) / 7)
+
+    console.log('주차 정보:', { currentYear, currentWeek })
+
     // 투표 옵션 추가
     const { data: newOption, error: insertError } = await supabase
       .from('regular_event_vote_options')
       .insert({
         regular_event_id: id,
+        week_number: currentWeek,
+        year: currentYear,
         option_type: option_type,
         option_value: option_value
       })

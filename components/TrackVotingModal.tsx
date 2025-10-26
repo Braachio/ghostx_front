@@ -4,9 +4,9 @@ import { useState, useEffect, useCallback } from 'react'
 
 interface TrackOption {
   id: string
-  track_name: string
-  votes: number
-  user_voted: boolean
+  option_value: string
+  votes_count: number
+  user_voted?: boolean
 }
 
 interface TrackVotingModalProps {
@@ -192,11 +192,11 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
                 <div key={option.id} className="bg-gray-700 rounded-lg p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      <h3 className="text-white font-medium text-lg">{option.track_name}</h3>
+                      <h3 className="text-white font-medium text-lg">{option.option_value}</h3>
                       <div className="flex items-center gap-4 mt-2">
                         <div className="flex items-center gap-2">
                           <span className="text-gray-400 text-sm">투표수:</span>
-                          <span className="text-white font-semibold">{option.votes}표</span>
+                          <span className="text-white font-semibold">{option.votes_count}표</span>
                         </div>
                         {option.user_voted && (
                           <span className="text-green-400 text-sm font-medium">✓ 투표완료</span>
