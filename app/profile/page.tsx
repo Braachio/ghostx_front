@@ -259,9 +259,9 @@ export default function ProfilePage() {
 
   const { profile, games, totalGames, totalPlaytime } = profileData
 
-  // 레이싱 게임만 필터링
-  const racingGames = games.filter(game => isRacingGame(game.appId))
-  const displayGames = filter === 'racing' ? racingGames : games
+  // 레이싱 게임만 필터링 (games가 undefined일 경우 빈 배열 사용)
+  const racingGames = (games || []).filter(game => isRacingGame(game.appId))
+  const displayGames = filter === 'racing' ? racingGames : (games || [])
 
   // 레이싱 게임 통계
   const totalRacingPlaytime = racingGames.reduce(
