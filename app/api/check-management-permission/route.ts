@@ -8,16 +8,22 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const eventId = searchParams.get('eventId')
 
+    console.log('권한 확인 API 호출:', { eventId })
+
     if (!eventId) {
       return NextResponse.json({ error: 'Event ID is required' }, { status: 400 })
     }
 
-    const supabase = createRouteHandlerClient<Database>({ cookies })
+    const cookieStore = await cookies()
+    const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore })
     
     // 현재 사용자 확인
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     
+    console.log('사용자 인증 확인:', { user: user?.id, error: userError })
+    
     if (userError || !user) {
+      console.log('권한 확인 실패 - 인증 오류')
       return NextResponse.json({ hasPermission: false })
     }
 
@@ -28,7 +34,10 @@ export async function GET(request: NextRequest) {
       .eq('id', eventId)
       .single()
 
+    console.log('이벤트 정보 확인:', { event, error: eventError })
+
     if (eventError || !event) {
+      console.log('권한 확인 실패 - 이벤트 없음')
       return NextResponse.json({ hasPermission: false })
     }
 
@@ -42,10 +51,23 @@ export async function GET(request: NextRequest) {
       .eq('id', user.id)
       .single()
 
+    console.log('프로필 정보 확인:', { profile, isOwner })
+
     const isAdmin = profile?.role === 'admin' || profile?.role === 'moderator' || profile?.role === 'event_manager'
     
+    const hasPermission = isOwner || isAdmin
+    
+    console.log('최종 권한 확인 결과:', { 
+      isOwner, 
+      isAdmin, 
+      hasPermission, 
+      userRole: profile?.role,
+      userId: user.id,
+      eventAuthorId: event.author_id
+    })
+    
     return NextResponse.json({ 
-      hasPermission: isOwner || isAdmin 
+      hasPermission: hasPermission 
     })
 
   } catch (error) {
