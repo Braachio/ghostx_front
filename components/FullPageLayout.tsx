@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import EventCalendar from './EventCalendar'
 import InterestGameNotificationBanner from './InterestGameNotificationBanner'
+import EventManagerPanel from './EventManagerPanel'
 import type { Database } from '@/lib/database.types'
 
 type Multi = Database['public']['Tables']['multis']['Row']
@@ -42,6 +43,7 @@ export default function FullPageLayout({
 }: FullPageLayoutProps) {
   const [currentSection, setCurrentSection] = useState(0)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isEventManagerPanelOpen, setIsEventManagerPanelOpen] = useState(false)
 
   // 스크롤 감지
   useEffect(() => {
@@ -249,6 +251,12 @@ export default function FullPageLayout({
                   {/* 권한에 따른 버튼 표시 */}
                   {user.role === 'admin' || user.role === 'event_manager' ? (
                     <>
+                      <button
+                        onClick={() => setIsEventManagerPanelOpen(true)}
+                        className="text-white text-sm font-medium hover:text-purple-400 transition-colors"
+                      >
+                        🎛️ 갤멀 관리
+                      </button>
                       <Link
                         href="/events/regular/new"
                         className="text-white text-sm font-medium hover:text-cyan-400 transition-colors"
@@ -539,6 +547,15 @@ export default function FullPageLayout({
           </div>
         </div>
       </section>
+
+      {/* 이벤트 매니저 패널 */}
+      {user && (user.role === 'admin' || user.role === 'event_manager') && (
+        <EventManagerPanel
+          isOpen={isEventManagerPanelOpen}
+          onClose={() => setIsEventManagerPanelOpen(false)}
+          userId={user.id}
+        />
+      )}
     </div>
   )
 }
