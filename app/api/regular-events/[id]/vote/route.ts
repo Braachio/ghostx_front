@@ -202,16 +202,15 @@ export async function GET(
       console.error('참가자 수 조회 실패:', participantsError)
     }
 
-    // 투표 스케줄 조회
-    const now = new Date()
-    const { data: schedule, error: scheduleError } = await supabase
-      .from('vote_schedules')
-      .select('voting_start, voting_end, is_active')
-      .eq('regular_event_id', id)
-      .eq('is_active', true)
-      .lte('voting_start', now.toISOString())
-      .gte('voting_end', now.toISOString())
-      .single()
+    // 투표 스케줄 조회 (수동 투표 관리로 변경되어 사용하지 않음)
+    // const { data: schedule, error: scheduleError } = await supabase
+    //   .from('vote_schedules')
+    //   .select('voting_start, voting_end, is_active')
+    //   .eq('regular_event_id', id)
+    //   .eq('is_active', true)
+    //   .lte('voting_start', now.toISOString())
+    //   .gte('voting_end', now.toISOString())
+    //   .single()
 
     return NextResponse.json({
       trackOptions: trackOptions || [],
