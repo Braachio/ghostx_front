@@ -83,6 +83,8 @@ export async function GET() {
     const gamesData = await gamesResponse.json()
 
     const allGames: SteamGame[] = gamesData.response?.games || []
+    console.log('Steam API 응답 - 전체 게임 수:', allGames.length)
+    console.log('Steam API 응답 - 게임 데이터 샘플:', allGames.slice(0, 3))
     
     // 레이싱 게임 필터링 (앱 ID 기반)
     const racingGameAppIds = [

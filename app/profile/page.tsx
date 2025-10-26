@@ -105,6 +105,7 @@ export default function ProfilePage() {
       }
 
       const data: ProfileData = await response.json()
+      console.log('프로필 데이터 받음:', data)
       setProfileData(data)
     } catch (err) {
       console.error('Profile fetch error:', err)
