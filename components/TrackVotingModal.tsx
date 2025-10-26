@@ -182,7 +182,10 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
     console.log('투표 옵션 삭제 시도:', { optionId, regularEventId })
 
     try {
-      const response = await fetch(`/api/regular-events/${regularEventId}/vote-options/${optionId}`, {
+      const deleteUrl = `/api/regular-events/${regularEventId}/vote-options/${optionId}`
+      console.log('삭제 API URL:', deleteUrl)
+      
+      const response = await fetch(deleteUrl, {
         method: 'DELETE',
       })
 

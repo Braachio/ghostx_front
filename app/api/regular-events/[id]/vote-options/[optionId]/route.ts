@@ -12,9 +12,17 @@ export async function DELETE(
   try {
     const cookieStore = await cookies()
     const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore })
-    const { id, optionId } = await params
+    
+    // params를 await로 처리
+    const resolvedParams = await params
+    const { id, optionId } = resolvedParams
 
-    console.log('투표 옵션 삭제:', { regularEventId: id, optionId })
+    console.log('투표 옵션 삭제 시작:', { 
+      regularEventId: id, 
+      optionId,
+      resolvedParams,
+      url: req.url 
+    })
 
     // 사용자 인증 확인
     const { data: { user }, error: authError } = await supabase.auth.getUser()
