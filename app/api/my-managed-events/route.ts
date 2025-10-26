@@ -89,11 +89,18 @@ export async function GET(req: NextRequest) {
     const eventsWithVoteStatus = await Promise.all(
       (events || []).map(async (event) => {
         // 작성자 정보 조회
-        const { data: authorProfile } = await supabase
+        const { data: authorProfile, error: authorError } = await supabase
           .from('profiles')
           .select('nickname')
           .eq('id', event.author_id)
           .single()
+
+        console.log('작성자 정보 조회:', { 
+          eventId: event.id, 
+          authorId: event.author_id, 
+          authorProfile, 
+          authorError 
+        })
 
         // 투표 옵션 개수 조회
         const { data: voteOptions, error: voteOptionsError } = await supabase
