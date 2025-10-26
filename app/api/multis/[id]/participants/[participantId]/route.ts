@@ -57,7 +57,22 @@ export async function PATCH(
       return NextResponse.json({ error: '유효하지 않은 상태입니다. (confirmed, pending)' }, { status: 400 })
     }
 
-    // 참가자 상태 업데이트
+    // 먼저 참가자가 존재하는지 확인
+    const { data: existingParticipant, error: checkError } = await supabase
+      .from('participants')
+      .select('id, event_id, user_id, status')
+      .eq('id', participantId)
+      .eq('event_id', id)
+      .single()
+
+    if (checkError || !existingParticipant) {
+      console.error('참가자 확인 실패:', checkError)
+      return NextResponse.json({ error: '참가자를 찾을 수 없습니다.' }, { status: 404 })
+    }
+
+    console.log('기존 참가자 정보:', existingParticipant)
+
+    // 참가자 상태 업데이트 (조건을 단순화)
     const { data: updatedParticipant, error: updateError } = await supabase
       .from('participants')
       .update({
@@ -65,7 +80,6 @@ export async function PATCH(
         updated_at: new Date().toISOString()
       })
       .eq('id', participantId)
-      .eq('event_id', id)
       .select()
       .single()
 
