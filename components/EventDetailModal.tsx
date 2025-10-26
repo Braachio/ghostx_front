@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import ParticipationButton from '@/components/ParticipationButton'
 import ParticipantListModal from '@/components/ParticipantListModal'
 import TrackVotingModal from '@/components/TrackVotingModal'
@@ -38,10 +39,12 @@ export default function EventDetailModal({
   user, 
   hasManagementPermission 
 }: EventDetailModalProps) {
+  const router = useRouter()
   const [showParticipantModal, setShowParticipantModal] = useState(false)
   const [showVotingModal, setShowVotingModal] = useState(false)
   const [showDescriptionModal, setShowDescriptionModal] = useState(false)
   const [participantCount, setParticipantCount] = useState(0)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const fetchParticipantCount = useCallback(async () => {
     if (!event) return
@@ -62,6 +65,44 @@ export default function EventDetailModal({
       fetchParticipantCount()
     }
   }, [isOpen, event, fetchParticipantCount])
+
+  // 이벤트 수정 함수
+  const handleEdit = () => {
+    if (!event) return
+    // 이벤트 수정 페이지로 이동
+    router.push(`/multis/edit/${event.id}`)
+    onClose() // 모달 닫기
+  }
+
+  // 이벤트 삭제 함수
+  const handleDelete = async () => {
+    if (!event) return
+    
+    const confirmed = confirm(`"${event.title}" 이벤트를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`)
+    if (!confirmed) return
+
+    setIsDeleting(true)
+    try {
+      const response = await fetch(`/api/multis/${event.id}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        alert('이벤트가 성공적으로 삭제되었습니다.')
+        onClose() // 모달 닫기
+        // 페이지 새로고침 또는 이벤트 목록 업데이트
+        window.location.reload()
+      } else {
+        const errorData = await response.json()
+        alert(`삭제 실패: ${errorData.error || '알 수 없는 오류가 발생했습니다.'}`)
+      }
+    } catch (error) {
+      console.error('이벤트 삭제 오류:', error)
+      alert('이벤트 삭제 중 오류가 발생했습니다.')
+    } finally {
+      setIsDeleting(false)
+    }
+  }
 
   if (!isOpen || !event) return null
 
@@ -177,16 +218,41 @@ export default function EventDetailModal({
         </div>
 
         <div className="flex items-center justify-between p-6 border-t border-gray-700">
-          {/* 상세정보 버튼 (왼쪽) */}
-          {event.description && (
-            <button
-              onClick={() => setShowDescriptionModal(true)}
-              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all font-semibold shadow-lg hover:shadow-purple-500/25 flex items-center gap-2"
-            >
-              <span className="text-lg">📋</span>
-              상세정보
-            </button>
-          )}
+          {/* 왼쪽 버튼들 */}
+          <div className="flex items-center gap-3">
+            {/* 상세정보 버튼 */}
+            {event.description && (
+              <button
+                onClick={() => setShowDescriptionModal(true)}
+                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all font-semibold shadow-lg hover:shadow-purple-500/25 flex items-center gap-2"
+              >
+                <span className="text-lg">📋</span>
+                상세정보
+              </button>
+            )}
+            
+            {/* 수정/삭제 버튼 (작성자나 관리자만) */}
+            {((user && event.author_id === user.id) || hasManagementPermission) && (
+              <>
+                <button
+                  onClick={handleEdit}
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-semibold shadow-lg hover:shadow-blue-500/25 flex items-center gap-2"
+                >
+                  <span className="text-lg">✏️</span>
+                  수정
+                </button>
+                
+                <button
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:from-red-700 hover:to-red-800 transition-all font-semibold shadow-lg hover:shadow-red-500/25 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span className="text-lg">🗑️</span>
+                  {isDeleting ? '삭제 중...' : '삭제'}
+                </button>
+              </>
+            )}
+          </div>
           
           {/* 닫기 버튼 (오른쪽) */}
           <button
