@@ -31,6 +31,7 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
   const [loading, setLoading] = useState(true)
   const [dismissed, setDismissed] = useState(false)
   const [joiningEvents, setJoiningEvents] = useState<Set<string>>(new Set())
+  const [isExpanded, setIsExpanded] = useState(true)
 
   useEffect(() => {
     if (!userId) {
@@ -189,17 +190,28 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
                     : '관심 게임 정기 멀티!'
                 }
               </h3>
-              <button
-                onClick={() => setDismissed(true)}
-                className="text-gray-400 hover:text-white transition-colors"
-              >
-                ✕
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className="text-gray-400 hover:text-white transition-colors"
+                  title={isExpanded ? '접기' : '펼치기'}
+                >
+                  {isExpanded ? '▼' : '▶'}
+                </button>
+                <button
+                  onClick={() => setDismissed(true)}
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
             
-            <p className="text-gray-300 mb-4">
-              관심 게임에 새로운 이벤트가 있습니다!
-            </p>
+            {isExpanded && (
+              <>
+                <p className="text-gray-300 mb-4">
+                  관심 게임에 새로운 이벤트가 있습니다!
+                </p>
             
             <div className="space-y-2">
               {/* 기습 갤멀 이벤트 */}
@@ -253,6 +265,8 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
                 관심 게임 설정
               </Link>
             </div>
+            </>
+            )}
           </div>
         </div>
       </div>
