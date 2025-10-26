@@ -23,7 +23,11 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
-    console.log('내가 관리하는 이벤트 조회:', { userId: user.id })
+    // 시간이 지난 기습 갤멀 제외 (정기 갤멀은 항상 표시)
+    const now = new Date()
+    const today = now.toISOString().split('T')[0] // YYYY-MM-DD 형식
+    
+    console.log('내가 관리하는 이벤트 조회:', { userId: user.id, today })
 
     // 사용자 프로필에서 역할 확인
     const { data: profile, error: profileError } = await supabase
@@ -56,6 +60,9 @@ export async function GET(req: NextRequest) {
         author_id
       `)
       .order('created_at', { ascending: false })
+
+    // 정기 갤멀은 항상 표시, 기습 갤멀은 오늘 이후만 표시
+    query = query.or(`event_type.eq.regular_schedule,and(event_type.eq.flash_event,event_date.gte.${today})`)
 
     // 관리자가 아닌 경우 자신이 작성한 이벤트만 조회
     if (!isAdmin) {
