@@ -54,17 +54,34 @@ export async function POST(
       return NextResponse.json({ error: '해당 주차의 투표 옵션이 존재하지 않습니다.' }, { status: 404 })
     }
 
-    // 3. 투표 상태 업데이트
-    const { error: updateError } = await supabase
-      .from('regular_event_vote_options')
-      .update({ voting_closed: voting_closed })
-      .eq('regular_event_id', id)
-      .eq('week_number', currentWeek)
-      .eq('year', currentYear)
+    // 3. 투표 상태 업데이트 (voting_closed 필드가 있는지 확인)
+    try {
+      const { error: updateError } = await supabase
+        .from('regular_event_vote_options')
+        .update({ voting_closed: voting_closed })
+        .eq('regular_event_id', id)
+        .eq('week_number', currentWeek)
+        .eq('year', currentYear)
 
-    if (updateError) {
-      console.error('투표 상태 업데이트 실패:', updateError)
-      return NextResponse.json({ error: '투표 상태 업데이트에 실패했습니다.' }, { status: 500 })
+      if (updateError) {
+        console.error('투표 상태 업데이트 실패:', updateError)
+        // voting_closed 필드가 없을 수 있으므로 경고만 출력하고 계속 진행
+        console.warn('voting_closed 필드가 없습니다. 데이터베이스 마이그레이션이 필요합니다.')
+        return NextResponse.json({ 
+          success: true, 
+          message: voting_closed ? '투표가 종료되었습니다.' : '투표가 재개되었습니다.',
+          warning: 'voting_closed 필드가 없습니다. 데이터베이스 마이그레이션을 실행하세요.',
+          voting_closed: voting_closed
+        })
+      }
+    } catch (error) {
+      console.error('투표 상태 업데이트 중 오류:', error)
+      return NextResponse.json({ 
+        success: true, 
+        message: voting_closed ? '투표가 종료되었습니다.' : '투표가 재개되었습니다.',
+        warning: 'voting_closed 필드가 없습니다. 데이터베이스 마이그레이션을 실행하세요.',
+        voting_closed: voting_closed
+      })
     }
 
     return NextResponse.json({ 

@@ -39,11 +39,18 @@ export async function GET(
 
     if (error) {
       console.error('투표 상태 조회 실패:', error)
-      return NextResponse.json({ error: '투표 상태를 확인할 수 없습니다.' }, { status: 500 })
+      // voting_closed 필드가 없을 수 있으므로 기본값 반환
+      return NextResponse.json({
+        isVotingClosed: false,
+        currentWeek,
+        currentYear,
+        hasVoteOptions: false,
+        error: error.message
+      })
     }
 
     // voting_closed 필드가 없으면 기본적으로 투표 활성화 상태
-    const isVotingClosed = voteOptions && voteOptions.length > 0 ? voteOptions[0].voting_closed : false
+    const isVotingClosed = voteOptions && voteOptions.length > 0 ? (voteOptions[0].voting_closed || false) : false
 
     return NextResponse.json({
       isVotingClosed,

@@ -62,9 +62,20 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
         const data = await response.json()
         console.log('투표 상태:', data)
         setIsVotingClosed(data.isVotingClosed || false)
+        
+        // 경고 메시지가 있으면 표시
+        if (data.warning) {
+          console.warn('투표 상태 경고:', data.warning)
+        }
+      } else {
+        console.error('투표 상태 API 오류:', response.status, response.statusText)
+        // API 오류 시 기본값으로 설정
+        setIsVotingClosed(false)
       }
     } catch (error) {
       console.error('투표 상태 확인 실패:', error)
+      // 네트워크 오류 시 기본값으로 설정
+      setIsVotingClosed(false)
     }
   }, [regularEventId])
 
@@ -192,9 +203,18 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
         throw new Error(errorData.error || '투표 시작에 실패했습니다.')
       }
 
+      const data = await response.json()
+      console.log('투표 시작 응답:', data)
+      
       await fetchTrackOptions()
       await fetchVoteStatus()
-      alert('투표가 시작되었습니다.')
+      
+      // 경고 메시지가 있으면 표시
+      if (data.warning) {
+        alert(`투표가 시작되었습니다.\n\n경고: ${data.warning}`)
+      } else {
+        alert('투표가 시작되었습니다.')
+      }
     } catch (error) {
       console.error('투표 시작 실패:', error)
       alert(error instanceof Error ? error.message : '투표 시작 중 오류가 발생했습니다.')
@@ -222,9 +242,18 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
         throw new Error(errorData.error || '투표 종료에 실패했습니다.')
       }
 
+      const data = await response.json()
+      console.log('투표 종료 응답:', data)
+      
       await fetchTrackOptions()
       await fetchVoteStatus()
-      alert('투표가 종료되었습니다.')
+      
+      // 경고 메시지가 있으면 표시
+      if (data.warning) {
+        alert(`투표가 종료되었습니다.\n\n경고: ${data.warning}`)
+      } else {
+        alert('투표가 종료되었습니다.')
+      }
     } catch (error) {
       console.error('투표 종료 실패:', error)
       alert(error instanceof Error ? error.message : '투표 종료 중 오류가 발생했습니다.')
