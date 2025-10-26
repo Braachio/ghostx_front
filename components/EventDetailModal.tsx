@@ -49,10 +49,10 @@ export default function EventDetailModal({
     game_track: '',
     multi_class: '',
     multi_time: '',
-    duration_hours: 1,
-    description: ''
+    duration_hours: 1
   })
   const [isSaving, setIsSaving] = useState(false)
+  const [currentDescription, setCurrentDescription] = useState('')
 
   const fetchParticipantCount = useCallback(async () => {
     if (!event) return
@@ -71,6 +71,7 @@ export default function EventDetailModal({
   useEffect(() => {
     if (isOpen && event) {
       fetchParticipantCount()
+      setCurrentDescription(event.description || '')
     }
   }, [isOpen, event, fetchParticipantCount])
 
@@ -82,8 +83,7 @@ export default function EventDetailModal({
       game_track: event.game_track || '',
       multi_class: event.multi_class || '',
       multi_time: event.multi_time || '',
-      duration_hours: event.duration_hours || 1,
-      description: event.description || ''
+      duration_hours: event.duration_hours || 1
     })
     setIsEditing(true)
   }
@@ -96,8 +96,7 @@ export default function EventDetailModal({
       game_track: '',
       multi_class: '',
       multi_time: '',
-      duration_hours: 1,
-      description: ''
+      duration_hours: 1
     })
   }
 
@@ -311,24 +310,6 @@ export default function EventDetailModal({
                   )}
                 </div>
               </div>
-
-              {/* 설명 섹션 (편집 가능) */}
-              {event.description && (
-                <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-                  <p className="text-gray-400 text-sm mb-2">📝설명</p>
-                  {isEditing ? (
-                    <textarea
-                      value={editForm.description}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
-                      className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm resize-none"
-                      rows={3}
-                      placeholder="이벤트 설명을 입력하세요"
-                    />
-                  ) : (
-                    <p className="text-white text-sm whitespace-pre-wrap">{event.description}</p>
-                  )}
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -426,7 +407,14 @@ export default function EventDetailModal({
         isOpen={showDescriptionModal}
         onClose={() => setShowDescriptionModal(false)}
         title={event.title}
-        description={event.description || ''}
+        description={currentDescription}
+        eventId={event.id}
+        isEditable={((user && event.author_id === user.id) || hasManagementPermission)}
+        onUpdate={(newDescription) => {
+          setCurrentDescription(newDescription)
+          // 페이지 새로고침으로 변경사항 반영
+          window.location.reload()
+        }}
       />
     </div>
   )
