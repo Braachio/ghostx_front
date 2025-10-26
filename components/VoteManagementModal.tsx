@@ -219,29 +219,6 @@ export default function VoteManagementModal({
     }
   }
 
-  // 갤멀 삭제
-  const handleDeleteEvent = async () => {
-    if (!confirm(`"${eventTitle}" 갤멀을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없으며, 모든 투표 데이터와 참가자 정보가 함께 삭제됩니다.`)) return
-
-    try {
-      const response = await fetch(`/api/multis/${eventId}`, {
-        method: 'DELETE',
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || '갤멀 삭제에 실패했습니다.')
-      }
-
-      alert('갤멀이 성공적으로 삭제되었습니다.')
-      onClose() // 모달 닫기
-      // 페이지 새로고침하여 변경사항 반영
-      window.location.reload()
-    } catch (error) {
-      console.error('갤멀 삭제 오류:', error)
-      alert(error instanceof Error ? error.message : '갤멀 삭제 중 오류가 발생했습니다.')
-    }
-  }
 
   useEffect(() => {
     if (isOpen && eventId) {
@@ -418,13 +395,6 @@ export default function VoteManagementModal({
             총 {voteOptions.length}개의 투표 옵션
           </div>
           <div className="flex space-x-3">
-            <button
-              onClick={handleDeleteEvent}
-              className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 flex items-center space-x-1"
-            >
-              <Trash2 className="w-4 h-4" />
-              <span>갤멀 삭제</span>
-            </button>
             <button
               onClick={fetchVoteStatus}
               disabled={loading}
