@@ -68,7 +68,16 @@ export async function GET(req: NextRequest) {
 
     if (error) {
       console.error('이벤트 조회 실패:', error)
-      return NextResponse.json({ error: '이벤트 조회에 실패했습니다.' }, { status: 500 })
+      console.error('오류 상세:', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint
+      })
+      return NextResponse.json({ 
+        error: '이벤트 조회에 실패했습니다.',
+        details: error.message 
+      }, { status: 500 })
     }
 
     // 각 이벤트의 투표 상태 및 작성자 정보 확인
@@ -120,6 +129,11 @@ export async function GET(req: NextRequest) {
 
   } catch (error) {
     console.error('내가 관리하는 이벤트 조회 오류:', error)
-    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 })
+    console.error('오류 타입:', typeof error)
+    console.error('오류 상세:', error instanceof Error ? error.message : error)
+    return NextResponse.json({ 
+      error: '서버 오류가 발생했습니다.',
+      details: error instanceof Error ? error.message : '알 수 없는 오류'
+    }, { status: 500 })
   }
 }
