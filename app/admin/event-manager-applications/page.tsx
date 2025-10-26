@@ -36,10 +36,6 @@ export default function EventManagerApplicationsPage() {
   const [reviewNotes, setReviewNotes] = useState('')
   const [isReviewing, setIsReviewing] = useState(false)
 
-  useEffect(() => {
-    fetchApplications()
-  }, [selectedStatus, fetchApplications])
-
   const fetchApplications = useCallback(async () => {
     try {
       const response = await fetch(`/api/event-manager-applications?status=${selectedStatus}`)
@@ -55,6 +51,10 @@ export default function EventManagerApplicationsPage() {
       setLoading(false)
     }
   }, [selectedStatus, router])
+
+  useEffect(() => {
+    fetchApplications()
+  }, [selectedStatus, fetchApplications])
 
   const handleReview = async (applicationId: string, status: 'approved' | 'rejected') => {
     setIsReviewing(true)
