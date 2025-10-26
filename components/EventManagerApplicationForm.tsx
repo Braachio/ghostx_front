@@ -5,12 +5,10 @@ import { useRouter } from 'next/navigation'
 
 interface EventManagerApplicationFormProps {
   onSuccess?: () => void
-  onCancel?: () => void
 }
 
 export default function EventManagerApplicationForm({ 
-  onSuccess, 
-  onCancel 
+  onSuccess
 }: EventManagerApplicationFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
