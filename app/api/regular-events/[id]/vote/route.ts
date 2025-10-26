@@ -67,9 +67,9 @@ export async function POST(
     }
 
     // 현재 주차와 연도 계산
-    const now = new Date()
-    const currentYear = now.getFullYear()
-    const currentWeek = Math.ceil((((+now - +new Date(now.getFullYear(), 0, 1)) / 86400000) + new Date(now.getFullYear(), 0, 1).getDay() + 1) / 7)
+    const currentDate = new Date()
+    const currentYear = currentDate.getFullYear()
+    const currentWeek = Math.ceil((((+currentDate - +new Date(currentDate.getFullYear(), 0, 1)) / 86400000) + new Date(currentDate.getFullYear(), 0, 1).getDay() + 1) / 7)
 
     // 기존 투표 확인 및 업데이트/삽입
     const { data: existingVote, error: existingVoteError } = await supabase
@@ -174,9 +174,9 @@ export async function GET(
     }
 
     // 사용자의 기존 투표 조회
-    const now = new Date()
-    const currentYear = now.getFullYear()
-    const currentWeek = Math.ceil((((+now - +new Date(now.getFullYear(), 0, 1)) / 86400000) + new Date(now.getFullYear(), 0, 1).getDay() + 1) / 7)
+    const currentDate = new Date()
+    const currentYear = currentDate.getFullYear()
+    const currentWeek = Math.ceil((((+currentDate - +new Date(currentDate.getFullYear(), 0, 1)) / 86400000) + new Date(currentDate.getFullYear(), 0, 1).getDay() + 1) / 7)
 
     const { data: userVote, error: voteError } = await supabase
       .from('regular_event_votes')
