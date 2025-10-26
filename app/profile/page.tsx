@@ -303,7 +303,20 @@ export default function ProfilePage() {
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-3">
             GHOST DRIVER PROFILE
           </h1>
-          <p className="text-gray-400 text-lg">당신의 레이싱 통계를 확인하세요</p>
+          <p className="text-gray-400 text-lg mb-6">당신의 레이싱 통계를 확인하세요</p>
+          
+          {/* 메인페이지로 가는 버튼 */}
+          <div className="mb-4">
+            <Link 
+              href="/"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg transition-all shadow-lg hover:shadow-purple-500/50 text-white font-semibold"
+            >
+              <span>🏠</span>
+              <span>메인페이지로</span>
+              <span>→</span>
+            </Link>
+          </div>
+          
           <div className="mt-4 h-px w-64 mx-auto bg-gradient-to-r from-transparent via-purple-500 to-transparent"></div>
         </div>
 
@@ -331,14 +344,7 @@ export default function ProfilePage() {
                     <span className="text-gray-400">Steam ID:</span>{' '}
                     <span className="font-mono text-purple-400">{profile.steamId}</span>
                   </div>
-                  {profile.accountCreated && (
-                    <div className="bg-gray-800/50 px-3 py-1 rounded-lg border border-gray-700">
-                      <span className="text-gray-400">가입일:</span>{' '}
-                      <span className="text-blue-400">
-                        {new Date(profile.accountCreated).toLocaleDateString('ko-KR')}
-                      </span>
-                    </div>
-                  )}
+
                 </div>
                 
                 {/* 갤로그 정보 표시 */}
@@ -388,7 +394,7 @@ export default function ProfilePage() {
         </div>
 
         {/* 통계 카드들 - 네온 효과 */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <div className="relative group">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl blur-lg group-hover:blur-xl transition-all"></div>
             <div className="relative bg-gray-900/90 border border-blue-500/30 rounded-xl p-6 backdrop-blur-sm">
@@ -417,7 +423,7 @@ export default function ProfilePage() {
               <div className="text-3xl font-bold text-white">{formatPlaytime(totalRacingPlaytime)}</div>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* 관심 게임 설정 */}
         <div className="relative mb-8 group">
@@ -561,25 +567,7 @@ export default function ProfilePage() {
                 </label>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg border border-gray-700/50">
-                <div>
-                  <h4 className="text-white font-semibold">📧 이메일 알림</h4>
-                  <p className="text-gray-400 text-sm">이메일로 알림 받기 (추후 구현)</p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={notificationSettings.email_notifications}
-                    onChange={(e) => updateNotificationSettings({
-                      ...notificationSettings,
-                      email_notifications: e.target.checked
-                    })}
-                    disabled={savingNotifications}
-                    className="sr-only peer"
-                  />
-                  <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
-              </div>
+
             </div>
           </div>
         </div>
@@ -664,7 +652,7 @@ export default function ProfilePage() {
         )}
 
         {/* 게임 목록 필터 */}
-        <div className="mb-6">
+        {/* <div className="mb-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="text-3xl">🎯</div>
             <h3 className="text-2xl font-bold bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
@@ -693,10 +681,10 @@ export default function ProfilePage() {
               🎮 전체 게임 ({totalGames})
             </button>
           </div>
-        </div>
+        </div> */}
 
         {/* 게임 목록 테이블 */}
-        <div className="relative">
+        {/* <div className="relative">
           <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 rounded-2xl blur-xl"></div>
           <div className="relative bg-gray-900/90 border border-purple-500/30 rounded-2xl overflow-hidden backdrop-blur-sm">
             <div className="overflow-x-auto">
@@ -791,16 +779,16 @@ export default function ProfilePage() {
               </table>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {displayGames.length === 0 && (
           <div className="text-center py-16">
-            <div className="text-6xl mb-4">🎮</div>
-            <p className="text-gray-400 text-lg">
+            {/* <div className="text-6xl mb-4">🎮</div> */}
+            {/* <p className="text-gray-400 text-lg">
               {filter === 'racing'
                 ? '레이싱 게임이 없습니다'
                 : '게임이 없습니다'}
-            </p>
+            </p> */}
           </div>
         )}
       </div>
