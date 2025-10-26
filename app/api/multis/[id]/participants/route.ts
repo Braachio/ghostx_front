@@ -26,11 +26,11 @@ export async function GET(
     // 모든 인증된 사용자가 참가자 목록을 볼 수 있도록 허용
     console.log('참가자 목록 조회 권한 확인됨:', { userId: user.id })
 
-    // 1) 참가자 목록 조회 (조인 없이 먼저 가져오기)
+    // 1) 참가자 목록 조회 (multi_participants 테이블 사용)
     const { data: participants, error: participantsError } = await supabase
-      .from('participants')
-      .select('id, user_id, nickname, status, joined_at')
-      .eq('event_id', id)
+      .from('multi_participants')
+      .select('id, user_id, joined_at')
+      .eq('multi_id', id)
       .order('joined_at', { ascending: false })
 
     if (participantsError) {
@@ -80,6 +80,8 @@ export async function GET(
 
     const participantsWithSteamId = safeParticipants.map(p => ({
       ...p,
+      nickname: '익명', // 기본 닉네임
+      status: 'confirmed', // 기본 상태
       steam_id: steamIdByUserId[p.user_id] ?? null,
     }))
 
@@ -154,11 +156,11 @@ export async function POST(
       return NextResponse.json({ error: '참가신청을 하려면 Steam 로그인이 필요합니다.' }, { status: 403 })
     }
 
-    // 이미 참가했는지 확인 (더 안전한 방법)
+    // 이미 참가했는지 확인 (multi_participants 테이블 사용)
     const { data: existingParticipants, error: checkError } = await supabase
-      .from('participants')
+      .from('multi_participants')
       .select('id')
-      .eq('event_id', id)
+      .eq('multi_id', id)
       .eq('user_id', user.id)
 
     console.log('기존 참가자 확인:', { existingParticipants, checkError })
@@ -173,14 +175,12 @@ export async function POST(
       return NextResponse.json({ error: '이미 참가 신청하셨습니다.' }, { status: 400 })
     }
 
-    // 참가자 추가
+    // 참가자 추가 (multi_participants 테이블 사용)
     const { data: newParticipant, error: insertError } = await supabase
-      .from('participants')
+      .from('multi_participants')
       .insert({
-        event_id: id,
-        user_id: user.id,
-        nickname: body.nickname || '익명',
-        status: 'confirmed'
+        multi_id: id,
+        user_id: user.id
       })
       .select()
       .single()
@@ -224,11 +224,11 @@ export async function DELETE(
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
-    // 참가자 삭제
+    // 참가자 삭제 (multi_participants 테이블 사용)
     const { data: deletedData, error: deleteError } = await supabase
-      .from('participants')
+      .from('multi_participants')
       .delete()
-      .eq('event_id', id)
+      .eq('multi_id', id)
       .eq('user_id', user.id)
       .select()
 
