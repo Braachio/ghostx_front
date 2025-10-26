@@ -129,6 +129,9 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          nickname: '익명' // 기본 닉네임 설정
+        }),
       })
 
       if (response.ok) {

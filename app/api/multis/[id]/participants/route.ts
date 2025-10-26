@@ -107,7 +107,18 @@ export async function POST(
     const cookieStore = await cookies()
     const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore })
     const { id } = await params
-    const body = await req.json()
+    
+    // JSON 파싱을 더 안전하게 처리
+    let body = {}
+    try {
+      const text = await req.text()
+      if (text) {
+        body = JSON.parse(text)
+      }
+    } catch (parseError) {
+      console.log('JSON 파싱 오류, 빈 body 사용:', parseError)
+      body = {}
+    }
 
     console.log(`참가 신청 요청 - Event ID: ${id}, Body:`, body)
 
