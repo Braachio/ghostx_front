@@ -48,13 +48,21 @@ export default function EventManagerPanel({ isOpen, onClose, userId }: EventMana
   const fetchManagedEvents = async () => {
     try {
       setLoading(true)
+      console.log('관리 이벤트 조회 시작...')
+      
       const response = await fetch('/api/my-managed-events')
       
+      console.log('API 응답 상태:', response.status, response.statusText)
+      
       if (!response.ok) {
-        throw new Error('이벤트 조회에 실패했습니다.')
+        const errorData = await response.json().catch(() => ({}))
+        console.error('API 오류 응답:', errorData)
+        throw new Error(errorData.error || `HTTP ${response.status}: 이벤트 조회에 실패했습니다.`)
       }
       
       const data = await response.json()
+      console.log('API 응답 데이터:', data)
+      
       setEvents(data.events || [])
       setUserRole(data.userRole || '')
       
@@ -64,7 +72,7 @@ export default function EventManagerPanel({ isOpen, onClose, userId }: EventMana
       })
     } catch (error) {
       console.error('관리 이벤트 조회 실패:', error)
-      alert('이벤트 조회에 실패했습니다.')
+      alert(`이벤트 조회에 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`)
     } finally {
       setLoading(false)
     }
