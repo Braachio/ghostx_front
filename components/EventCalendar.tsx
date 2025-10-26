@@ -104,19 +104,19 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
     return getFlashGalleryEvents(date)
   }
 
-  // 게임별 색상 매핑
-  const getGameColor = (game: string) => {
+  // 게임별 색상 매핑 (활성화 상태 고려)
+  const getGameColor = (game: string, isOpen: boolean = true) => {
     const colorMap: { [key: string]: string } = {
-      'iracing': 'bg-blue-600',
-      'assettocorsa': 'bg-green-600',
-      'gran-turismo7': 'bg-purple-600',
-      'competizione': 'bg-yellow-600',
-      'lemans': 'bg-orange-600',
-      'f1-25': 'bg-red-600',
-      'automobilista2': 'bg-teal-600',
-      'ea-wrc': 'bg-emerald-600',
+      'iracing': isOpen ? 'bg-blue-600' : 'bg-gray-500',
+      'assettocorsa': isOpen ? 'bg-green-600' : 'bg-gray-500',
+      'gran-turismo7': isOpen ? 'bg-purple-600' : 'bg-gray-500',
+      'competizione': isOpen ? 'bg-yellow-600' : 'bg-gray-500',
+      'lemans': isOpen ? 'bg-orange-600' : 'bg-gray-500',
+      'f1-25': isOpen ? 'bg-red-600' : 'bg-gray-500',
+      'automobilista2': isOpen ? 'bg-teal-600' : 'bg-gray-500',
+      'ea-wrc': isOpen ? 'bg-emerald-600' : 'bg-gray-500',
     }
-    return colorMap[game] || 'bg-gray-600'
+    return colorMap[game] || (isOpen ? 'bg-gray-600' : 'bg-gray-500')
   }
 
   // 날짜가 현재 월인지 확인
@@ -236,14 +236,15 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
                   <button
                     key={event.id}
                     onClick={() => onEventClick?.(event)}
-                    className={`block w-full p-1 text-white text-xs rounded truncate hover:opacity-80 transition-all duration-200 ${getGameColor(event.game)} border border-white/10`}
-                    title={`${event.title} (${event.game})`}
+                    className={`block w-full p-1 text-white text-xs rounded truncate hover:opacity-80 transition-all duration-200 ${getGameColor(event.game, event.is_open)} border border-white/10 ${!event.is_open ? 'opacity-60' : ''}`}
+                    title={`${event.title} (${event.game}) ${event.is_open ? '[ON]' : '[OFF]'}`}
                   >
                     <div className="flex items-center gap-1">
                       <span className="text-xs opacity-75">
                         {GAME_OPTIONS.find(g => g.id === event.game)?.icon || '🎮'}
                       </span>
                       <span className="truncate">{event.title}</span>
+                      {!event.is_open && <span className="text-xs opacity-50">[OFF]</span>}
                     </div>
                   </button>
                 ))}
@@ -286,14 +287,15 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
                   <button
                     key={event.id}
                     onClick={() => onEventClick?.(event)}
-                    className={`block w-full p-1 text-white text-xs rounded hover:opacity-80 transition-all duration-200 truncate ${getGameColor(event.game)}`}
-                    title={`${event.title} (${event.game})`}
+                    className={`block w-full p-1 text-white text-xs rounded hover:opacity-80 transition-all duration-200 truncate ${getGameColor(event.game, event.is_open)} ${!event.is_open ? 'opacity-60' : ''}`}
+                    title={`${event.title} (${event.game}) ${event.is_open ? '[ON]' : '[OFF]'}`}
                   >
                     <div className="flex items-center gap-1">
                       <span className="text-xs opacity-75">
                         {GAME_OPTIONS.find(g => g.id === event.game)?.icon || '🎮'}
                       </span>
                       <span className="truncate">{event.title}</span>
+                      {!event.is_open && <span className="text-xs opacity-50">[OFF]</span>}
                     </div>
                   </button>
                 ))}
@@ -341,13 +343,14 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
                     <button
                       key={event.id}
                       onClick={() => onEventClick?.(event)}
-                      className={`block w-full px-3 py-2 rounded border border-gray-700 ${getGameColor(event.game)} hover:opacity-90 transition-colors`}
-                      title={`${event.title} (${event.game})`}
+                      className={`block w-full px-3 py-2 rounded border border-gray-700 ${getGameColor(event.game, event.is_open)} hover:opacity-90 transition-colors ${!event.is_open ? 'opacity-60' : ''}`}
+                      title={`${event.title} (${event.game}) ${event.is_open ? '[ON]' : '[OFF]'}`}
                     >
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2 text-white">
                           <span>{GAME_OPTIONS.find(g => g.id === event.game)?.icon || '🎮'}</span>
                           <span className="font-medium truncate">{event.title}</span>
+                          {!event.is_open && <span className="text-xs opacity-50">[OFF]</span>}
                         </div>
                         {event.multi_time && (
                           <span className="text-xs text-gray-200 bg-gray-800 px-2 py-1 rounded border border-gray-700">{event.multi_time}</span>
@@ -369,12 +372,13 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
                     <button
                       key={`regular-${event.id}`}
                       onClick={() => onEventClick?.(event)}
-                      className={`block w-full px-3 py-2 rounded bg-gray-800 border border-gray-700 text-white text-sm hover:opacity-90 transition-colors ${getGameColor(event.game)}`}
-                      title={`${event.title} (${event.game})`}
+                      className={`block w-full px-3 py-2 rounded bg-gray-800 border border-gray-700 text-white text-sm hover:opacity-90 transition-colors ${getGameColor(event.game, event.is_open)} ${!event.is_open ? 'opacity-60' : ''}`}
+                      title={`${event.title} (${event.game}) ${event.is_open ? '[ON]' : '[OFF]'}`}
                     >
                       <div className="flex items-center gap-2">
                         <span>{GAME_OPTIONS.find(g => g.id === event.game)?.icon || '🎮'}</span>
                         <span className="truncate">{event.title}</span>
+                        {!event.is_open && <span className="text-xs opacity-50">[OFF]</span>}
                       </div>
                     </button>
                   ))}
