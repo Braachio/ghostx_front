@@ -20,14 +20,35 @@ export async function DELETE(
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (authError || !user) {
+      console.log('삭제 실패 - 인증 오류:', authError)
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
+
+    console.log('인증된 사용자:', { userId: user.id, email: user.email })
 
     // 이벤트 관리 권한 확인
     const hasPermission = await hasEventManagementPermission(user.id, id)
     
+    console.log('권한 확인 결과:', { hasPermission, userId: user.id, eventId: id })
+    
     if (!hasPermission) {
+      console.log('삭제 실패 - 권한 없음')
       return NextResponse.json({ error: '이벤트 관리 권한이 없습니다.' }, { status: 403 })
+    }
+
+    // 삭제 전 옵션 존재 확인
+    const { data: existingOption, error: checkError } = await supabase
+      .from('regular_event_vote_options')
+      .select('id, option_value, regular_event_id')
+      .eq('id', optionId)
+      .eq('regular_event_id', id)
+      .single()
+
+    console.log('삭제 대상 옵션 확인:', { existingOption, checkError })
+
+    if (checkError || !existingOption) {
+      console.log('삭제 실패 - 옵션 없음')
+      return NextResponse.json({ error: '삭제할 투표 옵션을 찾을 수 없습니다.' }, { status: 404 })
     }
 
     // 투표 옵션 삭제

@@ -163,21 +163,37 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
   }
 
   const handleDeleteOption = async (optionId: string) => {
-    if (!isOwner) return
+    if (!isOwner) {
+      console.log('삭제 실패 - 소유자가 아님')
+      return
+    }
     
     if (!confirm('이 투표 옵션을 삭제하시겠습니까?')) return
+
+    console.log('투표 옵션 삭제 시도:', { optionId, regularEventId })
 
     try {
       const response = await fetch(`/api/regular-events/${regularEventId}/vote-options/${optionId}`, {
         method: 'DELETE',
       })
 
+      console.log('삭제 API 응답:', { 
+        status: response.status, 
+        statusText: response.statusText,
+        ok: response.ok 
+      })
+
       if (!response.ok) {
         const errorData = await response.json()
+        console.error('삭제 API 오류:', errorData)
         throw new Error(errorData.error || '옵션 삭제에 실패했습니다.')
       }
 
+      const result = await response.json()
+      console.log('삭제 성공:', result)
+
       await fetchTrackOptions()
+      alert('투표 옵션이 삭제되었습니다.')
     } catch (error) {
       console.error('옵션 삭제 실패:', error)
       alert(error instanceof Error ? error.message : '옵션 삭제 중 오류가 발생했습니다.')
