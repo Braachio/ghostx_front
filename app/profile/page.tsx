@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { findRacingGame, isRacingGame } from '@/lib/racingGames'
 import RacingStats from '@/components/RacingStats'
 import AchievementProgress from '@/components/AchievementProgress'
+import { useNotificationPermission } from '@/hooks/useNotificationPermission'
 
 // 게임 목록 (관심 게임 선택용)
 const availableGames = [
@@ -56,7 +57,26 @@ export default function ProfilePage() {
     push_notifications: true
   })
   const [savingInterestGames, setSavingInterestGames] = useState(false)
-  const [savingNotifications, setSavingNotifications] = useState(false)
+  const [savingNotificationSettings, setSavingNotificationSettings] = useState(false)
+  
+  // 알림 권한 요청
+  const handleRequestNotificationPermission = async () => {
+    const granted = await requestPermission()
+    if (granted) {
+      alert('✅ 알림 권한이 허용되었습니다! 이제 갤멀 알림을 받을 수 있습니다.')
+    } else {
+      alert('❌ 알림 권한이 거부되었습니다. 브라우저 설정에서 알림을 허용해주세요.')
+    }
+  }
+
+  // 테스트 알림 전송
+  const handleTestNotification = () => {
+    if (permission === 'granted') {
+      sendTestNotification()
+    } else {
+      alert('먼저 알림 권한을 허용해주세요.')
+    }
+  }
 
   async function fetchProfile() {
     try {
@@ -450,6 +470,52 @@ export default function ProfilePage() {
             </div>
             
             <div className="space-y-4">
+              {/* 브라우저 알림 권한 관리 */}
+              <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700/50">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h4 className="text-white font-semibold">🔔 브라우저 알림 권한</h4>
+                    <p className="text-gray-400 text-sm">갤멀 알림을 받으려면 브라우저 알림 권한이 필요합니다</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${
+                      permission === 'granted' ? 'bg-green-600 text-white' :
+                      permission === 'denied' ? 'bg-red-600 text-white' :
+                      'bg-yellow-600 text-white'
+                    }`}>
+                      {permission === 'granted' ? '허용됨' :
+                       permission === 'denied' ? '거부됨' : '요청 필요'}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="flex gap-2">
+                  {permission !== 'granted' && (
+                    <button
+                      onClick={handleRequestNotificationPermission}
+                      disabled={!isSupported}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors text-sm"
+                    >
+                      {isSupported ? '알림 권한 요청' : '알림 미지원'}
+                    </button>
+                  )}
+                  
+                  {permission === 'granted' && (
+                    <button
+                      onClick={handleTestNotification}
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
+                    >
+                      테스트 알림
+                    </button>
+                  )}
+                </div>
+                
+                {!isSupported && (
+                  <p className="text-red-400 text-xs mt-2">
+                    이 브라우저는 알림을 지원하지 않습니다. Chrome, Firefox, Safari 등을 사용해주세요.
+                  </p>
+                )}
+              </div>
               <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg border border-gray-700/50">
                 <div>
                   <h4 className="text-white font-semibold">⚡ 기습 갤멀 알림</h4>
