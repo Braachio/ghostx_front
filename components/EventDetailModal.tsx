@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
 import ParticipationButton from '@/components/ParticipationButton'
 import ParticipantListModal from '@/components/ParticipantListModal'
 import TrackVotingModal from '@/components/TrackVotingModal'
@@ -39,12 +38,21 @@ export default function EventDetailModal({
   user, 
   hasManagementPermission 
 }: EventDetailModalProps) {
-  const router = useRouter()
   const [showParticipantModal, setShowParticipantModal] = useState(false)
   const [showVotingModal, setShowVotingModal] = useState(false)
   const [showDescriptionModal, setShowDescriptionModal] = useState(false)
   const [participantCount, setParticipantCount] = useState(0)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editForm, setEditForm] = useState({
+    title: '',
+    game_track: '',
+    multi_class: '',
+    multi_time: '',
+    duration_hours: 1,
+    description: ''
+  })
+  const [isSaving, setIsSaving] = useState(false)
 
   const fetchParticipantCount = useCallback(async () => {
     if (!event) return
@@ -66,12 +74,63 @@ export default function EventDetailModal({
     }
   }, [isOpen, event, fetchParticipantCount])
 
-  // 이벤트 수정 함수
-  const handleEdit = () => {
+  // 이벤트 편집 시작 함수
+  const handleEditStart = () => {
     if (!event) return
-    // 이벤트 수정 페이지로 이동
-    router.push(`/multis/${event.id}/edit`)
-    onClose() // 모달 닫기
+    setEditForm({
+      title: event.title,
+      game_track: event.game_track || '',
+      multi_class: event.multi_class || '',
+      multi_time: event.multi_time || '',
+      duration_hours: event.duration_hours || 1,
+      description: event.description || ''
+    })
+    setIsEditing(true)
+  }
+
+  // 이벤트 편집 취소 함수
+  const handleEditCancel = () => {
+    setIsEditing(false)
+    setEditForm({
+      title: '',
+      game_track: '',
+      multi_class: '',
+      multi_time: '',
+      duration_hours: 1,
+      description: ''
+    })
+  }
+
+  // 이벤트 저장 함수
+  const handleEditSave = async () => {
+    if (!event) return
+    
+    setIsSaving(true)
+    try {
+      const response = await fetch(`/api/multis/${event.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editForm)
+      })
+
+      if (response.ok) {
+        alert('이벤트가 성공적으로 수정되었습니다.')
+        setIsEditing(false)
+        // 모달을 닫고 새로고침하여 변경사항 반영
+        onClose()
+        window.location.reload()
+      } else {
+        const errorData = await response.json()
+        alert(`수정 실패: ${errorData.error || '알 수 없는 오류가 발생했습니다.'}`)
+      }
+    } catch (error) {
+      console.error('이벤트 수정 오류:', error)
+      alert('이벤트 수정 중 오류가 발생했습니다.')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   // 이벤트 삭제 함수
@@ -133,14 +192,13 @@ export default function EventDetailModal({
 
             {/* 모든 버튼들을 한 줄로 배치 */}
             <div className="flex flex-wrap gap-4 justify-start mb-6">
-              {/* 관리자/작성자가 아닌 경우에만 참가신청 버튼 표시 */}
-              {!((user && event.author_id === user.id) || hasManagementPermission) && (
-                <ParticipationButton 
-                  eventId={event.id} 
-                  isOwner={false}
-                  onParticipationChange={fetchParticipantCount}
-                />
-              )}
+                  {/* 관리자/작성자가 아닌 경우에만 참가신청 버튼 표시 */}
+                  {!((user && event.author_id === user.id) || hasManagementPermission) && (
+                    <ParticipationButton 
+                      eventId={event.id} 
+                      onParticipationChange={fetchParticipantCount}
+                    />
+                  )}
 
 
               {/* 트랙투표 버튼 */}
@@ -195,24 +253,82 @@ export default function EventDetailModal({
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
                   <p className="text-gray-400 text-sm mb-1">🏁트랙</p>
-                  <p className="text-white font-medium">{event.game_track || 'TBD'}</p>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editForm.game_track}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, game_track: e.target.value }))}
+                      className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm"
+                      placeholder="트랙명 입력"
+                    />
+                  ) : (
+                    <p className="text-white font-medium">{event.game_track || 'TBD'}</p>
+                  )}
                 </div>
                 
                 <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
                   <p className="text-gray-400 text-sm mb-1">🏎️클래스</p>
-                  <p className="text-white font-medium">{event.multi_class || 'TBD'}</p>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editForm.multi_class}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, multi_class: e.target.value }))}
+                      className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm"
+                      placeholder="클래스 입력"
+                    />
+                  ) : (
+                    <p className="text-white font-medium">{event.multi_class || 'TBD'}</p>
+                  )}
                 </div>
                 
                 <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
                   <p className="text-gray-400 text-sm mb-1">🕗시작 시간</p>
-                  <p className="text-white font-medium">{event.multi_time || 'TBD'}</p>
+                  {isEditing ? (
+                    <input
+                      type="time"
+                      value={editForm.multi_time}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, multi_time: e.target.value }))}
+                      className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm"
+                    />
+                  ) : (
+                    <p className="text-white font-medium">{event.multi_time || 'TBD'}</p>
+                  )}
                 </div>
                 
                 <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
                   <p className="text-gray-400 text-sm mb-1">⏰지속시간</p>
-                  <p className="text-white font-medium">{event.duration_hours ? `${event.duration_hours}시간` : 'TBD'}</p>
+                  {isEditing ? (
+                    <input
+                      type="number"
+                      min="1"
+                      max="24"
+                      value={editForm.duration_hours}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, duration_hours: parseInt(e.target.value) || 1 }))}
+                      className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm"
+                    />
+                  ) : (
+                    <p className="text-white font-medium">{event.duration_hours ? `${event.duration_hours}시간` : 'TBD'}</p>
+                  )}
                 </div>
               </div>
+
+              {/* 설명 섹션 (편집 가능) */}
+              {event.description && (
+                <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+                  <p className="text-gray-400 text-sm mb-2">📝설명</p>
+                  {isEditing ? (
+                    <textarea
+                      value={editForm.description}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
+                      className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm resize-none"
+                      rows={3}
+                      placeholder="이벤트 설명을 입력하세요"
+                    />
+                  ) : (
+                    <p className="text-white text-sm">{event.description}</p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -220,36 +336,62 @@ export default function EventDetailModal({
         <div className="flex items-center justify-between p-6 border-t border-gray-700">
           {/* 왼쪽 버튼들 */}
           <div className="flex items-center gap-3">
-            {/* 상세정보 버튼 */}
-            {event.description && (
-              <button
-                onClick={() => setShowDescriptionModal(true)}
-                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all font-semibold shadow-lg hover:shadow-purple-500/25 flex items-center gap-2"
-              >
-                <span className="text-lg">📋</span>
-                상세정보
-              </button>
-            )}
-            
-            {/* 수정/삭제 버튼 (작성자나 관리자만) */}
-            {((user && event.author_id === user.id) || hasManagementPermission) && (
+            {isEditing ? (
+              /* 편집 모드 버튼들 */
               <>
                 <button
-                  onClick={handleEdit}
-                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-semibold shadow-lg hover:shadow-blue-500/25 flex items-center gap-2"
+                  onClick={handleEditSave}
+                  disabled={isSaving}
+                  className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all font-semibold shadow-lg hover:shadow-green-500/25 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <span className="text-lg">✏️</span>
-                  수정
+                  <span className="text-lg">💾</span>
+                  {isSaving ? '저장 중...' : '저장'}
                 </button>
                 
                 <button
-                  onClick={handleDelete}
-                  disabled={isDeleting}
-                  className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:from-red-700 hover:to-red-800 transition-all font-semibold shadow-lg hover:shadow-red-500/25 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handleEditCancel}
+                  disabled={isSaving}
+                  className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all font-semibold shadow-lg hover:shadow-gray-500/25 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <span className="text-lg">🗑️</span>
-                  {isDeleting ? '삭제 중...' : '삭제'}
+                  <span className="text-lg">❌</span>
+                  취소
                 </button>
+              </>
+            ) : (
+              /* 일반 모드 버튼들 */
+              <>
+                {/* 상세정보 버튼 */}
+                {event.description && (
+                  <button
+                    onClick={() => setShowDescriptionModal(true)}
+                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all font-semibold shadow-lg hover:shadow-purple-500/25 flex items-center gap-2"
+                  >
+                    <span className="text-lg">📋</span>
+                    상세정보
+                  </button>
+                )}
+                
+                {/* 수정/삭제 버튼 (작성자나 관리자만) */}
+                {((user && event.author_id === user.id) || hasManagementPermission) && (
+                  <>
+                    <button
+                      onClick={handleEditStart}
+                      className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-semibold shadow-lg hover:shadow-blue-500/25 flex items-center gap-2"
+                    >
+                      <span className="text-lg">✏️</span>
+                      수정
+                    </button>
+                    
+                    <button
+                      onClick={handleDelete}
+                      disabled={isDeleting}
+                      className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:from-red-700 hover:to-red-800 transition-all font-semibold shadow-lg hover:shadow-red-500/25 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <span className="text-lg">🗑️</span>
+                      {isDeleting ? '삭제 중...' : '삭제'}
+                    </button>
+                  </>
+                )}
               </>
             )}
           </div>
@@ -289,3 +431,4 @@ export default function EventDetailModal({
     </div>
   )
 }
+
