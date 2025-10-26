@@ -49,7 +49,7 @@ export async function POST(
     // 투표 옵션이 존재하는지 확인
     const { data: trackOption, error: optionError } = await supabase
       .from('regular_event_vote_options')
-      .select('id, option_value')
+      .select('id, option_value, voting_closed')
       .eq('id', track_option_id)
       .eq('regular_event_id', id)
       .eq('option_type', 'track')
@@ -60,28 +60,25 @@ export async function POST(
       return NextResponse.json({ error: '유효하지 않은 투표 옵션입니다.' }, { status: 400 })
     }
 
-    // 투표 스케줄 확인 (투표 기간 내인지)
-    const now = new Date()
-    const { data: schedule, error: scheduleError } = await supabase
-      .from('vote_schedules')
-      .select('voting_start, voting_end, is_active')
-      .eq('regular_event_id', id)
-      .eq('is_active', true)
-      .lte('voting_start', now.toISOString())
-      .gte('voting_end', now.toISOString())
-      .single()
-
-    if (scheduleError || !schedule) {
-      console.log('투표 실패 - 투표 기간 아님')
-      return NextResponse.json({ error: '투표 기간이 아닙니다.' }, { status: 400 })
+    // 투표가 종료되었는지 확인 (voting_closed 필드가 있는 경우만)
+    if (trackOption.voting_closed === true) {
+      console.log('투표 실패 - 투표 종료됨')
+      return NextResponse.json({ error: '투표가 종료되었습니다.' }, { status: 400 })
     }
+
+    // 현재 주차와 연도 계산
+    const now = new Date()
+    const currentYear = now.getFullYear()
+    const currentWeek = Math.ceil((((+now - +new Date(now.getFullYear(), 0, 1)) / 86400000) + new Date(now.getFullYear(), 0, 1).getDay() + 1) / 7)
 
     // 기존 투표 확인 및 업데이트/삽입
     const { data: existingVote, error: existingVoteError } = await supabase
-      .from('votes')
-      .select('id, track_option_id')
+      .from('regular_event_votes')
+      .select('id, vote_option_id')
       .eq('regular_event_id', id)
-      .eq('voter_id', user.id)
+      .eq('user_id', user.id)
+      .eq('week_number', currentWeek)
+      .eq('year', currentYear)
       .single()
 
     if (existingVoteError && existingVoteError.code !== 'PGRST116') {
@@ -93,9 +90,9 @@ export async function POST(
     if (existingVote) {
       // 기존 투표 업데이트
       const { data: updatedVote, error: updateError } = await supabase
-        .from('votes')
+        .from('regular_event_votes')
         .update({
-          track_option_id: track_option_id,
+          vote_option_id: track_option_id,
           updated_at: new Date().toISOString()
         })
         .eq('id', existingVote.id)
@@ -112,11 +109,13 @@ export async function POST(
     } else {
       // 새 투표 생성
       const { data: newVote, error: insertError } = await supabase
-        .from('votes')
+        .from('regular_event_votes')
         .insert({
           regular_event_id: id,
-          voter_id: user.id,
-          track_option_id: track_option_id
+          user_id: user.id,
+          vote_option_id: track_option_id,
+          week_number: currentWeek,
+          year: currentYear
         })
         .select()
         .single()
@@ -175,11 +174,17 @@ export async function GET(
     }
 
     // 사용자의 기존 투표 조회
+    const now = new Date()
+    const currentYear = now.getFullYear()
+    const currentWeek = Math.ceil((((+now - +new Date(now.getFullYear(), 0, 1)) / 86400000) + new Date(now.getFullYear(), 0, 1).getDay() + 1) / 7)
+
     const { data: userVote, error: voteError } = await supabase
-      .from('votes')
-      .select('id, track_option_id')
+      .from('regular_event_votes')
+      .select('id, vote_option_id')
       .eq('regular_event_id', id)
-      .eq('voter_id', user.id)
+      .eq('user_id', user.id)
+      .eq('week_number', currentWeek)
+      .eq('year', currentYear)
       .single()
 
     if (voteError && voteError.code !== 'PGRST116') {
@@ -210,10 +215,11 @@ export async function GET(
 
     return NextResponse.json({
       trackOptions: trackOptions || [],
-      userVote: userVote || null,
+      userVote: userVote ? { id: userVote.id, track_option_id: userVote.vote_option_id } : null,
       participantCount: participants?.length || 0,
-      votingOpen: !!(schedule && !scheduleError),
-      schedule: schedule || null
+      votingOpen: true, // 수동 투표 관리로 변경
+      currentWeek,
+      currentYear
     })
 
   } catch (error) {
