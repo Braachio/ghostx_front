@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     // 이벤트 존재 및 권한 확인
     const { data: event, error: eventError } = await supabase
       .from('multis')
-      .select('id, author_id, title, is_active')
+      .select('id, author_id, title, is_open')
       .eq('id', eventId)
       .single()
 
@@ -61,11 +61,11 @@ export async function POST(req: NextRequest) {
     const { data: updatedEvent, error: updateError } = await supabase
       .from('multis')
       .update({ 
-        is_active: isActive,
+        is_open: isActive,
         updated_at: new Date().toISOString()
       })
       .eq('id', eventId)
-      .select('id, title, is_active')
+      .select('id, title, is_open')
       .single()
 
     if (updateError) {
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
     console.log('이벤트 상태 변경 성공:', { 
       eventId, 
       title: updatedEvent.title,
-      isActive: updatedEvent.is_active 
+      isActive: updatedEvent.is_open 
     })
 
     return NextResponse.json({

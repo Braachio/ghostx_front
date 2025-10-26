@@ -9,11 +9,9 @@ interface ManagedEvent {
   game: string
   event_type: string
   event_date: string | null
-  start_time: string | null
-  end_time: string | null
-  day_of_week: string | null
+  multi_time: string | null
   multi_day: string | string[] | null
-  is_active: boolean
+  is_open: boolean
   created_at: string
   updated_at: string
   author_id: string
@@ -105,7 +103,7 @@ export default function EventManagerPanel({ isOpen, onClose, userId }: EventMana
       setEvents(prevEvents => 
         prevEvents.map(event => 
           event.id === eventId 
-            ? { ...event, is_active: !currentStatus }
+            ? { ...event, is_open: !currentStatus }
             : event
         )
       )
@@ -183,11 +181,11 @@ export default function EventManagerPanel({ isOpen, onClose, userId }: EventMana
                           {event.title}
                         </h3>
                         <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          event.is_active 
+                          event.is_open 
                             ? 'bg-green-100 text-green-800' 
                             : 'bg-red-100 text-red-800'
                         }`}>
-                          {event.is_active ? '활성' : '비활성'}
+                          {event.is_open ? '활성' : '비활성'}
                         </span>
                         <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
                           {event.game}
@@ -199,7 +197,7 @@ export default function EventManagerPanel({ isOpen, onClose, userId }: EventMana
                           <Calendar className="w-4 h-4" />
                           <span>
                             {event.event_type === 'regular_schedule' 
-                              ? `정기 (${event.day_of_week || event.multi_day})`
+                              ? `정기 (${event.multi_day})`
                               : event.event_date || '날짜 미정'
                             }
                           </span>
@@ -234,17 +232,17 @@ export default function EventManagerPanel({ isOpen, onClose, userId }: EventMana
                     <div className="flex items-center space-x-2 ml-4">
                       {/* 활성화/비활성화 토글 */}
                       <button
-                        onClick={() => toggleEventActive(event.id, event.is_active)}
+                        onClick={() => toggleEventActive(event.id, event.is_open)}
                         disabled={updating === event.id}
                         className={`flex items-center space-x-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                          event.is_active
+                          event.is_open
                             ? 'bg-red-100 text-red-700 hover:bg-red-200'
                             : 'bg-green-100 text-green-700 hover:bg-green-200'
                         } disabled:opacity-50 disabled:cursor-not-allowed`}
                       >
                         {updating === event.id ? (
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                        ) : event.is_active ? (
+                        ) : event.is_open ? (
                           <>
                             <Pause className="w-4 h-4" />
                             <span>비활성화</span>

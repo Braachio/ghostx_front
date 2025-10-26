@@ -48,11 +48,9 @@ export async function GET(req: NextRequest) {
         game,
         event_type,
         event_date,
-        start_time,
-        end_time,
-        day_of_week,
+        multi_time,
         multi_day,
-        is_active,
+        is_open,
         created_at,
         updated_at,
         author_id
