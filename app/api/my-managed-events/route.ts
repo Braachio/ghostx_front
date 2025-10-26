@@ -55,8 +55,7 @@ export async function GET(req: NextRequest) {
         is_active,
         created_at,
         updated_at,
-        author_id,
-        author:profiles!multis_author_id_fkey(nickname)
+        author_id
       `)
       .order('created_at', { ascending: false })
 
@@ -72,9 +71,16 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: '이벤트 조회에 실패했습니다.' }, { status: 500 })
     }
 
-    // 각 이벤트의 투표 상태 확인
+    // 각 이벤트의 투표 상태 및 작성자 정보 확인
     const eventsWithVoteStatus = await Promise.all(
       (events || []).map(async (event) => {
+        // 작성자 정보 조회
+        const { data: authorProfile } = await supabase
+          .from('profiles')
+          .select('nickname')
+          .eq('id', event.author_id)
+          .single()
+
         // 투표 옵션 개수 조회
         const { data: voteOptions, error: voteOptionsError } = await supabase
           .from('regular_event_vote_options')
@@ -88,6 +94,9 @@ export async function GET(req: NextRequest) {
 
         return {
           ...event,
+          author: {
+            nickname: authorProfile?.nickname || '알 수 없음'
+          },
           voteOptions: voteOptions || [],
           voteOptionsCount: voteOptions?.length || 0,
           totalVotes,
