@@ -21,6 +21,8 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
   const [trackOptions, setTrackOptions] = useState<TrackOption[]>([])
   const [loading, setLoading] = useState(false)
   const [voting, setVoting] = useState(false)
+  const [newOptionValue, setNewOptionValue] = useState('')
+  const [addingOption, setAddingOption] = useState(false)
 
   const fetchTrackOptions = useCallback(async () => {
     setLoading(true)
@@ -95,6 +97,37 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
     }
   }
 
+  const handleAddOption = async () => {
+    if (!newOptionValue.trim() || !isOwner) return
+
+    setAddingOption(true)
+    try {
+      const response = await fetch(`/api/regular-events/${regularEventId}/vote-options`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          option_type: 'track',
+          option_value: newOptionValue.trim()
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || '옵션 추가에 실패했습니다.')
+      }
+
+      setNewOptionValue('')
+      await fetchTrackOptions()
+    } catch (error) {
+      console.error('옵션 추가 실패:', error)
+      alert(error instanceof Error ? error.message : '옵션 추가 중 오류가 발생했습니다.')
+    } finally {
+      setAddingOption(false)
+    }
+  }
+
   if (!isOpen) return null
 
   return (
@@ -118,7 +151,32 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
             </div>
           ) : trackOptions.length === 0 ? (
             <div className="text-center py-8 text-gray-400">
-              투표 옵션이 없습니다.
+              <div className="mb-4">
+                투표 옵션이 없습니다.
+              </div>
+              {isOwner && (
+                <div className="max-w-md mx-auto">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={newOptionValue}
+                      onChange={(e) => setNewOptionValue(e.target.value)}
+                      placeholder="트랙 이름을 입력하세요"
+                      className="flex-1 px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      onClick={handleAddOption}
+                      disabled={addingOption || !newOptionValue.trim()}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {addingOption ? '추가 중...' : '추가'}
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    첫 번째 트랙 옵션을 추가해주세요.
+                  </p>
+                </div>
+              )}
             </div>
           ) : (
             <div className="space-y-4">
@@ -157,6 +215,29 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
                 </div>
               ))}
             </div>
+            
+            {/* 이벤트 소유자용 추가 옵션 입력 */}
+            {isOwner && (
+              <div className="mt-6 p-4 bg-gray-700 rounded-lg">
+                <h4 className="text-white font-medium mb-3">새 트랙 옵션 추가</h4>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newOptionValue}
+                    onChange={(e) => setNewOptionValue(e.target.value)}
+                    placeholder="트랙 이름을 입력하세요"
+                    className="flex-1 px-3 py-2 border border-gray-600 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <button
+                    onClick={handleAddOption}
+                    disabled={addingOption || !newOptionValue.trim()}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {addingOption ? '추가 중...' : '추가'}
+                  </button>
+                </div>
+              </div>
+            )}
           )}
         </div>
 

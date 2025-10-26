@@ -122,7 +122,7 @@ export async function POST(req: NextRequest) {
       }))
 
       const { error: optionsError } = await supabase
-        .from('vote_options')
+        .from('regular_event_vote_options')
         .insert(trackOptions)
 
       if (optionsError) {
