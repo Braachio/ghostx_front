@@ -171,6 +171,47 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
     }
   }
 
+  const handleTestDelete = async (optionId: string) => {
+    if (!isOwner) {
+      console.log('테스트 삭제 실패 - 소유자가 아님')
+      return
+    }
+    
+    if (!confirm('테스트 삭제를 시도하시겠습니까?')) return
+
+    console.log('테스트 삭제 시도:', { optionId, regularEventId })
+
+    try {
+      const testUrl = `/api/test-delete-option?optionId=${optionId}&eventId=${regularEventId}`
+      console.log('테스트 삭제 API URL:', testUrl)
+      
+      const response = await fetch(testUrl, {
+        method: 'DELETE',
+      })
+
+      console.log('테스트 삭제 API 응답:', { 
+        status: response.status, 
+        statusText: response.statusText,
+        ok: response.ok 
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('테스트 삭제 API 오류:', errorData)
+        throw new Error(errorData.error || '테스트 삭제에 실패했습니다.')
+      }
+
+      const result = await response.json()
+      console.log('테스트 삭제 성공:', result)
+
+      await fetchTrackOptions()
+      alert('테스트 삭제가 성공했습니다!')
+    } catch (error) {
+      console.error('테스트 삭제 실패:', error)
+      alert(error instanceof Error ? error.message : '테스트 삭제 중 오류가 발생했습니다.')
+    }
+  }
+
   const handleDeleteOption = async (optionId: string) => {
     if (!isOwner) {
       console.log('삭제 실패 - 소유자가 아님')
@@ -378,16 +419,30 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
                       
                       {/* 이벤트 소유자용 삭제 버튼 */}
                       {isOwner && (
-                        <button
-                          onClick={() => {
-                            console.log('삭제 버튼 클릭:', { optionId: option.id, isOwner })
-                            handleDeleteOption(option.id)
-                          }}
-                          className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
-                          title="투표 옵션 삭제"
-                        >
-                          🗑️
-                        </button>
+                        <>
+                          <button
+                            onClick={() => {
+                              console.log('삭제 버튼 클릭:', { optionId: option.id, isOwner })
+                              handleDeleteOption(option.id)
+                            }}
+                            className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                            title="투표 옵션 삭제"
+                          >
+                            🗑️
+                          </button>
+                          
+                          {/* 테스트 삭제 버튼 */}
+                          <button
+                            onClick={() => {
+                              console.log('테스트 삭제 버튼 클릭:', { optionId: option.id, isOwner })
+                              handleTestDelete(option.id)
+                            }}
+                            className="px-3 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm"
+                            title="테스트 삭제"
+                          >
+                            🧪
+                          </button>
+                        </>
                       )}
                       
                       {/* 디버깅: isOwner 상태 표시 */}
