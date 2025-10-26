@@ -26,6 +26,7 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
   const [nickname, setNickname] = useState('')
   const [isJoined, setIsJoined] = useState(false)
   const [userColor, setUserColor] = useState('')
+  const [isConnected, setIsConnected] = useState(false)
 
   const loadMessages = useCallback(async () => {
     try {
@@ -51,6 +52,62 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
     }
   }, [eventId])
 
+  // 실시간 채팅 연결
+  const connectRealtimeChat = useCallback(() => {
+    if (!isJoined) return
+
+    const eventSource = new EventSource(`/api/chat/${eventId}/stream`)
+    
+    eventSource.onopen = () => {
+      console.log('실시간 채팅 연결됨')
+      setIsConnected(true)
+    }
+
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data)
+        
+        if (data.type === 'connected') {
+          console.log('SSE 연결 확인됨')
+        } else if (data.type === 'message') {
+          const newMsg: ChatMessage = {
+            id: data.data.id,
+            nickname: data.data.nickname,
+            message: data.data.message,
+            timestamp: new Date(data.data.created_at),
+            color: data.data.color
+          }
+          
+          setMessages(prev => {
+            // 중복 메시지 방지
+            if (prev.some(msg => msg.id === newMsg.id)) {
+              return prev
+            }
+            return [...prev, newMsg]
+          })
+        }
+      } catch (error) {
+        console.error('SSE 메시지 파싱 오류:', error)
+      }
+    }
+
+    eventSource.onerror = (error) => {
+      console.error('SSE 연결 오류:', error)
+      setIsConnected(false)
+      // 연결 재시도
+      setTimeout(() => {
+        if (isJoined) {
+          connectRealtimeChat()
+        }
+      }, 3000)
+    }
+
+    return () => {
+      eventSource.close()
+      setIsConnected(false)
+    }
+  }, [eventId, isJoined])
+
   useEffect(() => {
     // 저장된 닉네임과 색상 확인
     const savedNickname = localStorage.getItem(`chat_nickname_${eventId}`)
@@ -72,16 +129,13 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
 
   // 자동 스크롤 기능 제거 - 사용자가 직접 스크롤 제어
 
-  // 실시간 메시지 새로고침 (3초마다)
+  // 실시간 채팅 연결 관리
   useEffect(() => {
-    if (!isJoined) return
-
-    const interval = setInterval(() => {
-      loadMessages()
-    }, 3000)
-
-    return () => clearInterval(interval)
-  }, [isJoined, eventId, loadMessages])
+    if (isJoined) {
+      const cleanup = connectRealtimeChat()
+      return cleanup
+    }
+  }, [isJoined, connectRealtimeChat])
 
   const joinChat = () => {
     setIsJoined(true)
@@ -233,6 +287,13 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
           <span className="px-2 py-1 bg-pink-600/20 text-pink-300 rounded-full text-xs font-medium">
             {uniqueParticipants.length}명
           </span>
+          {/* 연결 상태 표시 */}
+          <div className="flex items-center gap-1">
+            <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400' : 'bg-red-400'}`}></div>
+            <span className="text-xs text-gray-400">
+              {isConnected ? '실시간 연결됨' : '연결 중...'}
+            </span>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-// import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-// import { cookies } from 'next/headers'
-// import type { Database } from '@/lib/database.types'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
+import type { Database } from '@/lib/database.types'
 
 // 채팅 메시지 타입
 interface ChatMessage {
@@ -13,9 +13,6 @@ interface ChatMessage {
   created_at: string
 }
 
-// 임시 메모리 저장소 (서버 재시작 시 초기화됨)
-const chatMessages: ChatMessage[] = []
-
 // GET: 채팅 메시지 조회
 export async function GET(
   req: NextRequest,
@@ -23,34 +20,33 @@ export async function GET(
 ) {
   try {
     const { eventId } = await params
+    const { searchParams } = new URL(req.url)
+    const limit = parseInt(searchParams.get('limit') || '50')
+    const offset = parseInt(searchParams.get('offset') || '0')
 
-    // TODO: 실제 데이터베이스 테이블이 생성되면 활성화
-    // const cookieStore = await cookies()
-    // const supabase = createRouteHandlerClient<Database>({
-    //   cookies: () => cookieStore,
-    // })
-    // const { data, error } = await supabase
-    //   .from('event_chat_messages')
-    //   .select('*')
-    //   .eq('event_id', eventId)
-    //   .order('created_at', { ascending: true })
+    const cookieStore = await cookies()
+    const supabase = createRouteHandlerClient<Database>({
+      cookies: () => cookieStore,
+    })
 
-    // 임시 메모리에서 해당 이벤트의 메시지들 반환
-    const eventMessages = chatMessages
-      .filter(msg => msg.event_id === eventId)
-      .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+    // 데이터베이스에서 메시지 조회
+    const { data: messages, error } = await supabase
+      .from('event_chat_messages')
+      .select('id, nickname, message, color, created_at')
+      .eq('event_id', eventId)
+      .order('created_at', { ascending: true })
+      .range(offset, offset + limit - 1)
 
-    return NextResponse.json(eventMessages)
+    if (error) {
+      console.error('채팅 메시지 조회 실패:', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
 
-    // if (error) {
-    //   return NextResponse.json({ error: error.message }, { status: 500 })
-    // }
-
-    // return NextResponse.json(data)
+    return NextResponse.json(messages || [])
   } catch (error) {
     console.error('채팅 메시지 조회 실패:', error)
     return NextResponse.json(
-      { error: '채팅 메시지를 불러올 수 없습니다.' },
+      { error: '메시지를 불러올 수 없습니다.' },
       { status: 500 }
     )
   }
@@ -73,49 +69,42 @@ export async function POST(
       )
     }
 
-    // TODO: 실제 데이터베이스 테이블이 생성되면 활성화
-    // const cookieStore = await cookies()
-    // const supabase = createRouteHandlerClient<Database>({
-    //   cookies: () => cookieStore,
-    // })
-    // const { data, error } = await supabase
-    //   .from('event_chat_messages')
-    //   .insert({
-    //     event_id: eventId,
-    //     nickname,
-    //     message,
-    //     color,
-    //     created_at: new Date().toISOString()
-    //   })
-    //   .select()
-    //   .single()
+    // 사용자 인증 확인
+    const cookieStore = await cookies()
+    const supabase = createRouteHandlerClient<Database>({
+      cookies: () => cookieStore,
+    })
 
-    // 임시 메모리에 메시지 저장
-    const newMessage: ChatMessage = {
-      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-      event_id: eventId,
-      nickname,
-      message,
-      color,
-      created_at: new Date().toISOString()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: '로그인이 필요합니다.' },
+        { status: 401 }
+      )
     }
 
-    chatMessages.push(newMessage)
-    
-    // 메모리 정리: 100개 이상 메시지가 쌓이면 오래된 것부터 삭제
-    if (chatMessages.length > 100) {
-      chatMessages.splice(0, chatMessages.length - 100)
+    // 데이터베이스에 메시지 저장
+    const { data, error } = await supabase
+      .from('event_chat_messages')
+      .insert({
+        event_id: eventId,
+        user_id: user.id,
+        nickname,
+        message,
+        color: color || '#ffffff'
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('채팅 메시지 저장 실패:', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     console.log(`채팅 메시지 저장됨: ${eventId} - ${nickname}: ${message}`)
 
-    return NextResponse.json(newMessage)
-
-    // if (error) {
-    //   return NextResponse.json({ error: error.message }, { status: 500 })
-    // }
-
-    // return NextResponse.json(data)
+    return NextResponse.json(data)
   } catch (error) {
     console.error('채팅 메시지 전송 실패:', error)
     return NextResponse.json(
