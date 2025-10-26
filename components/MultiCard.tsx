@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import type { Database } from '@/lib/database.types'
 import Link from 'next/link'
+import { useEventToggle } from '@/hooks/useEventToggle'
 
 type Multi = Database['public']['Tables']['multis']['Row']
 
@@ -17,7 +18,15 @@ export default function MultiCard({
 }) {
   const supabase = createClientComponentClient<Database>()
   const [isOpen, setIsOpen] = useState(multi.is_open)
-  const [isLoading, setIsLoading] = useState(false)
+  
+  // 이벤트 토글 훅 사용
+  const { toggleEvent, isLoading } = useEventToggle({
+    eventId: multi.id,
+    eventTitle: multi.title,
+    eventGame: multi.game,
+    eventType: multi.event_type === 'regular_schedule' ? 'regular_schedule' : 'flash_event',
+    onToggle: setIsOpen
+  })
 
   // 이벤트 시작 날짜 계산 (event_date만 사용)
   const getEventDate = () => {
@@ -43,20 +52,8 @@ export default function MultiCard({
   const isTomorrow = eventDate && eventDate.toDateString() === new Date(today.getTime() + 24 * 60 * 60 * 1000).toDateString()
   const isPast = eventDate && eventDate < today
 
-  const toggleOpen = async () => {
-    if (isLoading) return
-
-    setIsLoading(true)
-
-    const { error } = await supabase
-      .from('multis')
-      .update({ is_open: !isOpen } as Database['public']['Tables']['multis']['Update'])
-      .eq('id', multi.id)
-
-    if (!error) setIsOpen(!isOpen)
-    else alert(`상태 변경 실패: ${error.message}`)
-
-    setIsLoading(false)
+  const handleToggle = () => {
+    toggleEvent(isOpen)
   }
 
   return (
@@ -105,7 +102,7 @@ export default function MultiCard({
         </p>
 
         <button
-          onClick={toggleOpen}
+          onClick={handleToggle}
           disabled={isLoading || isPast}
           className={`px-3 py-1 rounded-lg text-xs whitespace-nowrap ml-2 transition-all duration-200 font-semibold
             ${isPast 

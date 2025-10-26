@@ -5,6 +5,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import type { Database } from '@/lib/database.types'
 import { useRouter } from 'next/navigation'
 import { MultiWithTemplate } from '@/types/events'
+import { useEventToggle } from '@/hooks/useEventToggle'
 
 interface EventCardProps {
   multi: MultiWithTemplate
@@ -15,7 +16,15 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
   const supabase = createClientComponentClient<Database>()
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(multi.is_open)
-  const [isLoading, setIsLoading] = useState(false)
+  
+  // 이벤트 토글 훅 사용
+  const { toggleEvent, isLoading } = useEventToggle({
+    eventId: multi.id,
+    eventTitle: multi.title,
+    eventGame: multi.game,
+    eventType: multi.event_type === 'regular_schedule' ? 'regular_schedule' : 'flash_event',
+    onToggle: setIsOpen
+  })
 
   // 이벤트 시작 날짜 계산 (event_date만 사용)
   const getEventDate = () => {
@@ -55,20 +64,8 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
     }
   }
 
-  const toggleOpen = async () => {
-    if (isLoading) return
-
-    setIsLoading(true)
-
-    const { error } = await supabase
-      .from('multis')
-      .update({ is_open: !isOpen } as Database['public']['Tables']['multis']['Update'])
-      .eq('id', multi.id)
-
-    if (!error) setIsOpen(!isOpen)
-    else alert(`상태 변경 실패: ${error.message}`)
-
-    setIsLoading(false)
+  const handleToggle = () => {
+    toggleEvent(isOpen)
   }
 
   // 게임별 아이콘 매핑
@@ -252,7 +249,7 @@ export default function EventCard({ multi, currentUserId }: EventCardProps) {
         
         {currentUserId && multi.author_id === currentUserId ? (
           <button
-            onClick={toggleOpen}
+            onClick={handleToggle}
             disabled={isLoading || isPast}
             title={isPast ? "종료된 이벤트는 상태 변경 불가" : "운영자 전용: 활성/비활성 전환"}
             className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
