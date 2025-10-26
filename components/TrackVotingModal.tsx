@@ -29,18 +29,26 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
     try {
       console.log('트랙 옵션 가져오기 시작:', { regularEventId })
       const response = await fetch(`/api/regular-events/${regularEventId}/vote-options`)
-      console.log('트랙 옵션 API 응답:', { status: response.status, ok: response.ok })
+      console.log('트랙 옵션 API 응답:', { 
+        status: response.status, 
+        ok: response.ok,
+        url: response.url,
+        headers: Object.fromEntries(response.headers.entries())
+      })
       
       if (response.ok) {
         const data = await response.json()
         console.log('트랙 옵션 데이터:', data)
+        console.log('옵션 개수:', data.options?.length || 0)
         setTrackOptions(data.options || [])
       } else {
         const errorData = await response.json()
         console.error('트랙 옵션 API 오류:', errorData)
+        console.error('응답 상태:', response.status, response.statusText)
       }
     } catch (error) {
       console.error('트랙 옵션 가져오기 실패:', error)
+      console.error('오류 상세:', error instanceof Error ? error.message : error)
     } finally {
       setLoading(false)
     }

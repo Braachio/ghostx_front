@@ -24,6 +24,13 @@ export async function GET(
       .order('option_type', { ascending: true })
       .order('votes_count', { ascending: false })
 
+    console.log('투표 옵션 조회 결과:', { 
+      regularEventId: id, 
+      optionsCount: options?.length || 0, 
+      options: options,
+      error: error 
+    })
+
     if (error) {
       console.error('투표 옵션 조회 실패:', error)
       return NextResponse.json({ error: '투표 옵션을 불러올 수 없습니다.' }, { status: 500 })
