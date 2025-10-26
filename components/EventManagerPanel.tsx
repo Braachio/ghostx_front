@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { X, Play, Pause, Settings, Vote, Users, Calendar } from 'lucide-react'
+import VoteManagementModal from './VoteManagementModal'
 
 interface ManagedEvent {
   id: string
@@ -41,6 +42,8 @@ export default function EventManagerPanel({ isOpen, onClose, userId }: EventMana
   const [loading, setLoading] = useState(false)
   const [updating, setUpdating] = useState<string | null>(null)
   const [userRole, setUserRole] = useState<string>('')
+  const [voteModalOpen, setVoteModalOpen] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState<{ id: string; title: string } | null>(null)
 
   // 내가 관리하는 이벤트 조회
   const fetchManagedEvents = async () => {
@@ -117,9 +120,10 @@ export default function EventManagerPanel({ isOpen, onClose, userId }: EventMana
     }
   }
 
-  // 투표 관리 페이지로 이동
-  const goToVoteManagement = (eventId: string) => {
-    window.open(`/events/regular/${eventId}`, '_blank')
+  // 투표 관리 모달 열기
+  const openVoteManagement = (eventId: string, eventTitle: string) => {
+    setSelectedEvent({ id: eventId, title: eventTitle })
+    setVoteModalOpen(true)
   }
 
   useEffect(() => {
@@ -258,7 +262,7 @@ export default function EventManagerPanel({ isOpen, onClose, userId }: EventMana
                       {/* 투표 관리 (정기 이벤트만) */}
                       {event.event_type === 'regular_schedule' && (
                         <button
-                          onClick={() => goToVoteManagement(event.id)}
+                          onClick={() => openVoteManagement(event.id, event.title)}
                           className="flex items-center space-x-1 px-3 py-2 text-sm font-medium text-blue-700 bg-blue-100 rounded-md hover:bg-blue-200 transition-colors"
                         >
                           <Vote className="w-4 h-4" />
@@ -295,6 +299,20 @@ export default function EventManagerPanel({ isOpen, onClose, userId }: EventMana
           </div>
         </div>
       </div>
+
+      {/* 투표 관리 모달 */}
+      {selectedEvent && (
+        <VoteManagementModal
+          isOpen={voteModalOpen}
+          onClose={() => {
+            setVoteModalOpen(false)
+            setSelectedEvent(null)
+          }}
+          eventId={selectedEvent.id}
+          eventTitle={selectedEvent.title}
+          userId={userId}
+        />
+      )}
     </div>
   )
 }
