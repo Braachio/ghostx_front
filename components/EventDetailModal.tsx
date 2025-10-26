@@ -70,7 +70,7 @@ export default function EventDetailModal({
   const handleEdit = () => {
     if (!event) return
     // 이벤트 수정 페이지로 이동
-    router.push(`/multis/edit/${event.id}`)
+    router.push(`/multis/${event.id}/edit`)
     onClose() // 모달 닫기
   }
 
