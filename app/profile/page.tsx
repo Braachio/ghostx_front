@@ -7,7 +7,6 @@ import Link from 'next/link'
 import { findRacingGame, isRacingGame } from '@/lib/racingGames'
 import RacingStats from '@/components/RacingStats'
 import { useNotificationPermission } from '@/hooks/useNotificationPermission'
-import FeedbackForm from '@/components/FeedbackForm'
 
 // 게임 목록 (관심 게임 선택용)
 const availableGames = [
@@ -58,7 +57,6 @@ export default function ProfilePage() {
   })
   const [savingInterestGames, setSavingInterestGames] = useState(false)
   const [savingNotifications, setSavingNotifications] = useState(false)
-  const [showFeedbackModal, setShowFeedbackModal] = useState(false)
   
   // 알림 권한 관리
   const { permission, isSupported, requestPermission, sendTestNotification } = useNotificationPermission()
@@ -380,12 +378,15 @@ export default function ProfilePage() {
                   </div>
                 )}
                 
-                <button
-                  onClick={() => setShowFeedbackModal(true)}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-lg transition-all shadow-lg hover:shadow-purple-500/50 text-white font-semibold"
+                <a
+                  href={profile.profileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg transition-all shadow-lg hover:shadow-purple-500/50 text-white font-semibold"
                 >
-                  <span>💬 피드백 보내기</span>
-                </button>
+                  <span>Steam 프로필 보기</span>
+                  <span className="text-xl">→</span>
+                </a>
               </div>
             </div>
           </div>
@@ -798,15 +799,6 @@ export default function ProfilePage() {
           </div>
         )}
       </div>
-
-      {/* 피드백 모달 */}
-      {showFeedbackModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <FeedbackForm onClose={() => setShowFeedbackModal(false)} />
-          </div>
-        </div>
-      )}
     </div>
   )
 }
