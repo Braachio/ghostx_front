@@ -35,14 +35,14 @@ export async function GET(request: NextRequest) {
     // 관리자 권한 또는 작성자 권한 확인
     const isOwner = event.author_id === user.id
     
-    // 관리자 권한 확인 (role이 'admin' 또는 'moderator'인 경우)
+    // 관리자 권한 확인 (role이 'admin', 'moderator', 또는 'event_manager'인 경우)
     const { data: profile } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', user.id)
       .single()
 
-    const isAdmin = profile?.role === 'admin' || profile?.role === 'moderator'
+    const isAdmin = profile?.role === 'admin' || profile?.role === 'moderator' || profile?.role === 'event_manager'
     
     return NextResponse.json({ 
       hasPermission: isOwner || isAdmin 
