@@ -59,9 +59,18 @@ export default function ParticipantListModal({ isOpen, onClose, eventId, isOwner
             p.id === participantId ? { ...p, status: newStatus } : p
           )
         )
+        alert('상태가 변경되었습니다.')
       } else {
-        const errorData = await response.json()
-        alert(errorData.error || '상태 변경에 실패했습니다.')
+        // 응답이 JSON인지 확인
+        const contentType = response.headers.get('content-type')
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json()
+          alert(errorData.error || '상태 변경에 실패했습니다.')
+        } else {
+          const errorText = await response.text()
+          console.error('API 응답 오류:', errorText)
+          alert('상태 변경에 실패했습니다. 서버 오류가 발생했습니다.')
+        }
       }
     } catch (error) {
       console.error('상태 변경 오류:', error)
