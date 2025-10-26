@@ -58,13 +58,6 @@ export default function ProfilePage() {
   const [savingInterestGames, setSavingInterestGames] = useState(false)
   const [savingNotifications, setSavingNotifications] = useState(false)
 
-  useEffect(() => {
-    fetchProfile()
-    fetchInterestGames()
-    fetchNotificationSettings()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   async function fetchProfile() {
     try {
       setLoading(true)
@@ -122,6 +115,13 @@ export default function ProfilePage() {
       console.error('알림 설정 로드 실패:', error)
     }
   }
+
+  useEffect(() => {
+    fetchProfile()
+    fetchInterestGames()
+    fetchNotificationSettings()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // 관심 게임 토글
   const toggleInterestGame = async (gameName: string) => {
