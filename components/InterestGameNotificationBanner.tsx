@@ -31,6 +31,7 @@ interface ManagedEvent {
   title: string
   is_open: boolean
   event_type: string
+  canManage?: boolean
 }
 
 export default function InterestGameNotificationBanner({ userId }: InterestGameNotificationBannerProps) {
@@ -295,6 +296,7 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
                 const isManagedEvent = canManageEvent(event.id)
                 const managedEvent = managedEvents.find(e => e.id === event.id)
                 const isOpen = managedEvent?.is_open ?? true
+                const canManage = managedEvent?.canManage ?? false
                 
                 return (
                   <div key={event.id} className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg border border-gray-700/50">
@@ -304,7 +306,7 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
                       <div className="text-gray-400 text-sm">{event.game} • 기습 갤멀</div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {isManagedEvent && (
+                      {isManagedEvent && canManage && (
                         <button
                           onClick={() => handleToggleEvent(event.id)}
                           disabled={togglingEvents.has(event.id)}
@@ -334,6 +336,7 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
                 const isManagedEvent = canManageEvent(event.id)
                 const managedEvent = managedEvents.find(e => e.id === event.id)
                 const isOpen = managedEvent?.is_open ?? true
+                const canManage = managedEvent?.canManage ?? false
                 
                 return (
                   <div key={event.id} className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg border border-gray-700/50">
@@ -343,7 +346,7 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
                       <div className="text-gray-400 text-sm">{event.game} • 정기 멀티 • {event.start_time}</div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {isManagedEvent && (
+                      {isManagedEvent && canManage && (
                         <button
                           onClick={() => handleToggleEvent(event.id)}
                           disabled={togglingEvents.has(event.id)}
