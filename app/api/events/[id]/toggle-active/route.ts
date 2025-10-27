@@ -27,6 +27,7 @@ export async function POST(req: NextRequest) {
     // 이벤트 존재 및 권한 확인 (multis 테이블에서 먼저 시도)
     let event: { id: string; author_id: string; title: string; is_open: boolean } | null = null
     let eventError = null
+    let tableName = 'multis' // 기본값은 multis
     
     const { data: multisEvent, error: multisError } = await supabase
       .from('multis')
@@ -36,6 +37,8 @@ export async function POST(req: NextRequest) {
 
     if (!multisError && multisEvent) {
       event = multisEvent
+      tableName = 'multis'
+      console.log('multis 테이블에서 이벤트 찾음')
     } else {
       // multis에서 찾지 못하면 regular_events에서 찾기
       const { data: regularEvent, error: regularError } = await supabase
@@ -46,6 +49,8 @@ export async function POST(req: NextRequest) {
 
       if (!regularError && regularEvent) {
         event = regularEvent
+        tableName = 'regular_events'
+        console.log('regular_events 테이블에서 이벤트 찾음')
       } else {
         eventError = regularError
       }
@@ -78,10 +83,6 @@ export async function POST(req: NextRequest) {
     }
 
     // 이벤트 활성화 상태 업데이트
-    // 어떤 테이블에서 찾았는지 확인
-    const { data: checkMultis } = await supabase.from('multis').select('id').eq('id', eventId).single()
-    const tableName = checkMultis ? 'multis' : 'regular_events'
-    
     console.log('업데이트할 테이블:', tableName)
     
     const result = await supabase
