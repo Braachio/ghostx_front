@@ -3,16 +3,6 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import type { Database } from '@/lib/database.types'
 
-// 채팅 메시지 타입
-interface ChatMessage {
-  id: string
-  event_id: string
-  nickname: string
-  message: string
-  color: string
-  created_at: string
-}
-
 // GET: 채팅 메시지 조회
 export async function GET(
   req: NextRequest,

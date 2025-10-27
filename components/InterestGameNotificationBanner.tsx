@@ -39,7 +39,6 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
   const [recentEvents, setRecentEvents] = useState<InterestEvent[]>([])
   const [todayRegularEvents, setTodayRegularEvents] = useState<RegularEvent[]>([])
   const [managedEvents, setManagedEvents] = useState<ManagedEvent[]>([])
-  const [userRole, setUserRole] = useState<string>('user')
   const [loading, setLoading] = useState(true)
   const [dismissed, setDismissed] = useState(false)
   const [joiningEvents, setJoiningEvents] = useState<Set<string>>(new Set())
@@ -118,7 +117,6 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
         if (managedResponse.ok) {
           const managedData = await managedResponse.json()
           setManagedEvents(managedData.events || [])
-          setUserRole(managedData.userRole || 'user')
         }
       } catch (error) {
         console.error('관심 게임 배너 데이터 로드 실패:', error)

@@ -45,7 +45,7 @@ export default function FeedbackForm({ onClose }: FeedbackFormProps) {
         setSubmitStatus('error')
         setErrorMessage(result.error || '피드백 전송에 실패했습니다.')
       }
-    } catch (error) {
+    } catch {
       setSubmitStatus('error')
       setErrorMessage('네트워크 오류가 발생했습니다.')
     } finally {
