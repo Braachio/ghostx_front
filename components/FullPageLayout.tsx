@@ -124,29 +124,16 @@ export default function FullPageLayout({
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 text-white overflow-x-hidden">
-      {/* 상단 네비게이션 - 스크롤 시 고정 */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-black/95 backdrop-blur-md border-b border-gray-800' 
-          : 'bg-transparent'
-      }`}>
-        <div className="w-full px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* 로고 */}
-            <Link href="/" className="flex items-center gap-3">
-              <Image 
-                src="/logo/ghost-x-symbol.svg" 
-                alt="Ghost-X" 
-                width={32} 
-                height={32} 
-                className="dark:invert" 
-              />
-              <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-                {t[language].title}
-              </span>
-            </Link>
-
-            {/* 네비게이션 메뉴 */}
+      {/* 상단 네비게이션 - 두 줄 구조 */}
+      <nav className="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+        {/* 1번째 줄 - 스크롤 시 숨김 */}
+        <div className={`w-full px-4 sm:px-6 lg:px-8 transition-all duration-300 ${
+          isScrolled 
+            ? 'opacity-0 invisible h-0 overflow-hidden' 
+            : 'opacity-100 visible h-12'
+        }`}>
+          <div className="flex items-center justify-center h-12">
+            {/* 채팅 채널 & 갤멀 관리 */}
             <div className="hidden md:flex items-center gap-8">
               {/* 채팅 채널 드롭다운 */}
               <div className="relative group">
@@ -243,43 +230,62 @@ export default function FullPageLayout({
                   </div>
                 </div>
               </div>
+              
+              {/* 갤멀 관리 */}
+              {user && (user.role === 'admin' || user.role === 'event_manager') && (
+                <button
+                  onClick={() => setIsEventManagerPanelOpen(true)}
+                  className="text-white text-sm font-medium hover:text-purple-400 transition-colors"
+                >
+                  🎛️ 갤멀 관리
+                </button>
+              )}
             </div>
+          </div>
+        </div>
 
-            {/* 사용자 메뉴 */}
+        {/* 2번째 줄 - 스크롤 시 고정 표시 */}
+        <div className={`w-full px-4 sm:px-6 lg:px-8 transition-all duration-300 ${
+          isScrolled 
+            ? 'bg-black/95 backdrop-blur-md border-b border-gray-800' 
+            : 'bg-transparent'
+        }`}>
+          <div className="flex items-center justify-between h-16">
+            {/* 로고 */}
+            <Link href="/" className="flex items-center gap-3">
+              <Image 
+                src="/logo/ghost-x-symbol.svg" 
+                alt="Ghost-X" 
+                width={32} 
+                height={32} 
+                className="dark:invert" 
+              />
+              <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+                {t[language].title}
+              </span>
+            </Link>
+
+            {/* 메인 메뉴 */}
             <div className="hidden md:flex items-center gap-6">
+              {/* 정기 갤멀 생성 & 기습 갤멀 생성 */}
               {user ? (
                 <>
-
-                  {/* 권한에 따른 버튼 표시 */}
                   {user.role === 'admin' || user.role === 'event_manager' ? (
-                    <>
-                      <button
-                        onClick={() => setIsEventManagerPanelOpen(true)}
-                        className="text-white text-sm font-medium hover:text-purple-400 transition-colors"
-                      >
-                        🎛️ 갤멀 관리
-                      </button>
-                      <Link
-                        href="/events/regular/new"
-                        className="text-white text-sm font-medium hover:text-cyan-400 transition-colors"
-                      >
-                        📅 정기 갤멀 생성
-                      </Link>
-                      <Link
-                        href="/multis/new"
-                        className="text-white text-sm font-medium hover:text-orange-400 transition-colors"
-                      >
-                        ⚡ 기습 갤멀 생성
-                      </Link>
-                    </>
-                  ) : (
                     <Link
-                      href="/multis/new"
-                      className="text-white text-sm font-medium hover:text-orange-400 transition-colors"
+                      href="/events/regular/new"
+                      className="text-white text-sm font-medium hover:text-cyan-400 transition-colors"
                     >
-                      ⚡ 기습 갤멀 생성
+                      📅 정기 갤멀 생성
                     </Link>
-                  )}
+                  ) : null}
+                  <Link
+                    href="/multis/new"
+                    className="text-white text-sm font-medium hover:text-orange-400 transition-colors"
+                  >
+                    ⚡ 기습 갤멀 생성
+                  </Link>
+
+                  {/* 사용자 정보 & 로그아웃 */}
                   <span className="text-sm text-cyan-400">
                     👤 {t[language].welcome(user.nickname)}
                   </span>
@@ -337,7 +343,7 @@ export default function FullPageLayout({
       </nav>
 
       {/* Section 1: Ghost-X 소개 섹션 */}
-      <section className="fullpage-section min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 relative">
+      <section className="fullpage-section min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 relative pt-28">
         <div className="max-w-7xl mx-auto text-center">
           {/* Ghost-X 브랜딩 */}
           <div className="mb-16">
