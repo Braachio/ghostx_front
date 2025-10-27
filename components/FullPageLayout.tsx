@@ -204,8 +204,8 @@ export default function FullPageLayout({
               <div className="hidden md:flex items-center gap-8">
                 {/* 채팅 채널 드롭다운 */}
                 <div className="relative group">
-                  <button className="text-white text-sm font-medium hover:text-cyan-400 transition-colors flex items-center gap-2">
-                    💬 채팅 채널
+                  <button className="text-white text-base font-medium hover:text-cyan-400 transition-colors flex items-center gap-2">
+                    채팅 채널
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
@@ -301,8 +301,8 @@ export default function FullPageLayout({
                 {/* 갤멀 관리 드롭다운 */}
                 {user && (user.role === 'admin' || user.role === 'event_manager') && (
                   <div className="relative group">
-                    <button className="text-white text-sm font-medium hover:text-purple-400 transition-colors flex items-center gap-2">
-                      🎛️ 갤멀 관리
+                    <button className="text-white text-base font-medium hover:text-purple-400 transition-colors flex items-center gap-2">
+                      갤멀 관리
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
