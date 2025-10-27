@@ -124,223 +124,228 @@ export default function FullPageLayout({
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 text-white overflow-x-hidden">
-      {/* 상단 네비게이션 - 두 줄 구조 */}
-      <nav className="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
-        {/* 1번째 줄 - 스크롤 시 숨김 */}
-        <div className={`w-full px-4 sm:px-6 lg:px-8 transition-all duration-300 ${
-          isScrolled 
-            ? 'opacity-0 invisible h-0 overflow-hidden' 
-            : 'opacity-100 visible h-12'
-        }`}>
-          <div className="flex items-center justify-center h-12">
-            {/* 채팅 채널 & 갤멀 관리 */}
-            <div className="hidden md:flex items-center gap-8">
-              {/* 채팅 채널 드롭다운 */}
-              <div className="relative group">
-                <button className="text-white text-sm font-medium hover:text-cyan-400 transition-colors flex items-center gap-2">
-                  💬 채팅 채널
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-                
-                {/* 드롭다운 메뉴 */}
-                <div className="absolute top-full left-0 mt-2 w-64 bg-gray-800 rounded-lg shadow-xl border border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                  <div className="p-2">
-                    <button 
-                      onClick={() => window.open('/events/regular/competizione/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
-                      className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
-                    >
-                      <span className="text-lg">🏁</span>
-                      <div>
-                        <div className="font-medium">컴페티치오네</div>
-                        <div className="text-xs text-gray-400">Competizione 채팅</div>
-                      </div>
-                    </button>
-                    <button 
-                      onClick={() => window.open('/events/regular/lemans/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
-                      className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
-                    >
-                      <span className="text-lg">🏎️</span>
-                      <div>
-                        <div className="font-medium">르망얼티밋</div>
-                        <div className="text-xs text-gray-400">Le Mans Ultimate 채팅</div>
-                      </div>
-                    </button>
-                    <button 
-                      onClick={() => window.open('/events/regular/iracing/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
-                      className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
-                    >
-                      <span className="text-lg">🏆</span>
-                      <div>
-                        <div className="font-medium">아이레이싱</div>
-                        <div className="text-xs text-gray-400">iRacing 채팅</div>
-                      </div>
-                    </button>
-                    <button 
-                      onClick={() => window.open('/events/regular/assettocorsa/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
-                      className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
-                    >
-                      <span className="text-lg">🏎️</span>
-                      <div>
-                        <div className="font-medium">아세토코르사</div>
-                        <div className="text-xs text-gray-400">Assetto Corsa 채팅</div>
-                      </div>
-                    </button>
-                    <button 
-                      onClick={() => window.open('/events/regular/gran-turismo7/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
-                      className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
-                    >
-                      <span className="text-lg">🏁</span>
-                      <div>
-                        <div className="font-medium">그란투리스모7</div>
-                        <div className="text-xs text-gray-400">Gran Turismo 7 채팅</div>
-                      </div>
-                    </button>
-                    <button 
-                      onClick={() => window.open('/events/regular/automobilista2/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
-                      className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
-                    >
-                      <span className="text-lg">🏎️</span>
-                      <div>
-                        <div className="font-medium">오토모빌리스타2</div>
-                        <div className="text-xs text-gray-400">Automobilista 2 채팅</div>
-                      </div>
-                    </button>
-                    <button 
-                      onClick={() => window.open('/events/regular/f1-25/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
-                      className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
-                    >
-                      <span className="text-lg">🏁</span>
-                      <div>
-                        <div className="font-medium">F1 25</div>
-                        <div className="text-xs text-gray-400">F1 25 채팅</div>
-                      </div>
-                    </button>
-                    <button 
-                      onClick={() => window.open('/events/regular/ea-wrc/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
-                      className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
-                    >
-                      <span className="text-lg">🏎️</span>
-                      <div>
-                        <div className="font-medium">EA WRC</div>
-                        <div className="text-xs text-gray-400">EA WRC 채팅</div>
-                      </div>
-                    </button>
-                  </div>
-                </div>
-              </div>
-              
-              {/* 갤멀 관리 */}
-              {user && (user.role === 'admin' || user.role === 'event_manager') && (
-                <button
-                  onClick={() => setIsEventManagerPanelOpen(true)}
-                  className="text-white text-sm font-medium hover:text-purple-400 transition-colors"
-                >
-                  🎛️ 갤멀 관리
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
+             {/* 상단 네비게이션 - 두 줄 구조 */}
+       <nav className="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+         {/* 1번째 줄 - 스크롤 시 숨김 (로고, 프로필, 로그아웃, 언어변경) */}
+         <div className={`w-full px-4 sm:px-6 lg:px-8 transition-all duration-300 ${
+           isScrolled 
+             ? 'opacity-0 invisible h-0 overflow-hidden' 
+             : 'opacity-100 visible h-12'
+         }`}>
+           <div className="flex items-center justify-between h-12">
+             {/* 로고 */}
+             <Link href="/" className="flex items-center gap-3">
+               <Image 
+                 src="/logo/ghost-x-symbol.svg" 
+                 alt="Ghost-X" 
+                 width={32} 
+                 height={32} 
+                 className="dark:invert" 
+               />
+               <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+                 {t[language].title}
+               </span>
+             </Link>
 
-        {/* 2번째 줄 - 스크롤 시 고정 표시 */}
-        <div className={`w-full px-4 sm:px-6 lg:px-8 transition-all duration-300 ${
-          isScrolled 
-            ? 'bg-black/95 backdrop-blur-md border-b border-gray-800' 
-            : 'bg-transparent'
-        }`}>
-          <div className="flex items-center justify-between h-16">
-            {/* 로고 */}
-            <Link href="/" className="flex items-center gap-3">
-              <Image 
-                src="/logo/ghost-x-symbol.svg" 
-                alt="Ghost-X" 
-                width={32} 
-                height={32} 
-                className="dark:invert" 
-              />
-              <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-                {t[language].title}
-              </span>
-            </Link>
+             {/* 프로필 & 언어 */}
+             <div className="hidden md:flex items-center gap-6">
+               {user ? (
+                 <>
+                   <span className="text-sm text-cyan-400">
+                     👤 {t[language].welcome(user.nickname)}
+                   </span>
+                   <button
+                     onClick={onLogout}
+                     className="text-white text-sm font-medium hover:text-red-400 transition-colors"
+                   >
+                     {t[language].logout}
+                   </button>
+                 </>
+               ) : (
+                 <Link
+                   href="/login"
+                   className="text-white text-sm font-medium hover:text-cyan-400 transition-colors"
+                 >
+                   {t[language].getStarted}
+                 </Link>
+               )}
 
-            {/* 메인 메뉴 */}
-            <div className="hidden md:flex items-center gap-6">
-              {/* 정기 갤멀 생성 & 기습 갤멀 생성 */}
-              {user ? (
-                <>
-                  {user.role === 'admin' || user.role === 'event_manager' ? (
-                    <Link
-                      href="/events/regular/new"
-                      className="text-white text-sm font-medium hover:text-cyan-400 transition-colors"
-                    >
-                      📅 정기 갤멀 생성
-                    </Link>
-                  ) : null}
-                  <Link
-                    href="/multis/new"
-                    className="text-white text-sm font-medium hover:text-orange-400 transition-colors"
-                  >
-                    ⚡ 기습 갤멀 생성
-                  </Link>
+               {/* 언어 전환 */}
+               <div className="flex bg-gray-800/80 backdrop-blur-sm rounded-lg p-1 border border-gray-700">
+                 <button
+                   onClick={() => onLanguageChange('ko')}
+                   className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+                     language === 'ko' 
+                       ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg' 
+                       : 'text-gray-400 hover:text-white'
+                   }`}
+                 >
+                   🇰🇷
+                 </button>
+                 <button
+                   onClick={() => onLanguageChange('en')}
+                   className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+                     language === 'en' 
+                       ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg' 
+                       : 'text-gray-400 hover:text-white'
+                   }`}
+                 >
+                   🇺🇸
+                 </button>
+               </div>
+             </div>
+           </div>
+         </div>
 
-                  {/* 사용자 정보 & 로그아웃 */}
-                  <span className="text-sm text-cyan-400">
-                    👤 {t[language].welcome(user.nickname)}
-                  </span>
-                  <button
-                    onClick={onLogout}
-                    className="text-white text-sm font-medium hover:text-red-400 transition-colors"
-                  >
-                    {t[language].logout}
-                  </button>
-                </>
-              ) : (
-                <Link
-                  href="/login"
-                  className="text-white text-sm font-medium hover:text-cyan-400 transition-colors"
-                >
-                  {t[language].getStarted}
-                </Link>
-              )}
+         {/* 2번째 줄 - 스크롤 시 고정 표시 (채팅, 갤멀관리, 생성 버튼) */}
+         <div className={`w-full px-4 sm:px-6 lg:px-8 transition-all duration-300 ${
+           isScrolled 
+             ? 'bg-black/95 backdrop-blur-md border-b border-gray-800' 
+             : 'bg-transparent'
+         }`}>
+           <div className="flex items-center justify-between h-16">
+             {/* 왼쪽: 채팅 채널 & 갤멀 관리 */}
+             <div className="hidden md:flex items-center gap-8">
+               {/* 채팅 채널 드롭다운 */}
+               <div className="relative group">
+                 <button className="text-white text-sm font-medium hover:text-cyan-400 transition-colors flex items-center gap-2">
+                   💬 채팅 채널
+                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                   </svg>
+                 </button>
+                 
+                 {/* 드롭다운 메뉴 */}
+                 <div className="absolute top-full left-0 mt-2 w-64 bg-gray-800 rounded-lg shadow-xl border border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                   <div className="p-2">
+                     <button 
+                       onClick={() => window.open('/events/regular/competizione/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
+                       className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
+                     >
+                       <span className="text-lg">🏁</span>
+                       <div>
+                         <div className="font-medium">컴페티치오네</div>
+                         <div className="text-xs text-gray-400">Competizione 채팅</div>
+                       </div>
+                     </button>
+                     <button 
+                       onClick={() => window.open('/events/regular/lemans/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
+                       className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
+                     >
+                       <span className="text-lg">🏎️</span>
+                       <div>
+                         <div className="font-medium">르망얼티밋</div>
+                         <div className="text-xs text-gray-400">Le Mans Ultimate 채팅</div>
+                       </div>
+                     </button>
+                     <button 
+                       onClick={() => window.open('/events/regular/iracing/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
+                       className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
+                     >
+                       <span className="text-lg">🏆</span>
+                       <div>
+                         <div className="font-medium">아이레이싱</div>
+                         <div className="text-xs text-gray-400">iRacing 채팅</div>
+                       </div>
+                     </button>
+                     <button 
+                       onClick={() => window.open('/events/regular/assettocorsa/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
+                       className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
+                     >
+                       <span className="text-lg">🏎️</span>
+                       <div>
+                         <div className="font-medium">아세토코르사</div>
+                         <div className="text-xs text-gray-400">Assetto Corsa 채팅</div>
+                       </div>
+                     </button>
+                     <button 
+                       onClick={() => window.open('/events/regular/gran-turismo7/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
+                       className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
+                     >
+                       <span className="text-lg">🏁</span>
+                       <div>
+                         <div className="font-medium">그란투리스모7</div>
+                         <div className="text-xs text-gray-400">Gran Turismo 7 채팅</div>
+                       </div>
+                     </button>
+                     <button 
+                       onClick={() => window.open('/events/regular/automobilista2/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
+                       className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
+                     >
+                       <span className="text-lg">🏎️</span>
+                       <div>
+                         <div className="font-medium">오토모빌리스타2</div>
+                         <div className="text-xs text-gray-400">Automobilista 2 채팅</div>
+                       </div>
+                     </button>
+                     <button 
+                       onClick={() => window.open('/events/regular/f1-25/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
+                       className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
+                     >
+                       <span className="text-lg">🏁</span>
+                       <div>
+                         <div className="font-medium">F1 25</div>
+                         <div className="text-xs text-gray-400">F1 25 채팅</div>
+                       </div>
+                     </button>
+                     <button 
+                       onClick={() => window.open('/events/regular/ea-wrc/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
+                       className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
+                     >
+                       <span className="text-lg">🏎️</span>
+                       <div>
+                         <div className="font-medium">EA WRC</div>
+                         <div className="text-xs text-gray-400">EA WRC 채팅</div>
+                       </div>
+                     </button>
+                   </div>
+                 </div>
+               </div>
+               
+               {/* 갤멀 관리 */}
+               {user && (user.role === 'admin' || user.role === 'event_manager') && (
+                 <button
+                   onClick={() => setIsEventManagerPanelOpen(true)}
+                   className="text-white text-sm font-medium hover:text-purple-400 transition-colors"
+                 >
+                   🎛️ 갤멀 관리
+                 </button>
+               )}
+             </div>
 
-              {/* 언어 전환 */}
-              <div className="flex bg-gray-800/80 backdrop-blur-sm rounded-lg p-1 border border-gray-700">
-                <button
-                  onClick={() => onLanguageChange('ko')}
-                  className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
-                    language === 'ko' 
-                      ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg' 
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  🇰🇷
-                </button>
-                <button
-                  onClick={() => onLanguageChange('en')}
-                  className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
-                    language === 'en' 
-                      ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg' 
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  🇺🇸
-                </button>
-              </div>
-            </div>
+             {/* 오른쪽: 갤멀 생성 버튼 */}
+             <div className="hidden md:flex items-center gap-6">
+               {user ? (
+                 <>
+                   {user.role === 'admin' || user.role === 'event_manager' ? (
+                     <Link
+                       href="/events/regular/new"
+                       className="text-white text-sm font-medium hover:text-cyan-400 transition-colors"
+                     >
+                       📅 정기 갤멀 생성
+                     </Link>
+                   ) : null}
+                   <Link
+                     href="/multis/new"
+                     className="text-white text-sm font-medium hover:text-orange-400 transition-colors"
+                   >
+                     ⚡ 기습 갤멀 생성
+                   </Link>
+                 </>
+               ) : null}
+             </div>
 
-            {/* 모바일 메뉴 버튼 */}
-            <div className="md:hidden">
-              <button className="p-2 text-gray-400 hover:text-white">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+             {/* 모바일 메뉴 버튼 */}
+             <div className="md:hidden">
+               <button className="p-2 text-gray-400 hover:text-white">
+                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                 </svg>
+               </button>
+             </div>
+           </div>
+         </div>
+       </nav>
 
       {/* Section 1: Ghost-X 소개 섹션 */}
       <section className="fullpage-section min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 relative pt-28">
