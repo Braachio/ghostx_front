@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import MobileEventCalendar from './MobileEventCalendar'
@@ -39,7 +39,6 @@ export default function MobileLayout({
   onLogout,
   onEventClick
 }: MobileLayoutProps) {
-  const [currentSection, setCurrentSection] = useState(0)
   const [activeTab, setActiveTab] = useState<'calendar' | 'events'>('calendar')
 
   const t = {
@@ -180,7 +179,12 @@ export default function MobileLayout({
           <div className="grid grid-cols-1 gap-4 mb-12">
             {/* 갤멀 일정 관리 */}
             <button 
-              onClick={() => setCurrentSection(1)}
+              onClick={() => {
+                const calendarSection = document.getElementById('calendar-section')
+                if (calendarSection) {
+                  calendarSection.scrollIntoView({ behavior: 'smooth' })
+                }
+              }}
               className="relative group p-2"
             >
               <div className="absolute inset-2 bg-gradient-to-br from-cyan-600/20 to-blue-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
@@ -267,7 +271,7 @@ export default function MobileLayout({
       </section>
 
       {/* Section 2: 캘린더 섹션 */}
-      <section className="min-h-screen flex items-center justify-center px-4 py-20">
+      <section id="calendar-section" className="min-h-screen flex items-center justify-center px-4 py-20">
         <div className="max-w-md mx-auto w-full">
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
