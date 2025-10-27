@@ -13,6 +13,7 @@ interface InterestEvent {
   game: string
   event_type: string
   created_at: string
+  is_open?: boolean
 }
 
 interface RegularEvent {
@@ -22,15 +23,26 @@ interface RegularEvent {
   day_of_week: string
   start_time: string
   event_type: string
+  is_open?: boolean
+}
+
+interface ManagedEvent {
+  id: string
+  title: string
+  is_open: boolean
+  event_type: string
 }
 
 export default function InterestGameNotificationBanner({ userId }: InterestGameNotificationBannerProps) {
   const [interestGames, setInterestGames] = useState<string[]>([])
   const [recentEvents, setRecentEvents] = useState<InterestEvent[]>([])
   const [todayRegularEvents, setTodayRegularEvents] = useState<RegularEvent[]>([])
+  const [managedEvents, setManagedEvents] = useState<ManagedEvent[]>([])
+  const [userRole, setUserRole] = useState<string>('user')
   const [loading, setLoading] = useState(true)
   const [dismissed, setDismissed] = useState(false)
   const [joiningEvents, setJoiningEvents] = useState<Set<string>>(new Set())
+  const [togglingEvents, setTogglingEvents] = useState<Set<string>>(new Set())
   const [isExpanded, setIsExpanded] = useState(true)
 
   useEffect(() => {
@@ -42,9 +54,10 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
     const fetchData = async () => {
       try {
         // 병렬로 API 호출하여 성능 개선
-        const [interestResponse, eventsResponse] = await Promise.all([
+        const [interestResponse, eventsResponse, managedResponse] = await Promise.all([
           fetch('/api/user-interest-games'),
-          fetch('/api/multis')
+          fetch('/api/multis'),
+          fetch('/api/my-managed-events')
         ])
         
         let interestGamesList: string[] = []
@@ -99,6 +112,13 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
 
           setTodayRegularEvents(todayRegular)
         }
+
+        // 내가 관리하는 이벤트 정보 가져오기
+        if (managedResponse.ok) {
+          const managedData = await managedResponse.json()
+          setManagedEvents(managedData.events || [])
+          setUserRole(managedData.userRole || 'user')
+        }
       } catch (error) {
         console.error('관심 게임 배너 데이터 로드 실패:', error)
       } finally {
@@ -108,6 +128,60 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
 
     fetchData()
   }, [userId])
+
+  // 내가 관리할 수 있는 이벤트인지 확인
+  const canManageEvent = (eventId: string): boolean => {
+    return managedEvents.some(event => event.id === eventId)
+  }
+
+  // 이벤트 활성/비활성 토글 함수
+  const handleToggleEvent = async (eventId: string) => {
+    if (!userId) {
+      alert('로그인이 필요합니다.')
+      return
+    }
+
+    if (togglingEvents.has(eventId)) {
+      return
+    }
+
+    try {
+      setTogglingEvents(prev => new Set(prev).add(eventId))
+
+      const event = managedEvents.find(e => e.id === eventId)
+      const newStatus = !event?.is_open
+
+      const response = await fetch(`/api/events/${eventId}/toggle-active`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          eventId,
+          isActive: newStatus
+        }),
+      })
+
+      if (response.ok) {
+        // 로컬 상태 업데이트
+        setManagedEvents(prev => prev.map(e => 
+          e.id === eventId ? { ...e, is_open: newStatus } : e
+        ))
+      } else {
+        const errorData = await response.json()
+        alert(`상태 변경 실패: ${errorData.error}`)
+      }
+    } catch (error) {
+      console.error('상태 변경 오류:', error)
+      alert('상태 변경 중 오류가 발생했습니다.')
+    } finally {
+      setTogglingEvents(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(eventId)
+        return newSet
+      })
+    }
+  }
 
   // 참가 신청 함수
   const handleJoinEvent = async (eventId: string, eventTitle: string) => {
@@ -217,40 +291,82 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
             
             <div className="space-y-2">
               {/* 기습 갤멀 이벤트 */}
-              {recentEvents.map(event => (
-                <div key={event.id} className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg border border-gray-700/50">
-                  <div className="text-blue-400">⚡</div>
-                  <div className="flex-1">
-                    <div className="text-white font-medium">{event.title}</div>
-                    <div className="text-gray-400 text-sm">{event.game} • 기습 갤멀</div>
+              {recentEvents.map(event => {
+                const isManagedEvent = canManageEvent(event.id)
+                const managedEvent = managedEvents.find(e => e.id === event.id)
+                const isOpen = managedEvent?.is_open ?? true
+                
+                return (
+                  <div key={event.id} className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg border border-gray-700/50">
+                    <div className="text-blue-400">⚡</div>
+                    <div className="flex-1">
+                      <div className="text-white font-medium">{event.title}</div>
+                      <div className="text-gray-400 text-sm">{event.game} • 기습 갤멀</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {isManagedEvent && (
+                        <button
+                          onClick={() => handleToggleEvent(event.id)}
+                          disabled={togglingEvents.has(event.id)}
+                          className={`px-3 py-1 rounded text-sm font-medium transition-colors disabled:cursor-not-allowed ${
+                            isOpen
+                              ? 'bg-green-600 hover:bg-green-700 text-white disabled:bg-green-400'
+                              : 'bg-gray-600 hover:bg-gray-700 text-white disabled:bg-gray-400'
+                          }`}
+                        >
+                          {togglingEvents.has(event.id) ? '...' : isOpen ? 'ON' : 'OFF'}
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleJoinEvent(event.id, event.title)}
+                        disabled={joiningEvents.has(event.id)}
+                        className="px-3 py-1 bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed text-white rounded text-sm transition-colors"
+                      >
+                        {joiningEvents.has(event.id) ? '참여 중...' : '참여하기'}
+                      </button>
+                    </div>
                   </div>
-                  <button
-                    onClick={() => handleJoinEvent(event.id, event.title)}
-                    disabled={joiningEvents.has(event.id)}
-                    className="px-3 py-1 bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed text-white rounded text-sm transition-colors"
-                  >
-                    {joiningEvents.has(event.id) ? '참여 중...' : '참여하기'}
-                  </button>
-                </div>
-              ))}
+                )
+              })}
               
               {/* 오늘의 정기 멀티 이벤트 */}
-              {todayRegularEvents.map(event => (
-                <div key={event.id} className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg border border-gray-700/50">
-                  <div className="text-green-400">📅</div>
-                  <div className="flex-1">
-                    <div className="text-white font-medium">{event.title}</div>
-                    <div className="text-gray-400 text-sm">{event.game} • 정기 멀티 • {event.start_time}</div>
+              {todayRegularEvents.map(event => {
+                const isManagedEvent = canManageEvent(event.id)
+                const managedEvent = managedEvents.find(e => e.id === event.id)
+                const isOpen = managedEvent?.is_open ?? true
+                
+                return (
+                  <div key={event.id} className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg border border-gray-700/50">
+                    <div className="text-green-400">📅</div>
+                    <div className="flex-1">
+                      <div className="text-white font-medium">{event.title}</div>
+                      <div className="text-gray-400 text-sm">{event.game} • 정기 멀티 • {event.start_time}</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {isManagedEvent && (
+                        <button
+                          onClick={() => handleToggleEvent(event.id)}
+                          disabled={togglingEvents.has(event.id)}
+                          className={`px-3 py-1 rounded text-sm font-medium transition-colors disabled:cursor-not-allowed ${
+                            isOpen
+                              ? 'bg-green-600 hover:bg-green-700 text-white disabled:bg-green-400'
+                              : 'bg-gray-600 hover:bg-gray-700 text-white disabled:bg-gray-400'
+                          }`}
+                        >
+                          {togglingEvents.has(event.id) ? '...' : isOpen ? 'ON' : 'OFF'}
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleJoinEvent(event.id, event.title)}
+                        disabled={joiningEvents.has(event.id)}
+                        className="px-3 py-1 bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white rounded text-sm transition-colors"
+                      >
+                        {joiningEvents.has(event.id) ? '참여 중...' : '참여하기'}
+                      </button>
+                    </div>
                   </div>
-                  <button
-                    onClick={() => handleJoinEvent(event.id, event.title)}
-                    disabled={joiningEvents.has(event.id)}
-                    className="px-3 py-1 bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white rounded text-sm transition-colors"
-                  >
-                    {joiningEvents.has(event.id) ? '참여 중...' : '참여하기'}
-                  </button>
-                </div>
-              ))}
+                )
+              })}
             </div>
             
             <div className="mt-4 flex gap-3">
