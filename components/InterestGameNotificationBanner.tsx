@@ -180,23 +180,25 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
       <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-orange-500/40 rounded-2xl p-6 backdrop-blur-sm">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="text-2xl animate-pulse">🔔</div>
-              <h3 className="text-xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
-                {recentEvents.length > 0 && todayRegularEvents.length > 0 
-                  ? '관심 게임 새 이벤트!' 
-                  : recentEvents.length > 0 
-                    ? '관심 게임 기습 갤멀!'
-                    : '관심 게임 정기 멀티!'
-                }
-              </h3>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="text-2xl animate-pulse">🔔</div>
+                <h3 className="text-xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
+                  {recentEvents.length > 0 && todayRegularEvents.length > 0 
+                    ? '관심 게임 새 이벤트!' 
+                    : recentEvents.length > 0 
+                      ? '관심 게임 기습 갤멀!'
+                      : '관심 게임 정기 멀티!'
+                  }
+                </h3>
+              </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsExpanded(!isExpanded)}
-                  className="text-gray-400 hover:text-white transition-colors"
-                  title={isExpanded ? '접기' : '펼치기'}
+                  className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors text-sm"
                 >
-                  {isExpanded ? '▼' : '▶'}
+                  <span>{isExpanded ? '▼' : '▶'}</span>
+                  <span>{isExpanded ? '접기' : '펼치기'}</span>
                 </button>
                 <button
                   onClick={() => setDismissed(true)}
