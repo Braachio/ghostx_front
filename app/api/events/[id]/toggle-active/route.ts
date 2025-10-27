@@ -24,12 +24,32 @@ export async function POST(req: NextRequest) {
 
     console.log('이벤트 활성화 상태 변경:', { eventId, isActive, userId: user.id })
 
-    // 이벤트 존재 및 권한 확인
-    const { data: event, error: eventError } = await supabase
+    // 이벤트 존재 및 권한 확인 (multis 테이블에서 먼저 시도)
+    let event: { id: string; author_id: string; title: string; is_open: boolean } | null = null
+    let eventError = null
+    
+    const { data: multisEvent, error: multisError } = await supabase
       .from('multis')
       .select('id, author_id, title, is_open')
       .eq('id', eventId)
       .single()
+
+    if (!multisError && multisEvent) {
+      event = multisEvent
+    } else {
+      // multis에서 찾지 못하면 regular_events에서 찾기
+      const { data: regularEvent, error: regularError } = await supabase
+        .from('regular_events')
+        .select('id, author_id, title, is_open')
+        .eq('id', eventId)
+        .single()
+
+      if (!regularError && regularEvent) {
+        event = regularEvent
+      } else {
+        eventError = regularError
+      }
+    }
 
     if (eventError || !event) {
       console.error('이벤트 조회 실패:', eventError)
@@ -58,8 +78,14 @@ export async function POST(req: NextRequest) {
     }
 
     // 이벤트 활성화 상태 업데이트
-    const { data: updatedEvent, error: updateError } = await supabase
-      .from('multis')
+    // 어떤 테이블에서 찾았는지 확인
+    const { data: checkMultis } = await supabase.from('multis').select('id').eq('id', eventId).single()
+    const tableName = checkMultis ? 'multis' : 'regular_events'
+    
+    console.log('업데이트할 테이블:', tableName)
+    
+    const result = await supabase
+      .from(tableName)
       .update({ 
         is_open: isActive,
         updated_at: new Date().toISOString()
@@ -67,6 +93,9 @@ export async function POST(req: NextRequest) {
       .eq('id', eventId)
       .select('id, title, is_open')
       .single()
+    
+    const updatedEvent = result.data
+    const updateError = result.error
 
     if (updateError) {
       console.error('이벤트 상태 업데이트 실패:', updateError)
