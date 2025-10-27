@@ -197,12 +197,8 @@ export default function FullPageLayout({
            </div>
          </div>
 
-                   {/* 2번째 줄 - 스크롤 시 고정 표시 (가운데 정렬) */}
-          <div className={`w-full px-4 sm:px-6 lg:px-8 transition-all duration-300 ${
-            isScrolled 
-              ? 'bg-black/95 backdrop-blur-md border-b border-gray-800' 
-              : 'bg-transparent'
-          }`}>
+          {/* 2번째 줄 - 스크롤 시 고정 표시 (가운데 정렬) */}
+          <div className="w-full px-4 sm:px-6 lg:px-8 transition-all duration-300 bg-gray-900/50 backdrop-blur-sm border-b border-gray-800/50">
             <div className="flex items-center justify-center h-16">
               {/* 중앙 정렬된 메뉴 */}
               <div className="hidden md:flex items-center gap-8">
