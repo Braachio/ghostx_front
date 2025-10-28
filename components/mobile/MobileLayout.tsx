@@ -275,14 +275,6 @@ export default function MobileLayout({
       {/* Section 2: 캘린더 섹션 */}
       <section id="calendar-section" className="min-h-screen flex items-center justify-center px-6 py-20">
         <div className="w-full max-w-lg mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-              🗓️ {t[language].gallerySchedule}
-            </h2>
-            <p className="text-base text-gray-400 mb-8">
-              {language === 'ko' ? '모든 갤멀 일정을 한눈에 확인하세요' : 'View all gallery multi schedules at a glance'}
-            </p>
-          </div>
           
           {eventsLoading ? (
             <div className="bg-gray-900 rounded-2xl p-8 text-center">
