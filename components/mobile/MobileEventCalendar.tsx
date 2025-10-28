@@ -148,41 +148,41 @@ export default function MobileEventCalendar({
       </div>
 
       {activeTab === 'calendar' ? (
-        <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-700/50 overflow-hidden">
-          {/* 월 네비게이션 */}
-          <div className="flex items-center justify-between px-4 py-3 bg-gray-800/50 border-b border-gray-700/50">
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+          {/* 월 네비게이션 - 아이폰 스타일 */}
+          <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200">
             <button
               onClick={goToPreviousMonth}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-700/50 hover:bg-gray-600/50 transition-all"
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 active:bg-gray-300 transition-all"
             >
-              <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
             
             <div className="text-center">
-              <h2 className="text-lg font-semibold text-white">
+              <h2 className="text-xl font-semibold text-gray-900">
                 {year}년 {month + 1}월
               </h2>
             </div>
             
             <button
               onClick={goToNextMonth}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-700/50 hover:bg-gray-600/50 transition-all"
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 active:bg-gray-300 transition-all"
             >
-              <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
           </div>
 
-          {/* 요일 헤더 */}
-          <div className="grid grid-cols-7 bg-gray-800/30 border-b border-gray-700/50">
+          {/* 요일 헤더 - 아이폰 스타일 */}
+          <div className="grid grid-cols-7 bg-white border-b border-gray-200">
             {['일', '월', '화', '수', '목', '금', '토'].map((day, index) => (
               <div 
                 key={day}
-                className={`py-3 text-center text-sm font-semibold ${
-                  index === 0 ? 'text-red-400' : index === 6 ? 'text-blue-400' : 'text-gray-400'
+                className={`py-4 text-center text-sm font-medium ${
+                  index === 0 ? 'text-red-500' : index === 6 ? 'text-blue-500' : 'text-gray-600'
                 }`}
               >
                 {day}
@@ -190,39 +190,47 @@ export default function MobileEventCalendar({
             ))}
           </div>
 
-          {/* 캘린더 그리드 */}
-          <div className="grid grid-cols-7">
+          {/* 캘린더 그리드 - 아이폰 스타일 */}
+          <div className="grid grid-cols-7 bg-white">
             {calendarData.map((date, index) => {
               const dayEvents = getEventsForDate(date)
               const isCurrentMonth = date.getMonth() === month
+              const isTodayDate = isToday(date)
+              const isSelectedDate = isSelected(date)
               
               return (
                 <button
                   key={index}
                   onClick={() => handleDateClick(date)}
-                  className={`relative h-20 text-base transition-all ${
-                    !isCurrentMonth ? 'text-gray-600' : 'text-gray-200'
+                  className={`relative h-16 text-sm transition-all ${
+                    !isCurrentMonth ? 'text-gray-400' : 'text-gray-900'
                   } ${
-                    isToday(date) ? 'bg-gradient-to-r from-cyan-600/20 to-blue-600/20' : ''
+                    isTodayDate ? 'bg-blue-500 text-white rounded-full mx-1 my-1' : ''
                   } ${
-                    isSelected(date) ? 'bg-gradient-to-r from-cyan-600/30 to-blue-600/30' : ''
-                  } hover:bg-gray-700/30 active:scale-95`}
+                    isSelectedDate && !isTodayDate ? 'bg-blue-100 text-blue-600 rounded-full mx-1 my-1' : ''
+                  } hover:bg-gray-100 active:scale-95`}
                 >
                   <div className="flex flex-col items-center justify-center h-full">
-                    <span className="font-semibold text-lg">
+                    <span className={`font-medium ${
+                      isTodayDate ? 'text-white' : isSelectedDate ? 'text-blue-600' : ''
+                    }`}>
                       {date.getDate()}
                     </span>
                     {dayEvents.length > 0 && (
-                      <div className="flex space-x-1 mt-1.5">
-                        {dayEvents.slice(0, 2).map((_, eventIndex) => (
+                      <div className="flex space-x-1 mt-1">
+                        {dayEvents.slice(0, 3).map((_, eventIndex) => (
                           <div
                             key={eventIndex}
-                            className="w-1.5 h-1.5 bg-cyan-400 rounded-full"
+                            className={`w-1.5 h-1.5 rounded-full ${
+                              isTodayDate ? 'bg-white' : 'bg-blue-500'
+                            }`}
                           />
                         ))}
-                        {dayEvents.length > 2 && (
-                          <div className="text-[10px] text-cyan-400 font-semibold">
-                            +{dayEvents.length - 2}
+                        {dayEvents.length > 3 && (
+                          <div className={`text-[10px] font-medium ${
+                            isTodayDate ? 'text-white' : 'text-blue-500'
+                          }`}>
+                            +{dayEvents.length - 3}
                           </div>
                         )}
                       </div>
@@ -233,10 +241,10 @@ export default function MobileEventCalendar({
             })}
           </div>
 
-          {/* 선택된 날짜의 이벤트 목록 */}
+          {/* 선택된 날짜의 이벤트 목록 - 아이폰 스타일 */}
           {selectedDate && (
-            <div className="px-4 py-4 bg-gray-800/30 border-t border-gray-700/50">
-              <h3 className="text-base font-semibold text-white mb-3">
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+              <h3 className="text-base font-semibold text-gray-900 mb-3">
                 {new Date(selectedDate).toLocaleDateString('ko-KR', {
                   year: 'numeric',
                   month: 'long',
@@ -246,39 +254,30 @@ export default function MobileEventCalendar({
               </h3>
               <div className="space-y-2">
                 {getEventsForDate(new Date(selectedDate)).map((event, index) => (
-                  <button
+                  <div
                     key={index}
                     onClick={() => onEventClick?.(event)}
-                    className="w-full bg-gray-700/50 rounded-lg p-3 border border-gray-600/50 hover:bg-gray-600/50 transition-all text-left"
+                    className="p-3 bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all active:scale-95 cursor-pointer"
                   >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h4 className="text-sm font-medium text-white mb-1">
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 bg-blue-500 rounded-full flex-shrink-0"></div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-medium text-gray-900 truncate">
                           {event.title}
                         </h4>
-                        <div className="flex items-center space-x-2 text-xs text-gray-400">
-                          <span>{event.game}</span>
-                          {event.multi_time && (
-                            <>
-                              <span>•</span>
-                              <span>{event.multi_time}</span>
-                            </>
-                          )}
-                        </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {event.game} • {event.event_type === 'regular_schedule' ? '정기 갤멀' : '기습 갤멀'}
+                        </p>
                       </div>
-                      <div className={`text-xs px-2 py-1 rounded-full ${
-                        event.event_type === 'regular_schedule' 
-                          ? 'bg-blue-600/20 text-blue-400' 
-                          : 'bg-orange-600/20 text-orange-400'
-                      }`}>
-                        {event.event_type === 'regular_schedule' ? '정기' : '기습'}
-                      </div>
+                      <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
                     </div>
-                  </button>
+                  </div>
                 ))}
                 {getEventsForDate(new Date(selectedDate)).length === 0 && (
-                  <div className="text-sm text-gray-500 text-center py-6">
-                    이 날짜에는 이벤트가 없습니다.
+                  <div className="text-center py-8">
+                    <div className="text-gray-400 text-sm">이 날에는 일정이 없습니다</div>
                   </div>
                 )}
               </div>
