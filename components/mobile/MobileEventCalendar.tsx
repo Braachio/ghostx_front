@@ -31,7 +31,7 @@ export default function MobileEventCalendar({
 
   // 게임 필터링
   const filteredEvents = useMemo(() => {
-    if (selectedGame === 'all') return events
+    if (selectedGame === '전체') return events
     return events.filter(event => event.game === selectedGame)
   }, [events, selectedGame])
 
@@ -105,10 +105,24 @@ export default function MobileEventCalendar({
     return dateStr === selectedDate
   }
 
-  // 게임 목록 가져오기
+  // 게임 목록 가져오기 - 정렬된 순서
   const games = useMemo(() => {
     const gameSet = new Set(events.map(event => event.game))
-    return ['all', ...Array.from(gameSet)].sort()
+    const orderedGames = [
+      '컴페티치오네',
+      '르망얼티밋', 
+      '아세토코르사',
+      'F1 25',
+      '오토모빌리스타2',
+      '알펙터2',
+      '그란투리스모7',
+      '아이레이싱'
+    ]
+    
+    // 실제 이벤트에 있는 게임만 필터링하고 순서대로 정렬
+    const filteredGames = orderedGames.filter(game => gameSet.has(game))
+    
+    return ['전체', ...filteredGames]
   }, [events])
 
   return (
@@ -150,7 +164,7 @@ export default function MobileEventCalendar({
                   : 'bg-gray-800/50 text-gray-400 hover:text-white hover:bg-gray-700/50'
               }`}
             >
-              {game === 'all' ? '전체' : game}
+              {game}
             </button>
           ))}
         </div>
