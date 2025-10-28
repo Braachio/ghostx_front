@@ -273,14 +273,14 @@ export default function MobileEventCalendar({
                     isSelectedDate && !isTodayDate ? 'bg-blue-100 text-blue-600 rounded-full mx-1 my-1' : ''
                   } hover:bg-gray-100 active:scale-95`}
                 >
-                  <div className="flex flex-col items-center justify-center h-full">
+                  <div className="relative flex flex-col items-center justify-start h-full pt-2">
                     <span className={`text-lg font-medium ${
                       isTodayDate ? 'text-white' : isSelectedDate ? 'text-blue-600' : ''
                     }`}>
                       {date.getDate()}
                     </span>
                     {dayEvents.length > 0 && (
-                      <div className="flex space-x-0.5 mt-1">
+                      <div className="absolute bottom-2 flex items-center space-x-0.5">
                         {dayEvents.slice(0, 3).map((event, eventIndex) => {
                           const isFlashEvent = event.event_type === 'flash_event'
                           return (
