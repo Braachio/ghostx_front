@@ -265,7 +265,7 @@ export default function MobileEventCalendar({
                 <button
                   key={index}
                   onClick={() => handleDateClick(date)}
-                  className={`relative h-16 text-sm transition-all ${
+                  className={`relative h-16 transition-all ${
                     !isCurrentMonth ? 'text-gray-400' : 'text-gray-900'
                   } ${
                     isTodayDate ? 'bg-blue-500 text-white rounded-full mx-1 my-1' : ''
@@ -274,19 +274,19 @@ export default function MobileEventCalendar({
                   } hover:bg-gray-100 active:scale-95`}
                 >
                   <div className="flex flex-col items-center justify-center h-full">
-                    <span className={`font-medium ${
+                    <span className={`text-lg font-medium ${
                       isTodayDate ? 'text-white' : isSelectedDate ? 'text-blue-600' : ''
                     }`}>
                       {date.getDate()}
                     </span>
                     {dayEvents.length > 0 && (
-                      <div className="flex space-x-1 mt-1">
+                      <div className="flex space-x-0.5 mt-1">
                         {dayEvents.slice(0, 3).map((event, eventIndex) => {
                           const isFlashEvent = event.event_type === 'flash_event'
                           return (
                             <div
                               key={eventIndex}
-                              className={`w-1.5 h-1.5 rounded-full ${
+                              className={`w-1 h-1 rounded-full ${
                                 isTodayDate 
                                   ? 'bg-white' 
                                   : isFlashEvent 
