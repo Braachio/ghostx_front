@@ -197,8 +197,8 @@ export default function EventDetailModal({
         </div>
 
         <div className="p-6 overflow-y-auto max-h-[70vh]">
-          {/* 통합 이벤트 컨테이너 */}
-          <div className="bg-gradient-to-br from-gray-700/90 to-gray-800/90 rounded-2xl p-6 shadow-2xl border border-gray-600 backdrop-blur-sm">
+          {/* 통합 이벤트 컨테이너 - 모바일 최적화 */}
+          <div className="bg-gradient-to-br from-gray-700/90 to-gray-800/90 rounded-2xl p-4 md:p-6 shadow-2xl border border-gray-600 backdrop-blur-sm">
             {/* Steam 로그인 안내문 (로그인되지 않은 경우만) */}
             {!user && (
               <div className="mb-4 text-center">
@@ -208,8 +208,8 @@ export default function EventDetailModal({
               </div>
             )}
 
-            {/* 모든 버튼들을 한 줄로 배치 */}
-            <div className="flex flex-wrap gap-4 justify-start mb-6">
+            {/* 모든 버튼들을 모바일 최적화로 배치 */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-start mb-6">
                   {/* 관리자/작성자가 아닌 경우에만 참가신청 버튼 표시 */}
                   {!((user && event.author_id === user.id) || hasManagementPermission) && (
                     <ParticipationButton 
@@ -218,30 +218,29 @@ export default function EventDetailModal({
                     />
                   )}
 
-
               {/* 트랙투표 버튼 */}
               {event.voting_enabled && (
                 <button
                   onClick={() => setShowVotingModal(true)}
-                  className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-semibold shadow-lg hover:shadow-blue-500/25 flex items-center gap-2"
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-semibold shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2 text-base"
                 >
-                  <span className="text-lg">🏁</span>
+                  <span className="text-xl">🏁</span>
                   트랙 투표하기
                 </button>
               )}
 
               {/* 일반 사용자에게는 참가자 수만 표시, 관리자/작성자에게는 참가자 목록 버튼 표시 */}
               {!((user && event.author_id === user.id) || hasManagementPermission) ? (
-                <div className="px-4 py-2 bg-gray-700 text-gray-300 rounded-lg flex items-center gap-2 ml-auto">
-                  <span className="text-lg">👥</span>
+                <div className="px-6 py-3 bg-gray-700 text-gray-300 rounded-xl flex items-center justify-center gap-2">
+                  <span className="text-xl">👥</span>
                   참가자: {participantCount}명
                 </div>
               ) : (
                 <button
                   onClick={() => setShowParticipantModal(true)}
-                  className="px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all font-semibold shadow-lg hover:shadow-gray-500/25 flex items-center gap-2 ml-auto"
+                  className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all font-semibold shadow-lg hover:shadow-gray-500/25 flex items-center justify-center gap-2 text-base"
                 >
-                  <span className="text-lg">👥</span>
+                  <span className="text-xl">👥</span>
                   참가자 목록 ({participantCount}명)
                 </button>
               )}
@@ -267,54 +266,54 @@ export default function EventDetailModal({
                  </div>
               </div>
 
-              {/* 기본 정보 그리드 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-                  <p className="text-gray-400 text-sm mb-1">🏁트랙</p>
+              {/* 기본 정보 그리드 - 모바일 최적화 */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-5">
+                  <p className="text-gray-400 text-base mb-2 font-medium">🏁 트랙</p>
                   {isEditing ? (
                     <input
                       type="text"
                       value={editForm.game_track}
                       onChange={(e) => setEditForm(prev => ({ ...prev, game_track: e.target.value }))}
-                      className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm"
+                      className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-base"
                       placeholder="트랙명 입력"
                     />
                   ) : (
-                    <p className="text-white font-medium">{event.game_track || 'TBD'}</p>
+                    <p className="text-white font-semibold text-lg">{event.game_track || 'TBD'}</p>
                   )}
                 </div>
                 
-                <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-                  <p className="text-gray-400 text-sm mb-1">🏎️클래스</p>
+                <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-5">
+                  <p className="text-gray-400 text-base mb-2 font-medium">🏎️ 클래스</p>
                   {isEditing ? (
                     <input
                       type="text"
                       value={editForm.multi_class}
                       onChange={(e) => setEditForm(prev => ({ ...prev, multi_class: e.target.value }))}
-                      className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm"
+                      className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-base"
                       placeholder="클래스 입력"
                     />
                   ) : (
-                    <p className="text-white font-medium">{event.multi_class || 'TBD'}</p>
+                    <p className="text-white font-semibold text-lg">{event.multi_class || 'TBD'}</p>
                   )}
                 </div>
                 
-                <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-                  <p className="text-gray-400 text-sm mb-1">🕗시작 시간</p>
+                <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-5">
+                  <p className="text-gray-400 text-base mb-2 font-medium">🕗 시작 시간</p>
                   {isEditing ? (
                     <input
                       type="time"
                       value={editForm.multi_time}
                       onChange={(e) => setEditForm(prev => ({ ...prev, multi_time: e.target.value }))}
-                      className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm"
+                      className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-base"
                     />
                   ) : (
-                    <p className="text-white font-medium">{event.multi_time || 'TBD'}</p>
+                    <p className="text-white font-semibold text-lg">{event.multi_time || 'TBD'}</p>
                   )}
                 </div>
                 
-                <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-                  <p className="text-gray-400 text-sm mb-1">⏰지속시간</p>
+                <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-5">
+                  <p className="text-gray-400 text-base mb-2 font-medium">⏰ 지속시간</p>
                   {isEditing ? (
                     <input
                       type="number"
@@ -322,10 +321,10 @@ export default function EventDetailModal({
                       max="24"
                       value={editForm.duration_hours}
                       onChange={(e) => setEditForm(prev => ({ ...prev, duration_hours: parseInt(e.target.value) || 1 }))}
-                      className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm"
+                      className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-base"
                     />
                   ) : (
-                    <p className="text-white font-medium">{event.duration_hours ? `${event.duration_hours}시간` : 'TBD'}</p>
+                    <p className="text-white font-semibold text-lg">{event.duration_hours ? `${event.duration_hours}시간` : 'TBD'}</p>
                   )}
                 </div>
               </div>
@@ -333,27 +332,27 @@ export default function EventDetailModal({
           </div>
         </div>
 
-        <div className="flex items-center justify-between p-6 border-t border-gray-700">
-          {/* 왼쪽 버튼들 */}
-          <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-center justify-between p-4 sm:p-6 border-t border-gray-700 gap-3 sm:gap-0">
+          {/* 왼쪽 버튼들 - 모바일 최적화 */}
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
             {isEditing ? (
               /* 편집 모드 버튼들 */
               <>
                 <button
                   onClick={handleEditSave}
                   disabled={isSaving}
-                  className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all font-semibold shadow-lg hover:shadow-green-500/25 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all font-semibold shadow-lg hover:shadow-green-500/25 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-base"
                 >
-                  <span className="text-lg">💾</span>
+                  <span className="text-xl">💾</span>
                   {isSaving ? '저장 중...' : '저장'}
                 </button>
                 
                 <button
                   onClick={handleEditCancel}
                   disabled={isSaving}
-                  className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all font-semibold shadow-lg hover:shadow-gray-500/25 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all font-semibold shadow-lg hover:shadow-gray-500/25 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-base"
                 >
-                  <span className="text-lg">❌</span>
+                  <span className="text-xl">❌</span>
                   취소
                 </button>
               </>
@@ -364,9 +363,9 @@ export default function EventDetailModal({
                 {event.description && (
                   <button
                     onClick={() => setShowDescriptionModal(true)}
-                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all font-semibold shadow-lg hover:shadow-purple-500/25 flex items-center gap-2"
+                    className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all font-semibold shadow-lg hover:shadow-purple-500/25 flex items-center justify-center gap-2 text-base"
                   >
-                    <span className="text-lg">📋</span>
+                    <span className="text-xl">📋</span>
                     상세정보
                   </button>
                 )}
@@ -376,18 +375,18 @@ export default function EventDetailModal({
                   <>
                     <button
                       onClick={handleEditStart}
-                      className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-semibold shadow-lg hover:shadow-blue-500/25 flex items-center gap-2"
+                      className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-semibold shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2 text-base"
                     >
-                      <span className="text-lg">✏️</span>
+                      <span className="text-xl">✏️</span>
                       수정
                     </button>
                     
                     <button
                       onClick={handleDelete}
                       disabled={isDeleting}
-                      className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:from-red-700 hover:to-red-800 transition-all font-semibold shadow-lg hover:shadow-red-500/25 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 transition-all font-semibold shadow-lg hover:shadow-red-500/25 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-base"
                     >
-                      <span className="text-lg">🗑️</span>
+                      <span className="text-xl">🗑️</span>
                       {isDeleting ? '삭제 중...' : '삭제'}
                     </button>
                   </>
@@ -396,10 +395,10 @@ export default function EventDetailModal({
             )}
           </div>
           
-          {/* 닫기 버튼 (오른쪽) */}
+          {/* 닫기 버튼 (오른쪽) - 모바일 최적화 */}
           <button
             onClick={onClose}
-            className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-semibold"
+            className="w-full sm:w-auto px-6 py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors font-semibold text-base"
           >
             닫기
           </button>
