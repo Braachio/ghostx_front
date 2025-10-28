@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useSupabaseClient } from '@supabase/auth-helpers-react'
 import MobileLayout from '@/components/mobile/MobileLayout'
-import InterestGameNotificationBanner from '@/components/InterestGameNotificationBanner'
 import EventDetailModal from '@/components/EventDetailModal'
 import type { Database } from '@/lib/database.types'
 
@@ -126,11 +125,6 @@ export default function MobileHomePage() {
         onLogout={handleLogout}
         onEventClick={handleEventClick}
       />
-      
-      {/* 관심 게임 알림 배너 */}
-      {user && (
-        <InterestGameNotificationBanner userId={user.id} />
-      )}
 
       {/* Event Detail Modal */}
       <EventDetailModal

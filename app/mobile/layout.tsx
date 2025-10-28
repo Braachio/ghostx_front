@@ -30,7 +30,7 @@ export default function MobileLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="format-detection" content="telephone=no" />
       </head>
-      <body className={`${inter.className} bg-slate-900 text-white min-h-screen`}>
+      <body className={`${inter.className} bg-slate-900 text-white min-h-screen`} suppressHydrationWarning={true}>
         <div className="mobile-container">
           {children}
         </div>

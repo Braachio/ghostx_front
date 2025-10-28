@@ -168,6 +168,16 @@
   @apply mobile-grid grid-cols-3;
 }
 
+/* 스크롤바 숨기기 */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* 모바일 텍스트 */
 .mobile-text-xs {
   @apply text-xs text-slate-400;

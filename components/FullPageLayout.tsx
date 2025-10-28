@@ -46,6 +46,7 @@ export default function FullPageLayout({
   const [isScrolled, setIsScrolled] = useState(false)
   const [isEventManagerPanelOpen, setIsEventManagerPanelOpen] = useState(false)
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   // 스크롤 감지
   useEffect(() => {
@@ -55,6 +56,23 @@ export default function FullPageLayout({
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  // 모바일 메뉴 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isMobileMenuOpen) {
+        const target = event.target as HTMLElement
+        if (!target.closest('.mobile-menu-container')) {
+          setIsMobileMenuOpen(false)
+        }
+      }
+    }
+
+    if (isMobileMenuOpen) {
+      document.addEventListener('click', handleClickOutside)
+      return () => document.removeEventListener('click', handleClickOutside)
+    }
+  }, [isMobileMenuOpen])
 
   // 키보드 네비게이션
   useEffect(() => {
@@ -151,9 +169,14 @@ export default function FullPageLayout({
              <div className="hidden md:flex items-center gap-6">
                {user ? (
                  <>
-                   <span className="text-sm text-cyan-400">
-                     👤 {t[language].welcome(user.nickname)}
-                   </span>
+                   <Link
+                     href="/profile"
+                     className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-2"
+                   >
+                     <span>👤</span>
+                     <span>{t[language].welcome(user.nickname)}</span>
+                     <span className="text-xs opacity-70">→</span>
+                   </Link>
                    <button
                      onClick={onLogout}
                      className="text-white text-sm font-medium hover:text-red-400 transition-colors"
@@ -338,7 +361,7 @@ export default function FullPageLayout({
                         >
                           <span className="text-lg">🎛️</span>
                           <div>
-                            <div className="font-medium">ON/OFF 및 투표 관리</div>
+                            <div className="font-medium">투표 관리</div>
                             <div className="text-xs text-gray-400">Manage Events</div>
                           </div>
                         </button>
@@ -349,8 +372,11 @@ export default function FullPageLayout({
               </div>
 
               {/* 모바일 메뉴 버튼 */}
-              <div className="md:hidden">
-                <button className="p-2 text-gray-400 hover:text-white">
+              <div className="md:hidden mobile-menu-container">
+                <button 
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  className="p-2 text-gray-400 hover:text-white transition-colors"
+                >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                   </svg>
@@ -359,6 +385,119 @@ export default function FullPageLayout({
             </div>
           </div>
        </nav>
+
+      {/* 모바일 메뉴 드롭다운 */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 top-28 z-40 bg-gray-900 backdrop-blur-md md:hidden mobile-menu-container">
+          <div className="h-full overflow-y-auto">
+            {/* 사용자 정보 카드 - 큰 카드형 */}
+            {user ? (
+              <div className="p-6 bg-gradient-to-br from-cyan-900/30 to-blue-900/30 border-b border-cyan-500/20">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="text-4xl">👤</div>
+                  <div className="flex-1">
+                    <div className="text-lg font-bold text-white mb-1">{user.nickname}</div>
+                    <div className="text-sm text-cyan-400">환영합니다!</div>
+                  </div>
+                </div>
+                <Link
+                  href="/profile"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block w-full py-4 px-6 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-lg font-semibold rounded-xl text-center shadow-lg hover:shadow-cyan-500/50 transition-all active:scale-95"
+                >
+                  프로필 보기 →
+                </Link>
+              </div>
+            ) : (
+              <div className="p-6 bg-gradient-to-br from-blue-900/30 to-purple-900/30 border-b border-blue-500/20">
+                <Link
+                  href="/login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-semibold rounded-xl text-center shadow-lg hover:shadow-purple-500/50 transition-all active:scale-95"
+                >
+                  🚀 시작하기 →
+                </Link>
+              </div>
+            )}
+
+            {/* 주요 메뉴 */}
+            <div className="p-6 space-y-3">
+              {/* 언어 전환 - 버튼 크기 증가 */}
+              <div className="bg-gray-800/80 rounded-xl p-2 border border-gray-700 flex gap-2">
+                <button
+                  onClick={() => onLanguageChange('ko')}
+                  className={`flex-1 py-4 text-base font-bold rounded-lg transition-all ${
+                    language === 'ko' 
+                      ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg' 
+                      : 'text-gray-400 bg-gray-900/50'
+                  }`}
+                >
+                  🇰🇷 한국어
+                </button>
+                <button
+                  onClick={() => onLanguageChange('en')}
+                  className={`flex-1 py-4 text-base font-bold rounded-lg transition-all ${
+                    language === 'en' 
+                      ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg' 
+                      : 'text-gray-400 bg-gray-900/50'
+                  }`}
+                >
+                  🇺🇸 English
+                </button>
+              </div>
+
+              {/* 로그아웃 버튼 */}
+              {user && (
+                <button
+                  onClick={() => {
+                    onLogout()
+                    setIsMobileMenuOpen(false)
+                  }}
+                  className="w-full py-4 px-6 bg-gray-800 text-red-400 text-lg font-semibold rounded-xl border border-red-500/30 hover:bg-red-900/20 transition-all active:scale-95"
+                >
+                  🚪 로그아웃
+                </button>
+              )}
+
+              {/* 관리자 메뉴 구분선 */}
+              {user && (user.role === 'admin' || user.role === 'event_manager') && (
+                <>
+                  <div className="flex items-center gap-3 my-4">
+                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div>
+                    <div className="text-sm text-gray-500 font-semibold">관리자</div>
+                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div>
+                  </div>
+
+                  {/* 관리자 메뉴 버튼들 - 더 큰 버튼 */}
+                  <Link
+                    href="/events/regular/new"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="block w-full py-5 px-6 bg-gradient-to-r from-purple-900/40 to-blue-900/40 text-white text-lg font-semibold rounded-xl border border-purple-500/30 hover:border-purple-400/50 transition-all active:scale-95 text-left"
+                  >
+                    📅 정기 갤멀 생성
+                  </Link>
+                  <Link
+                    href="/multis/new"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="block w-full py-5 px-6 bg-gradient-to-r from-orange-900/40 to-yellow-900/40 text-white text-lg font-semibold rounded-xl border border-orange-500/30 hover:border-orange-400/50 transition-all active:scale-95 text-left"
+                  >
+                    ⚡ 기습 갤멀 생성
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setIsEventManagerPanelOpen(true)
+                      setIsMobileMenuOpen(false)
+                    }}
+                    className="w-full py-5 px-6 bg-gradient-to-r from-pink-900/40 to-purple-900/40 text-white text-lg font-semibold rounded-xl border border-pink-500/30 hover:border-pink-400/50 transition-all active:scale-95 text-left"
+                  >
+                    🎛️ 투표 관리
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Section 1: Ghost-X 소개 섹션 */}
       <section className="fullpage-section min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 relative pt-28">
