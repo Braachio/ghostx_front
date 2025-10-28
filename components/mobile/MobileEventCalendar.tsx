@@ -186,7 +186,7 @@ export default function MobileEventCalendar({
             {['일', '월', '화', '수', '목', '금', '토'].map((day, index) => (
               <div 
                 key={day}
-                className={`py-2 text-center text-xs font-medium ${
+                className={`py-3 text-center text-sm font-semibold ${
                   index === 0 ? 'text-red-400' : index === 6 ? 'text-blue-400' : 'text-gray-400'
                 }`}
               >
@@ -205,30 +205,28 @@ export default function MobileEventCalendar({
                 <button
                   key={index}
                   onClick={() => handleDateClick(date)}
-                  className={`relative h-12 text-xs transition-all ${
+                  className={`relative h-20 text-base transition-all ${
                     !isCurrentMonth ? 'text-gray-600' : 'text-gray-200'
                   } ${
                     isToday(date) ? 'bg-gradient-to-r from-cyan-600/20 to-blue-600/20' : ''
                   } ${
                     isSelected(date) ? 'bg-gradient-to-r from-cyan-600/30 to-blue-600/30' : ''
-                  } ${
-                    hasEvents(date) ? 'border-l-2 border-cyan-400' : ''
-                  } hover:bg-gray-700/30`}
+                  } hover:bg-gray-700/30 active:scale-95`}
                 >
                   <div className="flex flex-col items-center justify-center h-full">
-                    <span className="font-medium">
+                    <span className="font-semibold text-lg">
                       {date.getDate()}
                     </span>
                     {dayEvents.length > 0 && (
-                      <div className="flex space-x-0.5 mt-0.5">
+                      <div className="flex space-x-1 mt-1.5">
                         {dayEvents.slice(0, 2).map((_, eventIndex) => (
                           <div
                             key={eventIndex}
-                            className="w-1 h-1 bg-cyan-400 rounded-full"
+                            className="w-1.5 h-1.5 bg-cyan-400 rounded-full"
                           />
                         ))}
                         {dayEvents.length > 2 && (
-                          <div className="text-xs text-cyan-400 font-medium">
+                          <div className="text-[10px] text-cyan-400 font-semibold">
                             +{dayEvents.length - 2}
                           </div>
                         )}
@@ -349,3 +347,4 @@ export default function MobileEventCalendar({
     </div>
   )
 }
+
