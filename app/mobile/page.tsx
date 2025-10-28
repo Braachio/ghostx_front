@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useSupabaseClient } from '@supabase/auth-helpers-react'
 import MobileLayout from '@/components/mobile/MobileLayout'
 import EventDetailModal from '@/components/EventDetailModal'
+import Footer from '@/components/Footer'
 import type { Database } from '@/lib/database.types'
 
 interface MeResponse {
@@ -125,6 +126,9 @@ export default function MobileHomePage() {
         onLogout={handleLogout}
         onEventClick={handleEventClick}
       />
+
+      {/* Footer */}
+      <Footer />
 
       {/* Event Detail Modal */}
       <EventDetailModal
