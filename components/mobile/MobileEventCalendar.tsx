@@ -29,10 +29,39 @@ export default function MobileEventCalendar({
   const year = currentMonth.getFullYear()
   const month = currentMonth.getMonth()
 
-  // 게임 필터링
+  // 게임 필터링 및 지난 기습 갤멀 제거
   const filteredEvents = useMemo(() => {
-    if (selectedGame === '전체') return events
-    return events.filter(event => event.game === selectedGame)
+    let filtered = events
+    
+    // 게임 필터링
+    if (selectedGame !== '전체') {
+      filtered = filtered.filter(event => event.game === selectedGame)
+    }
+    
+    // 지난 기습 갤멀 제거
+    const today = new Date()
+    today.setHours(0, 0, 0, 0) // 오늘 00:00:00으로 설정
+    
+    filtered = filtered.filter(event => {
+      // 정기 갤멀은 항상 표시
+      if (event.event_type === 'regular_schedule') {
+        return true
+      }
+      
+      // 기습 갤멀은 날짜가 지나지 않은 것만 표시
+      if (event.event_type === 'flash_event') {
+        if (!event.event_date) return true // 날짜가 없으면 표시
+        
+        const eventDate = new Date(event.event_date)
+        eventDate.setHours(0, 0, 0, 0) // 이벤트 날짜 00:00:00으로 설정
+        
+        return eventDate >= today
+      }
+      
+      return true
+    })
+    
+    return filtered
   }, [events, selectedGame])
 
   // 현재 월의 캘린더 데이터 생성
@@ -53,9 +82,12 @@ export default function MobileEventCalendar({
     return days
   }, [year, month])
 
-  // 특정 날짜의 이벤트 가져오기
+  // 특정 날짜의 이벤트 가져오기 (지난 기습 갤멀 제외)
   const getEventsForDate = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0]
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
     return filteredEvents.filter(event => {
       if (event.event_date) {
         return event.event_date === dateStr
@@ -67,6 +99,14 @@ export default function MobileEventCalendar({
         return event.multi_day.includes(dayName)
       }
       return false
+    }).filter(event => {
+      // 기습 갤멀의 경우 날짜가 지나지 않은 것만 표시
+      if (event.event_type === 'flash_event' && event.event_date) {
+        const eventDate = new Date(event.event_date)
+        eventDate.setHours(0, 0, 0, 0)
+        return eventDate >= today
+      }
+      return true
     })
   }
 
