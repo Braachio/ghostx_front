@@ -81,7 +81,11 @@ export default function MobileEventCalendar({
 
   // 날짜 선택
   const handleDateClick = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0]
+    // 로컬 시간대를 유지하여 날짜 문자열 생성
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const dateStr = `${year}-${month}-${day}`
     setSelectedDate(dateStr)
   }
 
@@ -93,7 +97,12 @@ export default function MobileEventCalendar({
   // 선택된 날짜인지 확인
   const isSelected = (date: Date) => {
     if (!selectedDate) return false
-    return date.toISOString().split('T')[0] === selectedDate
+    // 로컬 시간대를 유지하여 날짜 문자열 생성
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const dateStr = `${year}-${month}-${day}`
+    return dateStr === selectedDate
   }
 
   // 게임 목록 가져오기
@@ -245,15 +254,23 @@ export default function MobileEventCalendar({
           {selectedDate && (
             <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
               <h3 className="text-base font-semibold text-gray-900 mb-3">
-                {new Date(selectedDate).toLocaleDateString('ko-KR', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  weekday: 'long'
-                })}
+                {(() => {
+                  // selectedDate는 YYYY-MM-DD 형식이므로 직접 파싱
+                  const [year, month, day] = selectedDate.split('-').map(Number)
+                  const date = new Date(year, month - 1, day)
+                  return date.toLocaleDateString('ko-KR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    weekday: 'long'
+                  })
+                })()}
               </h3>
               <div className="space-y-2">
-                {getEventsForDate(new Date(selectedDate)).map((event, index) => (
+                {getEventsForDate((() => {
+                  const [year, month, day] = selectedDate.split('-').map(Number)
+                  return new Date(year, month - 1, day)
+                })()).map((event, index) => (
                   <div
                     key={index}
                     onClick={() => onEventClick?.(event)}
@@ -275,7 +292,10 @@ export default function MobileEventCalendar({
                     </div>
                   </div>
                 ))}
-                {getEventsForDate(new Date(selectedDate)).length === 0 && (
+                {getEventsForDate((() => {
+                  const [year, month, day] = selectedDate.split('-').map(Number)
+                  return new Date(year, month - 1, day)
+                })()).length === 0 && (
                   <div className="text-center py-8">
                     <div className="text-gray-400 text-sm">이 날에는 일정이 없습니다</div>
                   </div>
