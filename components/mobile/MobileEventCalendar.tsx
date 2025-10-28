@@ -281,14 +281,21 @@ export default function MobileEventCalendar({
                     </span>
                     {dayEvents.length > 0 && (
                       <div className="flex space-x-1 mt-1">
-                        {dayEvents.slice(0, 3).map((_, eventIndex) => (
-                          <div
-                            key={eventIndex}
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              isTodayDate ? 'bg-white' : 'bg-blue-500'
-                            }`}
-                          />
-                        ))}
+                        {dayEvents.slice(0, 3).map((event, eventIndex) => {
+                          const isFlashEvent = event.event_type === 'flash_event'
+                          return (
+                            <div
+                              key={eventIndex}
+                              className={`w-1.5 h-1.5 rounded-full ${
+                                isTodayDate 
+                                  ? 'bg-white' 
+                                  : isFlashEvent 
+                                    ? 'bg-orange-500' 
+                                    : 'bg-blue-500'
+                              }`}
+                            />
+                          )
+                        })}
                         {dayEvents.length > 3 && (
                           <div className={`text-[10px] font-medium ${
                             isTodayDate ? 'text-white' : 'text-blue-500'
@@ -331,7 +338,9 @@ export default function MobileEventCalendar({
                     className="p-3 bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all active:scale-95 cursor-pointer"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 bg-blue-500 rounded-full flex-shrink-0"></div>
+                      <div className={`w-3 h-3 rounded-full flex-shrink-0 ${
+                        event.event_type === 'flash_event' ? 'bg-orange-500' : 'bg-blue-500'
+                      }`}></div>
                       <div className="flex-1 min-w-0">
                         <h4 className="text-sm font-medium text-gray-900 truncate">
                           {event.title}
