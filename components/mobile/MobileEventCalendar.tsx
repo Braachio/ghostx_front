@@ -224,7 +224,7 @@ export default function MobileEventCalendar({
             </button>
             
             <div className="text-center">
-              <h2 className="text-xl sm:text-2xl font-semibold text-gray-900">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
                 {year}년 {month + 1}월
               </h2>
             </div>
@@ -244,7 +244,7 @@ export default function MobileEventCalendar({
             {['일', '월', '화', '수', '목', '금', '토'].map((day, index) => (
               <div 
                 key={day}
-                className={`py-2 text-center text-base font-medium ${
+                className={`py-2 text-center text-sm font-medium ${
                   index === 0 ? 'text-red-500' : index === 6 ? 'text-blue-500' : 'text-gray-600'
                 }`}
               >
@@ -274,7 +274,7 @@ export default function MobileEventCalendar({
                   } hover:bg-gray-100 active:scale-95`}
                 >
                   <div className="relative flex flex-col items-center justify-start h-full pt-1.5">
-                    <span className={`text-xl sm:text-2xl font-medium ${
+                    <span className={`text-lg sm:text-xl font-medium ${
                       isTodayDate ? 'text-white' : isSelectedDate ? 'text-blue-600' : ''
                     }`}>
                       {date.getDate()}
