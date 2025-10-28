@@ -211,9 +211,9 @@ export default function MobileEventCalendar({
       </div>
 
       {activeTab === 'calendar' ? (
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div className="w-full bg-white rounded-2xl shadow-lg overflow-hidden">
           {/* 월 네비게이션 - 아이폰 스타일 */}
-          <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200">
+          <div className="flex items-center justify-between px-4 sm:px-6 py-2 bg-white border-b border-gray-200">
             <button
               onClick={goToPreviousMonth}
               className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 active:bg-gray-300 transition-all"
@@ -224,7 +224,7 @@ export default function MobileEventCalendar({
             </button>
             
             <div className="text-center">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl sm:text-2xl font-semibold text-gray-900">
                 {year}년 {month + 1}월
               </h2>
             </div>
@@ -244,7 +244,7 @@ export default function MobileEventCalendar({
             {['일', '월', '화', '수', '목', '금', '토'].map((day, index) => (
               <div 
                 key={day}
-                className={`py-4 text-center text-sm font-medium ${
+                className={`py-2 text-center text-base font-medium ${
                   index === 0 ? 'text-red-500' : index === 6 ? 'text-blue-500' : 'text-gray-600'
                 }`}
               >
@@ -265,22 +265,22 @@ export default function MobileEventCalendar({
                 <button
                   key={index}
                   onClick={() => handleDateClick(date)}
-                  className={`relative h-16 transition-all ${
+                  className={`relative h-12 sm:h-14 transition-all ${
                     !isCurrentMonth ? 'text-gray-400' : 'text-gray-900'
                   } ${
-                    isTodayDate ? 'bg-blue-500 text-white rounded-full mx-1 my-1' : ''
+                    isTodayDate ? 'bg-blue-500 text-white rounded-full mx-1 my-0.5' : ''
                   } ${
-                    isSelectedDate && !isTodayDate ? 'bg-blue-100 text-blue-600 rounded-full mx-1 my-1' : ''
+                    isSelectedDate && !isTodayDate ? 'bg-blue-100 text-blue-600 rounded-full mx-1 my-0.5' : ''
                   } hover:bg-gray-100 active:scale-95`}
                 >
-                  <div className="relative flex flex-col items-center justify-start h-full pt-2">
-                    <span className={`text-lg font-medium ${
+                  <div className="relative flex flex-col items-center justify-start h-full pt-1.5">
+                    <span className={`text-xl sm:text-2xl font-medium ${
                       isTodayDate ? 'text-white' : isSelectedDate ? 'text-blue-600' : ''
                     }`}>
                       {date.getDate()}
                     </span>
                     {dayEvents.length > 0 && (
-                      <div className="absolute bottom-2 flex items-center space-x-0.5">
+                      <div className="absolute bottom-1 flex items-center space-x-0.5">
                         {dayEvents.slice(0, 3).map((event, eventIndex) => {
                           const isFlashEvent = event.event_type === 'flash_event'
                           return (
