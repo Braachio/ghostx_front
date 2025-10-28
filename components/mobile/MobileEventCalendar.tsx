@@ -96,11 +96,6 @@ export default function MobileEventCalendar({
     return date.toISOString().split('T')[0] === selectedDate
   }
 
-  // 이벤트가 있는 날인지 확인
-  const hasEvents = (date: Date) => {
-    return getEventsForDate(date).length > 0
-  }
-
   // 게임 목록 가져오기
   const games = useMemo(() => {
     const gameSet = new Set(events.map(event => event.game))
