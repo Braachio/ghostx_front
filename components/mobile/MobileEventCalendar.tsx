@@ -368,7 +368,6 @@ export default function MobileEventCalendar({
           )}
         </div>
       ) : (
-        /* 이벤트 목록 탭 */
         <div className="space-y-3">
           {filteredEvents.length === 0 ? (
             <div className="text-center py-12">
