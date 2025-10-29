@@ -1,9 +1,17 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
 
 interface GameChatPageProps {
   params: Promise<{ game: string }>
+}
+
+interface ChatMessage {
+  id: string
+  nickname: string
+  message: string
+  timestamp: Date
+  color: string
 }
 
 // 게임 이름 매핑
@@ -18,13 +26,22 @@ const gameNames: Record<string, string> = {
   'ea-wrc': 'EA WRC'
 }
 
+// 최대 메시지 개수 제한
+const MAX_MESSAGES = 200
+
 export default function GameChatPage({ params }: GameChatPageProps) {
   const [game, setGame] = useState<string>('')
-  const [messages, setMessages] = useState<Array<{ id: string; nickname: string; message: string; color: string; timestamp: string }>>([])
+  const [messages, setMessages] = useState<ChatMessage[]>([])
   const [newMessage, setNewMessage] = useState('')
   const [nickname, setNickname] = useState('')
   const [color, setColor] = useState('#3B82F6')
   const [showSettings, setShowSettings] = useState(false)
+  const [isConnected, setIsConnected] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const eventSourceRef = useRef<EventSource | null>(null)
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const reconnectAttemptsRef = useRef(0)
+  const maxReconnectAttempts = 5
 
   useEffect(() => {
     const loadParams = async () => {
@@ -38,89 +55,271 @@ export default function GameChatPage({ params }: GameChatPageProps) {
     loadParams()
   }, [params])
 
+  const gameName = useMemo(() => gameNames[game] || game, [game])
+
+  // 메시지 로드 (서버에서)
+  const loadMessages = useCallback(async () => {
+    if (!game) return
+
+    try {
+      const response = await fetch(`/api/chat/game/${game}?limit=100`)
+      if (response.ok) {
+        const apiMessages = await response.json()
+        const formattedMessages: ChatMessage[] = apiMessages.map((msg: { id: string; nickname: string; message: string; created_at: string; color: string }) => ({
+          id: msg.id,
+          nickname: msg.nickname,
+          message: msg.message,
+          timestamp: new Date(msg.created_at),
+          color: msg.color || '#ffffff'
+        }))
+        setMessages(formattedMessages)
+      } else {
+        setMessages([])
+      }
+    } catch (error) {
+      console.error('메시지 로드 중 오류:', error)
+      setMessages([])
+    }
+  }, [game])
+
+  // 실시간 채팅 연결
+  const connectRealtimeChat = useCallback(() => {
+    if (!game) return
+
+    // 기존 연결이 있으면 닫기
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close()
+    }
+
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current)
+    }
+
+    const eventSource = new EventSource(`/api/chat/game/${game}/stream`)
+    eventSourceRef.current = eventSource
+    
+    eventSource.onopen = () => {
+      setIsConnected(true)
+      reconnectAttemptsRef.current = 0
+    }
+
+    eventSource.onmessage = (event) => {
+      try {
+        if (event.data.trim() === '') return
+        
+        const data = JSON.parse(event.data)
+        
+        if (data.type === 'message') {
+          const newMsg: ChatMessage = {
+            id: data.data.id,
+            nickname: data.data.nickname,
+            message: data.data.message,
+            timestamp: new Date(data.data.created_at),
+            color: data.data.color || '#ffffff'
+          }
+          
+          setMessages(prev => {
+            if (prev.some(msg => msg.id === newMsg.id)) {
+              return prev
+            }
+            const updated = [...prev, newMsg]
+            if (updated.length > MAX_MESSAGES) {
+              return updated.slice(-MAX_MESSAGES)
+            }
+            return updated
+          })
+        }
+      } catch {
+        // JSON 파싱 오류 무시
+      }
+    }
+
+    eventSource.onerror = () => {
+      setIsConnected(false)
+      eventSource.close()
+      eventSourceRef.current = null
+
+      if (reconnectAttemptsRef.current < maxReconnectAttempts) {
+        const delay = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 30000)
+        reconnectAttemptsRef.current++
+        
+        reconnectTimeoutRef.current = setTimeout(() => {
+          if (game) {
+            connectRealtimeChat()
+          }
+        }, delay)
+      }
+    }
+
+    return () => {
+      eventSource.close()
+      eventSourceRef.current = null
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current)
+      }
+      setIsConnected(false)
+    }
+  }, [game])
+
   useEffect(() => {
     if (!game) return
 
-    const gameName = gameNames[game] || game
-
-    // 게임별 채팅 메시지 로드
-    const chatKey = `game_chat_${gameName}`
-    const savedMessages = localStorage.getItem(chatKey)
-    if (savedMessages) {
-      setMessages(JSON.parse(savedMessages))
-    }
-
-    // 게임별 닉네임 로드
-    const nicknameKey = `game_nickname_${gameName}`
-    const savedNickname = localStorage.getItem(nicknameKey)
+    // localStorage에서 닉네임과 색상 로드
+    const savedNickname = localStorage.getItem(`game_nickname_${gameName}`)
+    const savedColor = localStorage.getItem(`game_color_${gameName}`)
+    
     if (savedNickname) {
       setNickname(savedNickname)
     }
-
-    // 게임별 색상 로드
-    const colorKey = `game_color_${gameName}`
-    const savedColor = localStorage.getItem(colorKey)
     if (savedColor) {
       setColor(savedColor)
     }
 
-    // StorageEvent 리스너 (다른 탭에서의 변경사항 감지)
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === chatKey && e.newValue) {
-        setMessages(JSON.parse(e.newValue))
+    // 메시지 로드
+    loadMessages()
+
+    // 실시간 연결 시작
+    const cleanup = connectRealtimeChat()
+    
+    return () => {
+      if (cleanup) {
+        cleanup()
+      }
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close()
+        eventSourceRef.current = null
+      }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current)
       }
     }
+  }, [game, gameName, loadMessages, connectRealtimeChat])
 
-    window.addEventListener('storage', handleStorageChange)
-    return () => window.removeEventListener('storage', handleStorageChange)
-  }, [game])
+  // 스크롤 이동
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (!newMessage.trim() || !nickname.trim() || !game) return
 
-    const gameName = gameNames[game] || game
-    const message = {
-      id: Date.now().toString(),
+    const messageText = newMessage.trim()
+    setNewMessage('')
+
+    // 낙관적 업데이트: 전송 즉시 UI에 표시
+    const tempId = `temp_${Date.now()}_${Math.random()}`
+    const optimisticMessage: ChatMessage = {
+      id: tempId,
       nickname,
-      message: newMessage.trim(),
-      color,
-      timestamp: new Date().toLocaleTimeString()
+      message: messageText,
+      timestamp: new Date(),
+      color: color || '#ffffff'
     }
 
-    const updatedMessages = [...messages, message].slice(-50) // 최근 50개만 유지
-    setMessages(updatedMessages)
-    
-    // localStorage에 저장
-    const chatKey = `game_chat_${gameName}`
-    localStorage.setItem(chatKey, JSON.stringify(updatedMessages))
-    
-    setNewMessage('')
+    setMessages(prev => {
+      const updated = [...prev, optimisticMessage]
+      if (updated.length > MAX_MESSAGES) {
+        return updated.slice(-MAX_MESSAGES)
+      }
+      return updated
+    })
+
+    try {
+      const response = await fetch(`/api/chat/game/${game}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nickname,
+          message: messageText,
+          color
+        })
+      })
+
+      if (response.ok) {
+        const sentMessage = await response.json()
+        
+        // 서버 응답으로 받은 실제 메시지로 임시 메시지 교체
+        setMessages(prev => {
+          // 임시 메시지 제거
+          const filtered = prev.filter(msg => msg.id !== tempId)
+          
+          // 실제 메시지 추가 (중복 체크)
+          const actualMessage: ChatMessage = {
+            id: sentMessage.id,
+            nickname: sentMessage.nickname,
+            message: sentMessage.message,
+            timestamp: new Date(sentMessage.created_at),
+            color: sentMessage.color || '#ffffff'
+          }
+          
+          if (!filtered.some(msg => msg.id === actualMessage.id)) {
+            const updated = [...filtered, actualMessage]
+            if (updated.length > MAX_MESSAGES) {
+              return updated.slice(-MAX_MESSAGES)
+            }
+            return updated
+          }
+          
+          return filtered
+        })
+      } else {
+        // 전송 실패 시 임시 메시지 제거 및 입력 복원
+        setMessages(prev => prev.filter(msg => msg.id !== tempId))
+        setNewMessage(messageText)
+      }
+    } catch (error) {
+      console.error('메시지 전송 실패:', error)
+      // 전송 실패 시 임시 메시지 제거 및 입력 복원
+      setMessages(prev => prev.filter(msg => msg.id !== tempId))
+      setNewMessage(messageText)
+    }
   }
 
   const saveNickname = () => {
     if (nickname.trim() && game) {
-      const gameName = gameNames[game] || game
-      const nicknameKey = `game_nickname_${gameName}`
-      localStorage.setItem(nicknameKey, nickname.trim())
+      localStorage.setItem(`game_nickname_${gameName}`, nickname.trim())
     }
   }
 
   const saveColor = () => {
     if (game) {
-      const gameName = gameNames[game] || game
-      const colorKey = `game_color_${gameName}`
-      localStorage.setItem(colorKey, color)
+      localStorage.setItem(`game_color_${gameName}`, color)
     }
   }
 
-  const gameName = gameNames[game] || game
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('ko-KR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    })
+  }
+
+  if (!game) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <p className="text-gray-400">로딩 중...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 text-white flex flex-col">
       {/* 헤더 */}
       <div className="bg-gray-800 border-b border-gray-700 px-4 py-3">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold">💬 {gameName} 채팅</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl font-bold">💬 {gameName} 채팅</h1>
+            <div className="flex items-center gap-1">
+              <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400' : 'bg-red-400'}`}></div>
+              <span className="text-xs text-gray-400">
+                {isConnected ? '실시간 연결됨' : '연결 중...'}
+              </span>
+            </div>
+          </div>
           <button
             onClick={() => setShowSettings(!showSettings)}
             className="p-2 text-gray-400 hover:text-white transition-colors"
@@ -130,7 +329,7 @@ export default function GameChatPage({ params }: GameChatPageProps) {
           </button>
         </div>
         <p className="text-gray-400 text-sm text-center mt-1">
-          Chrome 브라우저 사용을 권장합니다. 채팅 기록은 브라우저별로 저장됩니다.
+          모든 브라우저와 실시간으로 동기화됩니다.
         </p>
       </div>
 
@@ -151,12 +350,13 @@ export default function GameChatPage({ params }: GameChatPageProps) {
                 <span className="font-semibold text-sm" style={{ color: msg.color }}>
                   {msg.nickname}
                 </span>
-                <span className="text-gray-500 text-xs">{msg.timestamp}</span>
+                <span className="text-gray-500 text-xs">{formatTime(msg.timestamp)}</span>
               </div>
-              <p className="text-white text-sm whitespace-pre-wrap">{msg.message}</p>
+              <p className="text-white text-sm whitespace-pre-wrap break-words">{msg.message}</p>
             </div>
           ))
         )}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* 설정 패널 */}
@@ -172,6 +372,7 @@ export default function GameChatPage({ params }: GameChatPageProps) {
                 onChange={(e) => setNickname(e.target.value)}
                 onBlur={saveNickname}
                 placeholder="인게임 닉네임을 입력하세요"
+                maxLength={20}
                 className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
               />
             </div>
@@ -218,6 +419,7 @@ export default function GameChatPage({ params }: GameChatPageProps) {
             rows={3}
             className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm resize-none"
             disabled={!nickname.trim()}
+            maxLength={200}
           />
           <button
             onClick={sendMessage}
@@ -230,7 +432,7 @@ export default function GameChatPage({ params }: GameChatPageProps) {
 
         {/* 안내 메시지 */}
         <div className="text-xs text-gray-500 text-center mt-2">
-          💡 채팅 기록은 브라우저에 저장되며, 다른 탭과 실시간으로 동기화됩니다.
+          💡 모든 브라우저와 실시간으로 동기화되며, 채팅 기록이 서버에 저장됩니다.
         </div>
       </div>
     </div>
