@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 
 interface ChatMessage {
   id: string
@@ -20,6 +20,9 @@ const colors = [
   'text-purple-400', 'text-pink-400', 'text-cyan-400', 'text-orange-400'
 ]
 
+// 최대 메시지 개수 제한 (메모리 관리)
+const MAX_MESSAGES = 200
+
 export default function AnonymousChat({ eventId }: AnonymousChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [newMessage, setNewMessage] = useState('')
@@ -27,10 +30,15 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
   const [isJoined, setIsJoined] = useState(false)
   const [userColor, setUserColor] = useState('')
   const [isConnected, setIsConnected] = useState(false)
+  const eventSourceRef = useRef<EventSource | null>(null)
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const reconnectAttemptsRef = useRef(0)
+  const maxReconnectAttempts = 5
 
   const loadMessages = useCallback(async () => {
     try {
-      const response = await fetch(`/api/chat/${eventId}`)
+      // 최신 100개만 로드
+      const response = await fetch(`/api/chat/${eventId}?limit=100`)
       if (response.ok) {
         const apiMessages = await response.json()
         const formattedMessages: ChatMessage[] = apiMessages.map((msg: { id: string; nickname: string; message: string; created_at: string; color: string }) => ({
@@ -42,8 +50,6 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
         }))
         setMessages(formattedMessages)
       } else {
-        console.error('메시지 로드 실패:', response.statusText)
-        // 실패 시 빈 배열로 설정
         setMessages([])
       }
     } catch (error) {
@@ -56,19 +62,33 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
   const connectRealtimeChat = useCallback(() => {
     if (!isJoined) return
 
+    // 기존 연결이 있으면 닫기
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close()
+    }
+
+    // 재연결 타임아웃 초기화
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current)
+    }
+
     const eventSource = new EventSource(`/api/chat/${eventId}/stream`)
+    eventSourceRef.current = eventSource
     
     eventSource.onopen = () => {
-      console.log('실시간 채팅 연결됨')
       setIsConnected(true)
+      reconnectAttemptsRef.current = 0 // 연결 성공 시 재시도 횟수 초기화
     }
 
     eventSource.onmessage = (event) => {
       try {
+        // Keepalive 메시지 무시
+        if (event.data.trim() === '') return
+
         const data = JSON.parse(event.data)
         
         if (data.type === 'connected') {
-          console.log('SSE 연결 확인됨')
+          // 연결 확인 메시지
         } else if (data.type === 'message') {
           const newMsg: ChatMessage = {
             id: data.data.id,
@@ -83,27 +103,43 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
             if (prev.some(msg => msg.id === newMsg.id)) {
               return prev
             }
-            return [...prev, newMsg]
+            // 최대 메시지 개수 제한 (오래된 메시지 제거)
+            const updated = [...prev, newMsg]
+            if (updated.length > MAX_MESSAGES) {
+              return updated.slice(-MAX_MESSAGES)
+            }
+            return updated
           })
         }
       } catch (error) {
-        console.error('SSE 메시지 파싱 오류:', error)
+        // JSON 파싱 오류 무시 (keepalive 등)
       }
     }
 
-    eventSource.onerror = (error) => {
-      console.error('SSE 연결 오류:', error)
+    eventSource.onerror = () => {
       setIsConnected(false)
-      // 연결 재시도
-      setTimeout(() => {
-        if (isJoined) {
-          connectRealtimeChat()
-        }
-      }, 3000)
+      eventSource.close()
+      eventSourceRef.current = null
+
+      // Exponential backoff로 재연결 시도
+      if (isJoined && reconnectAttemptsRef.current < maxReconnectAttempts) {
+        const delay = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 30000)
+        reconnectAttemptsRef.current++
+        
+        reconnectTimeoutRef.current = setTimeout(() => {
+          if (isJoined) {
+            connectRealtimeChat()
+          }
+        }, delay)
+      }
     }
 
     return () => {
       eventSource.close()
+      eventSourceRef.current = null
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current)
+      }
       setIsConnected(false)
     }
   }, [eventId, isJoined])
@@ -133,7 +169,17 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
   useEffect(() => {
     if (isJoined) {
       const cleanup = connectRealtimeChat()
-      return cleanup
+      return () => {
+        cleanup()
+        // 컴포넌트 언마운트 시 모든 리소스 정리
+        if (eventSourceRef.current) {
+          eventSourceRef.current.close()
+          eventSourceRef.current = null
+        }
+        if (reconnectTimeoutRef.current) {
+          clearTimeout(reconnectTimeoutRef.current)
+        }
+      }
     }
   }, [isJoined, connectRealtimeChat])
 
@@ -179,30 +225,14 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
             timestamp: new Date(sentMessage.created_at),
             color: sentMessage.color
           }
-          setMessages(prev => [...prev, formattedMessage])
+          // SSE를 통해 메시지가 자동으로 추가되므로 여기서는 추가하지 않음
         } else {
-          console.error('메시지 전송 실패:', response.statusText)
-          // 실패 시 로컬에만 추가 (오프라인 모드)
-          const fallbackMessage: ChatMessage = {
-            id: Date.now().toString(),
-            nickname,
-            message: messageText,
-            timestamp: new Date(),
-            color: userColor
-          }
-          setMessages(prev => [...prev, fallbackMessage])
+          // 전송 실패 시 사용자에게 알림
+          setNewMessage(messageText) // 입력 메시지 복원
         }
       } catch (error) {
         console.error('메시지 전송 중 오류:', error)
-        // 네트워크 오류 시 로컬에만 추가
-        const fallbackMessage: ChatMessage = {
-          id: Date.now().toString(),
-          nickname,
-          message: messageText,
-          timestamp: new Date(),
-          color: userColor
-        }
-        setMessages(prev => [...prev, fallbackMessage])
+        setNewMessage(messageText) // 입력 메시지 복원
       }
     }
   }
@@ -274,10 +304,12 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
     )
   }
 
-  // 채팅 참여자 목록 추출 (중복 제거)
-  const uniqueParticipants = Array.from(
-    new Set(messages.map(msg => msg.nickname).filter(nick => nick !== '시스템'))
-  )
+  // 채팅 참여자 목록 추출 (중복 제거, 메모이제이션)
+  const uniqueParticipants = useMemo(() => {
+    return Array.from(
+      new Set(messages.map(msg => msg.nickname).filter(nick => nick !== '시스템'))
+    )
+  }, [messages])
 
   return (
     <div className="bg-gradient-to-br from-gray-900 to-black border border-pink-500/30 rounded-xl p-6 shadow-2xl shadow-pink-500/10">

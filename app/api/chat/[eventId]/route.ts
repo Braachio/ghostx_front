@@ -11,7 +11,8 @@ export async function GET(
   try {
     const { eventId } = await params
     const { searchParams } = new URL(req.url)
-    const limit = parseInt(searchParams.get('limit') || '50')
+    // 기본값: 최신 100개 메시지 (과도한 메시지 로딩 방지)
+    const limit = Math.min(parseInt(searchParams.get('limit') || '100'), 200)
     const offset = parseInt(searchParams.get('offset') || '0')
 
     const cookieStore = await cookies()
@@ -19,12 +20,12 @@ export async function GET(
       cookies: () => cookieStore,
     })
 
-    // 데이터베이스에서 메시지 조회
+    // 데이터베이스에서 메시지 조회 (최신순으로 정렬, 제한된 개수만)
     const { data: messages, error } = await supabase
       .from('event_chat_messages')
       .select('id, nickname, message, color, created_at')
       .eq('event_id', eventId)
-      .order('created_at', { ascending: true })
+      .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
 
     if (error) {
@@ -32,7 +33,9 @@ export async function GET(
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json(messages || [])
+    // 최신순으로 정렬했으므로 역순으로 정렬하여 시간순으로 반환
+    const sortedMessages = (messages || []).reverse()
+    return NextResponse.json(sortedMessages)
   } catch (error) {
     console.error('채팅 메시지 조회 실패:', error)
     return NextResponse.json(
@@ -91,8 +94,6 @@ export async function POST(
       console.error('채팅 메시지 저장 실패:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
-
-    console.log(`채팅 메시지 저장됨: ${eventId} - ${nickname}: ${message}`)
 
     return NextResponse.json(data)
   } catch (error) {

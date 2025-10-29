@@ -29,9 +29,19 @@ export async function GET(
     // SSE 스트림 생성
     const stream = new ReadableStream({
       start(controller) {
-        // 연결 확인 메시지 전송
         const encoder = new TextEncoder()
+        
+        // 연결 확인 메시지 전송
         controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'connected' })}\n\n`))
+
+        // Keepalive 메시지 전송 (30초마다)
+        const keepaliveInterval = setInterval(() => {
+          try {
+            controller.enqueue(encoder.encode(`:keepalive\n\n`))
+          } catch (error) {
+            clearInterval(keepaliveInterval)
+          }
+        }, 30000)
 
         // Supabase 실시간 구독 설정
         const channel = supabase
@@ -52,20 +62,29 @@ export async function GET(
                 }
                 controller.enqueue(encoder.encode(`data: ${JSON.stringify(message)}\n\n`))
               } catch (error) {
-                console.error('SSE 메시지 전송 오류:', error)
+                // 연결이 끊어진 경우 처리
+                clearInterval(keepaliveInterval)
+                supabase.removeChannel(channel)
               }
             }
           )
-          .subscribe((status) => {
-            console.log('Supabase 채널 구독 상태:', status)
-          })
+          .subscribe()
 
         // 클라이언트 연결 해제 시 정리
-        req.signal.addEventListener('abort', () => {
-          console.log('SSE 연결 해제됨')
+        const cleanup = () => {
+          clearInterval(keepaliveInterval)
           supabase.removeChannel(channel)
-          controller.close()
-        })
+          try {
+            controller.close()
+          } catch (error) {
+            // 이미 닫힌 경우 무시
+          }
+        }
+
+        req.signal.addEventListener('abort', cleanup)
+        
+        // 에러 발생 시 정리
+        req.signal.addEventListener('error', cleanup)
       }
     })
 
