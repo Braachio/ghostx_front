@@ -57,7 +57,7 @@ export async function GET(
           }
         }, 30000)
 
-        // Supabase 실시간 구독 설정 (game_name 필터 사용)
+        // Supabase 실시간 구독 설정 (임시: event_id가 NULL인 모든 메시지)
         const channel = supabase
           .channel(`game_chat_${chatRoomId}`)
           .on(
@@ -66,16 +66,19 @@ export async function GET(
               event: 'INSERT',
               schema: 'public',
               table: 'event_chat_messages',
-              filter: `game_name=eq.${chatRoomId}` // game_name으로 게임별 채팅 필터링
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            } as any, // 타입 체크 우회 (game_name 필터가 타입 정의에 없을 수 있음)
+              filter: 'event_id=is.null' // event_id가 NULL인 게임별 채팅만
+            },
             (payload) => {
               try {
-                const message = {
-                  type: 'message',
-                  data: payload.new
+                // 게임별 채팅인지 확인 (nickname에 게임명이 포함되어야 함)
+                const messageData = payload.new
+                if (messageData && messageData.nickname) {
+                  const message = {
+                    type: 'message',
+                    data: messageData
+                  }
+                  controller.enqueue(encoder.encode(`data: ${JSON.stringify(message)}\n\n`))
                 }
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify(message)}\n\n`))
               } catch {
                 clearInterval(keepaliveInterval)
                 supabase.removeChannel(channel)

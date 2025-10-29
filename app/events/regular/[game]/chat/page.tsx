@@ -57,7 +57,7 @@ export default function GameChatPage({ params }: GameChatPageProps) {
 
   const gameName = useMemo(() => gameNames[game] || game, [game])
 
-  // 메시지 로드 (서버에서)
+  // 메시지 로드 (서버에서) - 모든 게임별 채팅 표시
   const loadMessages = useCallback(async () => {
     if (!game) return
 

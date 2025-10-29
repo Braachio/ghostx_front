@@ -34,11 +34,11 @@ export async function GET(
       cookies: () => cookieStore,
     })
 
-    // game_name 필드로 게임별 채팅 필터링
+    // 임시: event_id가 NULL인 게임별 채팅 메시지 조회
     const { data: messages, error } = await supabase
       .from('event_chat_messages')
       .select('id, nickname, message, color, created_at')
-      .eq('game_name', chatRoomId) // 게임별 채팅방 필터
+      .is('event_id', null) // 게임별 채팅은 event_id가 NULL
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
 
@@ -92,7 +92,7 @@ export async function POST(
     const gameName = gameNames[game] || game
     const chatRoomId = `game_${gameName}`
 
-    // 게임별 채팅 메시지 저장 (event_id는 NULL, game_name 사용)
+    // 게임별 채팅 메시지 저장 (event_id는 NULL)
     const { data, error } = await supabase
       .from('event_chat_messages')
       .insert({
@@ -100,10 +100,8 @@ export async function POST(
         user_id: user.id,
         nickname,
         message,
-        color: color || '#ffffff',
-        game_name: chatRoomId // 게임별 채팅방 구분
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any) // 타입 체크 우회 (game_name 필드가 타입 정의에 없을 수 있음)
+        color: color || '#ffffff'
+      })
       .select()
       .single()
 
