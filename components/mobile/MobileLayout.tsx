@@ -4,8 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import MobileEventCalendar from './MobileEventCalendar'
-import MobileChat from './MobileChat'
-import MobileProfilePanel from './MobileProfilePanel'
+import { useRouter } from 'next/navigation'
 import type { Database } from '@/lib/database.types'
 
 type Multi = Database['public']['Tables']['multis']['Row']
@@ -41,7 +40,7 @@ export default function MobileLayout({
   onLogout,
   onEventClick
 }: MobileLayoutProps) {
-  const [activeTab, setActiveTab] = useState<'calendar' | 'events' | 'chat' | 'profile'>('calendar')
+  const router = useRouter()
 
   const t = {
     ko: {
@@ -269,11 +268,7 @@ export default function MobileLayout({
       {/* Section 2: 캘린더 섹션 */}
       <section id="calendar-section" className="min-h-screen flex items-center justify-center px-6 py-20">
         <div className="w-full max-w-lg mx-auto">
-          {activeTab === 'chat' ? (
-            <MobileChat user={user} language={language} />
-          ) : activeTab === 'profile' ? (
-            <MobileProfilePanel user={user} language={language} onLogout={onLogout} />
-          ) : eventsLoading ? (
+          {eventsLoading ? (
             <div className="bg-gray-900 rounded-2xl p-8 text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
               <p className="text-gray-400 text-base">이벤트를 불러오는 중...</p>
@@ -284,8 +279,6 @@ export default function MobileLayout({
               selectedGame={selectedGame}
               onGameChange={onGameChange}
               onEventClick={onEventClick}
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
             />
           )}
         </div>
@@ -295,37 +288,32 @@ export default function MobileLayout({
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-sm border-t border-gray-800/50">
         <div className="max-w-lg mx-auto grid grid-cols-4">
           <button
-            onClick={() => setActiveTab('calendar')}
-            className={`flex flex-col items-center py-3 text-xs font-medium transition-colors ${
-              activeTab === 'calendar' ? 'text-cyan-400' : 'text-gray-400 hover:text-white'
-            }`}
+            onClick={() => {
+              const el = document.getElementById('calendar-section')
+              if (el) el.scrollIntoView({ behavior: 'smooth' })
+            }}
+            className={"flex flex-col items-center py-3 text-xs font-medium transition-colors text-gray-400 hover:text-white"}
           >
             <span className="text-lg">📅</span>
             <span>캘린더</span>
           </button>
           <button
-            onClick={() => setActiveTab('events')}
-            className={`flex flex-col items-center py-3 text-xs font-medium transition-colors ${
-              activeTab === 'events' ? 'text-cyan-400' : 'text-gray-400 hover:text-white'
-            }`}
+            onClick={() => router.push('/events')}
+            className={"flex flex-col items-center py-3 text-xs font-medium transition-colors text-gray-400 hover:text-white"}
           >
             <span className="text-lg">📋</span>
             <span>이벤트</span>
           </button>
           <button
-            onClick={() => setActiveTab('chat')}
-            className={`flex flex-col items-center py-3 text-xs font-medium transition-colors ${
-              activeTab === 'chat' ? 'text-cyan-400' : 'text-gray-400 hover:text-white'
-            }`}
+            onClick={() => router.push('/mobile/chat')}
+            className={"flex flex-col items-center py-3 text-xs font-medium transition-colors text-gray-400 hover:text-white"}
           >
             <span className="text-lg">💬</span>
             <span>채팅</span>
           </button>
           <button
-            onClick={() => setActiveTab('profile')}
-            className={`flex flex-col items-center py-3 text-xs font-medium transition-colors ${
-              activeTab === 'profile' ? 'text-cyan-400' : 'text-gray-400 hover:text-white'
-            }`}
+            onClick={() => router.push('/mobile/profile')}
+            className={"flex flex-col items-center py-3 text-xs font-medium transition-colors text-gray-400 hover:text-white"}
           >
             <span className="text-lg">👤</span>
             <span>프로필</span>

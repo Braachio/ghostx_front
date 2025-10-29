@@ -10,17 +10,13 @@ interface MobileEventCalendarProps {
   selectedGame: string
   onGameChange: (game: string) => void
   onEventClick?: (event: Multi) => void
-  activeTab: 'calendar' | 'events' | 'chat'
-  onTabChange: (tab: 'calendar' | 'events' | 'chat') => void
 }
 
 export default function MobileEventCalendar({ 
   events, 
   selectedGame, 
   onGameChange, 
-  onEventClick,
-  activeTab,
-  onTabChange 
+  onEventClick
 }: MobileEventCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
@@ -167,40 +163,6 @@ export default function MobileEventCalendar({
 
   return (
     <div className="w-full">
-      {/* 탭 네비게이션 */}
-      <div className="flex bg-gray-800/50 backdrop-blur-sm rounded-lg p-1 mb-6">
-        <button
-          onClick={() => onTabChange('calendar')}
-          className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all ${
-            activeTab === 'calendar'
-              ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg'
-              : 'text-gray-400 hover:text-white'
-          }`}
-        >
-          📅 캘린더
-        </button>
-        <button
-          onClick={() => onTabChange('events')}
-          className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all ${
-            activeTab === 'events'
-              ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg'
-              : 'text-gray-400 hover:text-white'
-          }`}
-        >
-          📋 이벤트
-        </button>
-        <button
-          onClick={() => onTabChange('chat')}
-          className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all ${
-            activeTab === 'chat'
-              ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg'
-              : 'text-gray-400 hover:text-white'
-          }`}
-        >
-          💬 채팅
-        </button>
-      </div>
-
       {/* 게임 필터 */}
       <div className="mb-6">
         <div className="flex flex-wrap gap-2">

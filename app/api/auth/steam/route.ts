@@ -5,21 +5,11 @@ export async function GET(request: Request) {
   // 요청 URL에서 호스트 정보 추출
   const url = new URL(request.url)
   const isLocalhost = url.hostname === 'localhost' || url.hostname === '127.0.0.1'
-  
-  // localhost인 경우 localhost URL 사용, 그렇지 않으면 환경변수 또는 기본값 사용
-  const baseUrl = isLocalhost 
-    ? `${url.protocol}//${url.host}` 
-    : (process.env.NEXT_PUBLIC_SITE_URL || 'https://ghostx.site')
-  
+
+  // 모바일 도메인(m.ghostx.site) 포함, 현재 요청의 호스트를 그대로 사용
+  const baseUrl = `${url.protocol}//${url.host}`
+
   const returnUrl = `${baseUrl}/api/auth/steam/callback`
-  
-  console.log('Steam login configuration:', {
-    isLocalhost,
-    baseUrl,
-    returnUrl,
-    hostname: url.hostname,
-    protocol: url.protocol
-  })
   
   const params = new URLSearchParams({
     'openid.ns': 'http://specs.openid.net/auth/2.0',
