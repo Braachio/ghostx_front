@@ -38,7 +38,7 @@ export async function GET(
         const keepaliveInterval = setInterval(() => {
           try {
             controller.enqueue(encoder.encode(`:keepalive\n\n`))
-          } catch (error) {
+          } catch {
             clearInterval(keepaliveInterval)
           }
         }, 30000)
@@ -61,7 +61,7 @@ export async function GET(
                   data: payload.new
                 }
                 controller.enqueue(encoder.encode(`data: ${JSON.stringify(message)}\n\n`))
-              } catch (error) {
+              } catch {
                 // 연결이 끊어진 경우 처리
                 clearInterval(keepaliveInterval)
                 supabase.removeChannel(channel)
@@ -76,7 +76,7 @@ export async function GET(
           supabase.removeChannel(channel)
           try {
             controller.close()
-          } catch (error) {
+          } catch {
             // 이미 닫힌 경우 무시
           }
         }

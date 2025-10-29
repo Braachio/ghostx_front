@@ -111,7 +111,7 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
             return updated
           })
         }
-      } catch (error) {
+      } catch {
         // JSON 파싱 오류 무시 (keepalive 등)
       }
     }
@@ -217,14 +217,6 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
         })
 
         if (response.ok) {
-          const sentMessage = await response.json()
-          const formattedMessage: ChatMessage = {
-            id: sentMessage.id,
-            nickname: sentMessage.nickname,
-            message: sentMessage.message,
-            timestamp: new Date(sentMessage.created_at),
-            color: sentMessage.color
-          }
           // SSE를 통해 메시지가 자동으로 추가되므로 여기서는 추가하지 않음
         } else {
           // 전송 실패 시 사용자에게 알림
@@ -250,6 +242,13 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
       minute: '2-digit'
     })
   }
+
+  // 채팅 참여자 목록 추출 (중복 제거, 메모이제이션)
+  const uniqueParticipants = useMemo(() => {
+    return Array.from(
+      new Set(messages.map(msg => msg.nickname).filter(nick => nick !== '시스템'))
+    )
+  }, [messages])
 
   if (!isJoined) {
     return (
@@ -303,13 +302,6 @@ export default function AnonymousChat({ eventId }: AnonymousChatProps) {
       </div>
     )
   }
-
-  // 채팅 참여자 목록 추출 (중복 제거, 메모이제이션)
-  const uniqueParticipants = useMemo(() => {
-    return Array.from(
-      new Set(messages.map(msg => msg.nickname).filter(nick => nick !== '시스템'))
-    )
-  }, [messages])
 
   return (
     <div className="bg-gradient-to-br from-gray-900 to-black border border-pink-500/30 rounded-xl p-6 shadow-2xl shadow-pink-500/10">

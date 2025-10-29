@@ -132,7 +132,7 @@ export default function ChatPage() {
             return updated
           })
         }
-      } catch (error) {
+      } catch {
         // JSON 파싱 오류 무시
       }
     }
