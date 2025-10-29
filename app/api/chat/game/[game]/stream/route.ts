@@ -62,6 +62,7 @@ export async function GET(
           .channel(`game_chat_${chatRoomId}`)
           .on(
             'postgres_changes',
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             {
               event: 'INSERT',
               schema: 'public',
