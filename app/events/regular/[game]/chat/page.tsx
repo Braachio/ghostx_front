@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import type { Database } from '@/lib/database.types'
 
 interface GameChatPageProps {
   params: Promise<{ game: string }>
@@ -8,10 +10,19 @@ interface GameChatPageProps {
 
 interface ChatMessage {
   id: string
+  userId: string | null
   nickname: string
   message: string
   timestamp: Date
   color: string
+}
+
+interface OnlineParticipant {
+  userId: string
+  steamId: string | null
+  nickname: string
+  color: string
+  lastSeen: Date
 }
 
 // 게임 이름 매핑
@@ -38,8 +49,15 @@ export default function GameChatPage({ params }: GameChatPageProps) {
   const [showSettings, setShowSettings] = useState(false)
   const [showParticipants, setShowParticipants] = useState(false)
   const [isConnected, setIsConnected] = useState(false)
+  const [onlineParticipants, setOnlineParticipants] = useState<OnlineParticipant[]>([])
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
+  const [isSteamUser, setIsSteamUser] = useState<boolean>(false)
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const presenceIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const supabase = createClientComponentClient<Database>()
 
   useEffect(() => {
     const loadParams = async () => {
@@ -55,6 +73,83 @@ export default function GameChatPage({ params }: GameChatPageProps) {
 
   const gameName = useMemo(() => gameNames[game] || game, [game])
 
+  // Steam 로그인 확인
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser()
+        
+        if (error || !user) {
+          setIsAuthenticated(false)
+          setIsSteamUser(false)
+          return
+        }
+
+        setIsAuthenticated(true)
+        setCurrentUserId(user.id)
+
+        // Steam 사용자인지 확인
+        const steamUser = 
+          user.app_metadata?.provider === 'steam' || 
+          user.user_metadata?.provider === 'steam' ||
+          user.identities?.some(identity => identity.provider === 'steam') ||
+          user.email?.includes('steam') ||
+          user.user_metadata?.steam_id ||
+          user.app_metadata?.steam_id
+
+        setIsSteamUser(steamUser)
+      } catch (error) {
+        console.error('인증 확인 실패:', error)
+        setIsAuthenticated(false)
+        setIsSteamUser(false)
+      }
+    }
+
+    checkAuth()
+  }, [supabase])
+
+  // 접속자 목록 로드
+  const loadParticipants = useCallback(async () => {
+    if (!game) return
+
+    try {
+      const response = await fetch(`/api/chat/game/${game}/presence`)
+      if (response.ok) {
+        const participants: OnlineParticipant[] = await response.json()
+        setOnlineParticipants(participants.map(p => ({
+          ...p,
+          lastSeen: new Date(p.lastSeen)
+        })))
+      }
+    } catch (error) {
+      console.error('접속자 목록 로드 실패:', error)
+    }
+  }, [game])
+
+  // 접속/해제 신호 전송
+  const updatePresence = useCallback(async (action: 'join' | 'leave' | 'heartbeat') => {
+    if (!game || !nickname.trim() || !isSteamUser) return
+
+    try {
+      await fetch(`/api/chat/game/${game}/presence`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action,
+          nickname: nickname.trim(),
+          color
+        })
+      })
+
+      // 접속/하트비트 시 접속자 목록도 업데이트
+      if (action !== 'leave') {
+        loadParticipants()
+      }
+    } catch (error) {
+      console.error('접속 상태 업데이트 실패:', error)
+    }
+  }, [game, nickname, color, isSteamUser, loadParticipants])
+
   // 메시지 로드 (서버에서) - 모든 게임별 채팅 표시
   const loadMessages = useCallback(async (isInitialLoad = false) => {
     if (!game) return
@@ -63,9 +158,10 @@ export default function GameChatPage({ params }: GameChatPageProps) {
       const response = await fetch(`/api/chat/game/${game}?limit=100`)
       if (response.ok) {
         const apiMessages = await response.json()
-        const formattedMessages: ChatMessage[] = apiMessages.map((msg: { id: string; nickname: string; message: string; created_at: string; color: string }) => ({
+        const formattedMessages: ChatMessage[] = apiMessages.map((msg: { id: string; user_id: string | null; nickname: string; message: string; created_at: string; color: string }) => ({
           id: msg.id,
-          nickname: msg.nickname,
+          userId: msg.user_id,
+          nickname: msg.nickname, // 메시지에 저장된 닉네임 그대로 사용 (전 닉네임으로 보낸 건 전 닉네임으로 표시)
           message: msg.message,
           timestamp: new Date(msg.created_at),
           color: msg.color || '#ffffff'
@@ -131,7 +227,12 @@ export default function GameChatPage({ params }: GameChatPageProps) {
   }, [game, loadMessages])
 
   useEffect(() => {
-    if (!game) return
+    if (!game || isAuthenticated === null || !currentUserId) return
+
+    // Steam 로그인 확인
+    if (!isSteamUser) {
+      return
+    }
 
     // localStorage에서 닉네임과 색상 로드
     const savedNickname = localStorage.getItem(`game_nickname_${gameName}`)
@@ -149,6 +250,11 @@ export default function GameChatPage({ params }: GameChatPageProps) {
 
     // 폴링 시작
     const cleanup = startPolling()
+
+    // 접속자 목록 폴링 시작 (2초마다)
+    presenceIntervalRef.current = setInterval(() => {
+      loadParticipants()
+    }, 2000)
     
     return () => {
       if (cleanup) {
@@ -158,8 +264,60 @@ export default function GameChatPage({ params }: GameChatPageProps) {
         clearInterval(pollingIntervalRef.current)
         pollingIntervalRef.current = null
       }
+      if (presenceIntervalRef.current) {
+        clearInterval(presenceIntervalRef.current)
+        presenceIntervalRef.current = null
+      }
     }
-  }, [game, gameName, loadMessages, startPolling])
+  }, [game, gameName, loadMessages, startPolling, isAuthenticated, isSteamUser, currentUserId, loadParticipants])
+
+  // 닉네임이 있을 때 접속 신호 전송 및 하트비트 시작
+  useEffect(() => {
+    if (!game || !nickname.trim() || !isSteamUser) return
+
+    // 접속 신호 전송
+    updatePresence('join')
+
+    // 30초마다 하트비트 전송
+    heartbeatIntervalRef.current = setInterval(() => {
+      updatePresence('heartbeat')
+    }, 30000)
+
+    return () => {
+      if (heartbeatIntervalRef.current) {
+        clearInterval(heartbeatIntervalRef.current)
+        heartbeatIntervalRef.current = null
+      }
+
+      // 페이지 언로드 시 해제 신호 전송
+      if (nickname.trim()) {
+        updatePresence('leave').catch(console.error)
+      }
+    }
+  }, [game, nickname, isSteamUser, updatePresence])
+  
+  // 페이지 언로드 시 해제 신호 전송
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (game && nickname.trim() && isSteamUser) {
+        try {
+          const blob = new Blob([JSON.stringify({
+            action: 'leave',
+            nickname: nickname.trim(),
+            color
+          })], { type: 'application/json' })
+          navigator.sendBeacon(`/api/chat/game/${game}/presence`, blob)
+        } catch (error) {
+          console.error('접속 해제 신호 전송 실패:', error)
+        }
+      }
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [game, nickname, color, isSteamUser])
 
   // 스크롤 이동
   useEffect(() => {
@@ -167,7 +325,7 @@ export default function GameChatPage({ params }: GameChatPageProps) {
   }, [messages])
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !nickname.trim() || !game) return
+    if (!newMessage.trim() || !nickname.trim() || !game || !isSteamUser) return
 
     const messageText = newMessage.trim()
     setNewMessage('')
@@ -176,6 +334,7 @@ export default function GameChatPage({ params }: GameChatPageProps) {
     const tempId = `temp_${Date.now()}_${Math.random()}`
     const optimisticMessage: ChatMessage = {
       id: tempId,
+      userId: currentUserId,
       nickname,
       message: messageText,
       timestamp: new Date(),
@@ -212,7 +371,8 @@ export default function GameChatPage({ params }: GameChatPageProps) {
           // 실제 메시지 추가 (중복 체크)
           const actualMessage: ChatMessage = {
             id: sentMessage.id,
-            nickname: sentMessage.nickname,
+            userId: sentMessage.user_id || currentUserId, // POST 응답에서 user_id 받아오기
+            nickname: sentMessage.nickname, // 새 닉네임으로 저장된 메시지는 새 닉네임으로 표시
             message: sentMessage.message,
             timestamp: new Date(sentMessage.created_at),
             color: sentMessage.color || '#ffffff'
@@ -253,62 +413,55 @@ export default function GameChatPage({ params }: GameChatPageProps) {
     }
   }
 
+  // 닉네임 첫 글자로 아바타 생성
+  const getAvatarLetter = (nickname: string) => {
+    return nickname.charAt(0).toUpperCase()
+  }
+
+
   const formatTime = (date: Date) => {
     const now = new Date()
     const diff = now.getTime() - date.getTime()
     const minutes = Math.floor(diff / 60000)
-    
+
     if (minutes < 1) return '방금'
     if (minutes < 60) return `${minutes}분 전`
-    
+
     return date.toLocaleTimeString('ko-KR', {
       hour: '2-digit',
       minute: '2-digit'
     })
   }
 
-  // 닉네임 첫 글자로 아바타 생성
-  const getAvatarLetter = (nickname: string) => {
-    return nickname.charAt(0).toUpperCase()
-  }
-
-  // 내 메시지인지 확인 (현재는 모든 메시지가 다른 사람 메시지로 표시)
-  const isMyMessage = (msgNickname: string) => {
-    return msgNickname === nickname
-  }
-
-  // 온라인 접속자 목록 (최근 5분 이내 메시지를 보낸 사람들)
-  const onlineParticipants = useMemo(() => {
-    const now = new Date()
-    const fiveMinutesAgo = now.getTime() - 5 * 60 * 1000
-    
-    const activeUsers = new Map<string, { nickname: string; color: string; lastSeen: Date }>()
-    
-    messages.forEach(msg => {
-      const msgTime = msg.timestamp.getTime()
-      if (msgTime >= fiveMinutesAgo) {
-        const existing = activeUsers.get(msg.nickname)
-        if (!existing || msgTime > existing.lastSeen.getTime()) {
-          activeUsers.set(msg.nickname, {
-            nickname: msg.nickname,
-            color: msg.color,
-            lastSeen: msg.timestamp
-          })
-        }
-      }
-    })
-    
-    return Array.from(activeUsers.values()).sort((a, b) => 
-      b.lastSeen.getTime() - a.lastSeen.getTime()
-    )
-  }, [messages])
-
-  if (!game) {
+  if (!game || isAuthenticated === null) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 text-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
           <p className="text-gray-400">로딩 중...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Steam 로그인하지 않은 경우
+  if (!isSteamUser) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 text-white flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-8">
+          <div className="w-20 h-20 rounded-full bg-gray-800 mx-auto mb-6 flex items-center justify-center">
+            <span className="text-4xl">🔐</span>
+          </div>
+          <h1 className="text-2xl font-bold mb-4">Steam 로그인이 필요합니다</h1>
+          <p className="text-gray-400 mb-8">
+            게임 채팅에 참여하려면 Steam으로 로그인해주세요.
+          </p>
+          <button
+            onClick={() => window.location.href = '/login'}
+            className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold text-lg"
+          >
+            Steam 로그인하기
+          </button>
         </div>
       </div>
     )
@@ -397,9 +550,11 @@ export default function GameChatPage({ params }: GameChatPageProps) {
             </div>
           ) : (
             messages.map((msg, index) => {
-              const isMine = isMyMessage(msg.nickname)
+              // currentUserId와 msg.userId를 비교하여 내 메시지인지 확인
+              const isMine = currentUserId && msg.userId && currentUserId === msg.userId
               const prevMsg = index > 0 ? messages[index - 1] : null
-              const showAvatar = !prevMsg || prevMsg.nickname !== msg.nickname || 
+              // 같은 사용자(userId)의 메시지면 아바타 표시 안함, 닉네임이 같아도 userId가 다르면 아바타 표시
+              const showAvatar = !prevMsg || !prevMsg.userId || !msg.userId || prevMsg.userId !== msg.userId || 
                 (msg.timestamp.getTime() - prevMsg.timestamp.getTime()) > 300000 // 5분 이상 차이
               
               return (
@@ -421,7 +576,7 @@ export default function GameChatPage({ params }: GameChatPageProps) {
                   
                   {/* 메시지 버블 */}
                   <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} max-w-[75%] ${isMine ? 'mr-0' : 'ml-0'}`}>
-                    {!isMine && showAvatar && (
+                    {!isMine && showAvatar && msg.userId && (
                       <span className="text-sm text-gray-400 mb-1 px-1 font-medium" style={{ color: msg.color }}>
                         {msg.nickname}
                       </span>
@@ -579,30 +734,30 @@ export default function GameChatPage({ params }: GameChatPageProps) {
               </div>
             ) : (
               <div className="space-y-2">
-                {onlineParticipants.map((participant) => (
-                  <div
-                    key={participant.nickname}
-                    className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-700/30 transition-colors"
-                  >
+                  {onlineParticipants.map((participant) => (
                     <div
-                      className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold text-white flex-shrink-0"
-                      style={{ backgroundColor: participant.color }}
+                      key={participant.userId}
+                      className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-700/30 transition-colors"
                     >
-                      {getAvatarLetter(participant.nickname)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-base font-medium text-white truncate">
-                          {participant.nickname}
-                        </span>
-                        <div className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></div>
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold text-white flex-shrink-0"
+                        style={{ backgroundColor: participant.color }}
+                      >
+                        {getAvatarLetter(participant.nickname)}
                       </div>
-                      <p className="text-xs text-gray-400 mt-0.5">
-                        {formatTime(participant.lastSeen)}
-                      </p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-base font-medium text-white truncate">
+                            {participant.nickname}
+                          </span>
+                          <div className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></div>
+                        </div>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {formatTime(participant.lastSeen)}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             )}
           </div>

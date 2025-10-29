@@ -20,7 +20,7 @@ export async function GET(
     // 임시: event_id가 NULL인 게임별 채팅 메시지 조회
     const { data: messages, error } = await supabase
       .from('event_chat_messages')
-      .select('id, nickname, message, color, created_at')
+      .select('id, user_id, nickname, message, color, created_at')
       .is('event_id', null) // 게임별 채팅은 event_id가 NULL
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
@@ -65,8 +65,24 @@ export async function POST(
     
     if (authError || !user) {
       return NextResponse.json(
-        { error: '로그인이 필요합니다.' },
+        { error: 'Steam 로그인이 필요합니다.' },
         { status: 401 }
+      )
+    }
+
+    // Steam 사용자인지 확인
+    const isSteamUser = 
+      user.app_metadata?.provider === 'steam' || 
+      user.user_metadata?.provider === 'steam' ||
+      user.identities?.some(identity => identity.provider === 'steam') ||
+      user.email?.includes('steam') ||
+      user.user_metadata?.steam_id ||
+      user.app_metadata?.steam_id
+
+    if (!isSteamUser) {
+      return NextResponse.json(
+        { error: 'Steam 로그인이 필요합니다.' },
+        { status: 403 }
       )
     }
 
@@ -80,7 +96,7 @@ export async function POST(
         message,
         color: color || '#ffffff'
       })
-      .select()
+      .select('id, user_id, nickname, message, color, created_at')
       .single()
 
     if (error) {
