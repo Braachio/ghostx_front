@@ -36,6 +36,7 @@ export default function GameChatPage({ params }: GameChatPageProps) {
   const [nickname, setNickname] = useState('')
   const [color, setColor] = useState('#3B82F6')
   const [showSettings, setShowSettings] = useState(false)
+  const [showParticipants, setShowParticipants] = useState(false)
   const [isConnected, setIsConnected] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null)
@@ -276,6 +277,32 @@ export default function GameChatPage({ params }: GameChatPageProps) {
     return msgNickname === nickname
   }
 
+  // 온라인 접속자 목록 (최근 5분 이내 메시지를 보낸 사람들)
+  const onlineParticipants = useMemo(() => {
+    const now = new Date()
+    const fiveMinutesAgo = now.getTime() - 5 * 60 * 1000
+    
+    const activeUsers = new Map<string, { nickname: string; color: string; lastSeen: Date }>()
+    
+    messages.forEach(msg => {
+      const msgTime = msg.timestamp.getTime()
+      if (msgTime >= fiveMinutesAgo) {
+        const existing = activeUsers.get(msg.nickname)
+        if (!existing || msgTime > existing.lastSeen.getTime()) {
+          activeUsers.set(msg.nickname, {
+            nickname: msg.nickname,
+            color: msg.color,
+            lastSeen: msg.timestamp
+          })
+        }
+      }
+    })
+    
+    return Array.from(activeUsers.values()).sort((a, b) => 
+      b.lastSeen.getTime() - a.lastSeen.getTime()
+    )
+  }, [messages])
+
   if (!game) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 text-white flex items-center justify-center">
@@ -304,26 +331,46 @@ export default function GameChatPage({ params }: GameChatPageProps) {
                 {gameName.charAt(0)}
               </div>
               <div>
-                <h1 className="text-base font-semibold">{gameName} 채팅</h1>
-                <div className="flex items-center gap-1.5">
-                  <div className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-green-400' : 'bg-gray-500'}`}></div>
-                  <span className="text-xs text-gray-400">
-                    {isConnected ? '온라인' : '오프라인'}
-                  </span>
-                </div>
+                <button
+                  onClick={() => setShowParticipants(!showParticipants)}
+                  className="text-left hover:opacity-80 transition-opacity"
+                >
+                  <h1 className="text-base font-semibold">{gameName} 채팅</h1>
+                  <div className="flex items-center gap-1.5">
+                    <div className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-green-400' : 'bg-gray-500'}`}></div>
+                    <span className="text-xs text-gray-400">
+                      {onlineParticipants.length}명 접속 중
+                    </span>
+                  </div>
+                </button>
               </div>
             </div>
           </div>
-          <button
-            onClick={() => setShowSettings(!showSettings)}
-            className="p-2 text-gray-400 hover:bg-gray-700/50 rounded-full transition-colors"
-            title="설정"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setShowParticipants(!showParticipants)}
+              className="p-2 text-gray-400 hover:bg-gray-700/50 rounded-full transition-colors relative"
+              title="접속자 목록"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              {onlineParticipants.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 text-white text-[10px] rounded-full flex items-center justify-center font-semibold">
+                  {onlineParticipants.length}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setShowSettings(!showSettings)}
+              className="p-2 text-gray-400 hover:bg-gray-700/50 rounded-full transition-colors"
+              title="설정"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
         </div>
       </div>
 
@@ -340,7 +387,7 @@ export default function GameChatPage({ params }: GameChatPageProps) {
             <div className="w-20 h-20 rounded-full bg-gray-700/30 mx-auto mb-4 flex items-center justify-center">
               <span className="text-4xl">💬</span>
             </div>
-            <p className="text-gray-400 text-base font-medium">첫 메시지를 남겨보세요!</p>
+            <p className="text-gray-400 text-lg font-medium">첫 메시지를 남겨보세요!</p>
             <p className="text-gray-500 text-sm mt-2">
               {gameName} 관련 이야기를 자유롭게 나누어보세요.
             </p>
@@ -360,7 +407,7 @@ export default function GameChatPage({ params }: GameChatPageProps) {
                 {/* 아바타 */}
                 {showAvatar && !isMine && (
                   <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white flex-shrink-0 mb-1"
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold text-white flex-shrink-0 mb-1"
                     style={{ backgroundColor: msg.color }}
                   >
                     {getAvatarLetter(msg.nickname)}
@@ -372,7 +419,7 @@ export default function GameChatPage({ params }: GameChatPageProps) {
                 {/* 메시지 버블 */}
                 <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} max-w-[75%] ${isMine ? 'mr-0' : 'ml-0'}`}>
                   {!isMine && showAvatar && (
-                    <span className="text-xs text-gray-400 mb-1 px-1" style={{ color: msg.color }}>
+                    <span className="text-sm text-gray-400 mb-1 px-1 font-medium" style={{ color: msg.color }}>
                       {msg.nickname}
                     </span>
                   )}
@@ -383,11 +430,11 @@ export default function GameChatPage({ params }: GameChatPageProps) {
                         : 'bg-[#182533] text-gray-100 rounded-bl-sm'
                     }`}
                   >
-                    <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">
+                    <p className="text-base whitespace-pre-wrap break-words leading-relaxed">
                       {msg.message}
                     </p>
-                    <div className={`flex items-center gap-1.5 mt-1 justify-end ${isMine ? 'text-blue-100' : 'text-gray-400'}`}>
-                      <span className="text-[10px] leading-none opacity-70">
+                    <div className={`flex items-center gap-1.5 mt-1.5 justify-end ${isMine ? 'text-blue-100' : 'text-gray-400'}`}>
+                      <span className="text-[11px] leading-none opacity-70">
                         {formatTime(msg.timestamp)}
                       </span>
                     </div>
@@ -399,6 +446,65 @@ export default function GameChatPage({ params }: GameChatPageProps) {
         )}
         <div ref={messagesEndRef} />
       </div>
+
+      {/* 접속자 목록 모달 */}
+      {showParticipants && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center"
+          onClick={() => setShowParticipants(false)}
+        >
+          <div 
+            className="bg-[#17212b] rounded-t-2xl sm:rounded-2xl w-full sm:w-96 max-h-[80vh] flex flex-col shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-4 border-b border-gray-700/50">
+              <h3 className="text-lg font-semibold text-white">접속자 목록</h3>
+              <button
+                onClick={() => setShowParticipants(false)}
+                className="p-1.5 hover:bg-gray-700/50 rounded-full transition-colors"
+              >
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="overflow-y-auto flex-1 p-4">
+              {onlineParticipants.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-400 text-sm">접속자가 없습니다</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {onlineParticipants.map((participant) => (
+                    <div
+                      key={participant.nickname}
+                      className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-700/30 transition-colors"
+                    >
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold text-white flex-shrink-0"
+                        style={{ backgroundColor: participant.color }}
+                      >
+                        {getAvatarLetter(participant.nickname)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-base font-medium text-white truncate">
+                            {participant.nickname}
+                          </span>
+                          <div className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></div>
+                        </div>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {formatTime(participant.lastSeen)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 설정 패널 - 텔레그램 스타일 */}
       {showSettings && (
@@ -477,7 +583,7 @@ export default function GameChatPage({ params }: GameChatPageProps) {
                   maxHeight: '120px',
                   resize: 'none',
                 }}
-                className="w-full px-4 py-2.5 bg-[#242f3d] border border-gray-600/30 rounded-2xl text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder:text-gray-500"
+                className="w-full px-4 py-2.5 bg-[#242f3d] border border-gray-600/30 rounded-2xl text-white text-base resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder:text-gray-500"
                 disabled={!nickname.trim()}
                 maxLength={200}
                 onInput={(e) => {
