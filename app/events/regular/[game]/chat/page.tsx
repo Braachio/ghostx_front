@@ -253,11 +253,27 @@ export default function GameChatPage({ params }: GameChatPageProps) {
   }
 
   const formatTime = (date: Date) => {
+    const now = new Date()
+    const diff = now.getTime() - date.getTime()
+    const minutes = Math.floor(diff / 60000)
+    
+    if (minutes < 1) return '방금'
+    if (minutes < 60) return `${minutes}분 전`
+    
     return date.toLocaleTimeString('ko-KR', {
       hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
+      minute: '2-digit'
     })
+  }
+
+  // 닉네임 첫 글자로 아바타 생성
+  const getAvatarLetter = (nickname: string) => {
+    return nickname.charAt(0).toUpperCase()
+  }
+
+  // 내 메시지인지 확인 (현재는 모든 메시지가 다른 사람 메시지로 표시)
+  const isMyMessage = (msgNickname: string) => {
+    return msgNickname === nickname
   }
 
   if (!game) {
@@ -272,65 +288,135 @@ export default function GameChatPage({ params }: GameChatPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 text-white flex flex-col">
-      {/* 헤더 */}
-      <div className="bg-gray-800 border-b border-gray-700 px-4 py-3">
+    <div className="min-h-screen bg-[#0e1621] text-white flex flex-col">
+      {/* 헤더 - 텔레그램 스타일 */}
+      <div className="bg-[#17212b] border-b border-gray-700/50 px-4 py-3 sticky top-0 z-10 backdrop-blur-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold">💬 {gameName} 채팅</h1>
-            <div className="flex items-center gap-1">
-              <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400' : 'bg-red-400'}`}></div>
-              <span className="text-xs text-gray-400">
-                {isConnected ? '실시간 연결됨' : '연결 중...'}
-              </span>
+            <button
+              onClick={() => window.history.back()}
+              className="p-2 hover:bg-gray-700/50 rounded-full transition-colors"
+            >
+              ←
+            </button>
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center font-bold text-white">
+                {gameName.charAt(0)}
+              </div>
+              <div>
+                <h1 className="text-base font-semibold">{gameName} 채팅</h1>
+                <div className="flex items-center gap-1.5">
+                  <div className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-green-400' : 'bg-gray-500'}`}></div>
+                  <span className="text-xs text-gray-400">
+                    {isConnected ? '온라인' : '오프라인'}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
           <button
             onClick={() => setShowSettings(!showSettings)}
-            className="p-2 text-gray-400 hover:text-white transition-colors"
+            className="p-2 text-gray-400 hover:bg-gray-700/50 rounded-full transition-colors"
             title="설정"
           >
-            ⚙️
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
           </button>
         </div>
-        <p className="text-gray-400 text-sm text-center mt-1">
-          모든 브라우저와 실시간으로 동기화됩니다.
-        </p>
       </div>
 
-      {/* 메시지 영역 */}
-      <div className="flex-1 p-4 overflow-y-auto space-y-3">
+      {/* 메시지 영역 - 텔레그램 스타일 배경 */}
+      <div 
+        className="flex-1 overflow-y-auto px-3 py-4 space-y-2"
+        style={{
+          backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.03) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(120, 119, 198, 0.03) 0%, transparent 50%)',
+          backgroundColor: '#0e1621'
+        }}
+      >
         {messages.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="text-6xl mb-4">💬</div>
-            <p className="text-gray-400">첫 메시지를 남겨보세요!</p>
+          <div className="text-center py-16">
+            <div className="w-20 h-20 rounded-full bg-gray-700/30 mx-auto mb-4 flex items-center justify-center">
+              <span className="text-4xl">💬</span>
+            </div>
+            <p className="text-gray-400 text-base font-medium">첫 메시지를 남겨보세요!</p>
             <p className="text-gray-500 text-sm mt-2">
               {gameName} 관련 이야기를 자유롭게 나누어보세요.
             </p>
           </div>
         ) : (
-          messages.map((msg) => (
-            <div key={msg.id} className="bg-gray-800/50 rounded-lg p-3 border border-gray-700">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="font-semibold text-sm" style={{ color: msg.color }}>
-                  {msg.nickname}
-                </span>
-                <span className="text-gray-500 text-xs">{formatTime(msg.timestamp)}</span>
+          messages.map((msg, index) => {
+            const isMine = isMyMessage(msg.nickname)
+            const prevMsg = index > 0 ? messages[index - 1] : null
+            const showAvatar = !prevMsg || prevMsg.nickname !== msg.nickname || 
+              (msg.timestamp.getTime() - prevMsg.timestamp.getTime()) > 300000 // 5분 이상 차이
+            
+            return (
+              <div
+                key={msg.id}
+                className={`flex gap-2 ${isMine ? 'flex-row-reverse' : 'flex-row'} items-end group`}
+              >
+                {/* 아바타 */}
+                {showAvatar && !isMine && (
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white flex-shrink-0 mb-1"
+                    style={{ backgroundColor: msg.color }}
+                  >
+                    {getAvatarLetter(msg.nickname)}
+                  </div>
+                )}
+                {!showAvatar && !isMine && <div className="w-8 flex-shrink-0" />}
+                {isMine && <div className="w-8 flex-shrink-0" />}
+                
+                {/* 메시지 버블 */}
+                <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} max-w-[75%] ${isMine ? 'mr-0' : 'ml-0'}`}>
+                  {!isMine && showAvatar && (
+                    <span className="text-xs text-gray-400 mb-1 px-1" style={{ color: msg.color }}>
+                      {msg.nickname}
+                    </span>
+                  )}
+                  <div
+                    className={`rounded-2xl px-4 py-2.5 shadow-sm ${
+                      isMine
+                        ? 'bg-[#3390ec] text-white rounded-br-sm'
+                        : 'bg-[#182533] text-gray-100 rounded-bl-sm'
+                    }`}
+                  >
+                    <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">
+                      {msg.message}
+                    </p>
+                    <div className={`flex items-center gap-1.5 mt-1 justify-end ${isMine ? 'text-blue-100' : 'text-gray-400'}`}>
+                      <span className="text-[10px] leading-none opacity-70">
+                        {formatTime(msg.timestamp)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <p className="text-white text-sm whitespace-pre-wrap break-words">{msg.message}</p>
-            </div>
-          ))
+            )
+          })
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* 설정 패널 */}
+      {/* 설정 패널 - 텔레그램 스타일 */}
       {showSettings && (
-        <div className="bg-gray-800 border-t border-gray-700 p-4">
-          <h3 className="text-sm font-semibold text-white mb-3">⚙️ 채팅 설정</h3>
-          <div className="space-y-3">
+        <div className="bg-[#17212b] border-t border-gray-700/50 p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-base font-semibold text-white">채팅 설정</h3>
+            <button
+              onClick={() => setShowSettings(false)}
+              className="p-1.5 hover:bg-gray-700/50 rounded-full transition-colors"
+            >
+              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div className="space-y-4">
             <div>
-              <label className="block text-xs text-gray-300 mb-1">닉네임</label>
+              <label className="block text-sm text-gray-300 mb-2">닉네임</label>
               <input
                 type="text"
                 value={nickname}
@@ -338,68 +424,81 @@ export default function GameChatPage({ params }: GameChatPageProps) {
                 onBlur={saveNickname}
                 placeholder="인게임 닉네임을 입력하세요"
                 maxLength={20}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
+                className="w-full px-4 py-2.5 bg-[#242f3d] border border-gray-600/30 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-300 mb-1">메시지 색상</label>
+              <label className="block text-sm text-gray-300 mb-2">아바타 색상</label>
               <div className="flex items-center gap-3">
                 <input
                   type="color"
                   value={color}
                   onChange={(e) => setColor(e.target.value)}
                   onBlur={saveColor}
-                  className="w-10 h-10 bg-gray-700 border border-gray-600 rounded-lg cursor-pointer"
+                  className="w-12 h-12 bg-[#242f3d] border border-gray-600/30 rounded-xl cursor-pointer"
                 />
-                <span className="text-sm text-gray-400">미리보기:</span>
-                <span className="text-sm font-semibold" style={{ color }}>
-                  {nickname || '닉네임'}
-                </span>
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm"
+                    style={{ backgroundColor: color }}
+                  >
+                    {nickname ? getAvatarLetter(nickname) : '?'}
+                  </div>
+                  <span className="text-sm text-gray-400">미리보기</span>
+                </div>
               </div>
             </div>
-            <button
-              onClick={() => setShowSettings(false)}
-              className="w-full px-3 py-2 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-500 transition-colors"
-            >
-              설정 닫기
-            </button>
+            <div className="pt-2 border-t border-gray-700/50">
+              <p className="text-xs text-gray-500">
+                💡 모든 브라우저와 실시간으로 동기화되며, 채팅 기록이 서버에 저장됩니다.
+              </p>
+            </div>
           </div>
         </div>
       )}
 
-      {/* 입력 영역 */}
-      <div className="bg-gray-800 border-t border-gray-700 p-4">
-        {/* 메시지 입력 */}
-        <div className="flex gap-2">
-          <textarea
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault()
-                sendMessage()
-              }
-            }}
-            placeholder={nickname ? "메시지를 입력하세요... (Shift+Enter로 줄바꿈)" : "먼저 설정에서 닉네임을 입력해주세요"}
-            rows={3}
-            className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm resize-none"
-            disabled={!nickname.trim()}
-            maxLength={200}
-          />
-          <button
-            onClick={sendMessage}
-            disabled={!newMessage.trim() || !nickname.trim()}
-            className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-semibold hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-          >
-            전송
-          </button>
+      {/* 입력 영역 - 텔레그램 스타일 */}
+      {!showSettings && (
+        <div className="bg-[#17212b] border-t border-gray-700/50 p-3">
+          <div className="flex items-end gap-2">
+            <div className="flex-1 relative">
+              <textarea
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault()
+                    sendMessage()
+                  }
+                }}
+                placeholder={nickname ? "메시지 입력..." : "먼저 설정에서 닉네임을 입력해주세요"}
+                rows={1}
+                style={{
+                  maxHeight: '120px',
+                  resize: 'none',
+                }}
+                className="w-full px-4 py-2.5 bg-[#242f3d] border border-gray-600/30 rounded-2xl text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder:text-gray-500"
+                disabled={!nickname.trim()}
+                maxLength={200}
+                onInput={(e) => {
+                  const target = e.target as HTMLTextAreaElement
+                  target.style.height = 'auto'
+                  target.style.height = `${Math.min(target.scrollHeight, 120)}px`
+                }}
+              />
+            </div>
+            <button
+              onClick={sendMessage}
+              disabled={!newMessage.trim() || !nickname.trim()}
+              className="w-10 h-10 rounded-full bg-[#3390ec] text-white flex items-center justify-center hover:bg-[#2a7dd6] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex-shrink-0 disabled:bg-gray-600"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
+            </button>
+          </div>
         </div>
-
-        {/* 안내 메시지 */}
-        <div className="text-xs text-gray-500 text-center mt-2">
-          💡 모든 브라우저와 실시간으로 동기화되며, 채팅 기록이 서버에 저장됩니다.
-        </div>
-      </div>
+      )}
     </div>
   )
 }
