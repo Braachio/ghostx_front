@@ -49,11 +49,8 @@ export default function EventManagerPanel({ isOpen, onClose, userId }: EventMana
   const fetchManagedEvents = async () => {
     try {
       setLoading(true)
-      console.log('관리 이벤트 조회 시작...')
       
       const response = await fetch('/api/my-managed-events')
-      
-      console.log('API 응답 상태:', response.status, response.statusText)
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
@@ -62,15 +59,8 @@ export default function EventManagerPanel({ isOpen, onClose, userId }: EventMana
       }
       
       const data = await response.json()
-      console.log('API 응답 데이터:', data)
-      
       setEvents(data.events || [])
       setUserRole(data.userRole || '')
-      
-      console.log('관리 이벤트 조회 성공:', { 
-        eventsCount: data.events?.length || 0,
-        userRole: data.userRole 
-      })
     } catch (error) {
       console.error('관리 이벤트 조회 실패:', error)
       alert(`이벤트 조회에 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`)
@@ -136,9 +126,9 @@ export default function EventManagerPanel({ isOpen, onClose, userId }: EventMana
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden">
         {/* 헤더 */}
-        <div className="flex items-center justify-between p-6 border-b">
+        <div className="flex items-center justify-between p-6 border-b flex-shrink-0">
           <div className="flex items-center space-x-3">
             <Settings className="w-6 h-6 text-blue-600" />
             <h2 className="text-2xl font-bold text-gray-900">
@@ -159,7 +149,7 @@ export default function EventManagerPanel({ isOpen, onClose, userId }: EventMana
         </div>
 
         {/* 내용 */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+        <div className="p-6 overflow-y-auto flex-1 min-h-0">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -278,7 +268,7 @@ export default function EventManagerPanel({ isOpen, onClose, userId }: EventMana
         </div>
 
         {/* 푸터 */}
-        <div className="flex items-center justify-between p-6 border-t bg-gray-50">
+        <div className="flex items-center justify-between p-6 border-t bg-gray-50 flex-shrink-0">
           <div className="text-sm text-gray-600">
             총 {events.length}개의 이벤트를 관리 중
           </div>

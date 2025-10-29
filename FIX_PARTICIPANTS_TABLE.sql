@@ -107,3 +107,4 @@ CREATE TRIGGER trigger_update_participants_updated_at
     BEFORE UPDATE ON participants
     FOR EACH ROW
     EXECUTE FUNCTION update_participants_updated_at();
+

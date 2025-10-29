@@ -260,7 +260,6 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
             <div className="mb-6">
               <ParticipationButton 
                 eventId={eventId} 
-                isOwner={user && event && event.author_id === user.id || false}
                 onParticipationChange={fetchParticipantCount}
               />
             </div>
@@ -480,27 +479,33 @@ export default function RegularEventDetailPage({ params }: RegularEventDetailPag
         )}
 
         {/* 모달들 */}
-        <ParticipantListModal
-          isOpen={showParticipantModal}
-          onClose={() => setShowParticipantModal(false)}
-          eventId={eventId}
-          isOwner={(user && event && event.author_id === user.id) || hasManagementPermission}
-        />
+        {showParticipantModal && (
+          <ParticipantListModal
+            isOpen={showParticipantModal}
+            onClose={() => setShowParticipantModal(false)}
+            eventId={eventId}
+            isOwner={(user && event && event.author_id === user.id) || hasManagementPermission}
+          />
+        )}
 
-        <TrackVotingModal
-          isOpen={showVotingModal}
-          onClose={() => setShowVotingModal(false)}
-          regularEventId={eventId}
-          isOwner={hasManagementPermission}
-          game={game}
-        />
+        {showVotingModal && (
+          <TrackVotingModal
+            isOpen={showVotingModal}
+            onClose={() => setShowVotingModal(false)}
+            regularEventId={eventId}
+            isOwner={hasManagementPermission}
+            game={game}
+          />
+        )}
 
-        <EventDescriptionModal
-          isOpen={showDescriptionModal}
-          onClose={() => setShowDescriptionModal(false)}
-          title={event?.title || ''}
-          description={event?.description || ''}
-        />
+        {showDescriptionModal && (
+          <EventDescriptionModal
+            isOpen={showDescriptionModal}
+            onClose={() => setShowDescriptionModal(false)}
+            title={event?.title || ''}
+            description={event?.description || ''}
+          />
+        )}
 
       </div>
     </div>

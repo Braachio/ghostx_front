@@ -1,11 +1,13 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
+import type { Database } from '@/lib/database.types'
 
 // GET - 사용자의 알림 설정 조회
 export async function GET() {
   try {
-    const supabase = createRouteHandlerClient({ cookies })
+    const cookieStore = await cookies()
+    const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore })
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
@@ -43,7 +45,8 @@ export async function PUT(request: NextRequest) {
     const body = await request.json()
     const { flash_event_notifications, regular_event_notifications, email_notifications, push_notifications } = body
 
-    const supabase = createRouteHandlerClient({ cookies })
+    const cookieStore = await cookies()
+    const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore })
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
@@ -58,17 +61,22 @@ export async function PUT(request: NextRequest) {
       push_notifications: push_notifications ?? true
     }
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('user_notification_settings')
-      .upsert(settingsData)
+      .upsert(settingsData, { onConflict: 'user_id' })
+      .select()
+      .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('알림 설정 업데이트 DB 오류:', error)
+      return NextResponse.json({ error: error.message || '알림 설정 업데이트 실패' }, { status: 500 })
     }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, settings: data })
   } catch (error) {
     console.error('알림 설정 업데이트 오류:', error)
-    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 })
+    return NextResponse.json({ 
+      error: error instanceof Error ? error.message : '서버 오류가 발생했습니다' 
+    }, { status: 500 })
   }
 }

@@ -43,7 +43,7 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
   const [dismissed, setDismissed] = useState(false)
   const [joiningEvents, setJoiningEvents] = useState<Set<string>>(new Set())
   const [togglingEvents, setTogglingEvents] = useState<Set<string>>(new Set())
-  const [isExpanded, setIsExpanded] = useState(true)
+  const [isExpanded, setIsExpanded] = useState(false)
 
   useEffect(() => {
     if (!userId) {
@@ -247,48 +247,65 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
     return null
   }
 
+  const totalEventsCount = recentEvents.length + todayRegularEvents.length
+
   return (
-    <div className="relative mb-8 group">
-      <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
-      <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-orange-500/40 rounded-2xl p-6 backdrop-blur-sm">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <div className="text-2xl animate-pulse">🔔</div>
-                <h3 className="text-xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
+    <div className="relative mb-6 group">
+      <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-xl blur-xl group-hover:blur-2xl transition-all"></div>
+      <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-orange-500/40 rounded-xl backdrop-blur-sm">
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center gap-3 flex-1">
+            <div className="text-xl animate-pulse">🔔</div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
                   {recentEvents.length > 0 && todayRegularEvents.length > 0 
                     ? '관심 게임 새 이벤트!' 
                     : recentEvents.length > 0 
                       ? '관심 게임 기습 갤멀!'
-                      : '관심 게임 정기 멀티!'
+                      : '오늘 열릴 정기 멀티!'
                   }
                 </h3>
+                <span className="px-2 py-0.5 bg-orange-500/20 text-orange-400 rounded-full text-xs font-medium">
+                  {totalEventsCount}개
+                </span>
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setIsExpanded(!isExpanded)}
-                  className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors text-sm"
-                >
-                  <span>{isExpanded ? '▼' : '▶'}</span>
-                  <span>{isExpanded ? '접기' : '펼치기'}</span>
-                </button>
-                <button
-                  onClick={() => setDismissed(true)}
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
-                  ✕
-                </button>
-              </div>
-            </div>
-            
-            {isExpanded && (
-              <>
-                <p className="text-gray-300 mb-4">
-                  관심 게임에 새로운 이벤트가 있습니다!
+              {!isExpanded && (
+                <p className="text-gray-400 text-sm mt-1">
+                  {recentEvents.length > 0 && todayRegularEvents.length > 0 
+                    ? `${recentEvents.length}개 기습 갤멀, ${todayRegularEvents.length}개 오늘 열릴 정기 멀티`
+                    : recentEvents.length > 0 
+                      ? `${recentEvents.length}개의 기습 갤멀`
+                      : `${todayRegularEvents.length}개의 오늘 열릴 정기 멀티`
+                  }
                 </p>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors text-sm"
+            >
+              <span>{isExpanded ? '▼' : '▶'}</span>
+              <span>{isExpanded ? '접기' : '펼치기'}</span>
+            </button>
+            <button
+              onClick={() => setDismissed(true)}
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+        
+        {isExpanded && (
+          <div className="px-4 pb-4">
+            <p className="text-gray-300 mb-4 text-sm">
+              관심 게임에 새로운 이벤트가 있습니다!
+            </p>
             
-            <div className="space-y-2">
+            <div className="space-y-2 max-h-[60vh] overflow-y-auto">
               {/* 기습 갤멀 이벤트 */}
               {recentEvents.map(event => {
                 const isManagedEvent = canManageEvent(event.id)
@@ -297,18 +314,18 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
                 const canManage = managedEvent?.canManage ?? false
                 
                 return (
-                  <div key={event.id} className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg border border-gray-700/50">
-                    <div className="text-blue-400">⚡</div>
-                    <div className="flex-1">
-                      <div className="text-white font-medium">{event.title}</div>
-                      <div className="text-gray-400 text-sm">{event.game} • 기습 갤멀</div>
+                  <div key={event.id} className="flex items-center gap-2 p-2 bg-gray-800/50 rounded-lg border border-gray-700/50">
+                    <div className="text-blue-400 text-sm">⚡</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-white font-medium text-sm truncate">{event.title}</div>
+                      <div className="text-gray-400 text-xs">{event.game} • 기습 갤멀</div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
                       {isManagedEvent && canManage && (
                         <button
                           onClick={() => handleToggleEvent(event.id)}
                           disabled={togglingEvents.has(event.id)}
-                          className={`px-3 py-1 rounded text-sm font-medium transition-colors disabled:cursor-not-allowed ${
+                          className={`px-2 py-1 rounded text-xs font-medium transition-colors disabled:cursor-not-allowed ${
                             isOpen
                               ? 'bg-green-600 hover:bg-green-700 text-white disabled:bg-green-400'
                               : 'bg-gray-600 hover:bg-gray-700 text-white disabled:bg-gray-400'
@@ -320,7 +337,7 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
                       <button
                         onClick={() => handleJoinEvent(event.id, event.title)}
                         disabled={joiningEvents.has(event.id)}
-                        className="px-3 py-1 bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed text-white rounded text-sm transition-colors"
+                        className="px-2 py-1 bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed text-white rounded text-xs transition-colors"
                       >
                         {joiningEvents.has(event.id) ? '참여 중...' : '참여하기'}
                       </button>
@@ -337,18 +354,18 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
                 const canManage = managedEvent?.canManage ?? false
                 
                 return (
-                  <div key={event.id} className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg border border-gray-700/50">
-                    <div className="text-green-400">📅</div>
-                    <div className="flex-1">
-                      <div className="text-white font-medium">{event.title}</div>
-                      <div className="text-gray-400 text-sm">{event.game} • 정기 멀티 • {event.start_time}</div>
+                  <div key={event.id} className="flex items-center gap-2 p-2 bg-gray-800/50 rounded-lg border border-gray-700/50">
+                    <div className="text-green-400 text-sm">📅</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-white font-medium text-sm truncate">{event.title}</div>
+                      <div className="text-gray-400 text-xs">{event.game} • 정기 멀티 • {event.start_time}</div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
                       {isManagedEvent && canManage && (
                         <button
                           onClick={() => handleToggleEvent(event.id)}
                           disabled={togglingEvents.has(event.id)}
-                          className={`px-3 py-1 rounded text-sm font-medium transition-colors disabled:cursor-not-allowed ${
+                          className={`px-2 py-1 rounded text-xs font-medium transition-colors disabled:cursor-not-allowed ${
                             isOpen
                               ? 'bg-green-600 hover:bg-green-700 text-white disabled:bg-green-400'
                               : 'bg-gray-600 hover:bg-gray-700 text-white disabled:bg-gray-400'
@@ -360,7 +377,7 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
                       <button
                         onClick={() => handleJoinEvent(event.id, event.title)}
                         disabled={joiningEvents.has(event.id)}
-                        className="px-3 py-1 bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white rounded text-sm transition-colors"
+                        className="px-2 py-1 bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white rounded text-xs transition-colors"
                       >
                         {joiningEvents.has(event.id) ? '참여 중...' : '참여하기'}
                       </button>
@@ -372,22 +389,14 @@ export default function InterestGameNotificationBanner({ userId }: InterestGameN
             
             <div className="mt-4 flex gap-3">
               <Link
-                href="/multis"
-                className="px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white rounded-lg transition-all font-semibold"
-              >
-                모든 기습 갤멀 보기
-              </Link>
-              <Link
                 href="/profile"
-                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors font-semibold"
+                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors font-semibold text-sm"
               >
                 관심 게임 설정
               </Link>
             </div>
-            </>
-            )}
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

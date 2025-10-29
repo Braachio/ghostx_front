@@ -8,8 +8,6 @@ const supabase = createClient(
 
 export async function POST() {
   try {
-    console.log('📡 조회수 증가 API 호출됨')
-
     // 먼저 현재 조회수 조회
     const { data: currentData, error: selectError } = await supabase
       .from('page_views')
@@ -42,7 +40,6 @@ export async function POST() {
       return NextResponse.json({ error: upsertError.message }, { status: 500 })
     }
 
-    console.log('✅ 조회수 증가 성공:', newCount)
     return NextResponse.json({ success: true, view_count: newCount })
   } catch (error) {
     console.error('❌ 조회수 증가 오류:', error)

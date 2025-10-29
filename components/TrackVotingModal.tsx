@@ -25,15 +25,6 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
   const [addingOption, setAddingOption] = useState(false)
   const [isVotingClosed, setIsVotingClosed] = useState(false)
 
-  // 디버깅을 위한 로그 추가
-  console.log('TrackVotingModal 렌더링:', { 
-    isOpen, 
-    regularEventId, 
-    isOwner, 
-    game,
-    trackOptionsCount: trackOptions.length 
-  })
-
   const fetchTrackOptions = useCallback(async () => {
     setLoading(true)
     try {

@@ -406,34 +406,40 @@ export default function EventDetailModal({
       </div>
 
       {/* 서브 모달들 */}
-      <ParticipantListModal
-        isOpen={showParticipantModal}
-        onClose={() => setShowParticipantModal(false)}
-        eventId={event.id}
-        isOwner={(user && event.author_id === user.id) || hasManagementPermission}
-      />
+      {showParticipantModal && (
+        <ParticipantListModal
+          isOpen={showParticipantModal}
+          onClose={() => setShowParticipantModal(false)}
+          eventId={event.id}
+          isOwner={(user && event.author_id === user.id) || hasManagementPermission}
+        />
+      )}
 
-      <TrackVotingModal
-        isOpen={showVotingModal}
-        onClose={() => setShowVotingModal(false)}
-        regularEventId={event.id}
-        isOwner={hasManagementPermission}
-        game={event.game}
-      />
+      {showVotingModal && (
+        <TrackVotingModal
+          isOpen={showVotingModal}
+          onClose={() => setShowVotingModal(false)}
+          regularEventId={event.id}
+          isOwner={hasManagementPermission}
+          game={event.game}
+        />
+      )}
 
-      <EventDescriptionModal
-        isOpen={showDescriptionModal}
-        onClose={() => setShowDescriptionModal(false)}
-        title={event.title}
-        description={currentDescription}
-        eventId={event.id}
-        isEditable={((user && event.author_id === user.id) || hasManagementPermission)}
-        onUpdate={(newDescription) => {
-          setCurrentDescription(newDescription)
-          // 페이지 새로고침으로 변경사항 반영
-          window.location.reload()
-        }}
-      />
+      {showDescriptionModal && (
+        <EventDescriptionModal
+          isOpen={showDescriptionModal}
+          onClose={() => setShowDescriptionModal(false)}
+          title={event.title}
+          description={currentDescription}
+          eventId={event.id}
+          isEditable={((user && event.author_id === user.id) || hasManagementPermission)}
+          onUpdate={(newDescription) => {
+            setCurrentDescription(newDescription)
+            // 페이지 새로고침으로 변경사항 반영
+            window.location.reload()
+          }}
+        />
+      )}
     </div>
   )
 }

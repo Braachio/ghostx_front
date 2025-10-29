@@ -12,22 +12,13 @@ export async function GET() {
     // 사용자 인증 확인
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
-    console.log('사용자 인증 확인:', { 
-      user: user?.id, 
-      email: user?.email,
-      error: authError 
-    })
-    
     if (authError || !user) {
-      console.log('인증 실패:', authError)
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
     // 시간이 지난 기습 갤멀 제외 (정기 갤멀은 항상 표시)
     const now = new Date()
     const today = now.toISOString().split('T')[0] // YYYY-MM-DD 형식
-    
-    console.log('내가 관리하는 이벤트 조회:', { userId: user.id, today })
 
     // 사용자 프로필에서 역할 확인
     const { data: profile, error: profileError } = await supabase
@@ -89,18 +80,11 @@ export async function GET() {
     const eventsWithVoteStatus = await Promise.all(
       (events || []).map(async (event) => {
         // 작성자 정보 조회
-        const { data: authorProfile, error: authorError } = await supabase
+        const { data: authorProfile } = await supabase
           .from('profiles')
           .select('nickname')
           .eq('id', event.author_id)
           .single()
-
-        console.log('작성자 정보 조회:', { 
-          eventId: event.id, 
-          authorId: event.author_id, 
-          authorProfile, 
-          authorError 
-        })
 
         // 투표 옵션 개수 조회
         const { data: voteOptions } = await supabase
@@ -127,11 +111,6 @@ export async function GET() {
       })
     )
 
-    console.log('관리 이벤트 조회 성공:', { 
-      userId: user.id, 
-      userRole: profile?.role,
-      eventsCount: eventsWithVoteStatus.length 
-    })
 
     return NextResponse.json({
       events: eventsWithVoteStatus,

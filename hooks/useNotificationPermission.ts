@@ -15,7 +15,6 @@ export function useNotificationPermission() {
 
   const requestPermission = async (): Promise<boolean> => {
     if (!isSupported) {
-      console.log('이 브라우저는 알림을 지원하지 않습니다.')
       return false
     }
 
@@ -28,13 +27,10 @@ export function useNotificationPermission() {
       setPermission(result)
       
       if (result === 'granted') {
-        console.log('✅ 알림 권한이 허용되었습니다!')
         return true
       } else if (result === 'denied') {
-        console.log('❌ 알림 권한이 거부되었습니다.')
         return false
       } else {
-        console.log('⏳ 알림 권한 요청이 취소되었습니다.')
         return false
       }
     } catch (error) {

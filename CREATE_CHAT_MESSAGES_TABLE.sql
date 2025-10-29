@@ -61,3 +61,4 @@ $$ LANGUAGE plpgsql;
 -- 정리 함수를 주기적으로 실행하는 스케줄 (선택사항)
 -- CREATE EXTENSION IF NOT EXISTS pg_cron;
 -- SELECT cron.schedule('cleanup-chat-messages', '0 2 * * *', 'SELECT cleanup_old_chat_messages();');
+

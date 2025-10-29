@@ -49,8 +49,6 @@ export default function VoteManagementModal({
       setIsVotingClosed(data.votingClosed || false)
       setParticipantCount(data.participantCount || 0)
       setUserVote(data.userVote)
-      
-      console.log('투표 상태 조회 성공:', data)
     } catch (error) {
       console.error('투표 상태 조회 실패:', error)
       alert('투표 상태를 불러올 수 없습니다.')
@@ -81,9 +79,6 @@ export default function VoteManagementModal({
         throw new Error(errorData.error || '옵션 추가에 실패했습니다.')
       }
 
-      const result = await response.json()
-      console.log('투표 옵션 추가 성공:', result)
-      
       setNewOptionValue('')
       await fetchVoteStatus()
       alert('투표 옵션이 추가되었습니다.')
@@ -109,9 +104,6 @@ export default function VoteManagementModal({
         throw new Error(errorData.error || '옵션 삭제에 실패했습니다.')
       }
 
-      const result = await response.json()
-      console.log('투표 옵션 삭제 성공:', result)
-      
       await fetchVoteStatus()
       alert('투표 옵션이 삭제되었습니다.')
     } catch (error) {

@@ -37,15 +37,9 @@ export default function MultiCard({
   const getEventDate = () => {
     if (multi.event_date) {
       const eventDate = new Date(multi.event_date + 'T12:00:00') // 정오로 설정해서 시간대 문제 방지
-      console.log('MultiCard 날짜 표시:', {
-        title: multi.title,
-        event_date: multi.event_date,
-        parsed: eventDate.toDateString()
-      })
       return eventDate
     }
     
-    console.log('event_date 없음:', multi.title)
     return null
   }
 

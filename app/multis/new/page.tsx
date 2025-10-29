@@ -24,20 +24,12 @@ export default function NewMultiPage() {
 
 
   const handleDateSelect = (date: string) => {
-    console.log('=== multis/new 날짜 처리 디버깅 ===')
-    console.log('받은 날짜 문자열:', date)
-    
     setSelectedDate(date)
     
     // 정오 시간으로 파싱하여 타임존 문제 방지
     const selectedDateObj = new Date(date + 'T12:00:00')
     const dayName = ['일', '월', '화', '수', '목', '금', '토'][selectedDateObj.getDay()]
-    console.log('최종 선택된 날짜:', selectedDateObj.toLocaleString('ko-KR'))
-    console.log('계산된 요일:', dayName)
     setMultiDay([dayName])
-    
-    // 날짜 선택 시 자동 등록 방지 (명시적으로 등록 버튼을 눌러야 함)
-    console.log('날짜 선택 완료 - 등록 버튼을 눌러주세요')
   }
 
 
@@ -60,14 +52,11 @@ export default function NewMultiPage() {
         multi_day: multiDay,
         multi_time: multiTime || null,
         multi_race: null,
-        is_open: true, // 기본적으로 활성으로 등록
+        is_open: false, // 기본적으로 비활성으로 등록
         description: description || null,
         link: link || null,
         event_date: selectedDate, // 선택된 날짜를 event_date로 설정
       }
-      
-      console.log('선택된 날짜:', selectedDate)
-      console.log('등록 시 전송되는 데이터:', submitData)
       
       // API 라우트를 통해 등록
       const response = await fetch('/api/multis', {
@@ -85,7 +74,7 @@ export default function NewMultiPage() {
       }
       
       alert('이벤트가 등록되었습니다.')
-      router.push('/multis')
+      router.push('/')
     } catch (e: unknown) {
       const error = e as Error
       alert(error?.message || '등록 실패')

@@ -375,7 +375,7 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
           }
         }
         
-        router.push(`/events/regular/${game}`)
+        router.push('/')
       } else {
         const errorData = await response.json()
         console.error('이벤트 등록 실패:', errorData)
@@ -453,7 +453,7 @@ export default function RegularEventPage({ params }: RegularEventPageProps) {
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
             <Link 
-              href={`/events/regular/${game}`}
+              href="/events/regular/new"
               className="text-blue-400 hover:text-blue-300 transition-colors"
             >
               ← 돌아가기

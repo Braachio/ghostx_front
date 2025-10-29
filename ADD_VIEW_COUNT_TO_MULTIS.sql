@@ -7,3 +7,4 @@ UPDATE multis SET view_count = 0 WHERE view_count IS NULL;
 -- view_count 컬럼을 NOT NULL로 변경
 ALTER TABLE multis ALTER COLUMN view_count SET NOT NULL;
 ALTER TABLE multis ALTER COLUMN view_count SET DEFAULT 0;
+

@@ -71,7 +71,6 @@ export async function DELETE(
       return NextResponse.json({ error: '투표 옵션 삭제에 실패했습니다.' }, { status: 500 })
     }
 
-    console.log('투표 옵션 삭제 성공:', { optionId })
 
     return NextResponse.json({
       success: true,

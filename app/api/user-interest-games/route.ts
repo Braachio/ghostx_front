@@ -5,7 +5,7 @@ import type { Database } from '@/lib/database.types'
 
 export async function GET() {
   try {
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore })
 
     // 사용자 인증 확인

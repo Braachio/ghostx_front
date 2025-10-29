@@ -7,7 +7,7 @@ import { hasEventManagementPermission } from '@/lib/permissions'
 
 export async function GET(req: NextRequest) {
   try {
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const supabase = createRouteHandlerClient<Database>({
       cookies: () => cookieStore,
     })
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
       voting_enabled: body.voting_enabled || false,
       event_type: 'regular_schedule',
       is_template_based: false,
-      is_open: true,
+      is_open: false,
       author_id: user.id,
       created_at: now.toISOString(),
       // 정기 이벤트는 year, week를 null로 설정

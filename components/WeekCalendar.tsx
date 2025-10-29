@@ -83,13 +83,6 @@ export default function WeekCalendar({ selectedDate, onDateSelect }: WeekCalenda
   const handleDateClick = (date: string, e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    
-    console.log('=== 캘린더 날짜 선택 디버깅 ===')
-    console.log('선택된 날짜 문자열:', date)
-    console.log('Date 객체 생성:', new Date(date))
-    console.log('Date 객체 로컬 시간:', new Date(date).toLocaleString('ko-KR'))
-    console.log('Date 객체 UTC 시간:', new Date(date).toISOString())
-    console.log('현재 시간:', new Date().toLocaleString('ko-KR'))
     onDateSelect(date)
   }
 

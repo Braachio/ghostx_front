@@ -167,26 +167,11 @@ export default function EventListPageSimple({ currentUserId, eventTypeFilter }: 
     // 로컬 시간 기준으로 오늘 날짜 계산
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     
-    console.log('이벤트 날짜 계산 디버깅:', {
-      multiId: multi.id,
-      title: multi.title,
-      year: multi.year,
-      week: multi.week,
-      multiDay: multi.multi_day,
-      eventDate: multi.event_date,
-      created_at: multi.created_at
-    })
-    
     // event_date가 있으면 해당 날짜 사용 (최우선)
     if (multi.event_date) {
       const eventDate = new Date(multi.event_date)
       eventDate.setHours(0, 0, 0, 0)
       const isPast = eventDate < today
-      console.log('event_date 비교 결과:', {
-        eventDate: eventDate.toISOString(),
-        today: today.toISOString(),
-        isPast
-      })
       return isPast
     }
     

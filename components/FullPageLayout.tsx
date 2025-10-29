@@ -6,7 +6,6 @@ import Image from 'next/image'
 import EventCalendar from './EventCalendar'
 import InterestGameNotificationBanner from './InterestGameNotificationBanner'
 import EventManagerPanel from './EventManagerPanel'
-import FeedbackForm from './FeedbackForm'
 import type { Database } from '@/lib/database.types'
 
 type Multi = Database['public']['Tables']['multis']['Row']
@@ -45,7 +44,6 @@ export default function FullPageLayout({
   const [currentSection, setCurrentSection] = useState(0)
   const [isScrolled, setIsScrolled] = useState(false)
   const [isEventManagerPanelOpen, setIsEventManagerPanelOpen] = useState(false)
-  const [showFeedbackModal, setShowFeedbackModal] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   // 스크롤 감지
@@ -659,44 +657,6 @@ export default function FullPageLayout({
         </div>
       </section>
 
-      {/* Section 3: 피드백 섹션 */}
-      <section className="fullpage-section min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-20 bg-gradient-to-b from-gray-900 via-black to-gray-900">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-              💬 피드백 보내기
-            </h2>
-            <p className="text-lg text-gray-400">
-              {language === 'ko' ? '서비스 개선을 위한 소중한 의견을 들려주세요' : 'Share your valuable feedback for service improvement'}
-            </p>
-          </div>
-
-          <div className="flex justify-center">
-            {/* 피드백 카드 - 가운데 배치 */}
-            <button 
-              onClick={() => setShowFeedbackModal(true)}
-              className="group w-full"
-            >
-              <div className="bg-gradient-to-br from-gray-900/95 to-black/95 border border-purple-500/40 rounded-2xl p-8 backdrop-blur-sm hover:border-purple-400/60 transition-all duration-300 hover:scale-105">
-                <div className="text-center">
-                  <div className="text-6xl mb-6">💬</div>
-                  <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                    피드백 보내기
-                  </h3>
-                  <p className="text-gray-300 text-lg leading-relaxed mb-6">
-                    {language === 'ko' ? '서비스 개선을 위한 소중한 의견을 들려주세요' : 'Share your valuable feedback for service improvement'}
-                  </p>
-                  <div className="inline-block px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
-                    피드백 보내기 →
-                  </div>
-                </div>
-              </div>
-            </button>
-
-          </div>
-        </div>
-      </section>
-
       {/* 이벤트 매니저 패널 */}
       {user && (user.role === 'admin' || user.role === 'event_manager') && (
         <EventManagerPanel
@@ -706,14 +666,6 @@ export default function FullPageLayout({
         />
       )}
 
-      {/* 피드백 모달 */}
-      {showFeedbackModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <FeedbackForm onClose={() => setShowFeedbackModal(false)} />
-          </div>
-        </div>
-      )}
     </div>
   )
 }
