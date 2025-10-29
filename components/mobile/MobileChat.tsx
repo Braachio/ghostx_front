@@ -105,7 +105,14 @@ export default function MobileChat({ user, language }: MobileChatProps) {
       const response = await fetch(`/api/chat/game/${selectedGame}`)
       if (response.ok) {
         const apiMessages = await response.json()
-        const formattedMessages: ChatMessage[] = apiMessages.map((msg: any) => ({
+        const formattedMessages: ChatMessage[] = apiMessages.map((msg: {
+          id: string
+          user_id: string | null
+          nickname: string
+          message: string
+          created_at: string
+          color: string
+        }) => ({
           id: msg.id,
           userId: msg.user_id,
           nickname: msg.nickname,
@@ -200,13 +207,14 @@ export default function MobileChat({ user, language }: MobileChatProps) {
   useEffect(() => {
     if (!isAuthenticated) return
 
-    loadMessages()
-    loadParticipants()
+    const fetchData = async () => {
+      await loadMessages()
+      await loadParticipants()
+    }
 
-    const interval = setInterval(() => {
-      loadMessages()
-      loadParticipants()
-    }, 1500)
+    fetchData()
+
+    const interval = setInterval(fetchData, 1500)
 
     return () => clearInterval(interval)
   }, [isAuthenticated, selectedGame])
