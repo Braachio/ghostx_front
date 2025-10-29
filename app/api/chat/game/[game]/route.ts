@@ -5,8 +5,7 @@ import type { Database } from '@/lib/database.types'
 
 // GET: 게임별 채팅 메시지 조회
 export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ game: string }> }
+  req: NextRequest
 ) {
   try {
     const { searchParams } = new URL(req.url)
@@ -44,8 +43,7 @@ export async function GET(
 
 // POST: 게임별 채팅 메시지 전송
 export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ game: string }> }
+  req: NextRequest
 ) {
   try {
     const body = await req.json()
