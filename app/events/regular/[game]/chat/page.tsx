@@ -109,7 +109,9 @@ export default function GameChatPage({ params }: GameChatPageProps) {
         
         const data = JSON.parse(event.data)
         
-        if (data.type === 'message') {
+        if (data.type === 'connected') {
+          console.log('SSE 연결 확인됨')
+        } else if (data.type === 'message') {
           const newMsg: ChatMessage = {
             id: data.data.id,
             nickname: data.data.nickname,
@@ -129,25 +131,29 @@ export default function GameChatPage({ params }: GameChatPageProps) {
             return updated
           })
         }
-      } catch {
-        // JSON 파싱 오류 무시
+      } catch (error) {
+        console.error('SSE 메시지 처리 오류:', error)
       }
     }
 
-    eventSource.onerror = () => {
+    eventSource.onerror = (error) => {
+      console.error('SSE 연결 오류:', error, eventSource.readyState)
       setIsConnected(false)
-      eventSource.close()
-      eventSourceRef.current = null
+      
+      if (eventSource.readyState === EventSource.CLOSED) {
+        eventSource.close()
+        eventSourceRef.current = null
 
-      if (reconnectAttemptsRef.current < maxReconnectAttempts) {
-        const delay = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 30000)
-        reconnectAttemptsRef.current++
-        
-        reconnectTimeoutRef.current = setTimeout(() => {
-          if (game) {
-            connectRealtimeChat()
-          }
-        }, delay)
+        if (reconnectAttemptsRef.current < maxReconnectAttempts) {
+          const delay = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 30000)
+          reconnectAttemptsRef.current++
+          
+          reconnectTimeoutRef.current = setTimeout(() => {
+            if (game) {
+              connectRealtimeChat()
+            }
+          }, delay)
+        }
       }
     }
 

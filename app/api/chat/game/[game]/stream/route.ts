@@ -57,7 +57,7 @@ export async function GET(
           }
         }, 30000)
 
-        // Supabase 실시간 구독 설정 (임시: event_id가 NULL인 모든 메시지)
+        // Supabase 실시간 구독 설정 (모든 INSERT 이벤트 받기)
         const channel = supabase
           .channel(`game_chat_${chatRoomId}`)
           .on(
@@ -65,27 +65,33 @@ export async function GET(
             {
               event: 'INSERT',
               schema: 'public',
-              table: 'event_chat_messages',
-              filter: 'event_id=is.null' // event_id가 NULL인 게임별 채팅만
+              table: 'event_chat_messages'
             },
             (payload) => {
               try {
-                // 게임별 채팅인지 확인 (nickname에 게임명이 포함되어야 함)
                 const messageData = payload.new
-                if (messageData && messageData.nickname) {
+                // event_id가 NULL인 게임별 채팅만 전송
+                if (messageData && messageData.nickname && messageData.event_id === null) {
                   const message = {
                     type: 'message',
                     data: messageData
                   }
                   controller.enqueue(encoder.encode(`data: ${JSON.stringify(message)}\n\n`))
                 }
-              } catch {
+              } catch (error) {
+                console.error('SSE 메시지 전송 오류:', error)
                 clearInterval(keepaliveInterval)
                 supabase.removeChannel(channel)
               }
             }
           )
-          .subscribe()
+          .subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+              console.log(`Supabase 채널 구독 성공: game_chat_${chatRoomId}`)
+            } else if (status === 'CHANNEL_ERROR') {
+              console.error(`Supabase 채널 구독 오류: game_chat_${chatRoomId}`, status)
+            }
+          })
 
         // 클라이언트 연결 해제 시 정리
         const cleanup = () => {
