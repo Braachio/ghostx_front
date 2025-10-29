@@ -297,7 +297,7 @@ export default function MobileHomeShell({
             <span>캘린더</span>
           </button>
           <button
-            onClick={() => router.push('/events')}
+            onClick={() => router.push('/mobile/events')}
             className={"flex flex-col items-center py-3 text-xs font-medium transition-colors text-gray-400 hover:text-white"}
           >
             <span className="text-lg">📋</span>
