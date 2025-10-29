@@ -171,7 +171,7 @@ export default function MobileEventCalendar({
       <div className="flex bg-gray-800/50 backdrop-blur-sm rounded-lg p-1 mb-6">
         <button
           onClick={() => onTabChange('calendar')}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+          className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all ${
             activeTab === 'calendar'
               ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg'
               : 'text-gray-400 hover:text-white'
@@ -181,13 +181,23 @@ export default function MobileEventCalendar({
         </button>
         <button
           onClick={() => onTabChange('events')}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+          className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all ${
             activeTab === 'events'
               ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg'
               : 'text-gray-400 hover:text-white'
           }`}
         >
-          📋 이벤트 목록
+          📋 이벤트
+        </button>
+        <button
+          onClick={() => onTabChange('chat')}
+          className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all ${
+            activeTab === 'chat'
+              ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg'
+              : 'text-gray-400 hover:text-white'
+          }`}
+        >
+          💬 채팅
         </button>
       </div>
 
