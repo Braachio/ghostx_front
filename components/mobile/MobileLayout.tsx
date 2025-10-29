@@ -28,7 +28,7 @@ interface MobileLayoutProps {
   onEventClick?: (event: Multi) => void
 }
 
-export default function MobileLayout({
+export default function MobileHomeShell({
   user,
   language,
   events,
