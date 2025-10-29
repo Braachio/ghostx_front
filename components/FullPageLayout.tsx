@@ -143,7 +143,7 @@ export default function FullPageLayout({
              {/* 상단 네비게이션 - 두 줄 구조 */}
        <nav className="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
          {/* 1번째 줄 - 스크롤 시 숨김 (로고, 프로필, 로그아웃, 언어변경) */}
-         <div className={`w-full px-4 sm:px-6 lg:px-8 transition-all duration-300 ${
+         <div className={`w-full px-4 sm:px-6 lg:px-8 bg-black transition-all duration-300 ${
            isScrolled 
              ? 'opacity-0 invisible h-0 overflow-hidden' 
              : 'opacity-100 visible h-12'
