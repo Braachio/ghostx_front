@@ -38,10 +38,7 @@ export default function GameChatPage({ params }: GameChatPageProps) {
   const [showSettings, setShowSettings] = useState(false)
   const [isConnected, setIsConnected] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const eventSourceRef = useRef<EventSource | null>(null)
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const reconnectAttemptsRef = useRef(0)
-  const maxReconnectAttempts = 5
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     const loadParams = async () => {
@@ -58,7 +55,7 @@ export default function GameChatPage({ params }: GameChatPageProps) {
   const gameName = useMemo(() => gameNames[game] || game, [game])
 
   // 메시지 로드 (서버에서) - 모든 게임별 채팅 표시
-  const loadMessages = useCallback(async () => {
+  const loadMessages = useCallback(async (isInitialLoad = false) => {
     if (!game) return
 
     try {
@@ -72,100 +69,65 @@ export default function GameChatPage({ params }: GameChatPageProps) {
           timestamp: new Date(msg.created_at),
           color: msg.color || '#ffffff'
         }))
-        setMessages(formattedMessages)
+        
+        if (isInitialLoad) {
+          // 초기 로드 시 모든 메시지 설정
+          setMessages(formattedMessages)
+        } else {
+          // 폴링 시 새 메시지만 추가
+          setMessages(prev => {
+            const existingIds = new Set(prev.map(m => m.id))
+            const newMessages = formattedMessages.filter(msg => !existingIds.has(msg.id))
+            
+            if (newMessages.length > 0) {
+              const updated = [...prev, ...newMessages].sort((a, b) => 
+                a.timestamp.getTime() - b.timestamp.getTime()
+              )
+              if (updated.length > MAX_MESSAGES) {
+                return updated.slice(-MAX_MESSAGES)
+              }
+              return updated
+            }
+            return prev
+          })
+        }
       } else {
-        setMessages([])
+        if (isInitialLoad) {
+          setMessages([])
+        }
       }
     } catch (error) {
       console.error('메시지 로드 중 오류:', error)
-      setMessages([])
+      if (isInitialLoad) {
+        setMessages([])
+      }
     }
   }, [game])
 
-  // 실시간 채팅 연결
-  const connectRealtimeChat = useCallback(() => {
+  // 폴링 방식으로 새 메시지 확인 (1.5초마다)
+  const startPolling = useCallback(() => {
     if (!game) return
 
-    // 기존 연결이 있으면 닫기
-    if (eventSourceRef.current) {
-      eventSourceRef.current.close()
+    // 기존 폴링 중지
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current)
     }
 
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current)
-    }
+    setIsConnected(true)
 
-    const eventSource = new EventSource(`/api/chat/game/${game}/stream`)
-    eventSourceRef.current = eventSource
-    
-    eventSource.onopen = () => {
-      setIsConnected(true)
-      reconnectAttemptsRef.current = 0
-    }
-
-    eventSource.onmessage = (event) => {
-      try {
-        if (event.data.trim() === '') return
-        
-        const data = JSON.parse(event.data)
-        
-        if (data.type === 'connected') {
-          console.log('SSE 연결 확인됨')
-        } else if (data.type === 'message') {
-          const newMsg: ChatMessage = {
-            id: data.data.id,
-            nickname: data.data.nickname,
-            message: data.data.message,
-            timestamp: new Date(data.data.created_at),
-            color: data.data.color || '#ffffff'
-          }
-          
-          setMessages(prev => {
-            if (prev.some(msg => msg.id === newMsg.id)) {
-              return prev
-            }
-            const updated = [...prev, newMsg]
-            if (updated.length > MAX_MESSAGES) {
-              return updated.slice(-MAX_MESSAGES)
-            }
-            return updated
-          })
-        }
-      } catch (error) {
-        console.error('SSE 메시지 처리 오류:', error)
-      }
-    }
-
-    eventSource.onerror = (error) => {
-      console.error('SSE 연결 오류:', error, eventSource.readyState)
-      setIsConnected(false)
-      
-      if (eventSource.readyState === EventSource.CLOSED) {
-        eventSource.close()
-        eventSourceRef.current = null
-
-        if (reconnectAttemptsRef.current < maxReconnectAttempts) {
-          const delay = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 30000)
-          reconnectAttemptsRef.current++
-          
-          reconnectTimeoutRef.current = setTimeout(() => {
-            if (game) {
-              connectRealtimeChat()
-            }
-          }, delay)
-        }
-      }
-    }
+    // 1.5초마다 새 메시지 확인
+    pollingIntervalRef.current = setInterval(() => {
+      loadMessages(false)
+    }, 1500)
 
     return () => {
-      eventSource.close()
-      eventSourceRef.current = null
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current)
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current)
+        pollingIntervalRef.current = null
       }
       setIsConnected(false)
     }
-  }, [game])
+  }, [game, loadMessages])
 
   useEffect(() => {
     if (!game) return
@@ -181,25 +143,22 @@ export default function GameChatPage({ params }: GameChatPageProps) {
       setColor(savedColor)
     }
 
-    // 메시지 로드
-    loadMessages()
+    // 초기 메시지 로드
+    loadMessages(true)
 
-    // 실시간 연결 시작
-    const cleanup = connectRealtimeChat()
+    // 폴링 시작
+    const cleanup = startPolling()
     
     return () => {
       if (cleanup) {
         cleanup()
       }
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close()
-        eventSourceRef.current = null
-      }
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current)
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current)
+        pollingIntervalRef.current = null
       }
     }
-  }, [game, gameName, loadMessages, connectRealtimeChat])
+  }, [game, gameName, loadMessages, startPolling])
 
   // 스크롤 이동
   useEffect(() => {
