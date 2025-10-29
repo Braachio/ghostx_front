@@ -95,7 +95,6 @@ export async function POST(
     // 게임별 채팅 메시지 저장 (event_id는 NULL, game_name 사용)
     const { data, error } = await supabase
       .from('event_chat_messages')
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .insert({
         event_id: null, // 게임별 채팅은 event_id 없음
         user_id: user.id,
@@ -103,6 +102,7 @@ export async function POST(
         message,
         color: color || '#ffffff',
         game_name: chatRoomId // 게임별 채팅방 구분
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any) // 타입 체크 우회 (game_name 필드가 타입 정의에 없을 수 있음)
       .select()
       .single()

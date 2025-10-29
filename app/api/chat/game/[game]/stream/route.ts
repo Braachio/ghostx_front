@@ -62,12 +62,12 @@ export async function GET(
           .channel(`game_chat_${chatRoomId}`)
           .on(
             'postgres_changes',
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             {
               event: 'INSERT',
               schema: 'public',
               table: 'event_chat_messages',
               filter: `game_name=eq.${chatRoomId}` // game_name으로 게임별 채팅 필터링
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } as any, // 타입 체크 우회 (game_name 필터가 타입 정의에 없을 수 있음)
             (payload) => {
               try {
