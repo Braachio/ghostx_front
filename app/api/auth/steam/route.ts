@@ -4,7 +4,6 @@ import { NextResponse } from 'next/server'
 export async function GET(request: Request) {
   // 요청 URL에서 호스트 정보 추출
   const url = new URL(request.url)
-  const isLocalhost = url.hostname === 'localhost' || url.hostname === '127.0.0.1'
 
   // 모바일 도메인(m.ghostx.site) 포함, 현재 요청의 호스트를 그대로 사용
   const baseUrl = `${url.protocol}//${url.host}`

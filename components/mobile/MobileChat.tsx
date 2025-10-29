@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import type { Database } from '@/lib/database.types'
 
@@ -100,7 +100,7 @@ export default function MobileChat({ user, language }: MobileChatProps) {
   }, [supabase])
 
   // 메시지 로드
-  const loadMessages = async () => {
+  const loadMessages = useCallback(async () => {
     try {
       const response = await fetch(`/api/chat/game/${selectedGame}`)
       if (response.ok) {
@@ -125,10 +125,10 @@ export default function MobileChat({ user, language }: MobileChatProps) {
     } catch (error) {
       console.error('메시지 로드 실패:', error)
     }
-  }
+  }, [selectedGame])
 
   // 접속자 목록 로드
-  const loadParticipants = async () => {
+  const loadParticipants = useCallback(async () => {
     try {
       const response = await fetch(`/api/chat/game/${selectedGame}/presence`)
       if (response.ok) {
@@ -138,7 +138,7 @@ export default function MobileChat({ user, language }: MobileChatProps) {
     } catch (error) {
       console.error('접속자 목록 로드 실패:', error)
     }
-  }
+  }, [selectedGame])
 
   // 메시지 전송
   const sendMessage = async () => {
@@ -217,7 +217,7 @@ export default function MobileChat({ user, language }: MobileChatProps) {
     const interval = setInterval(fetchData, 1500)
 
     return () => clearInterval(interval)
-  }, [isAuthenticated, selectedGame])
+  }, [isAuthenticated, loadMessages, loadParticipants])
 
   // 스크롤을 맨 아래로
   useEffect(() => {
