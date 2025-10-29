@@ -10,8 +10,8 @@ interface MobileEventCalendarProps {
   selectedGame: string
   onGameChange: (game: string) => void
   onEventClick?: (event: Multi) => void
-  activeTab: 'calendar' | 'events'
-  onTabChange: (tab: 'calendar' | 'events') => void
+  activeTab: 'calendar' | 'events' | 'chat'
+  onTabChange: (tab: 'calendar' | 'events' | 'chat') => void
 }
 
 export default function MobileEventCalendar({ 

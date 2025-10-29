@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import MobileEventCalendar from './MobileEventCalendar'
+import MobileChat from './MobileChat'
 import type { Database } from '@/lib/database.types'
 
 type Multi = Database['public']['Tables']['multis']['Row']
@@ -39,7 +40,7 @@ export default function MobileLayout({
   onLogout,
   onEventClick
 }: MobileLayoutProps) {
-  const [activeTab, setActiveTab] = useState<'calendar' | 'events'>('calendar')
+  const [activeTab, setActiveTab] = useState<'calendar' | 'events' | 'chat'>('calendar')
 
   const t = {
     ko: {
@@ -268,7 +269,9 @@ export default function MobileLayout({
       <section id="calendar-section" className="min-h-screen flex items-center justify-center px-6 py-20">
         <div className="w-full max-w-lg mx-auto">
           
-          {eventsLoading ? (
+          {activeTab === 'chat' ? (
+            <MobileChat user={user} language={language} />
+          ) : eventsLoading ? (
             <div className="bg-gray-900 rounded-2xl p-8 text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
               <p className="text-gray-400 text-base">이벤트를 불러오는 중...</p>
