@@ -3,25 +3,12 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import type { Database } from '@/lib/database.types'
 
-// 게임 이름 매핑
-const gameNames: Record<string, string> = {
-  'iracing': '아이레이싱',
-  'assettocorsa': '아세토코르사',
-  'gran-turismo7': '그란투리스모7',
-  'automobilista2': '오토모빌리스타2',
-  'competizione': '컴페티치오네',
-  'lemans': '르망얼티밋',
-  'f1-25': 'F1 25',
-  'ea-wrc': 'EA WRC'
-}
-
 // GET: 게임별 채팅 메시지 조회
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ game: string }> }
 ) {
   try {
-    const { game } = await params
     const { searchParams } = new URL(req.url)
     const limit = Math.min(parseInt(searchParams.get('limit') || '100'), 200)
     const offset = parseInt(searchParams.get('offset') || '0')
@@ -61,7 +48,6 @@ export async function POST(
   { params }: { params: Promise<{ game: string }> }
 ) {
   try {
-    const { game } = await params
     const body = await req.json()
     const { nickname, message, color } = body
 
