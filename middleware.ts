@@ -7,11 +7,12 @@ export function middleware(request: NextRequest) {
 
   // m.ghostx.site 또는 m.* 서브도메인으로 접근하는 경우
   if (hostname.startsWith('m.')) {
-    // 이미 /mobile 경로에 있으면 리다이렉트하지 않음
-    if (!url.pathname.startsWith('/mobile')) {
-      url.pathname = `/mobile${url.pathname}`
+    // 루트 경로(/)인 경우 모바일 페이지로 리다이렉트
+    if (url.pathname === '/') {
+      url.pathname = '/mobile'
       return NextResponse.redirect(url)
     }
+    // 다른 경로들은 그대로 유지 (예: /mobile/settings 등)
   }
 
   return NextResponse.next()

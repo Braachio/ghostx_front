@@ -60,15 +60,16 @@ export default function HomePage() {
   useEffect(() => {
     setMounted(true)
     
-    // 모바일 디바이스 감지 및 서브도메인 리다이렉트
+    // 모바일 디바이스 감지 및 서브도메인 리다이렉트 (루트 경로만)
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768
     const currentHost = window.location.hostname
     const isMainDomain = !currentHost.startsWith('m.')
+    const isRootPath = window.location.pathname === '/'
     
-    if (isMobile && isMainDomain && !currentHost.includes('localhost') && !currentHost.includes('127.0.0.1')) {
-      // 서브도메인으로 리다이렉트
+    if (isMobile && isMainDomain && isRootPath && !currentHost.includes('localhost') && !currentHost.includes('127.0.0.1')) {
+      // 루트 경로만 모바일 서브도메인으로 리다이렉트
       const protocol = window.location.protocol
-      window.location.href = `${protocol}//m.${currentHost}${window.location.pathname}${window.location.search}`
+      window.location.href = `${protocol}//m.${currentHost}`
       return
     }
   }, [])
