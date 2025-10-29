@@ -182,7 +182,7 @@ export default function MobileEventCalendar({
         </div>
       </div>
 
-      {activeTab === 'calendar' ? (
+      {
         <div className="w-full bg-white rounded-2xl shadow-lg overflow-hidden">
           {/* 월 네비게이션 - 아이폰 스타일 */}
           <div className="flex items-center justify-between px-4 sm:px-6 py-2 bg-white border-b border-gray-200">
@@ -339,59 +339,7 @@ export default function MobileEventCalendar({
             </div>
           )}
         </div>
-      ) : (
-        <div className="space-y-3">
-          {filteredEvents.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="text-4xl mb-4">📅</div>
-              <p className="text-gray-400">이벤트가 없습니다.</p>
-            </div>
-          ) : (
-            filteredEvents.map((event) => (
-              <button
-                key={event.id}
-                onClick={() => onEventClick?.(event)}
-                className="w-full bg-gray-900/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700/50 hover:border-gray-600/50 transition-all text-left"
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex-1">
-                    <h3 className="text-base font-semibold text-white mb-1">
-                      {event.title}
-                    </h3>
-                    <div className="flex items-center space-x-2 text-sm text-gray-400">
-                      <span>{event.game}</span>
-                      {event.multi_time && (
-                        <>
-                          <span>•</span>
-                          <span>{event.multi_time}</span>
-                        </>
-                      )}
-                      {event.event_date && (
-                        <>
-                          <span>•</span>
-                          <span>{new Date(event.event_date).toLocaleDateString('ko-KR')}</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  <div className={`text-xs px-2 py-1 rounded-full ${
-                    event.event_type === 'regular_schedule' 
-                      ? 'bg-blue-600/20 text-blue-400' 
-                      : 'bg-orange-600/20 text-orange-400'
-                  }`}>
-                    {event.event_type === 'regular_schedule' ? '정기' : '기습'}
-                  </div>
-                </div>
-                {event.description && (
-                  <p className="text-sm text-gray-500 line-clamp-2">
-                    {event.description}
-                  </p>
-                )}
-              </button>
-            ))
-          )}
-        </div>
-      )}
+      }
     </div>
   )
 }
