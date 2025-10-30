@@ -266,9 +266,9 @@ export default function MobileChat({ user, language }: MobileChatProps) {
   }
 
   return (
-    <div className="h-full bg-gray-900 flex flex-col">
+    <div className="h-full w-full bg-gray-900 flex flex-col overflow-hidden" style={{ height: '100%', maxHeight: '100%' }}>
       {/* 헤더 - 고정 */}
-      <div className="bg-gray-800 px-4 py-3 border-b border-gray-700 flex-shrink-0 z-10">
+      <div className="bg-gray-800 px-4 py-3 border-b border-gray-700 flex-shrink-0 z-10" style={{ flexShrink: 0 }}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <h3 className="text-lg font-bold text-white">{t[language].chat}</h3>
@@ -295,7 +295,15 @@ export default function MobileChat({ user, language }: MobileChatProps) {
       </div>
 
       {/* 메시지 영역 - 스크롤 가능 */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
+      <div 
+        className="flex-1 overflow-y-auto p-4 space-y-3" 
+        style={{ 
+          flex: '1 1 auto',
+          minHeight: 0,
+          overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch'
+        }}
+      >
         {messages.map((msg, index) => {
           const prevMsg = index > 0 ? messages[index - 1] : null
           const isMine = isMyMessage(msg)
@@ -344,7 +352,13 @@ export default function MobileChat({ user, language }: MobileChatProps) {
       </div>
 
       {/* 입력 영역 - 키보드 위 고정 */}
-      <div className="bg-gray-800 px-4 py-3 border-t border-gray-700 flex-shrink-0" style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}>
+      <div 
+        className="bg-gray-800 px-4 py-3 border-t border-gray-700" 
+        style={{ 
+          flexShrink: 0,
+          paddingBottom: 'max(12px, env(safe-area-inset-bottom))'
+        }}
+      >
         <div className="flex gap-2">
           <input
             type="text"
