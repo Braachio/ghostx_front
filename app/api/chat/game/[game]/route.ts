@@ -22,8 +22,18 @@ export async function GET(
     // 게임별 채팅 메시지 조회
     // 1) game_name 컬럼이 있는 경우: 해당 게임으로 필터링
     // 2) 컬럼이 없는 경우(구 스키마): event_id IS NULL 전체 반환 (임시 호환)
-    let messages: any[] | null = null
-    let error: any = null
+    type MessageRow = {
+      id: string
+      user_id: string | null
+      nickname: string
+      message: string
+      color: string | null
+      created_at: string
+      game_name?: string | null
+    }
+
+    let messages: MessageRow[] | null = null
+    let error: unknown = null
 
     // 시도: game_name으로 필터
     const tryFilter = await supabase
@@ -113,8 +123,9 @@ export async function POST(
 
     // 게임별 채팅 메시지 저장 (event_id는 NULL)
     // 신 스키마: game_name 저장 시도, 실패 시 구 스키마로 저장
-    let data: any = null
-    let error: any = null
+    type InsertedRow = MessageRow
+    let data: InsertedRow | null = null
+    let error: unknown = null
     const tryInsert = await supabase
       .from('event_chat_messages')
       .insert({
