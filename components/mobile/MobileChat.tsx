@@ -42,6 +42,7 @@ export default function MobileChat({ user, language }: MobileChatProps) {
   const [showParticipants, setShowParticipants] = useState(false)
   const [selectedGame, setSelectedGame] = useState('all')
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const supabase = createClientComponentClient<Database>()
 
   const t = {
@@ -228,6 +229,27 @@ export default function MobileChat({ user, language }: MobileChatProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  // 키보드 등장 시에도 헤더가 보이도록 시각적 뷰포트 높이에 맞춰 컨테이너 높이 조정
+  useEffect(() => {
+    const vv = (window as any).visualViewport as VisualViewport | undefined
+    if (!vv || !containerRef.current) return
+
+    const applyHeight = () => {
+      if (!containerRef.current) return
+      const h = Math.max(0, Math.floor(vv.height))
+      containerRef.current.style.height = `${h}px`
+      containerRef.current.style.maxHeight = `${h}px`
+    }
+
+    applyHeight()
+    vv.addEventListener('resize', applyHeight)
+    vv.addEventListener('scroll', applyHeight)
+    return () => {
+      vv.removeEventListener('resize', applyHeight)
+      vv.removeEventListener('scroll', applyHeight)
+    }
+  }, [])
+
   const isMyMessage = (msg: ChatMessage) => {
     if (!currentUserId) return false
     return msg.userId === currentUserId
@@ -266,7 +288,7 @@ export default function MobileChat({ user, language }: MobileChatProps) {
   }
 
   return (
-    <div className="h-full w-full bg-gray-900 flex flex-col overflow-hidden" style={{ height: '100%', maxHeight: '100%' }}>
+    <div ref={containerRef} className="h-full w-full bg-gray-900 flex flex-col overflow-hidden" style={{ height: '100%', maxHeight: '100%' }}>
       {/* 헤더 - 고정 */}
       <div className="bg-gray-800 px-4 py-3 border-b border-gray-700 flex-shrink-0 z-10" style={{ flexShrink: 0 }}>
         <div className="flex items-center justify-between">
