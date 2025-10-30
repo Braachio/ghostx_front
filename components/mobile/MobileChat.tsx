@@ -120,7 +120,8 @@ export default function MobileChat({ user, language }: MobileChatProps) {
           timestamp: new Date(msg.created_at),
           color: msg.color || '#ffffff'
         }))
-        setMessages(formattedMessages)
+        // 최신 순으로 정렬 후 최근 200개만 유지
+        setMessages(formattedMessages.slice(-200))
       }
     } catch (error) {
       console.error('메시지 로드 실패:', error)
@@ -159,6 +160,7 @@ export default function MobileChat({ user, language }: MobileChatProps) {
     }
 
     setMessages(prev => [...prev, optimisticMessage])
+    const messageToSend = messageText
     setMessageText('')
 
     try {
@@ -169,7 +171,7 @@ export default function MobileChat({ user, language }: MobileChatProps) {
         },
         body: JSON.stringify({
           nickname,
-          message: messageText,
+          message: messageToSend,
           color
         }),
       })
@@ -196,10 +198,12 @@ export default function MobileChat({ user, language }: MobileChatProps) {
         setMessages(prev => prev.filter(msg => msg.id !== tempId))
         const errorData = await response.json()
         alert(errorData.error || '메시지 전송에 실패했습니다.')
+        setMessageText(messageToSend) // 메시지 복원
       }
     } catch (error) {
       console.error('메시지 전송 실패:', error)
       setMessages(prev => prev.filter(msg => msg.id !== tempId))
+      setMessageText(messageToSend) // 메시지 복원
     }
   }
 
