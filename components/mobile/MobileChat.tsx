@@ -40,6 +40,9 @@ export default function MobileChat({ user, language }: MobileChatProps) {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [onlineParticipants, setOnlineParticipants] = useState<OnlineParticipant[]>([])
   const [showParticipants, setShowParticipants] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
+  const [currentNickname, setCurrentNickname] = useState<string>('')
+  const [pendingNickname, setPendingNickname] = useState<string>('')
   const [selectedGame, setSelectedGame] = useState('all')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
@@ -95,6 +98,17 @@ export default function MobileChat({ user, language }: MobileChatProps) {
         user.app_metadata?.steam_id
 
       setIsSteamUser(isSteamUser)
+      // 프로필 닉네임 로드
+      try {
+        const meRes = await fetch('/api/me')
+        if (meRes.ok) {
+          const { user: me } = await meRes.json()
+          if (me?.nickname) {
+            setCurrentNickname(me.nickname)
+            setPendingNickname(me.nickname)
+          }
+        }
+      } catch {}
       setIsLoading(false)
     }
 
@@ -148,7 +162,7 @@ export default function MobileChat({ user, language }: MobileChatProps) {
     if (!messageText.trim() || !isSteamUser) return
 
     const tempId = `temp-${Date.now()}`
-    const nickname = user?.nickname || 'Anonymous'
+    const nickname = currentNickname || user?.nickname || 'Anonymous'
     const color = '#3B82F6'
 
     // 낙관적 UI 업데이트
@@ -323,13 +337,21 @@ export default function MobileChat({ user, language }: MobileChatProps) {
               <option value="rfactor2">알펙터2</option>
             </select>
           </div>
-          <button
-            onClick={() => setShowParticipants(true)}
-            className="flex items-center gap-1 text-sm text-gray-300 hover:text-white transition-colors"
-          >
-            <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-            {onlineParticipants.length}
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowParticipants(true)}
+              className="flex items-center gap-1 text-sm text-gray-300 hover:text-white transition-colors"
+            >
+              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+              {onlineParticipants.length}
+            </button>
+            <button
+              onClick={() => setShowSettings(true)}
+              className="text-sm text-gray-300 hover:text-white transition-colors border border-gray-600 rounded px-2 py-1"
+            >
+              닉네임: {currentNickname || '설정'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -466,6 +488,71 @@ export default function MobileChat({ user, language }: MobileChatProps) {
                   {language === 'ko' ? '접속자가 없습니다.' : 'No participants online.'}
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 닉네임 설정 모달 */}
+      {showSettings && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 rounded-2xl p-6 w-full max-w-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-white">닉네임 설정</h3>
+              <button onClick={() => setShowSettings(false)} className="text-gray-400 hover:text-white">✕</button>
+            </div>
+            <div className="space-y-3">
+              <input
+                type="text"
+                value={pendingNickname}
+                onChange={(e) => setPendingNickname(e.target.value)}
+                placeholder="닉네임"
+                className="w-full bg-gray-800 text-white px-3 py-2 rounded-lg border border-gray-700 focus:outline-none focus:border-blue-500 text-base"
+                style={{ fontSize: 16 }}
+              />
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => setShowSettings(false)}
+                  className="px-4 py-2 rounded-lg border border-gray-700 text-gray-300 hover:bg-gray-800"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={async () => {
+                    const trimmed = pendingNickname.trim()
+                    if (!trimmed) return
+                    // 중복 확인(선택)
+                    try {
+                      const dup = await fetch('/api/check-nickname', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ nickname: trimmed })
+                      })
+                      const dupJson = await dup.json()
+                      if (dup.ok && dupJson.available === false && trimmed !== currentNickname) {
+                        alert('이미 사용 중인 닉네임입니다.')
+                        return
+                      }
+                    } catch {}
+
+                    const res = await fetch('/api/update-nickname', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ nickname: trimmed })
+                    })
+                    if (res.ok) {
+                      setCurrentNickname(trimmed)
+                      setShowSettings(false)
+                    } else {
+                      const j = await res.json().catch(() => ({}))
+                      alert(j.error || '닉네임 저장 실패')
+                    }
+                  }}
+                  className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                >
+                  저장
+                </button>
+              </div>
             </div>
           </div>
         </div>
