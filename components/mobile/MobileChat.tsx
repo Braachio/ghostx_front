@@ -231,7 +231,10 @@ export default function MobileChat({ user, language }: MobileChatProps) {
 
   // 키보드 등장 시에도 헤더가 보이도록 시각적 뷰포트 높이에 맞춰 컨테이너 높이 조정
   useEffect(() => {
-    const vv = (window as any).visualViewport as VisualViewport | undefined
+    const vv: VisualViewport | undefined =
+      typeof window !== 'undefined' && 'visualViewport' in window
+        ? window.visualViewport
+        : undefined
     if (!vv || !containerRef.current) return
 
     const applyHeight = () => {
