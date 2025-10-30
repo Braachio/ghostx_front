@@ -312,10 +312,15 @@ export default function MobileChat({ user, language }: MobileChatProps) {
               className="bg-gray-700 text-white text-sm px-2 py-1 rounded border border-gray-600"
             >
               <option value="all">{t[language].allGames}</option>
-              <option value="iracing">iRacing</option>
-              <option value="assetto-corsa">Assetto Corsa</option>
-              <option value="f1-23">F1 23</option>
-              <option value="gran-turismo">Gran Turismo</option>
+              <option value="lemans">르망얼티밋</option>
+              <option value="f1-25">F1 25</option>
+              <option value="competizione">컴페티치오네</option>
+              <option value="iracing">아이레이싱</option>
+              <option value="ea-wrc">EA WRC</option>
+              <option value="assettocorsa">아세토코르사</option>
+              <option value="automobilista2">오토모빌리스타2</option>
+              <option value="gran-turismo7">그란투리스모7</option>
+              <option value="rfactor2">알펙터2</option>
             </select>
           </div>
           <button
@@ -393,7 +398,7 @@ export default function MobileChat({ user, language }: MobileChatProps) {
           onClick={scrollToBottom}
           className="absolute right-4 bottom-24 z-20 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-3 py-2 rounded-full shadow-lg"
         >
-          ↓ 최신 메시지
+          ↓
         </button>
       )}
 
