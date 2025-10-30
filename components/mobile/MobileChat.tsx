@@ -542,6 +542,7 @@ export default function MobileChat({ user, language }: MobileChatProps) {
                     })
                     if (res.ok) {
                       setCurrentNickname(trimmed)
+                      try { localStorage.setItem('global_nickname', trimmed) } catch {}
                       setShowSettings(false)
                     } else {
                       const j = await res.json().catch(() => ({}))

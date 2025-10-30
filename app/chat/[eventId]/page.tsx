@@ -85,6 +85,28 @@ export default function ChatPage() {
     loadMessages()
   }, [eventId, colors, generateNickname, loadMessages])
 
+  // 닉네임 동기화: 전역 닉네임(localStorage) 또는 /api/me 기반
+  useEffect(() => {
+    const syncNickname = async () => {
+      try {
+        const stored = typeof window !== 'undefined' ? localStorage.getItem('global_nickname') : null
+        if (stored && stored.trim()) {
+          setNickname(stored)
+          return
+        }
+        const res = await fetch('/api/me')
+        if (res.ok) {
+          const { user: me } = await res.json()
+          if (me?.nickname) {
+            setNickname(me.nickname)
+            try { localStorage.setItem('global_nickname', me.nickname) } catch {}
+          }
+        }
+      } catch {}
+    }
+    syncNickname()
+  }, [])
+
   // 실시간 채팅 연결
   const connectRealtimeChat = useCallback(() => {
     if (!isJoined) return

@@ -98,6 +98,23 @@ export default function GameChatPage({ params }: GameChatPageProps) {
           user.app_metadata?.steam_id
 
         setIsSteamUser(steamUser)
+
+        // 닉네임 동기화: localStorage 우선, 없으면 /api/me 사용
+        try {
+          const stored = typeof window !== 'undefined' ? localStorage.getItem('global_nickname') : null
+          if (stored && stored.trim()) {
+            setNickname(stored)
+          } else {
+            const res = await fetch('/api/me')
+            if (res.ok) {
+              const { user: me } = await res.json()
+              if (me?.nickname) {
+                setNickname(me.nickname)
+                try { localStorage.setItem('global_nickname', me.nickname) } catch {}
+              }
+            }
+          }
+        } catch {}
       } catch (error) {
         console.error('인증 확인 실패:', error)
         setIsAuthenticated(false)
