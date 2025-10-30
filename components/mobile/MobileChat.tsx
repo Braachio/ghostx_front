@@ -372,7 +372,8 @@ export default function MobileChat({ user, language }: MobileChatProps) {
               }, 300)
             }}
             placeholder={t[language].sendMessage}
-            className="flex-1 bg-gray-700 text-white px-3 py-2 rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500 text-sm"
+            className="flex-1 bg-gray-700 text-white px-3 py-2 rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500 text-base"
+            style={{ fontSize: 16 }}
           />
           <button
             onClick={sendMessage}
