@@ -42,6 +42,7 @@ export default function MobileChat({ user, language }: MobileChatProps) {
   const [showParticipants, setShowParticipants] = useState(false)
   const [selectedGame, setSelectedGame] = useState('all')
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const supabase = createClientComponentClient<Database>()
 
@@ -224,10 +225,18 @@ export default function MobileChat({ user, language }: MobileChatProps) {
     return () => clearInterval(interval)
   }, [isAuthenticated, loadMessages, loadParticipants])
 
-  // 스크롤을 맨 아래로
-  useEffect(() => {
+  // 수동 스크롤 모드: 버튼으로만 하단 이동
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false)
+  const handleMessagesScroll = () => {
+    const el = messagesContainerRef.current
+    if (!el) return
+    const nearBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 20
+    setShowScrollToBottom(!nearBottom)
+  }
+  const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+    setShowScrollToBottom(false)
+  }
 
   // 키보드 등장 시에도 헤더가 보이도록 시각적 뷰포트 높이에 맞춰 컨테이너 높이 조정
   useEffect(() => {
@@ -321,6 +330,8 @@ export default function MobileChat({ user, language }: MobileChatProps) {
 
       {/* 메시지 영역 - 스크롤 가능 */}
       <div 
+        ref={messagesContainerRef}
+        onScroll={handleMessagesScroll}
         className="flex-1 overflow-y-auto p-4 space-y-3" 
         style={{ 
           flex: '1 1 auto',
@@ -375,6 +386,16 @@ export default function MobileChat({ user, language }: MobileChatProps) {
         })}
         <div ref={messagesEndRef} />
       </div>
+
+      {/* 하단으로 이동 버튼 */}
+      {showScrollToBottom && (
+        <button
+          onClick={scrollToBottom}
+          className="absolute right-4 bottom-24 z-20 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-3 py-2 rounded-full shadow-lg"
+        >
+          ↓ 최신 메시지
+        </button>
+      )}
 
       {/* 입력 영역 - 키보드 위 고정 */}
       <div 
