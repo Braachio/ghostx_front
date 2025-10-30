@@ -351,7 +351,7 @@ export default function MobileChat({ user, language }: MobileChatProps) {
             value={messageText}
             onChange={(e) => setMessageText(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-            onFocus={(e) => {
+            onFocus={() => {
               // 키보드가 올라올 때 메시지 영역 스크롤을 맨 아래로
               setTimeout(() => {
                 messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
