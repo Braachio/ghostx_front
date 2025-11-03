@@ -17,6 +17,8 @@ export default function IracingTestPage() {
   const [error, setError] = useState<string | null>(null)
   const [profile, setProfile] = useState<any>(null)
   const [percentile, setPercentile] = useState<any>(null)
+  const [sessionId, setSessionId] = useState('')
+  const [sessionSummary, setSessionSummary] = useState<any>(null)
 
   const search = async () => {
     setLoading(true)
@@ -70,6 +72,36 @@ export default function IracingTestPage() {
           />
           <button onClick={search} className="px-4 py-2 bg-blue-600 rounded">검색</button>
         </div>
+        {/* 세션 요약 */}
+        <div className="flex gap-2">
+          <input
+            value={sessionId}
+            onChange={(e) => setSessionId(e.target.value)}
+            placeholder="세션(서브세션) ID"
+            className="flex-1 bg-gray-800 border border-gray-700 rounded px-3 py-2"
+          />
+          <button
+            onClick={async () => {
+              if (!sessionId.trim()) return
+              setLoading(true)
+              setError(null)
+              setSessionSummary(null)
+              try {
+                const res = await fetch(`/api/iracing/session/${encodeURIComponent(sessionId.trim())}/summary`)
+                const data = await res.json()
+                if (!res.ok) throw new Error(data?.error || '요약 실패')
+                setSessionSummary(data)
+              } catch (e) {
+                setError(e instanceof Error ? e.message : '에러')
+              } finally {
+                setLoading(false)
+              }
+            }}
+            className="px-4 py-2 bg-emerald-600 rounded"
+          >
+            요약 보기
+          </button>
+        </div>
         {loading && <div>로딩...</div>}
         {error && <div className="text-red-400">{error}</div>}
         {items.length > 0 && (
@@ -92,6 +124,12 @@ export default function IracingTestPage() {
           <div className="bg-gray-800 border border-gray-700 rounded p-4">
             <div className="font-bold mb-2">퍼센타일</div>
             <pre className="whitespace-pre-wrap text-sm">{JSON.stringify(percentile, null, 2)}</pre>
+          </div>
+        )}
+        {sessionSummary && (
+          <div className="bg-gray-800 border border-gray-700 rounded p-4">
+            <div className="font-bold mb-2">세션 요약</div>
+            <pre className="whitespace-pre-wrap text-sm">{JSON.stringify(sessionSummary, null, 2)}</pre>
           </div>
         )}
       </div>
