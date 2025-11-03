@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
   // Mock: 가우시안 근사 기반 임시 퍼센타일
   const mockTotal = 100000
   const globalPct = Math.max(0, Math.min(1, 1 - Math.exp(-Math.max(value - 1000, 0) / 1500)))
-  const krPct = country === 'KR' ? Math.max(0, Math.min(1, 1 - Math.exp(-Math.max(value - 900, 0) / 1400))) : undefined
+  const krPct = country ? Math.max(0, Math.min(1, 1 - Math.exp(-Math.max(value - 900, 0) / 1400))) : undefined
 
   const payload: PercentileResponse = {
     metric,
