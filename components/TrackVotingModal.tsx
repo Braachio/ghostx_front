@@ -303,87 +303,90 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-800 rounded-xl max-w-4xl w-full max-h-[80vh] overflow-hidden">
-        <div className="flex items-center justify-between p-6 border-b border-gray-700">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+      <div className="bg-slate-950/95 border border-slate-900 rounded-3xl max-w-4xl w-full max-h-[82vh] overflow-hidden shadow-[0_24px_60px_-30px_rgba(15,23,42,0.8)]">
+        <div className="flex items-start justify-between px-6 py-5 border-b border-slate-900/80">
           <div>
-            <h2 className="text-xl font-bold text-white">트랙 투표</h2>
+            <p className="text-[10px] uppercase tracking-[0.32em] text-slate-500">Track Voting</p>
+            <h2 className="mt-2 text-lg font-semibold text-slate-100">트랙 투표</h2>
             {isVotingClosed && (
-              <p className="text-red-400 text-sm mt-1">투표가 종료되었습니다</p>
+              <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-red-300/80">
+                투표가 종료되었습니다
+              </p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white text-2xl"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-900/80 text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors text-xl"
           >
             ×
           </button>
         </div>
 
-        <div className="p-6 overflow-y-auto max-h-[60vh]">
+        <div className="px-6 md:px-8 py-6 overflow-y-auto max-h-[60vh]">
           {loading ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-              <span className="ml-3 text-gray-400">로딩 중...</span>
+            <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-slate-900 bg-slate-950/40 px-6 py-12">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-700 border-t-slate-300" />
+              <span className="text-xs font-medium uppercase tracking-wide text-slate-400">로딩 중…</span>
             </div>
           ) : trackOptions.length === 0 ? (
-            <div className="text-center py-8 text-gray-400">
-              <div className="mb-4">
-                투표 옵션이 없습니다.
-              </div>
+            <div className="rounded-2xl border border-dashed border-slate-800 bg-slate-950/40 px-4 py-12 text-center">
+              <p className="text-sm text-slate-400">투표 옵션이 없습니다.</p>
               {isOwner && (
-                <div className="max-w-md mx-auto">
+                <div className="mx-auto mt-6 flex max-w-sm flex-col gap-3">
                   <div className="flex gap-2">
                     <input
                       type="text"
                       value={newOptionValue}
                       onChange={(e) => setNewOptionValue(e.target.value)}
                       placeholder="트랙 이름을 입력하세요"
-                      className="flex-1 px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="flex-1 rounded-xl border border-slate-900 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
                     />
                     <button
                       onClick={handleAddOption}
                       disabled={addingOption || !newOptionValue.trim()}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="inline-flex items-center justify-center rounded-xl bg-slate-100/90 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {addingOption ? '추가 중...' : '추가'}
+                      {addingOption ? '추가 중…' : '추가'}
                     </button>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">
                     첫 번째 트랙 옵션을 추가해주세요.
                   </p>
                 </div>
               )}
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {trackOptions.map((option) => (
-                <div key={option.id} className="bg-gray-700 rounded-lg p-4">
-                  <div className="flex items-center justify-between">
+                <div key={option.id} className="rounded-2xl border border-slate-900 bg-slate-950/60 p-5">
+                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div className="flex-1">
-                      <h3 className="text-white font-medium text-lg">{option.option_value}</h3>
-                      <div className="flex items-center gap-4 mt-2">
+                      <h3 className="text-base font-semibold text-slate-100">{option.option_value}</h3>
+                      <div className="mt-3 flex flex-wrap items-center gap-3 text-xs font-medium uppercase tracking-wide text-slate-500">
                         <div className="flex items-center gap-2">
-                          <span className="text-gray-400 text-sm">투표수:</span>
-                          <span className="text-white font-semibold">{option.votes_count}표</span>
+                          <span>투표수</span>
+                          <span className="text-slate-100">{option.votes_count}표</span>
                         </div>
                         {option.user_voted && (
-                          <span className="text-green-400 text-sm font-medium">✓ 투표완료</span>
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-3 py-1 text-emerald-300">
+                            ✓ 투표완료
+                          </span>
                         )}
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       {!option.user_voted ? (
                         <button
                           onClick={() => handleVote(option.id)}
                           disabled={voting || isVotingClosed}
-                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                          className="inline-flex items-center justify-center rounded-xl bg-slate-100/90 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-white transition-colors disabled:opacity-50"
                         >
-                          {voting ? '투표 중...' : isVotingClosed ? '투표 종료됨' : '투표하기'}
+                          {voting ? '투표 중…' : isVotingClosed ? '투표 종료됨' : '투표하기'}
                         </button>
                       ) : (
-                        <span className="px-4 py-2 bg-green-600 text-white rounded-lg">
+                        <span className="inline-flex items-center rounded-xl bg-emerald-500/15 px-4 py-2 text-sm font-semibold text-emerald-300">
                           투표완료
                         </span>
                       )}
@@ -396,7 +399,7 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
                               console.log('삭제 버튼 클릭:', { optionId: option.id, isOwner })
                               handleDeleteOption(option.id)
                             }}
-                            className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-800 bg-transparent text-slate-300 hover:bg-slate-900 transition-colors text-sm"
                             title="투표 옵션 삭제"
                           >
                             🗑️
@@ -408,7 +411,7 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
                               console.log('테스트 삭제 버튼 클릭:', { optionId: option.id, isOwner })
                               handleTestDelete(option.id)
                             }}
-                            className="px-3 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm"
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-800 bg-transparent text-slate-300 hover:bg-slate-900 transition-colors text-sm"
                             title="테스트 삭제"
                           >
                             🧪
@@ -418,7 +421,7 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
                       
                       {/* 디버깅: isOwner 상태 표시 */}
                       {!isOwner && (
-                        <span className="text-xs text-gray-500">
+                        <span className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
                           (소유자 아님: {isOwner.toString()})
                         </span>
                       )}
@@ -431,47 +434,47 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
           
           {/* 이벤트 소유자용 추가 옵션 입력 */}
           {isOwner && trackOptions.length > 0 && (
-            <div className="mt-6 p-4 bg-gray-700 rounded-lg">
-              <h4 className="text-white font-medium mb-3">새 트랙 옵션 추가</h4>
+            <div className="mt-6 rounded-2xl border border-slate-900 bg-slate-950/50 p-5">
+              <h4 className="text-sm font-semibold text-slate-100">새 트랙 옵션 추가</h4>
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={newOptionValue}
                   onChange={(e) => setNewOptionValue(e.target.value)}
                   placeholder="트랙 이름을 입력하세요"
-                  className="flex-1 px-3 py-2 border border-gray-600 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 rounded-xl border border-slate-900 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
                 />
                 <button
                   onClick={handleAddOption}
                   disabled={addingOption || !newOptionValue.trim()}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="inline-flex items-center justify-center rounded-xl bg-slate-100/90 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {addingOption ? '추가 중...' : '추가'}
+                  {addingOption ? '추가 중…' : '추가'}
                 </button>
               </div>
             </div>
           )}
         </div>
 
-        <div className="flex items-center justify-between p-6 border-t border-gray-700">
-          <div className="text-gray-400 text-sm">
+        <div className="flex items-center justify-between px-6 py-5 border-t border-slate-900 bg-slate-950">
+          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
             {game} 트랙 투표
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             {/* 이벤트 소유자용 투표 관리 버튼들 */}
             {isOwner && (
               <>
                 {isVotingClosed ? (
                   <button
                     onClick={handleStartVoting}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                    className="inline-flex items-center justify-center rounded-xl border border-slate-800 bg-transparent px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-900 transition-colors"
                   >
                     투표 시작
                   </button>
                 ) : (
                   <button
                     onClick={handleStopVoting}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                    className="inline-flex items-center justify-center rounded-xl bg-red-600/90 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500 transition-colors"
                   >
                     투표 종료
                   </button>
@@ -480,7 +483,7 @@ export default function TrackVotingModal({ isOpen, onClose, regularEventId, isOw
             )}
             <button
               onClick={onClose}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+              className="inline-flex items-center justify-center rounded-xl border border-slate-800 bg-transparent px-5 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-900 transition-colors"
             >
               닫기
             </button>

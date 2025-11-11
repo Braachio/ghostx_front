@@ -68,41 +68,44 @@ export default function EventDescriptionModal({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-800 rounded-xl max-w-4xl w-full max-h-[80vh] overflow-hidden">
-        <div className="flex items-center justify-between p-6 border-b border-gray-700">
-          <h2 className="text-xl font-bold text-white">{title} - 상세 설명</h2>
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+      <div className="bg-slate-950/95 border border-slate-900 rounded-3xl max-w-3xl w-full max-h-[80vh] overflow-hidden shadow-[0_24px_60px_-30px_rgba(15,23,42,0.8)]">
+        <div className="flex items-start justify-between px-6 py-5 border-b border-slate-900/80">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.32em] text-slate-500">Event Detail</p>
+            <h2 className="mt-2 text-lg font-semibold text-slate-100">{title}</h2>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white text-2xl"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-900/80 text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors text-xl"
           >
             ×
           </button>
         </div>
 
-        <div className="p-6 overflow-y-auto max-h-[60vh]">
+        <div className="px-6 md:px-8 py-6 overflow-y-auto max-h-[55vh]">
           {isEditing ? (
             <textarea
               value={editDescription}
               onChange={(e) => setEditDescription(e.target.value)}
-              className="w-full h-64 px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="이벤트 설명을 입력하세요..."
+              className="w-full h-64 rounded-2xl border border-slate-900 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 leading-relaxed focus:outline-none focus:ring-1 focus:ring-slate-500 resize-none"
+              placeholder="이벤트 설명을 입력하세요…"
             />
           ) : (
             description ? (
-              <div className="text-white leading-relaxed whitespace-pre-wrap">
+              <div className="rounded-2xl border border-slate-900 bg-slate-950/40 px-4 py-5 text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">
                 {description}
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-400">
-                설명이 없습니다.
+              <div className="rounded-2xl border border-dashed border-slate-800 bg-slate-950/40 px-4 py-12 text-center text-sm text-slate-500">
+                아직 등록된 설명이 없습니다.
               </div>
             )
           )}
         </div>
 
-        <div className="flex items-center justify-between p-6 border-t border-gray-700">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between px-6 py-5 border-t border-slate-900 bg-slate-950">
+          <div className="flex items-center gap-2">
             {isEditable && (
               <>
                 {isEditing ? (
@@ -110,15 +113,15 @@ export default function EventDescriptionModal({
                     <button
                       onClick={handleSave}
                       disabled={isSaving}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      className="inline-flex items-center gap-2 rounded-xl bg-slate-100/90 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <span>💾</span>
-                      {isSaving ? '저장 중...' : '저장'}
+                      <span className="text-base">💾</span>
+                      {isSaving ? '저장 중…' : '저장'}
                     </button>
                     <button
                       onClick={handleCancel}
                       disabled={isSaving}
-                      className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="inline-flex items-center justify-center rounded-xl border border-slate-800 bg-transparent px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       취소
                     </button>
@@ -126,9 +129,9 @@ export default function EventDescriptionModal({
                 ) : (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                    className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-transparent px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-900 transition-colors"
                   >
-                    <span>✏️</span>
+                    <span className="text-base">✏️</span>
                     편집
                   </button>
                 )}
@@ -138,7 +141,7 @@ export default function EventDescriptionModal({
           
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+            className="inline-flex items-center justify-center rounded-xl border border-slate-800 bg-transparent px-5 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-900 transition-colors"
           >
             닫기
           </button>

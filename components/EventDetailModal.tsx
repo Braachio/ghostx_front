@@ -184,32 +184,35 @@ export default function EventDetailModal({
   if (!isOpen || !event) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-800 rounded-xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
-        <div className="flex items-center justify-between p-6 border-b border-gray-700">
-          <h2 className="text-2xl font-bold text-white">{event.title}</h2>
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+      <div className="bg-slate-950/95 border border-slate-900 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-[0_24px_60px_-30px_rgba(15,23,42,0.8)]">
+        <div className="flex items-start justify-between px-6 py-5 border-b border-slate-900/80">
+          <div>
+            <p className="text-xs uppercase tracking-[0.32em] text-slate-500">Event Detail</p>
+            <h2 className="mt-2 text-lg font-semibold text-slate-100">{event.title}</h2>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white text-3xl"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-900/80 text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors text-xl"
           >
             ×
           </button>
         </div>
 
-        <div className="p-6 overflow-y-auto max-h-[70vh]">
+        <div className="p-6 md:p-8 overflow-y-auto max-h-[70vh]">
           {/* 통합 이벤트 컨테이너 - 모바일 최적화 */}
-          <div className="bg-gradient-to-br from-gray-700/90 to-gray-800/90 rounded-2xl p-4 md:p-6 shadow-2xl border border-gray-600 backdrop-blur-sm">
+          <div className="space-y-6">
             {/* Steam 로그인 안내문 (로그인되지 않은 경우만) */}
             {!user && (
-              <div className="mb-4 text-center">
-                <p className="text-gray-400 text-sm">
-                  ⚠️참가 신청 및 트랙 투표를 위해서는 Steam 로그인이 필요합니다
+              <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-center">
+                <p className="text-amber-100 text-xs font-medium">
+                  참가 신청과 트랙 투표를 하려면 Steam 로그인이 필요합니다.
                 </p>
               </div>
             )}
 
             {/* 모든 버튼들을 모바일 최적화로 배치 */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-start mb-6">
+            <div className="flex flex-wrap gap-2 justify-start">
                   {/* 관리자/작성자가 아닌 경우에만 참가신청 버튼 표시 */}
                   {!((user && event.author_id === user.id) || hasManagementPermission) && (
                     <ParticipationButton 
@@ -222,25 +225,25 @@ export default function EventDetailModal({
               {event.voting_enabled && (
                 <button
                   onClick={() => setShowVotingModal(true)}
-                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-semibold shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2 text-base"
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/80 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-200 hover:bg-slate-800 transition-colors"
                 >
-                  <span className="text-xl">🏁</span>
-                  트랙 투표하기
+                  <span className="text-base">🏁</span>
+                  트랙 투표
                 </button>
               )}
 
               {/* 일반 사용자에게는 참가자 수만 표시, 관리자/작성자에게는 참가자 목록 버튼 표시 */}
               {!((user && event.author_id === user.id) || hasManagementPermission) ? (
-                <div className="px-6 py-3 bg-gray-700 text-gray-300 rounded-xl flex items-center justify-center gap-2">
-                  <span className="text-xl">👥</span>
-                  참가자: {participantCount}명
+                <div className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/70 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-300">
+                  <span className="text-base">👥</span>
+                  참가자 {participantCount}명
                 </div>
               ) : (
                 <button
                   onClick={() => setShowParticipantModal(true)}
-                  className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all font-semibold shadow-lg hover:shadow-gray-500/25 flex items-center justify-center gap-2 text-base"
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/80 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-200 hover:bg-slate-800 transition-colors"
                 >
-                  <span className="text-xl">👥</span>
+                  <span className="text-base">👥</span>
                   참가자 목록 ({participantCount}명)
                 </button>
               )}
@@ -250,70 +253,77 @@ export default function EventDetailModal({
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  {/* <h3 className="text-xl font-bold text-white mb-1">{event.title}</h3> */}
-                  <div className="flex items-center gap-4 text-gray-400">
+                  <div className="flex items-center gap-3 text-xs font-medium uppercase tracking-wide text-slate-500">
                     <span>{event.game}</span>
-                    <span>•</span>
+                    <span className="text-slate-700">•</span>
                     <span>{event.multi_day?.join(', ') || 'TBD'}</span>
                   </div>
                 </div>
                 
                  {/* 조회수 표시 */}
                  <div className="text-right">
-                   <div className="text-gray-500 text-sm">
-                     조회 {viewCount.toLocaleString()}
+                   <div className="text-slate-600 text-xs font-medium uppercase tracking-wide">
+                     조회수 {viewCount.toLocaleString()}
                    </div>
                  </div>
               </div>
 
               {/* 기본 정보 그리드 - 모바일 최적화 */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-5">
-                  <p className="text-gray-400 text-base mb-2 font-medium">🏁 트랙</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="rounded-2xl border border-slate-900 bg-slate-950/60 p-4">
+                  <p className="text-slate-500 text-[11px] font-medium uppercase tracking-[0.24em] mb-2">
+                    트랙
+                  </p>
                   {isEditing ? (
                     <input
                       type="text"
                       value={editForm.game_track}
                       onChange={(e) => setEditForm(prev => ({ ...prev, game_track: e.target.value }))}
-                      className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-base"
+                      className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-1 focus:ring-slate-500"
                       placeholder="트랙명 입력"
                     />
                   ) : (
-                    <p className="text-white font-semibold text-lg">{event.game_track || 'TBD'}</p>
+                    <p className="text-slate-100 text-base font-semibold">{event.game_track || 'TBD'}</p>
                   )}
                 </div>
                 
-                <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-5">
-                  <p className="text-gray-400 text-base mb-2 font-medium">🏎️ 클래스</p>
+                <div className="rounded-2xl border border-slate-900 bg-slate-950/60 p-4">
+                  <p className="text-slate-500 text-[11px] font-medium uppercase tracking-[0.24em] mb-2">
+                    클래스
+                  </p>
                   {isEditing ? (
                     <input
                       type="text"
                       value={editForm.multi_class}
                       onChange={(e) => setEditForm(prev => ({ ...prev, multi_class: e.target.value }))}
-                      className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-base"
+                      className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-1 focus:ring-slate-500"
                       placeholder="클래스 입력"
                     />
                   ) : (
-                    <p className="text-white font-semibold text-lg">{event.multi_class || 'TBD'}</p>
+                    <p className="text-slate-100 text-base font-semibold">{event.multi_class || 'TBD'}</p>
                   )}
                 </div>
                 
-                <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-5">
-                  <p className="text-gray-400 text-base mb-2 font-medium">🕗 시작 시간</p>
+                <div className="rounded-2xl border border-slate-900 bg-slate-950/60 p-4">
+                  <p className="text-slate-500 text-[11px] font-medium uppercase tracking-[0.24em] mb-2">
+                    시작 시간
+                  </p>
                   {isEditing ? (
                     <input
                       type="time"
                       value={editForm.multi_time}
                       onChange={(e) => setEditForm(prev => ({ ...prev, multi_time: e.target.value }))}
-                      className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-base"
+                      className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-1 focus:ring-slate-500"
                     />
                   ) : (
-                    <p className="text-white font-semibold text-lg">{event.multi_time || 'TBD'}</p>
+                    <p className="text-slate-100 text-base font-semibold">{event.multi_time || 'TBD'}</p>
                   )}
                 </div>
                 
-                <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-5">
-                  <p className="text-gray-400 text-base mb-2 font-medium">⏰ 지속시간</p>
+                <div className="rounded-2xl border border-slate-900 bg-slate-950/60 p-4">
+                  <p className="text-slate-500 text-[11px] font-medium uppercase tracking-[0.24em] mb-2">
+                    지속시간
+                  </p>
                   {isEditing ? (
                     <input
                       type="number"
@@ -321,10 +331,10 @@ export default function EventDetailModal({
                       max="24"
                       value={editForm.duration_hours}
                       onChange={(e) => setEditForm(prev => ({ ...prev, duration_hours: parseInt(e.target.value) || 1 }))}
-                      className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-base"
+                      className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-1 focus:ring-slate-500"
                     />
                   ) : (
-                    <p className="text-white font-semibold text-lg">{event.duration_hours ? `${event.duration_hours}시간` : 'TBD'}</p>
+                    <p className="text-slate-100 text-base font-semibold">{event.duration_hours ? `${event.duration_hours}시간` : 'TBD'}</p>
                   )}
                 </div>
               </div>
@@ -332,27 +342,27 @@ export default function EventDetailModal({
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-between p-4 sm:p-6 border-t border-gray-700 gap-3 sm:gap-0">
+        <div className="flex flex-col sm:flex-row items-center justify-between px-6 py-5 border-t border-slate-900 bg-slate-950 gap-3 sm:gap-0">
           {/* 왼쪽 버튼들 - 모바일 최적화 */}
-          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
             {isEditing ? (
               /* 편집 모드 버튼들 */
               <>
                 <button
                   onClick={handleEditSave}
                   disabled={isSaving}
-                  className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all font-semibold shadow-lg hover:shadow-green-500/25 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-base"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-slate-100/90 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <span className="text-xl">💾</span>
-                  {isSaving ? '저장 중...' : '저장'}
+                  <span className="text-base">💾</span>
+                  {isSaving ? '저장 중…' : '저장'}
                 </button>
                 
                 <button
                   onClick={handleEditCancel}
                   disabled={isSaving}
-                  className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all font-semibold shadow-lg hover:shadow-gray-500/25 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-base"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-slate-800 bg-transparent px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <span className="text-xl">❌</span>
+                  <span className="text-base">✖</span>
                   취소
                 </button>
               </>
@@ -363,10 +373,10 @@ export default function EventDetailModal({
                 {event.description && (
                   <button
                     onClick={() => setShowDescriptionModal(true)}
-                    className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all font-semibold shadow-lg hover:shadow-purple-500/25 flex items-center justify-center gap-2 text-base"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-slate-800 bg-transparent px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-900 transition-colors"
                   >
-                    <span className="text-xl">📋</span>
-                    상세정보
+                    <span className="text-base">📋</span>
+                    상세 정보
                   </button>
                 )}
                 
@@ -375,19 +385,19 @@ export default function EventDetailModal({
                   <>
                     <button
                       onClick={handleEditStart}
-                      className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-semibold shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2 text-base"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-slate-800 bg-transparent px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-900 transition-colors"
                     >
-                      <span className="text-xl">✏️</span>
+                      <span className="text-base">✏️</span>
                       수정
                     </button>
                     
                     <button
                       onClick={handleDelete}
                       disabled={isDeleting}
-                      className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 transition-all font-semibold shadow-lg hover:shadow-red-500/25 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-base"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-red-600/90 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                     >
-                      <span className="text-xl">🗑️</span>
-                      {isDeleting ? '삭제 중...' : '삭제'}
+                      <span className="text-base">🗑️</span>
+                      {isDeleting ? '삭제 중…' : '삭제'}
                     </button>
                   </>
                 )}
@@ -398,7 +408,7 @@ export default function EventDetailModal({
           {/* 닫기 버튼 (오른쪽) - 모바일 최적화 */}
           <button
             onClick={onClose}
-            className="w-full sm:w-auto px-6 py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors font-semibold text-base"
+            className="w-full sm:w-auto inline-flex items-center justify-center rounded-xl border border-slate-800 bg-transparent px-5 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-900 transition-colors"
           >
             닫기
           </button>
