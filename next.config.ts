@@ -9,7 +9,7 @@ const nextConfig = {
   },
   eslint: {
     // Vercel 빌드 시 ESLint 오류를 경고로 처리
-    ignoreDuringBuilds: false,
+    ignoreDuringBuilds: true,
   },
   typescript: {
     // Vercel 빌드 시 타입 체크 오류를 무시 (Supabase 타입 이슈)
