@@ -532,19 +532,19 @@ export default function GameChatPage({ params }: GameChatPageProps) {
                 </span>
               )}
             </button>
-            <button
-              onClick={() => setShowSettings(!showSettings)}
+          <button
+            onClick={() => setShowSettings(!showSettings)}
               className="p-2 text-gray-400 hover:bg-gray-700/50 rounded-full transition-colors"
-              title="설정"
-            >
+            title="설정"
+          >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-            </button>
+          </button>
           </div>
         </div>
-        </div>
+      </div>
 
         {/* 메시지 영역 - 텔레그램 스타일 배경 */}
         <div 
@@ -555,17 +555,17 @@ export default function GameChatPage({ params }: GameChatPageProps) {
             backgroundColor: '#0e1621'
           }}
         >
-          {messages.length === 0 ? (
+        {messages.length === 0 ? (
             <div className="text-center py-16">
               <div className="w-20 h-20 rounded-full bg-gray-700/30 mx-auto mb-4 flex items-center justify-center">
                 <span className="text-4xl">💬</span>
               </div>
               <p className="text-gray-400 text-lg font-medium">첫 메시지를 남겨보세요!</p>
-              <p className="text-gray-500 text-sm mt-2">
-                {gameName} 관련 이야기를 자유롭게 나누어보세요.
-              </p>
-            </div>
-          ) : (
+            <p className="text-gray-500 text-sm mt-2">
+              {gameName} 관련 이야기를 자유롭게 나누어보세요.
+            </p>
+          </div>
+        ) : (
             messages.map((msg, index) => {
               // currentUserId와 msg.userId를 비교하여 내 메시지인지 확인
               const isMine = currentUserId && msg.userId && currentUserId === msg.userId
@@ -595,8 +595,8 @@ export default function GameChatPage({ params }: GameChatPageProps) {
                   <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} max-w-[75%] ${isMine ? 'mr-0' : 'ml-0'}`}>
                     {!isMine && showAvatar && msg.userId && (
                       <span className="text-sm text-gray-400 mb-1 px-1 font-medium" style={{ color: msg.color }}>
-                        {msg.nickname}
-                      </span>
+                  {msg.nickname}
+                </span>
                     )}
                     <div
                       className={`rounded-2xl px-4 py-2.5 shadow-sm ${
@@ -614,16 +614,16 @@ export default function GameChatPage({ params }: GameChatPageProps) {
                         </span>
                       </div>
                     </div>
-                  </div>
-                </div>
+              </div>
+            </div>
               )
             })
-          )}
+        )}
           <div ref={messagesEndRef} />
-        </div>
+      </div>
 
         {/* 설정 패널 - 텔레그램 스타일 */}
-        {showSettings && (
+      {showSettings && (
           <div className="bg-[#17212b] border-t border-gray-700/50 p-4 flex-shrink-0 overflow-y-auto max-h-[50vh]">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-semibold text-white">채팅 설정</h3>
@@ -676,23 +676,23 @@ export default function GameChatPage({ params }: GameChatPageProps) {
               </p>
             </div>
           </div>
-          </div>
-        )}
+        </div>
+      )}
 
       {/* 입력 영역 - 텔레그램 스타일 */}
       {!showSettings && (
         <div className="bg-[#17212b] border-t border-gray-700/50 p-3 flex-shrink-0">
             <div className="flex items-end gap-2">
               <div className="flex-1 relative">
-                <textarea
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault()
-                      sendMessage()
-                    }
-                  }}
+          <textarea
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
+                sendMessage()
+              }
+            }}
                   placeholder={nickname ? "메시지 입력..." : "먼저 설정에서 닉네임을 입력해주세요"}
                   rows={1}
                   style={{
@@ -700,7 +700,7 @@ export default function GameChatPage({ params }: GameChatPageProps) {
                     resize: 'none',
                   }}
                   className="w-full px-4 py-2.5 bg-[#242f3d] border border-gray-600/30 rounded-2xl text-white text-base resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder:text-gray-500"
-                  disabled={!nickname.trim()}
+            disabled={!nickname.trim()}
                   maxLength={200}
                   onInput={(e) => {
                     const target = e.target as HTMLTextAreaElement
@@ -709,19 +709,19 @@ export default function GameChatPage({ params }: GameChatPageProps) {
                   }}
                 />
               </div>
-              <button
-                onClick={sendMessage}
-                disabled={!newMessage.trim() || !nickname.trim()}
+          <button
+            onClick={sendMessage}
+            disabled={!newMessage.trim() || !nickname.trim()}
                 className="w-10 h-10 rounded-full bg-[#3390ec] text-white flex items-center justify-center hover:bg-[#2a7dd6] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex-shrink-0 disabled:bg-gray-600"
-              >
+          >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                 </svg>
-              </button>
+          </button>
             </div>
           </div>
         )}
-    </div>
+        </div>
 
     {/* 접속자 목록 모달 */}
     {showParticipants && (

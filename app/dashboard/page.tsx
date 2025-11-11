@@ -176,7 +176,7 @@ export default function DashboardPage() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <h1 className="text-xl font-bold text-gray-900">
-                🏁 GhostX 대시보드
+                🏁 GPX 대시보드
               </h1>
             </div>
             <div className="flex items-center space-x-4">

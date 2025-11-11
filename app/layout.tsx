@@ -7,6 +7,7 @@ import { ToastContainer } from 'react-toastify'
 import type { Database } from '@/lib/database.types'
 import './globals.css'
 import 'react-toastify/dist/ReactToastify.css'
+import { LanguageProvider } from '@/contexts/LanguageContext'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const [supabase] = useState(() => createPagesBrowserClient<Database>())
@@ -16,9 +17,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
       </head>
       <body className="bg-black" suppressHydrationWarning={true}>
-        <SessionContextProvider supabaseClient={supabase}>
-          {children}
-        </SessionContextProvider>
+        <LanguageProvider>
+          <SessionContextProvider supabaseClient={supabase}>
+            {children}
+          </SessionContextProvider>
+        </LanguageProvider>
         <ToastContainer
           position="top-right"
           autoClose={3000}

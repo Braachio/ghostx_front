@@ -63,7 +63,7 @@ export default function SegmentInfoPanel({ hoveredData, xAxisKey }: Props) {
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="w-full h-full max-w-[480px] min-h-[160px] bg-gradient-to-br from-gray-800/90 to-black/90 backdrop-blur-sm rounded-xl border-2 border-cyan-500/30 flex items-center justify-center">
             <span className="text-cyan-400 text-xl font-semibold text-center">
-              👻 마우스를 그래프 위에 올려주세요 🖱️
+              그래프 위에 마우스를 올려 구간별 정보를 확인하세요 🖱️
             </span>
           </div>
         </div>

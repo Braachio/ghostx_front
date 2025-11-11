@@ -1,7 +1,15 @@
 // app/api/your-endpoint/route.ts
 import { API_URL } from '@/lib/constants'
+import { DRIVING_ANALYSIS_ENABLED, DRIVING_ANALYSIS_DISABLED_MESSAGE } from '@/lib/featureFlags'
 
 export async function POST(req: Request) {
+  if (!DRIVING_ANALYSIS_ENABLED) {
+    return new Response(JSON.stringify({ error: DRIVING_ANALYSIS_DISABLED_MESSAGE }), {
+      status: 503,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
   try {
     const { file_url } = await req.json()
 

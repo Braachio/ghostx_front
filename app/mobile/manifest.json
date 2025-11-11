@@ -1,6 +1,6 @@
 {
-  "name": "Ghost-X Mobile",
-  "short_name": "Ghost-X",
+  "name": "GPX Mobile",
+  "short_name": "GPX",
   "description": "심레이싱 갤러리 멀티 일정 관리 시스템",
   "start_url": "/mobile",
   "display": "standalone",

@@ -579,7 +579,7 @@ export class GallogApi {
 export const gallogApi = new GallogApi({
   baseUrl: 'https://gall.dcinside.com',
   sessionCookie: process.env.DCINSIDE_SESSION_COOKIE,
-  userAgent: 'GhostX-Bot/1.0'
+  userAgent: 'GPX-Bot/1.0'
 })
 
 // 갤로그 API 테스트 함수

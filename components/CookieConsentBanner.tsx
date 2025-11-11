@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Cookies from 'js-cookie'
+import BrandMark from '@/components/BrandMark'
 
 export default function CookieConsentBanner() {
   const [isVisible, setIsVisible] = useState(false)
@@ -29,10 +30,10 @@ export default function CookieConsentBanner() {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           {/* 메시지 */}
           <div className="flex items-center gap-3 text-sm text-gray-300">
-            <span className="text-2xl">👻</span>
-            <span>
-              본 웹사이트 사용 시 Ghost-X의 서비스 약관 및 정책에 동의하는 것으로 간주됩니다.
-            </span>
+            <BrandMark size={36} textClassName="text-[13px]" />
+            <p className="text-xs text-gray-400 leading-relaxed">
+              본 웹사이트 사용 시 GPX의 서비스 약관 및 정책에 동의하는 것으로 간주됩니다.
+            </p>
           </div>
 
           {/* 버튼들 */}

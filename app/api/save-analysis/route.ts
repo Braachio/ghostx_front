@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { DRIVING_ANALYSIS_ENABLED, DRIVING_ANALYSIS_DISABLED_MESSAGE } from '@/lib/featureFlags'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -6,6 +7,13 @@ const supabase = createClient(
 )
 
 export async function POST(req: Request) {
+  if (!DRIVING_ANALYSIS_ENABLED) {
+    return new Response(JSON.stringify({ error: DRIVING_ANALYSIS_DISABLED_MESSAGE }), {
+      status: 503,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
   const data = await req.json()
 
   const { error } = await supabase.from('analysis_results').insert([

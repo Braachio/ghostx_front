@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
+import TopNavigation from './TopNavigation'
 import EventCalendar from './EventCalendar'
 import InterestGameNotificationBanner from './InterestGameNotificationBanner'
 import EventManagerPanel from './EventManagerPanel'
 import type { Database } from '@/lib/database.types'
+import BrandMark from '@/components/BrandMark'
 
 type Multi = Database['public']['Tables']['multis']['Row']
 
@@ -42,18 +43,9 @@ export default function FullPageLayout({
   onEventClick
 }: FullPageLayoutProps) {
   const [currentSection, setCurrentSection] = useState(0)
-  const [isScrolled, setIsScrolled] = useState(false)
   const [isEventManagerPanelOpen, setIsEventManagerPanelOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-  // 스크롤 감지
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50)
-    }
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
 
   // 모바일 메뉴 외부 클릭 시 닫기
   useEffect(() => {
@@ -107,7 +99,7 @@ export default function FullPageLayout({
 
   const t = {
     ko: {
-      title: 'Ghost-X',
+      title: 'GPX',
       welcome: (name: string) => `${name}님 환영합니다`,
       getStarted: '시작하기',
       logout: '로그아웃',
@@ -122,7 +114,7 @@ export default function FullPageLayout({
       keyboardHint: '키보드 화살표로 네비게이션'
     },
     en: {
-      title: 'Ghost-X',
+      title: 'GPX',
       welcome: (name: string) => `Welcome ${name}`,
       getStarted: 'Get Started',
       logout: 'Logout',
@@ -138,251 +130,149 @@ export default function FullPageLayout({
     }
   }
 
+  const chatChannels = [
+    {
+      path: '/events/regular/competizione/chat',
+      label: { ko: '컴페티치오네', en: 'Competizione' },
+      sub: { ko: 'Competizione 채팅', en: 'Competizione Chat' },
+    },
+    {
+      path: '/events/regular/lemans/chat',
+      label: { ko: '르망얼티밋', en: 'Le Mans Ultimate' },
+      sub: { ko: 'Le Mans Ultimate 채팅', en: 'Le Mans Ultimate Chat' },
+    },
+    {
+      path: '/events/regular/iracing/chat',
+      label: { ko: '아이레이싱', en: 'iRacing' },
+      sub: { ko: 'iRacing 채팅', en: 'iRacing Chat' },
+    },
+    {
+      path: '/events/regular/assettocorsa/chat',
+      label: { ko: '아세토코르사', en: 'Assetto Corsa' },
+      sub: { ko: 'Assetto Corsa 채팅', en: 'Assetto Corsa Chat' },
+    },
+    {
+      path: '/events/regular/gran-turismo7/chat',
+      label: { ko: '그란투리스모7', en: 'Gran Turismo 7' },
+      sub: { ko: 'Gran Turismo 7 채팅', en: 'Gran Turismo 7 Chat' },
+    },
+    {
+      path: '/events/regular/automobilista2/chat',
+      label: { ko: '오토모빌리스타2', en: 'Automobilista 2' },
+      sub: { ko: 'Automobilista 2 채팅', en: 'Automobilista 2 Chat' },
+    },
+    {
+      path: '/events/regular/f1-25/chat',
+      label: { ko: 'F1 25', en: 'F1 25' },
+      sub: { ko: 'F1 25 채팅', en: 'F1 25 Chat' },
+    },
+    {
+      path: '/events/regular/ea-wrc/chat',
+      label: { ko: 'EA WRC', en: 'EA WRC' },
+      sub: { ko: 'EA WRC 채팅', en: 'EA WRC Chat' },
+    },
+  ] as const
+
+  const managementLinks = [
+    {
+      type: 'regular',
+      href: '/events/regular/new',
+      label: { ko: '정기 갤멀 생성', en: 'Create Regular Event' },
+      icon: '📅',
+    },
+    {
+      type: 'flash',
+      href: '/multis/new',
+      label: { ko: '기습 갤멀 생성', en: 'Create Flash Event' },
+      icon: '⚡',
+    },
+  ] as const
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 text-white overflow-x-hidden">
-             {/* 상단 네비게이션 - 두 줄 구조 */}
-       <nav className="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
-         {/* 1번째 줄 - 스크롤 시 숨김 (로고, 프로필, 로그아웃, 언어변경) */}
-         <div className={`w-full px-4 sm:px-6 lg:px-8 bg-black transition-all duration-300 ${
-           isScrolled 
-             ? 'opacity-0 invisible h-0 overflow-hidden' 
-             : 'opacity-100 visible h-12'
-         }`}>
-           <div className="flex items-center justify-between h-12">
-             {/* 로고 */}
-             <Link href="/" className="flex items-center gap-3">
-               <Image 
-                 src="/logo/ghost-x-symbol.svg" 
-                 alt="Ghost-X" 
-                 width={32} 
-                 height={32} 
-                 className="dark:invert" 
-               />
-               <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-                 {t[language].title}
-               </span>
-             </Link>
+      {/* 상단 네비게이션 */}
+      <TopNavigation
+        user={user}
+        language={language}
+        onLanguageChange={onLanguageChange}
+        onLogout={onLogout}
+      />
 
-             {/* 프로필 & 언어 */}
-             <div className="hidden md:flex items-center gap-6">
-               {user ? (
-                 <>
-                   <Link
-                     href="/profile"
-                     className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-2"
-                   >
-                     <span>👤</span>
-                     <span>{t[language].welcome(user.nickname)}</span>
-                     <span className="text-xs opacity-70">→</span>
-                   </Link>
-                   <button
-                     onClick={onLogout}
-                     className="text-white text-sm font-medium hover:text-red-400 transition-colors"
-                   >
-                     {t[language].logout}
-                   </button>
-                 </>
-               ) : (
-                 <Link
-                   href="/login"
-                   className="text-white text-sm font-medium hover:text-cyan-400 transition-colors"
-                 >
-                   {t[language].getStarted}
-                 </Link>
-               )}
-
-               {/* 언어 전환 */}
-               <div className="flex bg-gray-800/80 backdrop-blur-sm rounded-lg p-1 border border-gray-700">
-                 <button
-                   onClick={() => onLanguageChange('ko')}
-                   className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
-                     language === 'ko' 
-                       ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg' 
-                       : 'text-gray-400 hover:text-white'
-                   }`}
-                 >
-                   🇰🇷
-                 </button>
-                 <button
-                   onClick={() => onLanguageChange('en')}
-                   className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
-                     language === 'en' 
-                       ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg' 
-                       : 'text-gray-400 hover:text-white'
-                   }`}
-                 >
-                   🇺🇸
-                 </button>
-               </div>
-             </div>
-           </div>
-         </div>
-
-          {/* 2번째 줄 - 스크롤 시 고정 표시 (가운데 정렬) */}
-          <div className="w-full px-4 sm:px-6 lg:px-8 transition-all duration-300 bg-gray-900/50 backdrop-blur-sm border-b border-gray-800/50">
-            <div className="flex items-center justify-center h-16">
-              {/* 중앙 정렬된 메뉴 */}
-              <div className="hidden md:flex items-center gap-8">
-                {/* 채팅 채널 드롭다운 */}
-                <div className="relative group">
-                  <button className="text-white text-base font-medium hover:text-cyan-400 transition-colors flex items-center gap-2">
-                    채팅 채널
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                  
-                  {/* 드롭다운 메뉴 */}
-                  <div className="absolute top-full left-0 mt-2 w-64 bg-gray-800 rounded-lg shadow-xl border border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                    <div className="p-2">
-                      <button 
-                        onClick={() => window.open('/events/regular/competizione/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
-                        className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
-                      >
-                        
-                        <div>
-                          <div className="font-medium">컴페티치오네</div>
-                          <div className="text-xs text-gray-400">Competizione 채팅</div>
-                        </div>
-                      </button>
-                      <button 
-                        onClick={() => window.open('/events/regular/lemans/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
-                        className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
-                      >
-                        
-                        <div>
-                          <div className="font-medium">르망얼티밋</div>
-                          <div className="text-xs text-gray-400">Le Mans Ultimate 채팅</div>
-                        </div>
-                      </button>
-                      <button 
-                        onClick={() => window.open('/events/regular/iracing/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
-                        className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
-                      >
-                        
-                        <div>
-                          <div className="font-medium">아이레이싱</div>
-                          <div className="text-xs text-gray-400">iRacing 채팅</div>
-                        </div>
-                      </button>
-                      <button 
-                        onClick={() => window.open('/events/regular/assettocorsa/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
-                        className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
-                      >
-                        
-                        <div>
-                          <div className="font-medium">아세토코르사</div>
-                          <div className="text-xs text-gray-400">Assetto Corsa 채팅</div>
-                        </div>
-                      </button>
-                      <button 
-                        onClick={() => window.open('/events/regular/gran-turismo7/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
-                        className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
-                      >
-                        
-                        <div>
-                          <div className="font-medium">그란투리스모7</div>
-                          <div className="text-xs text-gray-400">Gran Turismo 7 채팅</div>
-                        </div>
-                      </button>
-                      <button 
-                        onClick={() => window.open('/events/regular/automobilista2/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
-                        className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
-                      >
-                        
-                        <div>
-                          <div className="font-medium">오토모빌리스타2</div>
-                          <div className="text-xs text-gray-400">Automobilista 2 채팅</div>
-                        </div>
-                      </button>
-                      <button 
-                        onClick={() => window.open('/events/regular/f1-25/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
-                        className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
-                      >
-                        
-                        <div>
-                          <div className="font-medium">F1 25</div>
-                          <div className="text-xs text-gray-400">F1 25 채팅</div>
-                        </div>
-                      </button>
-                      <button 
-                        onClick={() => window.open('/events/regular/ea-wrc/chat', '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
-                        className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
-                      >
-                        
-                        <div>
-                          <div className="font-medium">EA WRC</div>
-                          <div className="text-xs text-gray-400">EA WRC 채팅</div>
-                        </div>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* 갤멀 관리 드롭다운 */}
-                {user && (user.role === 'admin' || user.role === 'event_manager') && (
-                  <div className="relative group">
-                    <button className="text-white text-base font-medium hover:text-purple-400 transition-colors flex items-center gap-2">
-                      갤멀 관리
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
+      {/* 두번째 상단 네비게이션 (왼쪽 정렬 메뉴) */}
+      <div className="fixed top-16 left-0 right-0 z-40 w-full bg-gray-900/50 backdrop-blur-sm border-b border-gray-800/50">
+        <div className="w-full px-6 sm:px-8 lg:px-12 xl:px-16">
+          <div className="flex items-center h-14">
+            <div className="hidden md:flex items-center gap-10">
+            {/* 채팅 채널 드롭다운 */}
+            <div className="relative group">
+              <button className="text-gray-300 hover:text-white text-sm font-medium transition-colors flex items-center gap-2 py-2 border-b-2 border-transparent hover:border-cyan-500">
+                {language === 'ko' ? '채팅 채널' : 'Chat Channels'}
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <div className="absolute top-full left-0 mt-2 w-64 bg-gray-800 rounded-lg shadow-xl border border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="p-2">
+                  {chatChannels.map(({ path, label, sub }) => (
+                    <button
+                      key={path}
+                      onClick={() => window.open(path, '_blank', 'width=600,height=900,scrollbars=yes,resizable=yes')}
+                      className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors text-left"
+                    >
+                      <div className="font-medium">{label[language]}</div>
+                      <div className="text-xs text-gray-400">{sub[language]}</div>
                     </button>
-                    
-                    {/* 드롭다운 메뉴 */}
-                    <div className="absolute top-full left-0 mt-2 w-56 bg-gray-800 rounded-lg shadow-xl border border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                      <div className="p-2">
-                        <Link
-                          href="/events/regular/new"
-                          className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
-                        >
-                          <span className="text-lg">📅</span>
-                          <div>
-                            <div className="font-medium">정기 갤멀 생성</div>
-                            <div className="text-xs text-gray-400">Regular Event</div>
-                          </div>
-                        </Link>
-                        <Link
-                          href="/multis/new"
-                          className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
-                        >
-                          <span className="text-lg">⚡</span>
-                          <div>
-                            <div className="font-medium">기습 갤멀 생성</div>
-                            <div className="text-xs text-gray-400">Flash Event</div>
-                          </div>
-                        </Link>
-                        <div className="h-px bg-gray-700 my-2"></div>
-                        <button
-                          onClick={() => setIsEventManagerPanelOpen(true)}
-                          className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-3"
-                        >
-                          <span className="text-lg">🎛️</span>
-                          <div>
-                            <div className="font-medium">투표 관리</div>
-                            <div className="text-xs text-gray-400">Manage Events</div>
-                          </div>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* 모바일 메뉴 버튼 */}
-              <div className="md:hidden mobile-menu-container">
-                <button 
-                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="p-2 text-gray-400 hover:text-white transition-colors"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                </button>
+                  ))}
+                </div>
               </div>
             </div>
+
+            {/* 갤멀 관리 드롭다운 */}
+            {user && (user.role === 'admin' || user.role === 'event_manager') && (
+              <div className="relative group">
+                <button className="text-gray-300 hover:text-white text-sm font-medium transition-colors flex items-center gap-2 py-2 border-b-2 border-transparent hover:border-purple-500">
+                  {language === 'ko' ? '갤멀 관리' : 'Manage Events'}
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <div className="absolute top-full left-0 mt-2 w-56 bg-gray-800 rounded-lg shadow-xl border border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="p-2 space-y-1">
+                    {managementLinks.map((link) => (
+                      <Link
+                        key={link.type}
+                        href={link.href}
+                        className="block w-full px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors"
+                      >
+                        {link.label[language]}
+                      </Link>
+                    ))}
+                    <button
+                      onClick={() => setIsEventManagerPanelOpen(true)}
+                      className="block w-full text-left px-4 py-3 text-white hover:bg-gray-700 rounded-lg transition-colors"
+                    >
+                      {language === 'ko' ? '투표 관리' : 'Manage Votes'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+            </div>
           </div>
-       </nav>
+        </div>
+      </div>
+
+      {/* 모바일 메뉴 버튼 */}
+      <div className="fixed top-4 right-4 z-50 md:hidden">
+        <button 
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="p-2 text-gray-400 hover:text-white transition-colors bg-gray-900/80 rounded-lg backdrop-blur-sm"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
 
       {/* 모바일 메뉴 드롭다운 */}
       {isMobileMenuOpen && (
@@ -467,20 +357,19 @@ export default function FullPageLayout({
                   </div>
 
                   {/* 관리자 메뉴 버튼들 - 더 큰 버튼 */}
-                  <Link
-                    href="/events/regular/new"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="block w-full py-5 px-6 bg-gradient-to-r from-purple-900/40 to-blue-900/40 text-white text-lg font-semibold rounded-xl border border-purple-500/30 hover:border-purple-400/50 transition-all active:scale-95 text-left"
-                  >
-                    📅 정기 갤멀 생성
-                  </Link>
-                  <Link
-                    href="/multis/new"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="block w-full py-5 px-6 bg-gradient-to-r from-orange-900/40 to-yellow-900/40 text-white text-lg font-semibold rounded-xl border border-orange-500/30 hover:border-orange-400/50 transition-all active:scale-95 text-left"
-                  >
-                    ⚡ 기습 갤멀 생성
-                  </Link>
+                  {managementLinks.map(({ type, href, label, icon }) => (
+                    <Link
+                      key={type}
+                      href={href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="block w-full py-5 px-6 bg-gradient-to-r from-purple-900/40 to-blue-900/40 text-white text-lg font-semibold rounded-xl border border-purple-500/30 hover:border-purple-400/50 transition-all active:scale-95 text-left"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">{icon}</span>
+                        <span>{label[language]}</span>
+                      </div>
+                    </Link>
+                  ))}
                   <button
                     onClick={() => {
                       setIsEventManagerPanelOpen(true)
@@ -497,35 +386,28 @@ export default function FullPageLayout({
         </div>
       )}
 
-      {/* Section 1: Ghost-X 소개 섹션 */}
-      <section className="fullpage-section min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 relative pt-28">
-        <div className="max-w-7xl mx-auto text-center">
-          {/* Ghost-X 브랜딩 */}
-          <div className="mb-16">
-            <div className="inline-block mb-8">
-              <div className="text-8xl sm:text-9xl animate-pulse">👻</div>
-            </div>
-            <h1 className="text-5xl sm:text-6xl md:text-8xl font-bold mb-8">
-              <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
-                {t[language].title}
-              </span>
-            </h1>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-8 text-white">
-              {language === 'ko' ? (
-                <>심레이싱 게임 갤러리 멀티 일정 통합 관리 시스템</>
-              ) : (
-                <>Sim Racing Gallery Multi Schedule Management System</>
-              )}
-            </h2>
-            <p className="text-xl sm:text-2xl text-gray-400 mb-12 max-w-4xl mx-auto leading-relaxed">
-              {language === 'ko' ? (
-                <>정기 갤멀부터 기습 갤멀, 리그 운영, 상시 서버까지<br />모든 레이싱 이벤트를 한 곳에서 효율적으로 관리하세요</>
-              ) : (
-                <>From regular gallery multis to flash events, league operations, and always-on servers<br />Manage all racing events efficiently in one place</>
-              )}
-            </p>
-            <div className="h-px w-96 mx-auto bg-gradient-to-r from-transparent via-cyan-500 to-transparent mb-8"></div>
+      {/* Section 1: GPX 소개 섹션 */}
+      <section className="fullpage-section min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 relative pt-32 overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=1920&q=60')] bg-cover bg-center opacity-[0.08]" />
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1526232761682-d26e04c95504?auto=format&fit=crop&w=1920&q=70')] bg-contain bg-right-bottom bg-no-repeat opacity-[0.07]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900/90 to-black" />
+        </div>
+        <div className="max-w-7xl mx-auto text-center relative">
+          {/* GPX 브랜딩 */}
+          <div className="mb-12">
+            <BrandMark size={120} textClassName="text-4xl" className="rounded-3xl mx-auto" />
+            <div className="mt-3 text-sm text-gray-400">Grand Prix eXperience</div>
           </div>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 text-white">
+            {language === 'ko' ? '더 쉽고 빠른 심레이싱' : 'Simplify your sim racing workflow'}
+          </h2>
+          <p className="text-lg sm:text-xl text-gray-400 mb-10 max-w-3xl mx-auto leading-relaxed">
+            {language === 'ko'
+              ? '복잡한 절차는 줄이고 레이스에만 집중하세요. GPX가 필요한 모든 정보를 연결합니다.'
+              : 'Focus on driving while GPX connects schedules, servers, and data for you.'}
+          </p>
+          <div className="h-px w-80 mx-auto bg-gradient-to-r from-transparent via-cyan-500 to-transparent mb-12"></div>
 
           {/* 주요 기능 소개 */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
@@ -542,7 +424,9 @@ export default function FullPageLayout({
               <div className="absolute inset-2 bg-gradient-to-br from-cyan-600/20 to-blue-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
               <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-cyan-500/40 rounded-2xl p-6 backdrop-blur-sm hover:border-cyan-400/60 transition-all duration-300 hover:scale-105 cursor-pointer">
                 <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">🗓️</div>
-                <h3 className="text-xl font-bold mb-3 text-cyan-400 group-hover:text-cyan-300 transition-colors duration-300">갤멀 일정 관리</h3>
+                <h3 className="text-xl font-bold mb-3 text-cyan-400 group-hover:text-cyan-300 transition-colors duration-300">
+                  {language === 'ko' ? '갤멀 일정 관리' : 'Gallery Schedule Management'}
+                </h3>
                 <p className="text-gray-300 text-sm group-hover:text-gray-200 transition-colors duration-300">
                   {language === 'ko' ? '정기/기습 갤멀 일정을 캘린더로 관리' : 'Manage regular/flash gallery schedules with calendar'}
                 </p>
@@ -550,7 +434,7 @@ export default function FullPageLayout({
                 {/* 호버 효과 */}
                 <div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
                   <div className="text-cyan-400 text-sm font-semibold">
-                    클릭하여 캘린더로 이동 →
+                    {language === 'ko' ? '클릭하여 캘린더로 이동 →' : 'Go to calendar →'}
                   </div>
                 </div>
               </div>
@@ -561,7 +445,9 @@ export default function FullPageLayout({
               <div className="absolute inset-2 bg-gradient-to-br from-green-600/20 to-emerald-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
               <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-green-500/40 rounded-2xl p-6 backdrop-blur-sm hover:border-green-400/60 transition-all duration-300 hover:scale-105 cursor-pointer">
                 <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">🌐</div>
-                <h3 className="text-xl font-bold mb-3 text-green-400 group-hover:text-green-300 transition-colors duration-300">상시 서버</h3>
+                <h3 className="text-xl font-bold mb-3 text-green-400 group-hover:text-green-300 transition-colors duration-300">
+                  {language === 'ko' ? '상시 서버' : 'Always-On Servers'}
+                </h3>
                 <p className="text-gray-300 text-sm group-hover:text-gray-200 transition-colors duration-300">
                   {language === 'ko' ? '24시간 언제든 접속 가능한 상시 운영 서버' : '24/7 always-on server accessible anytime'}
                 </p>
@@ -569,7 +455,7 @@ export default function FullPageLayout({
                 {/* 호버 효과 */}
                 <div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
                   <div className="text-green-400 text-sm font-semibold">
-                    클릭하여 입장 →
+                    {language === 'ko' ? '클릭하여 입장 →' : 'Enter server →'}
                   </div>
                 </div>
               </div>
@@ -580,7 +466,9 @@ export default function FullPageLayout({
               <div className="absolute inset-2 bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
               <div className="relative bg-gradient-to-br from-gray-900/95 to-black/95 border border-purple-500/40 rounded-2xl p-6 backdrop-blur-sm hover:border-purple-400/60 transition-all duration-300 hover:scale-105 cursor-pointer">
                 <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">🏆</div>
-                <h3 className="text-xl font-bold mb-3 text-purple-400 group-hover:text-purple-300 transition-colors duration-300">리그 운영</h3>
+                <h3 className="text-xl font-bold mb-3 text-purple-400 group-hover:text-purple-300 transition-colors duration-300">
+                  {language === 'ko' ? '리그 운영' : 'League Operations'}
+                </h3>
                 <p className="text-gray-300 text-sm group-hover:text-gray-200 transition-colors duration-300">
                   {language === 'ko' ? '정식 리그 시스템으로 공식 레이싱 이벤트 운영' : 'Official racing events with formal league system'}
                 </p>
@@ -588,7 +476,7 @@ export default function FullPageLayout({
                 {/* 호버 효과 */}
                 <div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
                   <div className="text-purple-400 text-sm font-semibold">
-                    클릭하여 입장 →
+                    {language === 'ko' ? '클릭하여 입장 →' : 'Open league page →'}
                   </div>
                 </div>
               </div>

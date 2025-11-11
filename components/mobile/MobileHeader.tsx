@@ -3,6 +3,7 @@
 import { User } from '@supabase/supabase-js'
 import { useState } from 'react'
 import Link from 'next/link'
+import BrandMark from '@/components/BrandMark'
 
 interface MobileHeaderProps {
   user: User | null
@@ -16,12 +17,10 @@ export default function MobileHeader({ user }: MobileHeaderProps) {
       <div className="flex items-center justify-between px-4 py-3">
         {/* 로고 */}
         <Link href="/mobile" className="flex items-center space-x-3 group">
-          <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
-            <span className="text-lg">👻</span>
-          </div>
+          <BrandMark size={28} textClassName="text-[11px]" />
           <div>
-            <span className="text-lg font-semibold text-gray-900">
-              Ghost-X
+            <span className="mobile-font-bold mobile-text-lg text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500">
+              GPX
             </span>
             <div className="text-xs text-gray-500">모바일</div>
           </div>

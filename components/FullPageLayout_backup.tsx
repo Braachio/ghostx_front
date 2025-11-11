@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import EventCalendar from './EventCalendar'
 import InterestGameNotificationBanner from './InterestGameNotificationBanner'
 import type { Database } from '@/lib/database.types'
+import BrandMark from '@/components/BrandMark'
 
 type Multi = Database['public']['Tables']['multis']['Row']
 
@@ -85,7 +85,7 @@ export default function FullPageLayout({
 
   const t = {
     ko: {
-      title: 'Ghost-X',
+      title: 'GPX',
       welcome: (name: string) => `${name}님 환영합니다`,
       getStarted: '시작하기',
       logout: '로그아웃',
@@ -106,7 +106,7 @@ export default function FullPageLayout({
       keyboardHint: '키보드 화살표로 네비게이션'
     },
     en: {
-      title: 'Ghost-X',
+      title: 'GPX',
       welcome: (name: string) => `Welcome ${name}`,
       getStarted: 'Get Started',
       logout: 'Logout',
@@ -140,13 +140,7 @@ export default function FullPageLayout({
           <div className="flex items-center justify-between h-16">
             {/* 로고 */}
             <Link href="/" className="flex items-center gap-3">
-              <Image 
-                src="/logo/ghost-x-symbol.svg" 
-                alt="Ghost-X" 
-                width={32} 
-                height={32} 
-                className="dark:invert" 
-              />
+              <BrandMark size={32} textClassName="text-[12px]" />
               <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
                 {t[language].title}
               </span>
@@ -236,13 +230,15 @@ export default function FullPageLayout({
         </div>
       </nav>
 
-      {/* Section 1: Ghost-X 소개 섹션 */}
+      {/* Section 1: GPX 소개 섹션 */}
       <section className="fullpage-section min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 relative">
         <div className="max-w-7xl mx-auto text-center">
-          {/* Ghost-X 브랜딩 */}
+          {/* GPX 브랜딩 */}
           <div className="mb-16">
             <div className="inline-block mb-8">
-              <div className="text-8xl sm:text-9xl animate-pulse">👻</div>
+              <div className="animate-pulse">
+                <BrandMark size={110} textClassName="text-4xl" className="rounded-3xl" />
+              </div>
             </div>
             <h1 className="text-5xl sm:text-6xl md:text-8xl font-bold mb-8">
               <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
@@ -614,7 +610,7 @@ export default function FullPageLayout({
       <div className="fixed left-8 top-1/2 transform -translate-y-1/2 z-40 hidden lg:block">
         <div className="flex flex-col items-center">
           {[
-            { index: 0, label: '소개', icon: '👻' },
+            { index: 0, label: '소개', icon: 'GPX' },
             { index: 1, label: '캘린더', icon: '🗓️' },
             { index: 2, label: '이벤트', icon: '🏁' },
             { index: 3, label: '프로필', icon: '👤' }

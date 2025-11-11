@@ -8,6 +8,7 @@ import SegmentHoverTooltip from './SegmentHoverTooltip'
 import type { ResultType } from '@/types/upload'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import type { Database } from '@/lib/database.types'
+import { DRIVING_ANALYSIS_ENABLED, DRIVING_ANALYSIS_DISABLED_MESSAGE } from '@/lib/featureFlags'
 
 // Segment 타입 정의
 // brake_analysis의 피드백 포함
@@ -24,6 +25,14 @@ type Segment = {
 
 // 분석 메인 컴포넌트
 export default function SegmentAnalysis({ result }: { result: ResultType }) {
+  if (!DRIVING_ANALYSIS_ENABLED) {
+    return (
+      <div className="rounded-xl border border-dashed border-purple-300 bg-purple-50/70 p-6 text-center text-purple-600">
+        {DRIVING_ANALYSIS_DISABLED_MESSAGE}
+      </div>
+    )
+  }
+
   const [segments, setSegments] = useState<Segment[]>([])
   const [selectedSegmentIndex, setSelectedSegmentIndex] = useState(0)
   const [xAxisKey, setXAxisKey] = useState<'time' | 'distance'>('time')
@@ -180,7 +189,7 @@ export default function SegmentAnalysis({ result }: { result: ResultType }) {
       {/* 🔶 브레이크 분석 피드백 출력 */}
       {segment.brake_feedback && (
         <div className="bg-gradient-to-r from-yellow-900/30 to-orange-900/30 border-2 border-yellow-500/30 text-yellow-300 rounded-lg p-4 shadow-lg shadow-yellow-500/10">
-          <p className="text-sm font-semibold">👻 고스트카 분석: {segment.brake_feedback}</p>
+          <p className="text-sm font-semibold">GPX 분석 인사이트: {segment.brake_feedback}</p>
         </div>
       )}
 

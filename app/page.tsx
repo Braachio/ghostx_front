@@ -8,6 +8,7 @@ import GameInterestModal from '@/components/GameInterestModal'
 import EventDetailModal from '@/components/EventDetailModal'
 import FullPageLayout from '@/components/FullPageLayout'
 import type { Database } from '@/lib/database.types'
+import { useLanguage } from '@/hooks/useLanguage'
 
 interface MeResponse {
   id: string
@@ -20,7 +21,6 @@ type Multi = Database['public']['Tables']['multis']['Row']
 
 export default function HomePage() {
   const [user, setUser] = useState<MeResponse | null>(null)
-  const [language, setLanguage] = useState<'ko' | 'en'>('ko')
   const [views, setViews] = useState<number | null>(null)
   const [mounted, setMounted] = useState(false)
   const [showGameInterestModal, setShowGameInterestModal] = useState(false)
@@ -32,6 +32,7 @@ export default function HomePage() {
   const [selectedEvent, setSelectedEvent] = useState<Multi | null>(null)
   const [hasManagementPermission, setHasManagementPermission] = useState(false)
   const supabase = useSupabaseClient()
+  const { language, setLanguage } = useLanguage()
 
   const handleLogout = async () => {
     await supabase.auth.signOut()

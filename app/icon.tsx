@@ -16,18 +16,20 @@ export default function Icon() {
     (
       <div
         style={{
-          fontSize: 24,
-          background: 'linear-gradient(90deg, #1f2937 0%, #111827 100%)',
+          fontSize: 12,
+          background: 'linear-gradient(135deg, #22d3ee 0%, #6366f1 50%, #a855f7 100%)',
           width: '100%',
           height: '100%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: 'white',
-          borderRadius: '50%',
+          color: '#0f172a',
+          borderRadius: '30%',
+          fontWeight: 900,
+          letterSpacing: '0.08em',
         }}
       >
-        👻
+        GPX
       </div>
     ),
     {

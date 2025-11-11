@@ -1,10 +1,15 @@
 'use client'
 
 import Link from 'next/link'
+import BrandMark from '@/components/BrandMark'
 import { useState } from 'react'
+import { useLanguage } from '@/hooks/useLanguage'
 
 export default function RegularEventGameSelection() {
-  const [language] = useState<'ko' | 'en'>('ko')
+  const [events, setEvents] = useState<Multi[]>([])
+  const [selectedTab, setSelectedTab] = useState<'competizione' | 'lemans' | 'iracing' | 'ac' | 'gt7' | 'ams2' | 'f125' | 'wrc'>('competizione')
+  const [selectedGameName, setSelectedGameName] = useState<string>('컴페티치오네')
+  const { language } = useLanguage()
 
   const games = [
     { id: 'iracing', name: '아이레이싱' },
@@ -23,10 +28,8 @@ export default function RegularEventGameSelection() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-              <span className="text-2xl">👻</span>
-              <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-                Ghost-X
-              </span>
+              <BrandMark size={32} textClassName="text-[12px]" />
+              <span className="font-bold text-lg text-white">GPX</span>
             </Link>
             
             <Link 

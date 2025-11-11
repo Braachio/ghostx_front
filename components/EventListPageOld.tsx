@@ -357,7 +357,7 @@ export default function EventListPage({ currentUserId, eventTypeFilter }: EventL
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 mx-auto mb-4"></div>
-          <p className="text-cyan-400 text-lg">👻 이벤트를 불러오는 중...</p>
+          <p className="text-cyan-400 text-lg">이벤트를 불러오는 중...</p>
         </div>
       </div>
     )
@@ -661,7 +661,7 @@ export default function EventListPage({ currentUserId, eventTypeFilter }: EventL
         </div>
       ) : (
         <div className="text-center py-20 bg-gradient-to-br from-gray-900 to-black border border-purple-500/30 rounded-xl shadow-2xl shadow-purple-500/10">
-          <div className="text-6xl mb-4">👻</div>
+          <div className="text-6xl mb-4">—</div>
           <p className="text-gray-300 text-lg mb-2">
             선택한 게임에 해당하는 이벤트가 없습니다.
           </p>

@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import type { PercentileResponse } from '@/lib/iracingTypes'
 import { TtlCache } from '@/lib/ttlCache'
+import { IpRateLimiter, getClientIp } from '@/lib/rateLimit'
 
 const cache = new TtlCache<PercentileResponse>(6 * 60 * 60_000)
+const limiter = new IpRateLimiter(120)
 
 export async function GET(req: NextRequest) {
+  const ip = getClientIp(req)
+  if (!limiter.allow(ip)) return NextResponse.json({ error: 'rate limit' }, { status: 429 })
   const { searchParams } = new URL(req.url)
   const metric = (searchParams.get('metric') || 'irating') as 'irating' | 'sr'
   const value = Number(searchParams.get('value') || '0')

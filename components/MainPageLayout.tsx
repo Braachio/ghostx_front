@@ -2,9 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
+import { useLanguage } from '@/hooks/useLanguage'
+import { useUser } from '@/hooks/useUser'
+import EventListPage from '@/components/EventListPage'
 import EventCalendar from './EventCalendar'
 import type { Database } from '@/lib/database.types'
+import BrandMark from '@/components/BrandMark'
 
 type Multi = Database['public']['Tables']['multis']['Row']
 
@@ -50,7 +53,7 @@ export default function MainPageLayout({
 
   const t = {
     ko: {
-      title: 'Ghost-X',
+      title: 'GPX',
       welcome: (name: string) => `${name}님 환영합니다`,
       getStarted: '시작하기',
       logout: '로그아웃',
@@ -69,7 +72,7 @@ export default function MainPageLayout({
       mobileMenu: '메뉴'
     },
     en: {
-      title: 'Ghost-X',
+      title: 'GPX',
       welcome: (name: string) => `Welcome ${name}`,
       getStarted: 'Get Started',
       logout: 'Logout',
@@ -101,13 +104,7 @@ export default function MainPageLayout({
           <div className="flex items-center justify-between h-16">
             {/* 로고 */}
             <Link href="/" className="flex items-center gap-3">
-              <Image 
-                src="/logo/ghost-x-symbol.svg" 
-                alt="Ghost-X" 
-                width={32} 
-                height={32} 
-                className="dark:invert" 
-              />
+              <BrandMark size={32} textClassName="text-[12px]" />
               <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
                 {t[language].title}
               </span>
@@ -212,7 +209,9 @@ export default function MainPageLayout({
             {/* 메인 타이틀 */}
             <div className="mb-12">
               <div className="inline-block mb-8">
-                <div className="text-6xl sm:text-8xl animate-pulse">👻</div>
+                <div className="animate-pulse">
+                  <BrandMark size={120} textClassName="text-4xl" className="rounded-3xl" />
+                </div>
               </div>
               <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold mb-6">
                 <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">

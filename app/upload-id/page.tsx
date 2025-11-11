@@ -10,6 +10,7 @@ import LapUploadForm from '@/components/upload-id/LapUploadForm'
 import LapDetailCard from '@/components/upload-id/LapDetailCard'
 import SegmentAnalysis from '@/components/upload-id/SegmentAnalysis'
 import { API_URL } from '@/lib/constants'
+import { DRIVING_ANALYSIS_ENABLED, DRIVING_ANALYSIS_DISABLED_MESSAGE } from '@/lib/featureFlags'
 
 export default function UploadIdPage() {
   const [userId, setUserId] = useState('')
@@ -88,9 +89,9 @@ export default function UploadIdPage() {
         <div className="flex justify-between items-center border-b border-cyan-500 pb-4 mb-8">
           <div>
             <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-              👻 고스트 분석
+              GPX 주행 분석
             </h2>
-            <p className="text-gray-300 mt-2">당신만의 고스트카를 만들어 랩타임을 단축하세요</p>
+            <p className="text-gray-300 mt-2">주행 데이터를 기반으로 랩타임을 단축해 보세요</p>
           </div>
           <div className="flex gap-3">
             <Link href="/">
@@ -104,8 +105,8 @@ export default function UploadIdPage() {
         {/* 📤 업로드 영역 */}
         <div className="bg-gradient-to-br from-gray-900 to-black border-2 border-cyan-500/30 rounded-xl p-6 space-y-4 shadow-2xl shadow-cyan-500/10">
           <div className="text-center">
-            <h3 className="text-2xl font-bold text-white mb-2">📊 고스트 데이터 업로드</h3>
-            <p className="text-gray-300">MoTeC CSV 파일을 업로드하여 당신만의 고스트카를 만들어보세요</p>
+            <h3 className="text-2xl font-bold text-white mb-2">📊 주행 데이터 업로드</h3>
+            <p className="text-gray-300">MoTeC CSV 파일을 업로드하여 GPX 분석을 시작하세요</p>
           </div>
         <div className="flex items-center justify-between flex-wrap gap-4">
           <LapUploadForm
@@ -121,7 +122,7 @@ export default function UploadIdPage() {
         {/* 🗂 랩 목록 + 상세정보 */}
         <div className="bg-gradient-to-br from-gray-900 to-black border-2 border-blue-500/30 rounded-xl p-6 space-y-4 shadow-2xl shadow-blue-500/10">
           <div className="text-center">
-            <h3 className="text-2xl font-bold text-white mb-2">🏁 나의 고스트카 컬렉션</h3>
+            <h3 className="text-2xl font-bold text-white mb-2">🏁 나의 데이터 컬렉션</h3>
             <p className="text-gray-300">저장된 주행 데이터를 선택하여 상세 분석을 확인해보세요</p>
           </div>
         <div className="flex items-start gap-x-6 flex-wrap">
@@ -146,13 +147,19 @@ export default function UploadIdPage() {
         </div>
 
         {/* 분석 결과 섹션 */}
-        {result?.data && Array.isArray(result.data) && result.data.length > 0 && (
-          <div className="bg-gradient-to-br from-gray-900 to-black border-2 border-purple-500/30 rounded-xl p-6 shadow-2xl shadow-purple-500/10">
-            <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold text-white mb-2">👻 고스트 분석 결과</h3>
-              <p className="text-gray-300">당신의 고스트카가 발견한 랩타임 단축의 비밀</p>
+        {DRIVING_ANALYSIS_ENABLED ? (
+          result?.data && Array.isArray(result.data) && result.data.length > 0 && (
+            <div className="bg-gradient-to-br from-gray-900 to-black border-2 border-purple-500/30 rounded-xl p-6 shadow-2xl shadow-purple-500/10">
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-bold text-white mb-2">GPX 분석 결과</h3>
+                <p className="text-gray-300">당신의 주행 데이터가 발견한 랩타임 단축의 비밀</p>
+              </div>
+              <SegmentAnalysis result={result} />
             </div>
-            <SegmentAnalysis result={result} />
+          )
+        ) : (
+          <div className="bg-gradient-to-br from-gray-900 to-black border-2 border-purple-500/30 rounded-xl p-6 text-center text-gray-300">
+            {DRIVING_ANALYSIS_DISABLED_MESSAGE}
           </div>
         )}
 

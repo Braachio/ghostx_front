@@ -66,7 +66,7 @@ export default function LapUploadForm({ userId, setMessage, setResult, setDispla
         htmlFor="csv-upload"
         className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-cyan-500/30 text-sm text-white bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 transition-all shadow-lg shadow-cyan-500/25 font-semibold cursor-pointer"
       >
-        📤 고스트 데이터 업로드
+        📤 데이터 업로드
       </label>
       <a
         href="/docs/motec_csv_guide.html"
@@ -74,7 +74,7 @@ export default function LapUploadForm({ userId, setMessage, setResult, setDispla
         rel="noopener noreferrer"
         className="text-sm text-cyan-400 hover:text-cyan-300 hover:underline transition-colors"
       >
-        👻 MoTeC 변환 가이드
+        MoTeC 변환 가이드
       </a>
     </div>
   )

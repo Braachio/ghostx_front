@@ -1,5 +1,5 @@
 @echo off
-echo 🚀 GhostX 로컬 개발 환경 설정
+echo 🚀 GPX 로컬 개발 환경 설정
 echo ================================
 
 REM .env.local 파일 생성

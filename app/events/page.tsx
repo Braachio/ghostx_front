@@ -2,9 +2,14 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import BrandMark from '@/components/BrandMark'
+import { useLanguage } from '@/hooks/useLanguage'
 
 export default function EventsPage() {
-  const [language] = useState<'ko' | 'en'>('ko')
+  const [events, setEvents] = useState<Multi[]>([])
+  const [selectedTab, setSelectedTab] = useState<'regular' | 'flash' | 'all'>('regular')
+  const router = useRouter()
+  const { language } = useLanguage()
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 text-white">
@@ -13,10 +18,8 @@ export default function EventsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-              <span className="text-2xl">👻</span>
-              <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-                Ghost-X
-              </span>
+              <BrandMark size={32} textClassName="text-[12px]" />
+              <span className="font-bold text-lg text-white">GPX</span>
             </Link>
             
             <Link 

@@ -95,7 +95,7 @@ function LoginForm() {
       <div className="w-full max-w-md p-8 bg-white dark:bg-gray-800 shadow-lg rounded-xl">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">
-            🏁 GhostX
+            🏁 GPX
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
             시뮬레이션 레이싱 커뮤니티

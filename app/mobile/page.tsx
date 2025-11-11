@@ -6,6 +6,7 @@ import MobileHomeShell from '@/components/mobile/MobileLayout'
 import EventDetailModal from '@/components/EventDetailModal'
 import Footer from '@/components/Footer'
 import type { Database } from '@/lib/database.types'
+import { useLanguage } from '@/hooks/useLanguage'
 
 interface MeResponse {
   id: string
@@ -18,7 +19,6 @@ type Multi = Database['public']['Tables']['multis']['Row']
 
 export default function MobileHomePage() {
   const [user, setUser] = useState<MeResponse | null>(null)
-  const [language, setLanguage] = useState<'ko' | 'en'>('ko')
   const [views, setViews] = useState<number | null>(null)
   const [mounted, setMounted] = useState(false)
   const [events, setEvents] = useState<Multi[]>([])
@@ -28,6 +28,7 @@ export default function MobileHomePage() {
   const [selectedEvent, setSelectedEvent] = useState<Multi | null>(null)
   const [hasManagementPermission, setHasManagementPermission] = useState(false)
   const supabase = useSupabaseClient()
+  const { language, setLanguage } = useLanguage()
 
   const handleLogout = async () => {
     await supabase.auth.signOut()

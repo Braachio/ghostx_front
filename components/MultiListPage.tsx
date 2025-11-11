@@ -135,8 +135,8 @@ export default function MultiListPage({ currentUserId, eventTypeFilter }: MultiL
 
       {filtered.length === 0 && (
         <div className="text-center mt-8 p-6 bg-gradient-to-br from-gray-900 to-black border-2 border-purple-500/30 rounded-xl shadow-2xl shadow-purple-500/10">
-          <p className="text-gray-300 text-lg">
-            👻 선택한 게임 및 주차에 해당하는 고스트카 레이싱 이벤트가 없습니다.
+          <p className="text-center text-sm text-gray-500">
+            선택한 게임 및 주차에 해당하는 레이싱 이벤트가 없습니다.
           </p>
           <p className="text-gray-400 text-sm mt-2">
             다른 주차나 게임을 선택해보세요!

@@ -62,3 +62,5 @@ $$ LANGUAGE plpgsql;
 -- CREATE EXTENSION IF NOT EXISTS pg_cron;
 -- SELECT cron.schedule('cleanup-chat-messages', '0 2 * * *', 'SELECT cleanup_old_chat_messages();');
 
+
+

@@ -1,7 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
+import { useState } from 'react'
+import MobileNavigation from '@/components/mobile/MobileNavigation'
+import useResponsive from '@/hooks/useResponsive'
+import TopNavigation from '@/components/TopNavigation'
+import BrandMark from '@/components/BrandMark'
 import MobileEventCalendar from './MobileEventCalendar'
 import { useRouter } from 'next/navigation'
 import type { Database } from '@/lib/database.types'
@@ -43,7 +47,7 @@ export default function MobileHomeShell({
 
   const t = {
     ko: {
-      title: 'Ghost-X',
+      title: 'GPX',
       welcome: (name: string) => `${name}님 환영합니다`,
       getStarted: '시작하기',
       logout: '로그아웃',
@@ -58,7 +62,7 @@ export default function MobileHomeShell({
       keyboardHint: '키보드 화살표로 네비게이션'
     },
     en: {
-      title: 'Ghost-X',
+      title: 'GPX',
       welcome: (name: string) => `Welcome ${name}`,
       getStarted: 'Get Started',
       logout: 'Logout',
@@ -82,13 +86,7 @@ export default function MobileHomeShell({
           <div className="flex items-center justify-between">
             {/* 로고 */}
             <Link href="/mobile" className="flex items-center gap-2">
-              <Image 
-                src="/logo/ghost-x-symbol.svg" 
-                alt="Ghost-X" 
-                width={32} 
-                height={32} 
-                className="dark:invert" 
-              />
+              <BrandMark size={28} textClassName="text-[11px]" />
               <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
                 {t[language].title}
               </span>
@@ -145,13 +143,13 @@ export default function MobileHomeShell({
         </div>
       </nav>
 
-      {/* Section 1: Ghost-X 소개 섹션 */}
+      {/* Section 1: GPX 소개 섹션 */}
       <section className="flex items-center justify-center px-6 py-12 relative pt-24 pb-8">
         <div className="w-full max-w-lg mx-auto text-center">
-          {/* Ghost-X 브랜딩 */}
+          {/* GPX 브랜딩 */}
           <div className="mb-8">
-            <div className="inline-block mb-4">
-              <div className="text-5xl animate-pulse">👻</div>
+            <div className="animate-pulse">
+              <BrandMark size={90} textClassName="text-3xl" className="rounded-3xl" />
             </div>
             <h1 className="text-3xl font-bold mb-4">
               <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
