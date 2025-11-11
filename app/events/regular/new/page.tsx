@@ -2,13 +2,9 @@
 
 import Link from 'next/link'
 import BrandMark from '@/components/BrandMark'
-import { useState } from 'react'
 import { useLanguage } from '@/hooks/useLanguage'
 
 export default function RegularEventGameSelection() {
-  const [events, setEvents] = useState<Multi[]>([])
-  const [selectedTab, setSelectedTab] = useState<'competizione' | 'lemans' | 'iracing' | 'ac' | 'gt7' | 'ams2' | 'f125' | 'wrc'>('competizione')
-  const [selectedGameName, setSelectedGameName] = useState<string>('컴페티치오네')
   const { language } = useLanguage()
 
   const games = [

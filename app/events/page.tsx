@@ -1,14 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
 import BrandMark from '@/components/BrandMark'
 import { useLanguage } from '@/hooks/useLanguage'
 
 export default function EventsPage() {
-  const [events, setEvents] = useState<Multi[]>([])
-  const [selectedTab, setSelectedTab] = useState<'regular' | 'flash' | 'all'>('regular')
-  const router = useRouter()
   const { language } = useLanguage()
 
   return (
