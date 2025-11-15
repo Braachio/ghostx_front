@@ -19,7 +19,7 @@ const translations = {
   ko: {
     common: {
       errorUnknown: '에러',
-      tabSession: '세션 요약',
+      tabSession: '세션 전략',
       tabDriver: '드라이버 인사이트',
       tabMeta: '메타 리포트',
       tabBop: 'BoP 패치 알림',
@@ -33,7 +33,7 @@ const translations = {
     },
     session: {
       label: 'Session Summary',
-      title: '세션 요약',
+      title: '세션 전략',
       noMainDriver: '드라이버 인사이트 탭에서 내 주요 드라이버를 설정하면 맞춤 전략을 제공합니다.',
       inputPlaceholder: '세션(서브세션) ID',
       submit: '요약 보기',
@@ -61,15 +61,19 @@ const translations = {
       sectionLabel: 'Driver Search',
       title: '드라이버 검색',
       profileLabel: '드라이버',
-      placeholder: '닉네임/이름 검색',
+      placeholder: '드라이버 ID (cust_id)',
       button: '검색',
-      hint: '예: "kim", "park" 으로 찾아보세요.',
+      hint: 'iRacing 드라이버 ID를 입력하세요. 예: 1060971 또는 #1060971',
       badgeMain: '내 드라이버',
       countryFallback: '국가 정보 없음',
       licenseLabel: '라이선스',
       lastUpdated: '업데이트',
       setMain: '내 주요 드라이버로 설정',
       setMainDone: '내 주요 드라이버로 설정됨',
+      addFavorite: '즐겨찾기 추가',
+      removeFavorite: '즐겨찾기 제거',
+      favorites: '즐겨찾기',
+      noFavorites: '즐겨찾기한 드라이버가 없습니다.',
       emptyState: '드라이버를 검색하고 선택하면 상세 인사이트가 표시됩니다.',
       percentileTitle: '퍼센타일 랭킹',
       percentileGlobal: 'Global 랭킹',
@@ -80,7 +84,7 @@ const translations = {
         `약 ${value > 50 ? '하위' : '상위'} ${Math.abs(50 - value).toFixed(1)}% 포인트`,
       errorSearch: '검색 실패',
       errorDetail: '상세 실패',
-      searchExamples: '예: "kim", "park" 으로 찾아보세요.',
+      searchExamples: 'iRacing API는 이름 검색을 지원하지 않습니다. 드라이버 ID만 검색 가능합니다.',
     },
   },
   en: {
@@ -128,15 +132,19 @@ const translations = {
       sectionLabel: 'Driver Search',
       title: 'Driver Finder',
       profileLabel: 'Driver',
-      placeholder: 'Search name/nickname',
+      placeholder: 'Driver ID (cust_id)',
       button: 'Search',
-      hint: 'Try searching "kim" or "park".',
+      hint: 'Enter iRacing driver ID. Example: 1060971 or #1060971',
       badgeMain: 'My Driver',
       countryFallback: 'Country unknown',
       licenseLabel: 'License',
       lastUpdated: 'Updated',
       setMain: 'Set as My Main Driver',
       setMainDone: 'Main Driver Selected',
+      addFavorite: 'Add to Favorites',
+      removeFavorite: 'Remove from Favorites',
+      favorites: 'Favorites',
+      noFavorites: 'No favorite drivers yet.',
       emptyState: 'Search and pick a driver to see detailed insights.',
       percentileTitle: 'Percentile Rankings',
       percentileGlobal: 'Global Ranking',
@@ -147,7 +155,7 @@ const translations = {
         `About ${Math.abs(50 - value).toFixed(1)}% ${value > 50 ? 'below' : 'above'} median`,
       errorSearch: 'Search failed',
       errorDetail: 'Failed to load detail',
-      searchExamples: 'Example: try "kim" or "park".',
+      searchExamples: 'iRacing API does not support name search. Only driver ID search is available.',
     },
   },
 } as const
@@ -177,10 +185,38 @@ export default function IracingTestPage() {
   const [profile, setProfile] = useState<IracingDriverDetail | null>(null)
   const [percentile, setPercentile] = useState<{ global?: { percentile?: number }; country?: { percentile?: number; code?: string } } | null>(null)
   const [sessionId, setSessionId] = useState('')
-  const [sessionSummary, setSessionSummary] = useState<{ sessionId: string; sofEstimate?: number | null; participants?: Array<{ custId: string; name: string; country?: string | null; irating?: number | null; safetyRating?: number | null; stability?: { incPerRace?: number | null; dnfRate?: number | null }; pace?: { estLap?: number | null } }>; snapshotAt?: string } | null>(null)
+  const [sessionSummary, setSessionSummary] = useState<{ 
+    sessionId: string
+    sofEstimate?: number | null
+    participants?: Array<{ 
+      custId: string
+      name: string
+      country?: string | null
+      irating?: number | null
+      safetyRating?: number | null
+      stability?: { incPerRace?: number | null; dnfRate?: number | null }
+      pace?: { estLap?: number | null }
+      features?: {
+        i_rating?: number | null
+        safety_rating?: number | null
+        avg_incidents_per_race?: number | null
+        dnf_rate?: number | null
+        recent_avg_finish_position?: number | null
+        win_rate?: number | null
+        ir_trend?: number | null
+      }
+      predictedFinish?: number | null
+      predictedConfidence?: number | null
+      strategyRecommendation?: { strategy: string; confidence: number; reasoning: string[] } | null
+    }>
+    overallStrategy?: { strategy: string; confidence: number; reasoning: string[] } | null
+    snapshotAt?: string 
+  } | null>(null)
   const [sessionError, setSessionError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'session' | 'driver' | 'meta' | 'bop'>('session')
   const [mainDriverCustId, setMainDriverCustId] = useState<string | null>(null)
+  const [favorites, setFavorites] = useState<Array<{ id: string; custId: string; driverName: string | null; notes: string | null }>>([])
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null) // 카테고리 선택: 1=Oval, 2=Road, 3=Dirt Oval, 4=Dirt Road, 5=Sports Car, 6=Formula Car
   const supabase = useSupabaseClient()
   const { language, setLanguage } = useLanguage()
   const t = translations[language] ?? translations.ko
@@ -205,13 +241,32 @@ export default function IracingTestPage() {
     loadUser()
   }, [supabase])
 
+  // 주요 드라이버 및 즐겨찾기 로드
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    const stored = window.localStorage.getItem('iracing.mainDriverCustId')
-    if (stored) {
-      setMainDriverCustId(stored)
+    const loadDriverPreferences = async () => {
+      if (!user) return
+      
+      try {
+        // 주요 드라이버 로드
+        const mainRes = await fetch('/api/iracing/driver/main')
+        if (mainRes.ok) {
+          const { mainDriverCustId: mainId } = await mainRes.json()
+          setMainDriverCustId(mainId)
+        }
+        
+        // 즐겨찾기 로드
+        const favRes = await fetch('/api/iracing/driver/favorites')
+        if (favRes.ok) {
+          const { favorites: favs } = await favRes.json()
+          setFavorites(favs || [])
+        }
+      } catch (error) {
+        console.error('드라이버 설정 로드 실패:', error)
+      }
     }
-  }, [])
+    
+    loadDriverPreferences()
+  }, [user])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -238,17 +293,42 @@ export default function IracingTestPage() {
     }
   };
 
-  const loadDetail = useCallback(async (custId: string, options?: { switchToDriverTab?: boolean }) => {
+  const loadDetail = useCallback(async (custId: string, options?: { switchToDriverTab?: boolean; categoryId?: number | null }) => {
     setSearchLoading(true)
     setSearchError(null)
     setProfile(null)
     setPercentile(null)
     try {
-      const pr = await fetch(`/api/iracing/driver/${custId}`)
+      // 카테고리 파라미터 추가
+      const categoryParam = options?.categoryId ? `?category_id=${options.categoryId}` : ''
+      console.log(`[Frontend] Loading driver detail for custId: ${custId}, categoryId: ${options?.categoryId || 'none'}`)
+      const pr = await fetch(`/api/iracing/driver/${custId}${categoryParam}`)
       const prCt = pr.headers.get('content-type') || ''
       const pd = prCt.includes('application/json') ? await pr.json() : await pr.text()
       if (!pr.ok) throw new Error(typeof pd === 'string' ? pd : (pd?.error || t.driver.errorDetail))
       setProfile(pd as IracingDriverDetail)
+      
+      console.log(`[Frontend] Received profile data:`, {
+        custId: pd?.custId,
+        categoryId: pd?.categoryId,
+        irating: pd?.irating,
+        performance: {
+          totalStarts: pd?.performance?.totalStarts,
+          wins: pd?.performance?.wins,
+          winRate: pd?.performance?.winRate,
+        },
+        recentRacesCount: pd?.recentRaces?.length || 0,
+      })
+      
+      // API에서 반환된 카테고리 ID를 선택 상태로 설정
+      if (pd?.categoryId) {
+        setSelectedCategoryId(pd.categoryId)
+      } else if (options?.categoryId) {
+        setSelectedCategoryId(options.categoryId)
+      } else {
+        // 카테고리가 없으면 null로 설정 (사용자가 선택하도록)
+        setSelectedCategoryId(null)
+      }
       const val = pd?.irating ?? 0
       const pct = await fetch(`/api/iracing/percentile?metric=irating&value=${val}&country=${pd?.country || ''}`)
       const pctCt = pct.headers.get('content-type') || ''
@@ -269,19 +349,82 @@ export default function IracingTestPage() {
     loadDetail(custId, { switchToDriverTab: true })
   }
 
-  const handleSetMainDriver = useCallback((custId: string) => {
-    setMainDriverCustId(custId)
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem('iracing.mainDriverCustId', custId)
+  const handleSetMainDriver = useCallback(async (custId: string) => {
+    if (!user) {
+      alert(language === 'ko' ? '로그인이 필요합니다.' : 'Login required')
+      return
     }
-  }, [])
+    
+    try {
+      const res = await fetch('/api/iracing/driver/main', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ custId }),
+      })
+      
+      if (res.ok) {
+        setMainDriverCustId(custId)
+      } else {
+        const error = await res.json()
+        alert(error.error || (language === 'ko' ? '주요 드라이버 설정 실패' : 'Failed to set main driver'))
+      }
+    } catch (error) {
+      console.error('주요 드라이버 설정 실패:', error)
+      alert(language === 'ko' ? '주요 드라이버 설정 실패' : 'Failed to set main driver')
+    }
+  }, [user, language])
+
+  const handleToggleFavorite = useCallback(async (custId: string, driverName?: string) => {
+    if (!user) {
+      alert(language === 'ko' ? '로그인이 필요합니다.' : 'Login required')
+      return
+    }
+    
+    const isFavorite = favorites.some(fav => fav.custId === custId)
+    
+    try {
+      if (isFavorite) {
+        // 즐겨찾기 제거
+        const res = await fetch(`/api/iracing/driver/favorites/${custId}`, {
+          method: 'DELETE',
+        })
+        
+        if (res.ok) {
+          setFavorites(prev => prev.filter(fav => fav.custId !== custId))
+        } else {
+          const error = await res.json()
+          alert(error.error || (language === 'ko' ? '즐겨찾기 제거 실패' : 'Failed to remove favorite'))
+        }
+      } else {
+        // 즐겨찾기 추가
+        const res = await fetch('/api/iracing/driver/favorites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ custId, driverName }),
+        })
+        
+        if (res.ok) {
+          const { favorite } = await res.json()
+          setFavorites(prev => [...prev, favorite])
+        } else {
+          const error = await res.json()
+          alert(error.error || (language === 'ko' ? '즐겨찾기 추가 실패' : 'Failed to add favorite'))
+        }
+      }
+    } catch (error) {
+      console.error('즐겨찾기 토글 실패:', error)
+      alert(language === 'ko' ? '즐겨찾기 처리 실패' : 'Failed to toggle favorite')
+    }
+  }, [user, language, favorites])
 
   useEffect(() => {
     if (!mainDriverCustId) return
-    if (!profile) {
+    // profile이 없고, searchLoading이 false일 때만 자동 로드
+    // (카테고리 선택 중에는 searchLoading이 true이므로 자동 로드하지 않음)
+    if (!profile && !searchLoading) {
       loadDetail(mainDriverCustId)
     }
-  }, [mainDriverCustId, profile, loadDetail])
+  }, [mainDriverCustId, profile, searchLoading, loadDetail])
 
   const sessionAnalysis = useMemo(() => {
     const participants = sessionSummary?.participants || []
@@ -363,10 +506,65 @@ export default function IracingTestPage() {
               setSessionError(null)
               setSessionSummary(null)
               try {
-                const res = await fetch(`/api/iracing/session/${encodeURIComponent(sessionId.trim())}/summary`)
+                // 먼저 빠른 요약을 가져와서 즉시 표시
+                const quickRes = await fetch(`/api/iracing/session/${encodeURIComponent(sessionId.trim())}/quick`)
+                const quickCt = quickRes.headers.get('content-type') || ''
+                const quickData = quickCt.includes('application/json') ? await quickRes.json() : await quickRes.text()
+                if (quickRes.ok && typeof quickData !== 'string') {
+                  // 기본 정보 먼저 표시
+                  setSessionSummary({
+                    ...quickData,
+                    participants: (quickData.participants || []).map((p: {
+                      custId: string
+                      name: string
+                      country?: string | null
+                      irating?: number | null
+                      safetyRating?: number | null
+                    }) => ({
+                      ...p,
+                      features: undefined,
+                      predictedFinish: undefined,
+                      predictedConfidence: undefined,
+                    })),
+                    overallStrategy: undefined,
+                  })
+                }
+                
+                // 그 다음 상세 분석을 백그라운드에서 로드
+                const mainDriverParam = mainDriverCustId ? `?mainDriverCustId=${mainDriverCustId}` : ''
+                const res = await fetch(`/api/iracing/session/${encodeURIComponent(sessionId.trim())}/advanced${mainDriverParam}`)
                 const ct = res.headers.get('content-type') || ''
                 const data = ct.includes('application/json') ? await res.json() : await res.text()
                 if (!res.ok) throw new Error(typeof data === 'string' ? data : (data?.error || t.session.errorDefault))
+                console.log('[Session Summary] Frontend received data:', {
+                  sessionId: data?.sessionId,
+                  sofEstimate: data?.sofEstimate,
+                  participantsCount: data?.participants?.length ?? 0,
+                  hasError: !!data?.error,
+                  dataKeys: Object.keys(data || {}),
+                })
+                // 첫 3명의 참가자 데이터 확인
+                if (data?.participants && data.participants.length > 0) {
+                  console.log('[Session Summary] First 3 participants from advanced API:', data.participants.slice(0, 3).map((p: {
+                    custId: string
+                    name: string
+                    irating?: number | null
+                    safetyRating?: number | null
+                    features?: { i_rating?: number | null; safety_rating?: number | null; avg_incidents_per_race?: number | null }
+                    predictedFinish?: number | null
+                    predictedConfidence?: number | null
+                  }) => ({
+                    custId: p.custId,
+                    name: p.name,
+                    irating: p.irating,
+                    safetyRating: p.safetyRating,
+                    features_i_rating: p.features?.i_rating,
+                    features_safety_rating: p.features?.safety_rating,
+                    features_avg_incidents: p.features?.avg_incidents_per_race,
+                    predictedFinish: p.predictedFinish,
+                    predictedConfidence: p.predictedConfidence,
+                  })))
+                }
                 setSessionSummary(data)
               } catch (e) {
                 setSessionError(e instanceof Error ? e.message : t.session.errorUnknown)
@@ -385,40 +583,75 @@ export default function IracingTestPage() {
 
         {sessionSummary ? (
           <div className="mt-4">
-            {sessionAnalysis && (
+            {/* 고도화된 전략 제안 (overallStrategy가 있으면 우선 표시) */}
+            {sessionSummary.overallStrategy && (
+              <div className="mb-5 bg-gradient-to-r from-emerald-900/40 to-cyan-900/40 border border-emerald-600/50 rounded-xl p-5">
+                <div className="text-sm text-emerald-200 uppercase tracking-[0.2em] mb-3 flex items-center justify-between">
+                  <span>AI 전략 제안</span>
+                  <span className="text-emerald-400 text-xs">
+                    신뢰도: {Math.round(sessionSummary.overallStrategy.confidence * 100)}%
+                  </span>
+                </div>
+                <div className="mb-3">
+                  <span className={`px-3 py-1.5 rounded-lg text-sm font-semibold ${
+                    sessionSummary.overallStrategy.strategy === 'aggressive' 
+                      ? 'bg-red-600/30 text-red-200 border border-red-500/50'
+                      : sessionSummary.overallStrategy.strategy === 'defensive'
+                      ? 'bg-yellow-600/30 text-yellow-200 border border-yellow-500/50'
+                      : sessionSummary.overallStrategy.strategy === 'survival'
+                      ? 'bg-orange-600/30 text-orange-200 border border-orange-500/50'
+                      : 'bg-emerald-600/30 text-emerald-200 border border-emerald-500/50'
+                  }`}>
+                    {sessionSummary.overallStrategy.strategy === 'aggressive' ? '공격적 전략' :
+                     sessionSummary.overallStrategy.strategy === 'defensive' ? '방어적 전략' :
+                     sessionSummary.overallStrategy.strategy === 'survival' ? '생존 모드' :
+                     '균형 전략'}
+                  </span>
+                </div>
+                <ul className="space-y-1.5 text-base text-emerald-100">
+                  {sessionSummary.overallStrategy.reasoning.map((reason, idx) => (
+                    <li key={`reason-${idx}-${reason.substring(0, 20)}`} className="flex items-start gap-2">
+                      <span className="text-emerald-400 mt-0.5">•</span>
+                      <span>{reason}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {sessionAnalysis && !sessionSummary.overallStrategy && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-5">
                 <div className="bg-emerald-900/30 border border-emerald-600/40 rounded-xl p-4">
-                  <div className="text-xs text-emerald-200 uppercase tracking-[0.2em] mb-2">{t.session.strategyTitle}</div>
-                  <p className="text-sm text-emerald-100 leading-relaxed">{sessionAnalysis.strategy}</p>
+                  <div className="text-sm text-emerald-200 uppercase tracking-[0.2em] mb-2">{t.session.strategyTitle}</div>
+                  <p className="text-base text-emerald-100 leading-relaxed">{sessionAnalysis.strategy}</p>
                 </div>
                 <div className="bg-gray-900/60 border border-gray-800 rounded-xl p-4">
-                  <div className="text-xs text-gray-400 uppercase tracking-[0.2em] mb-2">{t.session.strongerTitle}</div>
+                  <div className="text-sm text-gray-400 uppercase tracking-[0.2em] mb-2">{t.session.strongerTitle}</div>
                   {sessionAnalysis.stronger && sessionAnalysis.stronger.length > 0 ? (
-                    <ul className="space-y-2 text-sm text-gray-300">
-                      {sessionAnalysis.stronger.map((p) => (
-                        <li key={`strong-${p.custId}`} className="flex items-center justify-between">
+                    <ul className="space-y-2 text-base text-gray-300">
+                      {sessionAnalysis.stronger.map((p, idx) => (
+                        <li key={`strong-${p.custId || p.name || idx}-${idx}`} className="flex items-center justify-between">
                           <span className="truncate max-w-[70%]">{p.name}</span>
                           <span className="text-emerald-300 font-semibold">iR {p.irating ?? '-'}</span>
                         </li>
                       ))}
                     </ul>
                   ) : (
-                    <div className="text-xs text-gray-500">{t.session.strongerHint}</div>
+                    <div className="text-sm text-gray-500">{t.session.strongerHint}</div>
                   )}
                 </div>
                 <div className="bg-gray-900/60 border border-gray-800 rounded-xl p-4">
-                  <div className="text-xs text-gray-400 uppercase tracking-[0.2em] mb-2">{t.session.weakerTitle}</div>
+                  <div className="text-sm text-gray-400 uppercase tracking-[0.2em] mb-2">{t.session.weakerTitle}</div>
                   {sessionAnalysis.weaker && sessionAnalysis.weaker.length > 0 ? (
-                    <ul className="space-y-2 text-sm text-gray-300">
-                      {sessionAnalysis.weaker.map((p) => (
-                        <li key={`weak-${p.custId}`} className="flex items-center justify-between">
+                    <ul className="space-y-2 text-base text-gray-300">
+                      {sessionAnalysis.weaker.map((p, idx) => (
+                        <li key={`weak-${p.custId || p.name || idx}-${idx}`} className="flex items-center justify-between">
                           <span className="truncate max-w-[70%]">{p.name}</span>
                           <span className="text-gray-400">iR {p.irating ?? '-'}</span>
                         </li>
                       ))}
                     </ul>
                   ) : (
-                    <div className="text-xs text-gray-500">{t.session.weakerHint}</div>
+                    <div className="text-sm text-gray-500">{t.session.weakerHint}</div>
                   )}
                 </div>
               </div>
@@ -426,15 +659,31 @@ export default function IracingTestPage() {
             {sessionSummary.sofEstimate && (
               <div className="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="p-4 rounded-xl bg-emerald-900/30 border border-emerald-600/40">
-                  <div className="text-xs text-emerald-200 uppercase tracking-[0.2em]">{t.session.sofLabel}</div>
+                  <div className="text-sm text-emerald-200 uppercase tracking-[0.2em]">{t.session.sofLabel}</div>
                   <div className="text-2xl font-bold text-emerald-300">{sessionSummary.sofEstimate.toLocaleString(locale)}</div>
                 </div>
               </div>
             )}
             <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
-              {sessionSummary.participants?.slice(0, 20).map((p, index: number) => (
+              {sessionSummary.participants?.slice(0, 20).map((p, index: number) => {
+                // 디버깅: 첫 번째 참가자만 로그
+                if (index === 0) {
+                  console.log('[Session Summary] Rendering participant:', {
+                    custId: p.custId,
+                    name: p.name,
+                    irating: p.irating,
+                    safetyRating: p.safetyRating,
+                    predictedFinish: p.predictedFinish,
+                    predictedConfidence: p.predictedConfidence,
+                    hasFeatures: !!p.features,
+                    features_i_rating: p.features?.i_rating,
+                    features_safety_rating: p.features?.safety_rating,
+                    features_avg_incidents: p.features?.avg_incidents_per_race,
+                  })
+                }
+                return (
                 <div
-                  key={p.custId}
+                  key={`participant-${p.custId || p.name || index}-${index}`}
                   className="bg-gray-950/60 border border-gray-800 rounded-xl p-4 hover:border-emerald-500/60 transition-colors cursor-pointer"
                   onClick={() => {
                     setQ('')
@@ -444,37 +693,76 @@ export default function IracingTestPage() {
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-3">
-                      <span className="text-xs text-gray-500 w-6">#{index + 1}</span>
-                      <div className="font-semibold text-white text-sm flex items-center gap-2">
+                      <span className="text-sm text-gray-500 w-6">#{index + 1}</span>
+                      <div className="font-semibold text-white text-base flex items-center gap-2">
                         <span className="truncate max-w-[200px]">{p.name}</span>
                         {mainDriverCustId && String(p.custId) === mainDriverCustId && (
-                          <span className="px-2 py-0.5 text-[10px] rounded-full bg-emerald-600/30 border border-emerald-500/40 text-emerald-200">
+                          <span className="px-2 py-0.5 text-xs rounded-full bg-emerald-600/30 border border-emerald-500/40 text-emerald-200">
                             {t.session.mainDriverBadge}
                           </span>
                         )}
                       </div>
                     </div>
-                    <span className="text-xs px-2 py-0.5 rounded bg-gray-800 text-gray-300">{p.country || '-'}</span>
+                    <span className="text-sm px-2 py-0.5 rounded bg-gray-800 text-gray-300">{p.country || '-'}</span>
                   </div>
-                  <div className="grid grid-cols-3 gap-2 text-[11px] text-gray-500">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-gray-500">
                     <div>
                       <span className="text-gray-400">iR:</span>{' '}
-                      <span className="text-cyan-300 font-semibold">{p.irating?.toLocaleString(locale) ?? '-'}</span>
+                      <span className="text-cyan-300 font-semibold">
+                        {p.irating !== null && p.irating !== undefined 
+                          ? p.irating.toLocaleString(locale) 
+                          : (p.features?.i_rating !== null && p.features?.i_rating !== undefined
+                            ? p.features.i_rating.toLocaleString(locale)
+                            : '-')}
+                      </span>
                     </div>
                     <div>
                       <span className="text-gray-400">SR:</span>{' '}
-                      <span className="text-green-300 font-semibold">{p.safetyRating ?? '-'}</span>
+                      <span className="text-green-300 font-semibold">
+                        {(() => {
+                          const sr = p.safetyRating ?? p.features?.safety_rating ?? null
+                          if (sr !== null && sr !== undefined) {
+                            return sr > 10 ? (sr / 100).toFixed(2) : sr.toFixed(2)
+                          }
+                          return '-'
+                        })()}
+                      </span>
                     </div>
-                    {p.pace?.estLap !== null && p.pace?.estLap !== undefined && (
+                    {(p.features?.avg_incidents_per_race !== null && p.features?.avg_incidents_per_race !== undefined) ? (
+                      <div>
+                        <span className="text-gray-400">평균 Inc:</span>{' '}
+                        <span className="text-yellow-300 font-semibold">
+                          {p.features.avg_incidents_per_race.toFixed(1)}
+                        </span>
+                      </div>
+                    ) : (
+                      <div>
+                        <span className="text-gray-400">평균 Inc:</span>{' '}
+                        <span className="text-gray-500">-</span>
+                      </div>
+                    )}
+                    {p.predictedFinish ? (
+                      <div>
+                        <span className="text-gray-400">예측:</span>{' '}
+                        <span className="text-purple-300 font-semibold">
+                          {Math.round(p.predictedFinish)}등
+                          {p.predictedConfidence && (
+                            <span className="text-[10px] text-gray-500 ml-1">
+                              ({Math.round(p.predictedConfidence * 100)}%)
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                    ) : p.pace?.estLap !== null && p.pace?.estLap !== undefined ? (
                       <div>
                         {t.session.lapLabel}: {p.pace.estLap.toFixed(1)}s
                       </div>
-                    )}
+                    ) : null}
                   </div>
                 </div>
-              ))}
+              )})}
               {sessionSummary.participants && sessionSummary.participants.length > 20 && (
-                <div className="text-xs text-center text-gray-500 pt-2">
+                <div className="text-sm text-center text-gray-500 pt-2">
                   {t.session.moreParticipants(sessionSummary.participants.length - 20)}
                 </div>
               )}
@@ -494,6 +782,35 @@ export default function IracingTestPage() {
 
   const renderDriverTab = () => (
     <div className="space-y-4">
+      {/* 즐겨찾기 목록 */}
+      {user && favorites.length > 0 && (
+        <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 backdrop-blur-sm">
+          <div className="text-xs text-gray-400 uppercase tracking-[0.2em] mb-3">{t.driver.favorites}</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {favorites.map((fav, favIdx) => (
+              <button
+                key={`favorite-${fav.id || fav.custId || favIdx}-${favIdx}`}
+                onClick={() => loadDetail(fav.custId)}
+                className={`text-left bg-gray-800/60 border ${
+                  profile?.custId === fav.custId ? 'border-cyan-500/60' : 'border-gray-700'
+                } hover:border-cyan-400 rounded-xl px-3 py-3 transition-colors`}
+              >
+                <div className="flex items-center justify-between text-sm text-white">
+                  <span className="truncate max-w-[70%] flex items-center gap-2">
+                    <span className="text-yellow-400">★</span>
+                    {fav.driverName || `Driver #${fav.custId}`}
+                  </span>
+                  <span className="text-[10px] text-gray-500">#{fav.custId}</span>
+                </div>
+                {fav.notes && (
+                  <div className="text-[11px] text-gray-400 mt-1 truncate">{fav.notes}</div>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      
       <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 backdrop-blur-sm">
         <div className="text-xs text-gray-400 uppercase tracking-[0.2em] mb-1">{t.driver.sectionLabel}</div>
         <div className="text-xl font-semibold text-white mb-4">{t.driver.title}</div>
@@ -516,29 +833,40 @@ export default function IracingTestPage() {
           </div>
         )}
         {searchError && <div className="text-sm text-red-400 mt-3">{searchError}</div>}
-        {!searchLoading && items.length === 0 && !searchError && (
+        {!searchLoading && items.length === 0 && !searchError && q && (
+          <div className="text-xs text-amber-400 mt-3">
+            {isNaN(parseInt(q, 10)) 
+              ? '드라이버 ID는 숫자여야 합니다. 예: 1060971'
+              : '드라이버를 찾을 수 없습니다. ID를 확인해주세요.'}
+          </div>
+        )}
+        {!searchLoading && items.length === 0 && !searchError && !q && (
           <div className="text-xs text-gray-500 mt-3">{t.driver.hint}</div>
         )}
         {items.length > 0 && (
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {items.map((it) => (
-              <button key={it.custId} onClick={() => loadDetail(it.custId)} className={`text-left bg-gray-900/80 border ${mainDriverCustId === it.custId ? 'border-emerald-500/60' : 'border-gray-800'} hover:border-gray-700 rounded-xl px-3 py-3 transition-colors`}>
-                <div className="flex items-center justify-between text-sm text-white">
-                  <span className="truncate max-w-[70%] flex items-center gap-2">
-                    {it.name}
-                    {mainDriverCustId === it.custId && (
-                      <span className="px-2 py-0.5 text-[10px] rounded-full bg-emerald-600/30 border border-emerald-500/40 text-emerald-200">
-                        {t.driver.badgeMain}
-                      </span>
-                    )}
-                  </span>
-                  <span className="text-[10px] text-gray-500">#{it.custId}</span>
-                </div>
-                <div className="text-[11px] text-gray-500 mt-1">
-                  {it.country || '-'} • iR {it.irating !== null && it.irating !== undefined ? it.irating.toLocaleString(locale) : '-'} • L {it.licenseClass ?? '-'}
-                </div>
-              </button>
-            ))}
+            {items.map((it, itemIdx) => {
+              const isFavorite = favorites.some(fav => fav.custId === it.custId)
+              return (
+                <button key={`search-result-${it.custId || it.name || itemIdx}-${itemIdx}`} onClick={() => loadDetail(it.custId)} className={`text-left bg-gray-900/80 border ${mainDriverCustId === it.custId ? 'border-emerald-500/60' : 'border-gray-800'} hover:border-gray-700 rounded-xl px-3 py-3 transition-colors`}>
+                  <div className="flex items-center justify-between text-sm text-white">
+                    <span className="truncate max-w-[70%] flex items-center gap-2">
+                      {isFavorite && <span className="text-yellow-400">★</span>}
+                      {it.name}
+                      {mainDriverCustId === it.custId && (
+                        <span className="px-2 py-0.5 text-[10px] rounded-full bg-emerald-600/30 border border-emerald-500/40 text-emerald-200">
+                          {t.driver.badgeMain}
+                        </span>
+                      )}
+                    </span>
+                    <span className="text-[10px] text-gray-500">#{it.custId}</span>
+                  </div>
+                  <div className="text-[11px] text-gray-500 mt-1">
+                    {it.country || '-'} • iR {it.irating !== null && it.irating !== undefined ? it.irating.toLocaleString(locale) : '-'} • L {it.licenseClass ?? '-'}
+                  </div>
+                </button>
+              )
+            })}
           </div>
         )}
       </div>
@@ -546,12 +874,12 @@ export default function IracingTestPage() {
       {profile ? (
         <div className="space-y-4">
           <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 backdrop-blur-sm">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
               <div>
                 <div className="text-xs text-gray-400 uppercase tracking-[0.2em]">{t.driver.profileLabel}</div>
                 <h3 className="text-2xl font-bold text-white">{profile.name}</h3>
                 <div className="text-sm text-gray-400">
-                  {(profile.country || t.driver.countryFallback)} · {t.driver.licenseLabel} {profile.licenseClass || '-'}
+                  {profile.country || t.driver.countryFallback}
                 </div>
               </div>
               <div className="flex flex-col sm:items-end gap-2">
@@ -560,31 +888,63 @@ export default function IracingTestPage() {
                     {t.driver.lastUpdated} {new Date(profile.lastUpdated).toLocaleString(locale)}
                   </div>
                 )}
-                <button
-                  onClick={() => handleSetMainDriver(profile.custId)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border ${
-                    mainDriverCustId === profile.custId
-                      ? 'bg-emerald-600/30 border-emerald-500/50 text-emerald-200 cursor-default'
-                      : 'bg-gray-800/60 border-gray-700 text-gray-200 hover:border-emerald-400 hover:text-emerald-200'
-                  }`}
-                  disabled={mainDriverCustId === profile.custId}
-                >
-                  {mainDriverCustId === profile.custId ? t.driver.setMainDone : t.driver.setMain}
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleToggleFavorite(profile.custId, profile.name)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border ${
+                      favorites.some(fav => fav.custId === profile.custId)
+                        ? 'bg-yellow-600/30 border-yellow-500/50 text-yellow-200'
+                        : 'bg-gray-800/60 border-gray-700 text-gray-200 hover:border-yellow-400 hover:text-yellow-200'
+                    }`}
+                    title={favorites.some(fav => fav.custId === profile.custId) ? t.driver.removeFavorite : t.driver.addFavorite}
+                  >
+                    {favorites.some(fav => fav.custId === profile.custId) ? '★' : '☆'}
+                  </button>
+                  <button
+                    onClick={() => handleSetMainDriver(profile.custId)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border ${
+                      mainDriverCustId === profile.custId
+                        ? 'bg-emerald-600/30 border-emerald-500/50 text-emerald-200 cursor-default'
+                        : 'bg-gray-800/60 border-gray-700 text-gray-200 hover:border-emerald-400 hover:text-emerald-200'
+                    }`}
+                    disabled={mainDriverCustId === profile.custId}
+                  >
+                    {mainDriverCustId === profile.custId ? t.driver.setMainDone : t.driver.setMain}
+                  </button>
+                </div>
               </div>
             </div>
-            {profile.licenses && profile.licenses.length > 0 && (
-              <div className="mt-4 flex flex-wrap gap-2 text-xs text-gray-400">
-                {profile.licenses.map((license) => (
-                  <span
-                    key={`${license.category}-${license.class}`}
-                    className="px-3 py-1 rounded-full bg-gray-800/80 border border-gray-700"
+            {/* 카테고리 선택 UI */}
+            <div className="mt-4 pt-4 border-t border-gray-700">
+              <div className="text-xs text-gray-400 uppercase tracking-[0.2em] mb-3">카테고리별 통계 보기</div>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { id: 5, name: 'Sports Car', nameKo: '스포츠카' },
+                  { id: 6, name: 'Formula', nameKo: '포뮬러' },
+                  { id: 1, name: 'Oval', nameKo: '오벌' },
+                  { id: 3, name: 'Dirt Oval', nameKo: '더트 오벌' },
+                  { id: 4, name: 'Dirt Road', nameKo: '더트 로드' },
+                ].map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={async () => {
+                      console.log(`[Frontend] Category button clicked: ${cat.id}`)
+                      setSelectedCategoryId(cat.id)
+                      // 카테고리 선택 시에는 profile을 null로 설정하지 않음
+                      // (useEffect가 다시 auto-detect로 요청하는 것을 방지)
+                      await loadDetail(profile.custId, { categoryId: cat.id })
+                    }}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border ${
+                      selectedCategoryId === cat.id
+                        ? 'bg-cyan-600/30 border-cyan-500/50 text-cyan-200'
+                        : 'bg-gray-800/60 border-gray-700 text-gray-200 hover:border-cyan-400 hover:text-cyan-200'
+                    }`}
                   >
-                    {license.category?.toUpperCase()} Class {license.class}
-                  </span>
+                    {language === 'ko' ? cat.nameKo : cat.name}
+                  </button>
                 ))}
               </div>
-            )}
+            </div>
           </div>
 
           <DriverSummaryCards profile={profile} />

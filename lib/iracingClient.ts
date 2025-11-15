@@ -1,4 +1,4 @@
-import { getStoredTokens, hasValidAccessToken, saveTokens, getRefreshToken, refreshAccessToken } from './iracingOAuth'
+import { getStoredTokens, hasValidAccessToken, saveTokens, getRefreshToken, refreshAccessToken, getTokenWithPassword } from './iracingOAuth'
 
 // Minimal iRacing Data API client (server-side)
 // Docs (summary): Obtain auth token, then fetch JSON endpoints
@@ -49,23 +49,59 @@ async function refreshWithStoredToken(): Promise<TokenInfo> {
   }
 
   const refreshToken = getRefreshToken(stored)
-  if (!refreshToken) {
-    throw new Error('iRacing access token이 만료되었고 refresh token이 없습니다. /api/iracing/oauth/login 으로 다시 인증을 진행하세요.')
+  if (refreshToken) {
+    // Refresh token이 있으면 refresh 사용
+    console.log('[iRacing OAuth] Refreshing access token using stored refresh token')
+    try {
+      const refreshed = await refreshAccessToken(refreshToken)
+      await saveTokens(refreshed)
+
+      if (!refreshed.access_token) {
+        throw new Error('Refresh response에 access_token이 포함되어 있지 않습니다.')
+      }
+
+      const expiresAt = refreshed.expires_in
+        ? Date.now() + refreshed.expires_in * 1000
+        : Date.now() + 5 * 60 * 1000
+
+      return { token: refreshed.access_token, expiresAt }
+    } catch (error) {
+      console.warn('[iRacing OAuth] Refresh token failed, falling back to password flow:', error)
+      // Refresh 실패 시 Password Limited Flow로 폴백
+    }
   }
 
-  console.log('[iRacing OAuth] Refreshing access token using stored refresh token')
-  const refreshed = await refreshAccessToken(refreshToken)
-  await saveTokens(refreshed)
+  // Refresh token이 없거나 refresh 실패 시 Password Limited Flow 사용
+  console.log('[iRacing OAuth] No refresh token available, attempting Password Limited flow')
+  try {
+    const tokens = await getTokenWithPassword()
+    await saveTokens(tokens)
 
-  if (!refreshed.access_token) {
-    throw new Error('Refresh response에 access_token이 포함되어 있지 않습니다.')
+    if (!tokens.access_token) {
+      throw new Error('Password flow response에 access_token이 포함되어 있지 않습니다.')
+    }
+
+    const expiresAt = tokens.expires_in
+      ? Date.now() + tokens.expires_in * 1000
+      : Date.now() + 5 * 60 * 1000
+
+    return { token: tokens.access_token, expiresAt }
+  } catch (error) {
+    // Password Limited Flow 실패 시 (예: 클라이언트가 설정되지 않음)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.error('[iRacing OAuth] Password Limited flow failed:', errorMessage)
+    
+    // unsupported_grant_type 에러인 경우 클라이언트 설정이 필요함
+    if (errorMessage.includes('unsupported_grant_type')) {
+      throw new Error(
+        'Password Limited Flow가 클라이언트에서 활성화되지 않았습니다. ' +
+        'Nick에게 클라이언트 설정을 요청하세요. ' +
+        '현재는 /api/iracing/oauth/login 으로 Authorization Code Flow를 사용할 수 있습니다.'
+      )
+    }
+    
+    throw error
   }
-
-  const expiresAt = refreshed.expires_in
-    ? Date.now() + refreshed.expires_in * 1000
-    : Date.now() + 5 * 60 * 1000
-
-  return { token: refreshed.access_token, expiresAt }
 }
 
 export async function getIracingToken(): Promise<string> {
@@ -123,14 +159,39 @@ export async function irGet<T>(path: string, query?: Record<string, string | num
   console.log(`[iRacing API] Authorization header: Bearer ${token.substring(0, 20)}...`)
 
   try {
-    const result = await fetchJson<T>(url, {
+    // iRacing API는 링크를 반환할 수 있으므로 먼저 응답 확인
+    const response = await fetch(url, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     })
+
+    if (!response.ok) {
+      const text = await response.text()
+      throw new Error(`iRacing API error ${response.status}: ${text}`)
+    }
+
+    const initialData = await response.json()
+    
+    // 응답이 링크를 포함하는 경우 (iRacing API의 일반적인 패턴)
+    if (initialData && typeof initialData === 'object' && 'link' in initialData && typeof initialData.link === 'string') {
+      console.log(`[iRacing API] Received link, fetching actual data from: ${initialData.link.substring(0, 100)}...`)
+      
+      // 링크에서 실제 데이터 가져오기
+      const dataResponse = await fetch(initialData.link)
+      if (!dataResponse.ok) {
+        throw new Error(`Failed to fetch data from link: ${dataResponse.status}`)
+      }
+      
+      const actualData = await dataResponse.json()
+      console.log(`[iRacing API] Request successful for ${path} (via link)`)
+      return actualData as T
+    }
+    
+    // 직접 데이터를 반환하는 경우
     console.log(`[iRacing API] Request successful for ${path}`)
-    return result
+    return initialData as T
   } catch (error) {
     console.error(`[iRacing API] Request failed for ${path}:`, error)
     throw error

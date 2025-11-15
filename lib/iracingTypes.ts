@@ -76,6 +76,8 @@ export interface IracingDriverDetail extends IracingDriverSummary {
   recentRaces?: DriverRecentRace[] | null
   consistency?: DriverConsistencyMetrics | null
   highlights?: DriverHighlight[] | null
+  categoryId?: number | null // 현재 표시 중인 카테고리 ID (1=Oval, 2=Road, 3=Dirt Oval, 4=Dirt Road, 5=Sports Car, 6=Formula Car)
+  warning?: string | null // 경고 메시지 (예: 최근 레이스가 없어서 iRating/Safety Rating을 표시할 수 없음)
 }
 
 export interface PercentileResponse {

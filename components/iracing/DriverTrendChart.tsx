@@ -25,6 +25,10 @@ export default function DriverTrendChart({ data }: DriverTrendChartProps) {
     .map((point) => ({
       ...point,
       dateLabel: formatDate(point.date),
+      // Safety Rating은 100배 값으로 저장되어 있으므로 100으로 나누어 표시
+      safetyRating: point.safetyRating !== null && point.safetyRating !== undefined
+        ? point.safetyRating > 10 ? point.safetyRating / 100 : point.safetyRating
+        : null,
     }))
 
   if (!sanitized.length) return null

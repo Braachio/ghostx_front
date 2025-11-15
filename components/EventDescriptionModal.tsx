@@ -83,7 +83,7 @@ export default function EventDescriptionModal({
           </button>
         </div>
 
-        <div className="px-6 md:px-8 py-6 overflow-y-auto max-h-[55vh]">
+        <div className="px-6 md:px-8 py-6 overflow-y-auto min-h-[48vh] max-h-[72vh]">
           {isEditing ? (
             <textarea
               value={editDescription}

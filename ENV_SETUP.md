@@ -58,6 +58,15 @@ NEXT_PUBLIC_API_URL=https://your-backend.com
 # Steam Web API Key (Steam 로그인용)
 STEAM_WEB_API_KEY=your_steam_web_api_key
 
+# iRacing OAuth (Password Limited Flow)
+IRACING_CLIENT_ID=gpx-racing-companion
+IRACING_CLIENT_SECRET=your_client_secret_from_email
+IRACING_USERNAME=josanghn@gmail.com
+IRACING_PASSWORD=your_iracing_password
+
+# iRacing OAuth (Authorization Code Flow - 향후 사용자 로그인용)
+IRACING_REDIRECT_URI=https://ghostx.site/api/iracing/oauth/callback
+
 # 환경
 NODE_ENV=production
 ```
@@ -67,11 +76,20 @@ NODE_ENV=production
 2. Domain Name: `ghostx.site` 입력
 3. API Key 복사하여 환경 변수에 추가
 
+**iRacing OAuth 설정**:
+1. Nick으로부터 받은 Client Secret을 환경 변수에 추가
+2. `IRACING_USERNAME`: iRacing 계정 이메일 (josanghn@gmail.com)
+3. `IRACING_PASSWORD`: iRacing 계정 비밀번호
+4. **보안 주의**: 이 값들은 서버 환경 변수에만 저장하고 코드에 커밋하지 마세요
+
 #### 로컬 개발 환경
 
 ```env
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 NODE_ENV=development
+
+# iRacing OAuth (로컬 개발용)
+IRACING_REDIRECT_URI=http://localhost:3000/api/iracing/oauth/callback
 ```
 
 ### 4. 체크리스트
@@ -81,6 +99,7 @@ NODE_ENV=development
 - [ ] Supabase에서 "Confirm email" 활성화
 - [ ] Supabase Redirect URLs에 `https://ghostx.site/auth/callback` 추가
 - [ ] Supabase Site URL을 `https://ghostx.site`로 설정
+- [ ] iRacing OAuth 환경 변수 설정 (IRACING_CLIENT_ID, IRACING_CLIENT_SECRET, IRACING_USERNAME, IRACING_PASSWORD)
 - [ ] 재배포 후 테스트
 
 ### 5. 테스트 방법

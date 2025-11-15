@@ -423,7 +423,7 @@ export default function ParticipationSection({ eventId, isOwner = false, onParti
               disabled={joining}
               className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-all font-semibold shadow-lg hover:shadow-green-500/25"
             >
-              {joining ? '참가신청 중...' : '참가신청하기'}
+              {joining ? '참가신청 중...' : '참가 하기'}
             </button>
           </div>
         )}

@@ -199,10 +199,8 @@ export default function EventDetailModal({
           </button>
         </div>
 
-        <div className="p-6 md:p-8 overflow-y-auto max-h-[70vh]">
-          {/* 통합 이벤트 컨테이너 - 모바일 최적화 */}
+        <div className="px-6 md:px-8 py-6 overflow-y-auto max-h-[70vh]">
           <div className="space-y-6">
-            {/* Steam 로그인 안내문 (로그인되지 않은 경우만) */}
             {!user && (
               <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-center">
                 <p className="text-amber-100 text-xs font-medium">
@@ -211,130 +209,144 @@ export default function EventDetailModal({
               </div>
             )}
 
-            {/* 모든 버튼들을 모바일 최적화로 배치 */}
-            <div className="flex flex-wrap gap-2 justify-start">
-                  {/* 관리자/작성자가 아닌 경우에만 참가신청 버튼 표시 */}
+            <div className="rounded-3xl border border-slate-900 bg-slate-950/60 shadow-[0_16px_40px_-30px_rgba(15,23,42,0.9)] overflow-hidden">
+              <div className="relative h-48 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+                <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_#38bdf8_0%,_rgba(15,23,42,0)_55%)]" />
+                <div className="relative flex h-full flex-col justify-between p-6">
+                  <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-widest text-slate-200">
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-slate-900/60 px-3 py-1 text-[11px]">
+                        ⏱️ {event.duration_hours ? `${event.duration_hours}h` : 'TBD'}
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-slate-900/60 px-3 py-1 text-[11px]">
+                        👥 {participantCount}명 참여
+                      </span>
+                    </div>
+                    <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] ${event.is_open ? 'bg-emerald-500/20 text-emerald-200' : 'bg-slate-900/70 text-slate-300'}`}>
+                      {event.is_open ? '모집중' : '마감'}
+                    </span>
+                  </div>
+
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-[0.32em] text-slate-300">
+                      {event.game}
+                    </p>
+                    <h3 className="mt-2 text-2xl font-semibold text-white">
+                      {event.title}
+                    </h3>
+                    <p className="mt-2 text-xs text-slate-300 uppercase tracking-widest">
+                      {event.multi_day?.join(', ') || '날짜 미정'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-6 p-6">
+                <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-400">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-slate-800 bg-slate-950/80 px-3 py-1">
+                    🏎️ {event.multi_class || '클래스 미정'}
+                  </span>
+                  <span className="inline-flex items-center gap-2 rounded-full border border-slate-800 bg-slate-950/80 px-3 py-1">
+                    📍 {event.game_track || '트랙 미정'}
+                  </span>
+                  <span className="inline-flex items-center gap-2 rounded-full border border-slate-800 bg-slate-950/80 px-3 py-1">
+                    🕒 {event.multi_time || '시간 미정'}
+                  </span>
+                  <span className="inline-flex items-center gap-2 rounded-full border border-slate-800 bg-slate-950/80 px-3 py-1">
+                    👁️ 조회수 {viewCount.toLocaleString()}
+                  </span>
+                </div>
+
+                {isEditing ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label className="flex flex-col gap-2 rounded-2xl border border-slate-900 bg-slate-950/70 p-4">
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">
+                        트랙
+                      </span>
+                      <input
+                        type="text"
+                        value={editForm.game_track}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, game_track: e.target.value }))}
+                        className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                        placeholder="트랙명 입력"
+                      />
+                    </label>
+                    <label className="flex flex-col gap-2 rounded-2xl border border-slate-900 bg-slate-950/70 p-4">
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">
+                        클래스
+                      </span>
+                      <input
+                        type="text"
+                        value={editForm.multi_class}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, multi_class: e.target.value }))}
+                        className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                        placeholder="클래스 입력"
+                      />
+                    </label>
+                    <label className="flex flex-col gap-2 rounded-2xl border border-slate-900 bg-slate-950/70 p-4">
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">
+                        시작 시간
+                      </span>
+                      <input
+                        type="time"
+                        value={editForm.multi_time}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, multi_time: e.target.value }))}
+                        className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                      />
+                    </label>
+                    <label className="flex flex-col gap-2 rounded-2xl border border-slate-900 bg-slate-950/70 p-4">
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">
+                        지속시간 (시간)
+                      </span>
+                      <input
+                        type="number"
+                        min="1"
+                        max="24"
+                        value={editForm.duration_hours}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, duration_hours: parseInt(e.target.value) || 1 }))}
+                        className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                      />
+                    </label>
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-slate-900 bg-slate-950/70 p-5 text-sm leading-relaxed text-slate-200">
+                    {currentDescription
+                      ? currentDescription
+                      : '설명이 아직 등록되지 않았습니다. 아래 상세 정보 버튼을 통해 내용을 추가해 보세요.'}
+                  </div>
+                )}
+
+                <div className="flex flex-wrap items-center gap-2">
                   {!((user && event.author_id === user.id) || hasManagementPermission) && (
-                    <ParticipationButton 
-                      eventId={event.id} 
+                    <ParticipationButton
+                      eventId={event.id}
                       onParticipationChange={fetchParticipantCount}
                     />
                   )}
 
-              {/* 트랙투표 버튼 */}
-              {event.voting_enabled && (
-                <button
-                  onClick={() => setShowVotingModal(true)}
-                  className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/80 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-200 hover:bg-slate-800 transition-colors"
-                >
-                  <span className="text-base">🏁</span>
-                  트랙 투표
-                </button>
-              )}
-
-              {/* 일반 사용자에게는 참가자 수만 표시, 관리자/작성자에게는 참가자 목록 버튼 표시 */}
-              {!((user && event.author_id === user.id) || hasManagementPermission) ? (
-                <div className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/70 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-300">
-                  <span className="text-base">👥</span>
-                  참가자 {participantCount}명
-                </div>
-              ) : (
-                <button
-                  onClick={() => setShowParticipantModal(true)}
-                  className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/80 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-200 hover:bg-slate-800 transition-colors"
-                >
-                  <span className="text-base">👥</span>
-                  참가자 목록 ({participantCount}명)
-                </button>
-              )}
-            </div>
-
-            {/* 이벤트 정보 */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-3 text-xs font-medium uppercase tracking-wide text-slate-500">
-                    <span>{event.game}</span>
-                    <span className="text-slate-700">•</span>
-                    <span>{event.multi_day?.join(', ') || 'TBD'}</span>
-                  </div>
-                </div>
-                
-                 {/* 조회수 표시 */}
-                 <div className="text-right">
-                   <div className="text-slate-600 text-xs font-medium uppercase tracking-wide">
-                     조회수 {viewCount.toLocaleString()}
-                   </div>
-                 </div>
-              </div>
-
-              {/* 기본 정보 그리드 - 모바일 최적화 */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="rounded-2xl border border-slate-900 bg-slate-950/60 p-4">
-                  <p className="text-slate-500 text-[11px] font-medium uppercase tracking-[0.24em] mb-2">
-                    트랙
-                  </p>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={editForm.game_track}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, game_track: e.target.value }))}
-                      className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-1 focus:ring-slate-500"
-                      placeholder="트랙명 입력"
-                    />
-                  ) : (
-                    <p className="text-slate-100 text-base font-semibold">{event.game_track || 'TBD'}</p>
+                  {event.voting_enabled && (
+                    <button
+                      onClick={() => setShowVotingModal(true)}
+                      className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-950/70 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-slate-200 hover:bg-slate-900 transition-colors"
+                    >
+                      <span className="text-base">🏁</span>
+                      트랙 투표
+                    </button>
                   )}
-                </div>
-                
-                <div className="rounded-2xl border border-slate-900 bg-slate-950/60 p-4">
-                  <p className="text-slate-500 text-[11px] font-medium uppercase tracking-[0.24em] mb-2">
-                    클래스
-                  </p>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={editForm.multi_class}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, multi_class: e.target.value }))}
-                      className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-1 focus:ring-slate-500"
-                      placeholder="클래스 입력"
-                    />
+
+                  {!((user && event.author_id === user.id) || hasManagementPermission) ? (
+                    <div className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-950/70 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-slate-300">
+                      <span className="text-base">👥</span>
+                      참가자 {participantCount}명
+                    </div>
                   ) : (
-                    <p className="text-slate-100 text-base font-semibold">{event.multi_class || 'TBD'}</p>
-                  )}
-                </div>
-                
-                <div className="rounded-2xl border border-slate-900 bg-slate-950/60 p-4">
-                  <p className="text-slate-500 text-[11px] font-medium uppercase tracking-[0.24em] mb-2">
-                    시작 시간
-                  </p>
-                  {isEditing ? (
-                    <input
-                      type="time"
-                      value={editForm.multi_time}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, multi_time: e.target.value }))}
-                      className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-1 focus:ring-slate-500"
-                    />
-                  ) : (
-                    <p className="text-slate-100 text-base font-semibold">{event.multi_time || 'TBD'}</p>
-                  )}
-                </div>
-                
-                <div className="rounded-2xl border border-slate-900 bg-slate-950/60 p-4">
-                  <p className="text-slate-500 text-[11px] font-medium uppercase tracking-[0.24em] mb-2">
-                    지속시간
-                  </p>
-                  {isEditing ? (
-                    <input
-                      type="number"
-                      min="1"
-                      max="24"
-                      value={editForm.duration_hours}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, duration_hours: parseInt(e.target.value) || 1 }))}
-                      className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-1 focus:ring-slate-500"
-                    />
-                  ) : (
-                    <p className="text-slate-100 text-base font-semibold">{event.duration_hours ? `${event.duration_hours}시간` : 'TBD'}</p>
+                    <button
+                      onClick={() => setShowParticipantModal(true)}
+                      className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-950/70 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-slate-200 hover:bg-slate-900 transition-colors"
+                    >
+                      <span className="text-base">👥</span>
+                      참가자 목록 ({participantCount}명)
+                    </button>
                   )}
                 </div>
               </div>
