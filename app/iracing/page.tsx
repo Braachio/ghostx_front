@@ -12,6 +12,7 @@ import DriverStrengthsCard from '@/components/iracing/DriverStrengthsCard'
 import DriverRecentResults from '@/components/iracing/DriverRecentResults'
 import DriverConsistencyCard from '@/components/iracing/DriverConsistencyCard'
 import DriverHighlights from '@/components/iracing/DriverHighlights'
+import AIStrategyCard from '@/components/iracing/AIStrategyCard'
 import type { IracingDriverDetail } from '@/lib/iracingTypes'
 import { useLanguage } from '@/hooks/useLanguage'
 
@@ -25,18 +26,21 @@ const translations = {
       tabBop: 'BoP 패치 알림',
     },
     hero: {
-      subtitle: 'iRacing 드라이버 분석 및 전략 도구',
+      subtitle: '전적 검색부터 우승 전략까지',
       description: [
-        '드라이버 전적, 퍼센타일 랭킹, 세션 요약을 통해',
-        '레이싱 전략을 수립하고 경쟁력을 향상시키세요',
+        '감으로 타는 시대는 끝났습니다.',
+        'GPX AI가 제안하는 1%의 디테일로 포디움의 주인공이 되세요.',
       ],
     },
     session: {
-      label: 'Session Summary',
+      label: 'Session Strategy',
       title: '세션 전략',
       noMainDriver: '드라이버 인사이트 탭에서 내 주요 드라이버를 설정하면 맞춤 전략을 제공합니다.',
-      inputPlaceholder: '세션(서브세션) ID',
-      submit: '요약 보기',
+      inputPlaceholder: '세션 ID를 입력하세요 (예: 70654541)',
+      submit: '분석 시작',
+      startGridLabel: '스타트 그리드',
+      startGridUnknown: '정보 없음',
+      startGridQualFallback: (pos: number) => `퀄리파잉 P${pos}`,
       loading: '로딩...',
       errorDefault: '요약 실패',
       errorUnknown: '에러',
@@ -53,7 +57,7 @@ const translations = {
       weakerHint: '드라이버를 선택하면 페이스가 낮은 상대를 표시합니다.',
       sofLabel: 'SOF (추정)',
       moreParticipants: (count: number) => `...외 ${count}명`,
-      fallback: '세션 ID를 입력하면 참가자 정보를 요약해 드립니다.',
+      fallback: '세션 ID를 입력하면 AI가 분석한 맞춤형 전략 리포트를 생성합니다.',
       mainDriverBadge: '내 드라이버',
       lapLabel: '랩',
     },
@@ -108,6 +112,9 @@ const translations = {
       noMainDriver: 'Set your main driver in Driver Insights to unlock tailored strategies.',
       inputPlaceholder: 'Session (sub-session) ID',
       submit: 'Load Summary',
+      startGridLabel: 'Start Grid',
+      startGridUnknown: 'Unknown',
+      startGridQualFallback: (pos: number) => `Qual P${pos}`,
       loading: 'Loading...',
       errorDefault: 'Failed to load summary',
       errorUnknown: 'Error',
@@ -175,6 +182,17 @@ interface User {
   role: string
 }
 
+type RivalInsightCard = {
+  label: string
+  position?: string
+  offset?: string
+  irGap?: string
+  incidents?: string
+  dnf?: string
+  recent?: string
+  advice?: string
+}
+
 export default function IracingTestPage() {
   const [user, setUser] = useState<User | null>(null)
   const [q, setQ] = useState('')
@@ -204,14 +222,91 @@ export default function IracingTestPage() {
         recent_avg_finish_position?: number | null
         win_rate?: number | null
         ir_trend?: number | null
+        sr_trend?: number | null
+        best_lap_time?: number | null
+        average_lap_time?: number | null
+        lap_time_diff?: number | null
+        lap_time_consistency?: number | null
+        total_participants?: number | null
+        starting_position?: number | null
+        starting_rank_pct?: number | null
+        qualifying_position?: number | null
+        qualifying_best_lap_time?: number | null
+        practice_best_lap_time?: number | null
+        fastest_qualifying_lap_time?: number | null
+        fastest_race_lap_time?: number | null
       }
+      qualifyingPosition?: number | string | null
       predictedFinish?: number | null
       predictedConfidence?: number | null
-      strategyRecommendation?: { strategy: string; confidence: number; reasoning: string[] } | null
+      predictedVariants?: Record<string, {
+        rank?: number | null
+        predictedFinish?: number | null
+        confidence?: number | null
+        rawScore?: number | null
+        incidentRiskLevel?: 'low' | 'medium' | 'high' | null
+        incidentProbability?: number | null
+        predictedRankWithIncidents?: number | null
+        minRank?: number | null
+        maxRank?: number | null
+        analyzedFactors?: string[]
+        actionableInsights?: string[]
+        rivalFront?: RivalInsightCard | null
+        rivalRear?: RivalInsightCard | null
+      }>
+      // 사고 시나리오 기반 예측 (주요 예측 모드에서 사용)
+      incidentRiskLevel?: 'low' | 'medium' | 'high' | null
+      incidentProbability?: number | null
+      predictedRankWithIncidents?: number | null
+      minRank?: number | null
+      maxRank?: number | null
+      // 상대 전략 분석
+      opponentStrategy?: {
+        tags: string[]
+        description: string
+        priority: 'high' | 'medium' | 'low'
+      } | null
+      predictionModeUsed?: 'pre' | 'post' | null
+      strategyRecommendation?: {
+        strategy: string
+        confidence: number
+        reasoning: string[]
+        analyzedFactors?: string[]
+        actionableInsights?: string[]
+        keyFactors?: string[]
+        actionItems?: string[]
+        actions?: string[]
+        detailedStrategy?: {
+          start?: string[]
+          mid?: string[]
+          end?: string[]
+        }
+      } | null
     }>
-    overallStrategy?: { strategy: string; confidence: number; reasoning: string[] } | null
+    overallStrategy?: {
+      strategy: string
+      confidence: number
+      reasoning: string[]
+      analyzedFactors?: string[]
+      actionableInsights?: string[]
+      keyFactors?: string[]
+      actionItems?: string[]
+      actions?: string[]
+      rivalInsights?: {
+        front?: RivalInsightCard | null
+        rear?: RivalInsightCard | null
+      }
+      detailedStrategy?: {
+        start?: string[]
+        mid?: string[]
+        end?: string[]
+      }
+    } | null
+    predictionModes?: { available: string[]; used?: string | null }
     snapshotAt?: string 
   } | null>(null)
+  // 빠른 요약 데이터를 별도로 보관 (상세 분석이 도착해도 유지)
+  const [quickSummary, setQuickSummary] = useState<typeof sessionSummary>(null)
   const [sessionError, setSessionError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'session' | 'driver' | 'meta' | 'bop'>('session')
   const [mainDriverCustId, setMainDriverCustId] = useState<string | null>(null)
@@ -426,8 +521,11 @@ export default function IracingTestPage() {
     }
   }, [mainDriverCustId, profile, searchLoading, loadDetail])
 
+  // 빠른 요약 카드는 빠른 요약 데이터를 기반으로 계산 (상세 분석이 도착해도 유지)
   const sessionAnalysis = useMemo(() => {
-    const participants = sessionSummary?.participants || []
+    // 빠른 요약 데이터가 있으면 그것을 사용, 없으면 전체 세션 요약 사용
+    const sourceData = quickSummary || sessionSummary
+    const participants = sourceData?.participants || []
     if (!participants.length) return null
 
     const driverCustId = profile?.custId ?? mainDriverCustId ?? null
@@ -444,9 +542,36 @@ export default function IracingTestPage() {
     let weaker: typeof withIr = []
     let strategy: string = t.session.loaded
 
-    if (driverIr !== null && driverIr !== undefined) {
-      stronger = withIr.filter((p) => String(p.custId) !== driverCustId && (p.irating ?? 0) >= driverIr + 50)
-      weaker = withIr.filter((p) => String(p.custId) !== driverCustId && (p.irating ?? 0) <= driverIr - 50)
+    if (driverCustId) {
+      // 상대 드라이버 분석 결과 활용 (opponentStrategy가 있으면 우선 사용)
+      const participantsWithStrategy = participants.filter((p: any) => 
+        String(p.custId) !== driverCustId && p.opponentStrategy
+      )
+      
+      if (participantsWithStrategy.length > 0) {
+        // 분석 결과 기반으로 강한 상대와 약한 상대 분류
+        stronger = participantsWithStrategy
+          .filter((p: any) => {
+            const strategy = p.opponentStrategy
+            return strategy.tags.some((tag: string) => 
+              tag === '강한상대' || tag === '빠른페이스'
+            )
+          })
+          .slice(0, 5)
+        
+        weaker = participantsWithStrategy
+          .filter((p: any) => {
+            const strategy = p.opponentStrategy
+            return strategy.tags.some((tag: string) => 
+              tag === '추월대상' || tag === '약한상대'
+            )
+          })
+          .slice(0, 5)
+      } else if (driverIr !== null && driverIr !== undefined) {
+        // 분석 결과가 없으면 iRating 기반으로 폴백
+        stronger = withIr.filter((p) => String(p.custId) !== driverCustId && (p.irating ?? 0) >= driverIr + 50)
+        weaker = withIr.filter((p) => String(p.custId) !== driverCustId && (p.irating ?? 0) <= driverIr - 50)
+      }
 
       const driverRank = sortedByIr.findIndex((p) => String(p.custId) === driverCustId) + 1 || null
       const strongerCount = stronger.length
@@ -470,27 +595,112 @@ export default function IracingTestPage() {
       weaker: weaker.slice(0, 5),
       strategy,
     }
-  }, [sessionSummary, profile, mainDriverCustId, t])
+  }, [quickSummary, sessionSummary, profile, mainDriverCustId, t])
 
-  const renderSessionTab = () => (
-    <>
-      {/* 세션 요약 카드 (메인) */}
-      <div className="bg-gray-900/70 border border-emerald-700/40 rounded-2xl p-6 backdrop-blur-sm shadow-lg shadow-emerald-500/10">
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <div className="text-xs text-emerald-300/80 uppercase tracking-[0.2em]">{t.session.label}</div>
-            <div className="text-xl font-semibold text-white">{t.session.title}</div>
-          </div>
-          {sessionSummary?.snapshotAt && (
-            <div className="text-xs text-gray-400">{new Date(sessionSummary.snapshotAt).toLocaleTimeString(locale)}</div>
+  const renderSessionTab = () => {
+    const normalizeNumericValue = (value: number | string | null | undefined): number | null => {
+      if (value === null || value === undefined) return null
+      const numeric = typeof value === 'number' ? value : Number(value)
+      if (Number.isNaN(numeric) || !Number.isFinite(numeric)) return null
+      return numeric
+    }
+
+    const mainDriverParticipant =
+      mainDriverCustId && sessionSummary?.participants
+        ? sessionSummary.participants.find((p) => String(p.custId) === String(mainDriverCustId))
+        : null
+    const mainDriverStartPosition = normalizeNumericValue(
+      mainDriverParticipant?.features?.starting_position
+    )
+    const fallbackQualPos =
+      mainDriverParticipant?.qualifyingPosition ??
+      mainDriverParticipant?.features?.qualifying_position ??
+      null
+    const mainDriverQualifyingPosition = normalizeNumericValue(fallbackQualPos)
+    const predictionVariants = mainDriverParticipant?.predictedVariants
+    const predictionModeUsed = sessionSummary?.predictionModes?.used
+    const activePredictionVariant =
+      (predictionModeUsed && predictionVariants?.[predictionModeUsed]) ||
+      predictionVariants?.post ||
+      predictionVariants?.pre ||
+      (predictionVariants ? Object.values(predictionVariants)[0] : null)
+
+    const strategyAnalyzed =
+      sessionSummary?.overallStrategy?.analyzedFactors ?? []
+    const strategyInsights =
+      sessionSummary?.overallStrategy?.actionableInsights ?? []
+
+    const analyzedFactors =
+      strategyAnalyzed.length > 0
+        ? strategyAnalyzed
+        : activePredictionVariant?.analyzedFactors ?? null
+    const actionableInsights =
+      strategyInsights.length > 0
+        ? strategyInsights
+        : activePredictionVariant?.actionableInsights ?? null
+
+    const rivalInsights =
+      sessionSummary?.overallStrategy?.rivalInsights ??
+      (activePredictionVariant
+        ? {
+            front: activePredictionVariant.rivalFront ?? null,
+            rear: activePredictionVariant.rivalRear ?? null,
+          }
+        : undefined)
+
+    const renderSessionBody = () => {
+      if (sessionSummary) {
+        return (
+        <div className="mt-4">
+          {/* 고도화된 전략 제안 (overallStrategy가 있으면 우선 표시) */}
+          {sessionSummary.overallStrategy && (
+              <AIStrategyCard
+                overallStrategy={sessionSummary.overallStrategy}
+                showStartInfo={Boolean(mainDriverCustId)}
+                startPosition={mainDriverStartPosition}
+                qualifyingPosition={mainDriverQualifyingPosition}
+                predictedRank={activePredictionVariant?.rank ?? null}
+                startGridLabel={t.session.startGridLabel}
+                startGridUnknown={t.session.startGridUnknown}
+                startGridQualFallback={t.session.startGridQualFallback}
+                predictionModes={sessionSummary.predictionModes}
+                analyzedFactors={analyzedFactors}
+                actionableInsights={actionableInsights}
+                rivalInsights={rivalInsights}
+              />
           )}
+          {/* 나머지 기존 sessionSummary UI (전략 제안, 참가자 리스트 등) */}
         </div>
-
-        {!mainDriverCustId && (
-          <div className="mb-4 text-xs text-emerald-200/80 bg-emerald-900/20 border border-emerald-700/40 rounded-lg px-4 py-2">
-            {t.session.noMainDriver}
+        )
+      }
+      if (!sessionLoading) {
+        return (
+          <div className="mt-6 text-center text-gray-500 text-sm border border-dashed border-emerald-500/40 rounded-xl py-10">
+            {t.session.fallback}
           </div>
-        )}
+        )
+      }
+      return null
+    }
+
+    return (
+      <>
+        <div className="bg-gray-900/70 border border-emerald-700/40 rounded-2xl p-6 backdrop-blur-sm shadow-lg shadow-emerald-500/10">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <div className="text-xs text-emerald-300/80 uppercase tracking-[0.2em]">{t.session.label}</div>
+              <div className="text-xl font-semibold text-white">{t.session.title}</div>
+            </div>
+            {sessionSummary?.snapshotAt && (
+              <div className="text-xs text-gray-400">{new Date(sessionSummary.snapshotAt).toLocaleTimeString(locale)}</div>
+            )}
+          </div>
+
+          {!mainDriverCustId && (
+            <div className="mb-4 text-xs text-emerald-200/80 bg-emerald-900/20 border border-emerald-700/40 rounded-lg px-4 py-2">
+              {t.session.noMainDriver}
+            </div>
+          )}
 
         <div className="flex flex-col lg:flex-row gap-3 mb-4">
           <input
@@ -505,14 +715,15 @@ export default function IracingTestPage() {
               setSessionLoading(true)
               setSessionError(null)
               setSessionSummary(null)
+              setQuickSummary(null) // 빠른 요약도 초기화
               try {
                 // 먼저 빠른 요약을 가져와서 즉시 표시
                 const quickRes = await fetch(`/api/iracing/session/${encodeURIComponent(sessionId.trim())}/quick`)
                 const quickCt = quickRes.headers.get('content-type') || ''
                 const quickData = quickCt.includes('application/json') ? await quickRes.json() : await quickRes.text()
                 if (quickRes.ok && typeof quickData !== 'string') {
-                  // 기본 정보 먼저 표시
-                  setSessionSummary({
+                  // 빠른 요약 데이터를 별도로 보관
+                  const quickDataClean = {
                     ...quickData,
                     participants: (quickData.participants || []).map((p: {
                       custId: string
@@ -527,7 +738,10 @@ export default function IracingTestPage() {
                       predictedConfidence: undefined,
                     })),
                     overallStrategy: undefined,
-                  })
+                  }
+                  setQuickSummary(quickDataClean)
+                  // 기본 정보도 표시
+                  setSessionSummary(quickDataClean)
                 }
                 
                 // 그 다음 상세 분석을 백그라운드에서 로드
@@ -565,7 +779,29 @@ export default function IracingTestPage() {
                     predictedConfidence: p.predictedConfidence,
                   })))
                 }
-                setSessionSummary(data)
+                // 기존 빠른 요약 데이터를 보존하면서 상세 분석 데이터 병합
+                setSessionSummary((prev) => {
+                  if (!prev) return data
+                  
+                  // 참가자 데이터 병합: 기존 참가자에 상세 정보 추가
+                  const mergedParticipants = (prev.participants || []).map((prevP: any) => {
+                    const detailedP = data?.participants?.find((dp: any) => String(dp.custId) === String(prevP.custId))
+                    return detailedP ? {
+                      ...prevP,
+                      ...detailedP, // 상세 정보로 업데이트
+                    } : prevP
+                  })
+                  
+                  // 상세 분석에만 있는 새로운 참가자 추가
+                  const existingCustIds = new Set((prev.participants || []).map((p: any) => String(p.custId)))
+                  const newParticipants = (data?.participants || []).filter((p: any) => !existingCustIds.has(String(p.custId)))
+                  
+                  return {
+                    ...prev, // 기존 빠른 요약 데이터 유지
+                    ...data, // 상세 분석 데이터로 덮어쓰기
+                    participants: [...mergedParticipants, ...newParticipants], // 병합된 참가자 리스트
+                  }
+                })
               } catch (e) {
                 setSessionError(e instanceof Error ? e.message : t.session.errorUnknown)
               } finally {
@@ -578,208 +814,11 @@ export default function IracingTestPage() {
           </button>
         </div>
 
-        {sessionLoading && <div className="text-sm text-gray-400">{t.session.loading}</div>}
-        {sessionError && <div className="text-sm text-red-400">{sessionError}</div>}
-
-        {sessionSummary ? (
-          <div className="mt-4">
-            {/* 고도화된 전략 제안 (overallStrategy가 있으면 우선 표시) */}
-            {sessionSummary.overallStrategy && (
-              <div className="mb-5 bg-gradient-to-r from-emerald-900/40 to-cyan-900/40 border border-emerald-600/50 rounded-xl p-5">
-                <div className="text-sm text-emerald-200 uppercase tracking-[0.2em] mb-3 flex items-center justify-between">
-                  <span>AI 전략 제안</span>
-                  <span className="text-emerald-400 text-xs">
-                    신뢰도: {Math.round(sessionSummary.overallStrategy.confidence * 100)}%
-                  </span>
-                </div>
-                <div className="mb-3">
-                  <span className={`px-3 py-1.5 rounded-lg text-sm font-semibold ${
-                    sessionSummary.overallStrategy.strategy === 'aggressive' 
-                      ? 'bg-red-600/30 text-red-200 border border-red-500/50'
-                      : sessionSummary.overallStrategy.strategy === 'defensive'
-                      ? 'bg-yellow-600/30 text-yellow-200 border border-yellow-500/50'
-                      : sessionSummary.overallStrategy.strategy === 'survival'
-                      ? 'bg-orange-600/30 text-orange-200 border border-orange-500/50'
-                      : 'bg-emerald-600/30 text-emerald-200 border border-emerald-500/50'
-                  }`}>
-                    {sessionSummary.overallStrategy.strategy === 'aggressive' ? '공격적 전략' :
-                     sessionSummary.overallStrategy.strategy === 'defensive' ? '방어적 전략' :
-                     sessionSummary.overallStrategy.strategy === 'survival' ? '생존 모드' :
-                     '균형 전략'}
-                  </span>
-                </div>
-                <ul className="space-y-1.5 text-base text-emerald-100">
-                  {sessionSummary.overallStrategy.reasoning.map((reason, idx) => (
-                    <li key={`reason-${idx}-${reason.substring(0, 20)}`} className="flex items-start gap-2">
-                      <span className="text-emerald-400 mt-0.5">•</span>
-                      <span>{reason}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {sessionAnalysis && !sessionSummary.overallStrategy && (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-5">
-                <div className="bg-emerald-900/30 border border-emerald-600/40 rounded-xl p-4">
-                  <div className="text-sm text-emerald-200 uppercase tracking-[0.2em] mb-2">{t.session.strategyTitle}</div>
-                  <p className="text-base text-emerald-100 leading-relaxed">{sessionAnalysis.strategy}</p>
-                </div>
-                <div className="bg-gray-900/60 border border-gray-800 rounded-xl p-4">
-                  <div className="text-sm text-gray-400 uppercase tracking-[0.2em] mb-2">{t.session.strongerTitle}</div>
-                  {sessionAnalysis.stronger && sessionAnalysis.stronger.length > 0 ? (
-                    <ul className="space-y-2 text-base text-gray-300">
-                      {sessionAnalysis.stronger.map((p, idx) => (
-                        <li key={`strong-${p.custId || p.name || idx}-${idx}`} className="flex items-center justify-between">
-                          <span className="truncate max-w-[70%]">{p.name}</span>
-                          <span className="text-emerald-300 font-semibold">iR {p.irating ?? '-'}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <div className="text-sm text-gray-500">{t.session.strongerHint}</div>
-                  )}
-                </div>
-                <div className="bg-gray-900/60 border border-gray-800 rounded-xl p-4">
-                  <div className="text-sm text-gray-400 uppercase tracking-[0.2em] mb-2">{t.session.weakerTitle}</div>
-                  {sessionAnalysis.weaker && sessionAnalysis.weaker.length > 0 ? (
-                    <ul className="space-y-2 text-base text-gray-300">
-                      {sessionAnalysis.weaker.map((p, idx) => (
-                        <li key={`weak-${p.custId || p.name || idx}-${idx}`} className="flex items-center justify-between">
-                          <span className="truncate max-w-[70%]">{p.name}</span>
-                          <span className="text-gray-400">iR {p.irating ?? '-'}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <div className="text-sm text-gray-500">{t.session.weakerHint}</div>
-                  )}
-                </div>
-              </div>
-            )}
-            {sessionSummary.sofEstimate && (
-              <div className="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="p-4 rounded-xl bg-emerald-900/30 border border-emerald-600/40">
-                  <div className="text-sm text-emerald-200 uppercase tracking-[0.2em]">{t.session.sofLabel}</div>
-                  <div className="text-2xl font-bold text-emerald-300">{sessionSummary.sofEstimate.toLocaleString(locale)}</div>
-                </div>
-              </div>
-            )}
-            <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
-              {sessionSummary.participants?.slice(0, 20).map((p, index: number) => {
-                // 디버깅: 첫 번째 참가자만 로그
-                if (index === 0) {
-                  console.log('[Session Summary] Rendering participant:', {
-                    custId: p.custId,
-                    name: p.name,
-                    irating: p.irating,
-                    safetyRating: p.safetyRating,
-                    predictedFinish: p.predictedFinish,
-                    predictedConfidence: p.predictedConfidence,
-                    hasFeatures: !!p.features,
-                    features_i_rating: p.features?.i_rating,
-                    features_safety_rating: p.features?.safety_rating,
-                    features_avg_incidents: p.features?.avg_incidents_per_race,
-                  })
-                }
-                return (
-                <div
-                  key={`participant-${p.custId || p.name || index}-${index}`}
-                  className="bg-gray-950/60 border border-gray-800 rounded-xl p-4 hover:border-emerald-500/60 transition-colors cursor-pointer"
-                  onClick={() => {
-                    setQ('')
-                    setItems([])
-                    loadDetailFromSession(String(p.custId))
-                  }}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm text-gray-500 w-6">#{index + 1}</span>
-                      <div className="font-semibold text-white text-base flex items-center gap-2">
-                        <span className="truncate max-w-[200px]">{p.name}</span>
-                        {mainDriverCustId && String(p.custId) === mainDriverCustId && (
-                          <span className="px-2 py-0.5 text-xs rounded-full bg-emerald-600/30 border border-emerald-500/40 text-emerald-200">
-                            {t.session.mainDriverBadge}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <span className="text-sm px-2 py-0.5 rounded bg-gray-800 text-gray-300">{p.country || '-'}</span>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-gray-500">
-                    <div>
-                      <span className="text-gray-400">iR:</span>{' '}
-                      <span className="text-cyan-300 font-semibold">
-                        {p.irating !== null && p.irating !== undefined 
-                          ? p.irating.toLocaleString(locale) 
-                          : (p.features?.i_rating !== null && p.features?.i_rating !== undefined
-                            ? p.features.i_rating.toLocaleString(locale)
-                            : '-')}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-gray-400">SR:</span>{' '}
-                      <span className="text-green-300 font-semibold">
-                        {(() => {
-                          const sr = p.safetyRating ?? p.features?.safety_rating ?? null
-                          if (sr !== null && sr !== undefined) {
-                            return sr > 10 ? (sr / 100).toFixed(2) : sr.toFixed(2)
-                          }
-                          return '-'
-                        })()}
-                      </span>
-                    </div>
-                    {(p.features?.avg_incidents_per_race !== null && p.features?.avg_incidents_per_race !== undefined) ? (
-                      <div>
-                        <span className="text-gray-400">평균 Inc:</span>{' '}
-                        <span className="text-yellow-300 font-semibold">
-                          {p.features.avg_incidents_per_race.toFixed(1)}
-                        </span>
-                      </div>
-                    ) : (
-                      <div>
-                        <span className="text-gray-400">평균 Inc:</span>{' '}
-                        <span className="text-gray-500">-</span>
-                      </div>
-                    )}
-                    {p.predictedFinish ? (
-                      <div>
-                        <span className="text-gray-400">예측:</span>{' '}
-                        <span className="text-purple-300 font-semibold">
-                          {Math.round(p.predictedFinish)}등
-                          {p.predictedConfidence && (
-                            <span className="text-[10px] text-gray-500 ml-1">
-                              ({Math.round(p.predictedConfidence * 100)}%)
-                            </span>
-                          )}
-                        </span>
-                      </div>
-                    ) : p.pace?.estLap !== null && p.pace?.estLap !== undefined ? (
-                      <div>
-                        {t.session.lapLabel}: {p.pace.estLap.toFixed(1)}s
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
-              )})}
-              {sessionSummary.participants && sessionSummary.participants.length > 20 && (
-                <div className="text-sm text-center text-gray-500 pt-2">
-                  {t.session.moreParticipants(sessionSummary.participants.length - 20)}
-                </div>
-              )}
-            </div>
-          </div>
-        ) : (
-          !sessionLoading && (
-            <div className="mt-6 text-center text-gray-500 text-sm border border-dashed border-emerald-500/40 rounded-xl py-10">
-              {t.session.fallback}
-            </div>
-          )
-        )}
-      </div>
-
-    </>
-  );
-
+        {renderSessionBody()}
+        </div>
+      </>
+    )
+  }
   const renderDriverTab = () => (
     <div className="space-y-4">
       {/* 즐겨찾기 목록 */}
@@ -1066,7 +1105,7 @@ export default function IracingTestPage() {
           <div className="text-center mb-12">
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4">
               <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
-                아이레이싱 전적 분석
+                Your iRacing Companion
               </span>
             </h1>
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6 text-white">

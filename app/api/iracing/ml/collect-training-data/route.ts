@@ -5,7 +5,7 @@ import { irGet } from '@/lib/iracingClient'
 import { extractFeaturesFromRecentRaces, type RecentRace } from '@/lib/iracingMLFeatures'
 import { IpRateLimiter, getClientIp } from '@/lib/rateLimit'
 
-const limiter = new IpRateLimiter(5) // 데이터 수집은 rate limit 낮춤
+const limiter = new IpRateLimiter(20) // 데이터 수집을 위해 rate limit 완화
 
 /**
  * 최근 레이스 데이터 가져오기 (최대 10경기)
@@ -40,7 +40,7 @@ async function fetchRecentRaces(custId: number): Promise<RecentRace[]> {
 }
 
 /**
- * 세션 결과에서 참가자 정보 가져오기
+ * 세션 결과에서 참가자 정보 가져오기 (퀄리파잉, 프랙티스 세션 포함)
  */
 async function getSessionParticipants(subsessionId: number) {
   try {
@@ -49,23 +49,62 @@ async function getSessionParticipants(subsessionId: number) {
     })
     
     let raceResults: any[] = []
+    let qualifyingResults: any[] = []
+    let practiceResults: any[] = []
+    
+    // 세션별 결과 추출
     if (sessionResults.session_results && Array.isArray(sessionResults.session_results)) {
+      // Race 세션 (simsession_number: 0)
       const raceSession = sessionResults.session_results.find((s: any) => s.simsession_number === 0)
       if (raceSession && raceSession.results) {
         raceResults = raceSession.results
+      }
+      
+      // Qualifying 세션 (simsession_number: -2)
+      const qualifyingSession = sessionResults.session_results.find((s: any) => s.simsession_number === -2)
+      if (qualifyingSession && qualifyingSession.results) {
+        qualifyingResults = qualifyingSession.results
+      }
+      
+      // Practice 세션 (simsession_number: -1)
+      const practiceSession = sessionResults.session_results.find((s: any) => s.simsession_number === -1)
+      if (practiceSession && practiceSession.results) {
+        practiceResults = practiceSession.results
       }
     } else if (sessionResults.results) {
       raceResults = sessionResults.results
     }
     
+    // 날씨/트랙 조건 정보 추출
+    const weatherInfo = sessionResults.weather_temp !== undefined || sessionResults.track_temp !== undefined ? {
+      weather_temp: sessionResults.weather_temp ?? null,
+      track_temp: sessionResults.track_temp ?? null,
+      relative_humidity: sessionResults.relative_humidity ?? null,
+      wind_speed: sessionResults.wind_speed ?? null,
+      wind_direction: sessionResults.wind_direction ?? null,
+      skies: sessionResults.skies ?? null,
+      fog: sessionResults.fog ?? null,
+    } : null
+    
     return {
       results: raceResults,
+      qualifyingResults,
+      practiceResults,
       sessionInfo: {
         series_id: sessionResults.series_id ?? null,
         series_name: sessionResults.series_name ?? null,
+        season_id: sessionResults.season_id ?? null,
+        season_name: sessionResults.season_name ?? null,
         track_id: sessionResults.track_id ?? null,
         track_name: sessionResults.track_name ?? null,
+        track_shared_id: sessionResults.track_shared_id ?? null,
+        track_config: sessionResults.track_config ?? null,
         session_start_time: sessionResults.session_start_time ?? null,
+        session_type: sessionResults.session_type ?? sessionResults.simsession_type ?? null,
+        event_strength_of_field: sessionResults.event_strength_of_field ?? sessionResults.strength_of_field ?? null,
+        event_average_lap: sessionResults.event_average_lap ?? null,
+        event_average_incidents: sessionResults.event_average_incidents ?? null,
+        weather: weatherInfo,
       }
     }
   } catch (error) {
@@ -136,8 +175,8 @@ export async function POST(req: NextRequest) {
       try {
         console.log(`[Training Data] Processing session ${subsessionId}...`)
 
-        // 1. 세션 결과 가져오기
-        const { results, sessionInfo } = await getSessionParticipants(subsessionId)
+        // 1. 세션 결과 가져오기 (퀄리파잉, 프랙티스 포함)
+        const { results, qualifyingResults, practiceResults, sessionInfo } = await getSessionParticipants(subsessionId)
         
         if (!results || results.length === 0) {
           console.warn(`[Training Data] No results found for session ${subsessionId}`)
@@ -223,6 +262,85 @@ export async function POST(req: NextRequest) {
             const points = result.points ?? null
             const carId = result.car_id ?? result.carid ?? null
             const licenseLevel = result.license_level ?? result.licenselevel ?? result.old_license_level ?? result.new_license_level ?? null
+            
+            // 추가 필드 추출 (세션 전략 및 순위 예측에 활용)
+            const finishPositionInClass = result.finish_position_in_class ?? null
+            const interval = result.interval 
+              ? (typeof result.interval === 'number' ? result.interval / 10000 : parseFloat(String(result.interval)) / 10000) // 마이크로초를 초로 변환
+              : null
+            const intervalUnits = result.interval_units ?? result.intervalunits ?? null
+            const reasonOutId = result.reason_out_id ?? result.reasonoutid ?? null
+            const reasonOutText = result.reason_out ?? result.reason_out_text ?? result.reasonout ?? null
+            const averageLapTime = result.average_lap_time ?? result.average_lap
+              ? (typeof (result.average_lap_time ?? result.average_lap) === 'number' 
+                  ? (result.average_lap_time ?? result.average_lap) / 10000 
+                  : parseFloat(String(result.average_lap_time ?? result.average_lap)) / 10000)
+              : null
+            const bestLapNum = result.best_lap_num ?? result.bestlapnum ?? null
+            const weightPenaltyKg = result.weight_penalty_kg ?? result.weightpenaltykg ?? null
+            const iratingChange = (result.newi_rating && result.oldi_rating) 
+              ? result.newi_rating - result.oldi_rating 
+              : null
+            const safetyRatingChange = (result.new_sub_level && result.old_sub_level)
+              ? (result.new_sub_level - result.old_sub_level) / 100
+              : null
+            const teamId = result.team_id ?? result.teamid ?? null
+            const teamName = result.team_name ?? result.teamname ?? null
+            const carClassId = result.car_class_id ?? result.carclassid ?? null
+            const carClassName = result.car_class_name ?? result.carclassname ?? result.car_class_short_name ?? null
+
+            // 추가 주행 데이터 추출 (API 응답에 있는 경우)
+            // 참고: iRacing API는 각 랩의 개별 랩타임 배열을 제공하지 않을 수 있음
+            const fastestLapTime = result.fastest_lap_time 
+              ? (typeof result.fastest_lap_time === 'number' ? result.fastest_lap_time / 10000 : parseFloat(String(result.fastest_lap_time)) / 10000)
+              : null
+            const fastestLapNum = result.fastest_lap_num ?? result.fastestlapnum ?? null
+            const fastestQualifyingLapTime = result.fastest_qualifying_lap_time
+              ? (typeof result.fastest_qualifying_lap_time === 'number' ? result.fastest_qualifying_lap_time / 10000 : parseFloat(String(result.fastest_qualifying_lap_time)) / 10000)
+              : null
+            const fastestQualifyingLapNum = result.fastest_qualifying_lap_num ?? null
+            const totalLaps = result.total_laps ?? result.totallaps ?? lapsComplete
+            const lapsLedPct = result.laps_led_pct ?? result.lapsledpct ?? (lapsComplete && lapsLed ? (lapsLed / lapsComplete) * 100 : null)
+            const fastestRaceLapTime = result.fastest_race_lap_time
+              ? (typeof result.fastest_race_lap_time === 'number' ? result.fastest_race_lap_time / 10000 : parseFloat(String(result.fastest_race_lap_time)) / 10000)
+              : null
+            const fastestRaceLapNum = result.fastest_race_lap_num ?? null
+
+            // 퀄리파잉 세션에서 정보 추출
+            const qualifyingResult = qualifyingResults.find((q: any) => q.cust_id === custIdNum)
+            const qualifyingPosition = qualifyingResult?.finish_position ?? qualifyingResult?.position ?? null
+            const qualifyingBestLapTime = qualifyingResult?.best_lap_time
+              ? (typeof qualifyingResult.best_lap_time === 'number' ? qualifyingResult.best_lap_time / 10000 : parseFloat(String(qualifyingResult.best_lap_time)) / 10000)
+              : null
+            
+            // 프랙티스 세션에서 정보 추출
+            const practiceResult = practiceResults.find((p: any) => p.cust_id === custIdNum)
+            const practiceBestLapTime = practiceResult?.best_lap_time
+              ? (typeof practiceResult.best_lap_time === 'number' ? practiceResult.best_lap_time / 10000 : parseFloat(String(practiceResult.best_lap_time)) / 10000)
+              : null
+            
+            // 날씨/트랙 조건 정보
+            const weather = sessionInfo.weather
+            const weatherTemp = weather?.weather_temp ?? null
+            const trackTemp = weather?.track_temp ?? null
+            const relativeHumidity = weather?.relative_humidity ?? null
+            const windSpeed = weather?.wind_speed ?? null
+            const windDirection = weather?.wind_direction ?? null
+            const skies = weather?.skies ?? null
+            const fog = weather?.fog ?? null
+            
+            // 시간대 정보 추출 (session_start_time에서)
+            let dayOfWeek: number | null = null
+            let hourOfDay: number | null = null
+            if (sessionInfo.session_start_time) {
+              try {
+                const sessionDate = new Date(sessionInfo.session_start_time)
+                dayOfWeek = sessionDate.getDay() // 0 (일요일) ~ 6 (토요일)
+                hourOfDay = sessionDate.getHours() // 0 ~ 23
+              } catch (e) {
+                // 날짜 파싱 실패 시 무시
+              }
+            }
 
             // 학습 데이터 생성 (타입 검증 및 변환)
             const trainingRecord: any = {
@@ -268,8 +386,21 @@ export async function POST(req: NextRequest) {
               
               // 세션 컨텍스트
               series_id: sessionInfo.series_id ? parseInt(String(sessionInfo.series_id), 10) : null,
-              track_id: sessionInfo.track_id ? parseInt(String(sessionInfo.track_id), 10) : null, // ✅ 이미 수집 중
+              track_id: sessionInfo.track_id ? parseInt(String(sessionInfo.track_id), 10) : null,
               total_participants: parseInt(String(totalParticipants), 10),
+              series_name: sessionInfo.series_name ?? null,
+              season_id: sessionInfo.season_id ? parseInt(String(sessionInfo.season_id), 10) : null,
+              season_name: sessionInfo.season_name ?? null,
+              track_shared_id: sessionInfo.track_shared_id ? parseInt(String(sessionInfo.track_shared_id), 10) : null,
+              track_config: sessionInfo.track_config ?? null,
+              session_type: sessionInfo.session_type ?? null,
+              event_strength_of_field: sessionInfo.event_strength_of_field ? parseInt(String(sessionInfo.event_strength_of_field), 10) : null,
+              event_average_lap: sessionInfo.event_average_lap 
+                ? (typeof sessionInfo.event_average_lap === 'number' ? sessionInfo.event_average_lap / 10000 : parseFloat(String(sessionInfo.event_average_lap)) / 10000)
+                : null,
+              event_average_incidents: sessionInfo.event_average_incidents !== null && sessionInfo.event_average_incidents !== undefined
+                ? parseFloat(String(sessionInfo.event_average_incidents))
+                : null,
               
               // 상대 전력 통계 (추가) - INTEGER 필드이므로 null이거나 정수여야 함
               avg_opponent_ir: avgOpponentIR !== null && !isNaN(avgOpponentIR) ? avgOpponentIR : null,
@@ -287,6 +418,60 @@ export async function POST(req: NextRequest) {
               points: points !== null && points !== undefined ? parseInt(String(points), 10) : null,
               car_id: carId !== null && carId !== undefined ? parseInt(String(carId), 10) : null,
               license_level: licenseLevel !== null && licenseLevel !== undefined ? parseInt(String(licenseLevel), 10) : null,
+              
+              // 추가 필드 (세션 전략 및 순위 예측에 활용)
+              finish_position_in_class: finishPositionInClass !== null && finishPositionInClass !== undefined
+                ? parseInt(String(finishPositionInClass), 10)
+                : null,
+              interval: interval !== null && !isNaN(interval) ? parseFloat(String(interval)) : null,
+              interval_units: intervalUnits ?? null,
+              reason_out_id: reasonOutId !== null && reasonOutId !== undefined ? parseInt(String(reasonOutId), 10) : null,
+              reason_out_text: reasonOutText ?? null,
+              average_lap_time: averageLapTime !== null && !isNaN(averageLapTime) ? parseFloat(String(averageLapTime)) : null,
+              best_lap_num: bestLapNum !== null && bestLapNum !== undefined ? parseInt(String(bestLapNum), 10) : null,
+              weight_penalty_kg: weightPenaltyKg !== null && weightPenaltyKg !== undefined ? parseFloat(String(weightPenaltyKg)) : null,
+              irating_change: iratingChange !== null && !isNaN(iratingChange) ? parseInt(String(iratingChange), 10) : null,
+              safety_rating_change: safetyRatingChange !== null && !isNaN(safetyRatingChange) ? parseFloat(String(safetyRatingChange)) : null,
+              team_id: teamId !== null && teamId !== undefined ? parseInt(String(teamId), 10) : null,
+              team_name: teamName ?? null,
+              car_class_id: carClassId !== null && carClassId !== undefined ? parseInt(String(carClassId), 10) : null,
+              car_class_name: carClassName ?? null,
+              
+              // 추가 주행 데이터
+              fastest_lap_time: fastestLapTime !== null && !isNaN(fastestLapTime) ? parseFloat(String(fastestLapTime)) : null,
+              fastest_lap_num: fastestLapNum !== null && fastestLapNum !== undefined ? parseInt(String(fastestLapNum), 10) : null,
+              fastest_qualifying_lap_time: fastestQualifyingLapTime !== null && !isNaN(fastestQualifyingLapTime) ? parseFloat(String(fastestQualifyingLapTime)) : null,
+              fastest_qualifying_lap_num: fastestQualifyingLapNum !== null && fastestQualifyingLapNum !== undefined ? parseInt(String(fastestQualifyingLapNum), 10) : null,
+              fastest_race_lap_time: fastestRaceLapTime !== null && !isNaN(fastestRaceLapTime) ? parseFloat(String(fastestRaceLapTime)) : null,
+              fastest_race_lap_num: fastestRaceLapNum !== null && fastestRaceLapNum !== undefined ? parseInt(String(fastestRaceLapNum), 10) : null,
+              total_laps: totalLaps !== null && totalLaps !== undefined ? parseInt(String(totalLaps), 10) : null,
+              laps_led_pct: lapsLedPct !== null && !isNaN(lapsLedPct) ? parseFloat(String(lapsLedPct)) : null,
+              
+              // 퀄리파잉 정보 (레이스 시작 전 알 수 있음)
+              qualifying_position: qualifyingPosition !== null && qualifyingPosition !== undefined
+                ? parseInt(String(qualifyingPosition), 10)
+                : null,
+              qualifying_best_lap_time: qualifyingBestLapTime !== null && !isNaN(qualifyingBestLapTime)
+                ? parseFloat(String(qualifyingBestLapTime))
+                : null,
+              
+              // 프랙티스 정보 (레이스 시작 전 알 수 있음)
+              practice_best_lap_time: practiceBestLapTime !== null && !isNaN(practiceBestLapTime)
+                ? parseFloat(String(practiceBestLapTime))
+                : null,
+              
+              // 날씨/트랙 조건 (레이스 시작 전 알 수 있음)
+              weather_temp: weatherTemp !== null && !isNaN(weatherTemp) ? parseFloat(String(weatherTemp)) : null,
+              track_temp: trackTemp !== null && !isNaN(trackTemp) ? parseFloat(String(trackTemp)) : null,
+              relative_humidity: relativeHumidity !== null && !isNaN(relativeHumidity) ? parseFloat(String(relativeHumidity)) : null,
+              wind_speed: windSpeed !== null && !isNaN(windSpeed) ? parseFloat(String(windSpeed)) : null,
+              wind_direction: windDirection !== null && !isNaN(windDirection) ? parseFloat(String(windDirection)) : null,
+              skies: skies !== null && skies !== undefined ? parseInt(String(skies), 10) : null,
+              fog: fog !== null && fog !== undefined ? parseFloat(String(fog)) : null,
+              
+              // 시간대 정보 (레이스 시작 전 알 수 있음)
+              day_of_week: dayOfWeek !== null ? dayOfWeek : null, // 0=일요일, 6=토요일
+              hour_of_day: hourOfDay !== null ? hourOfDay : null, // 0~23
               
               // 실제 결과
               actual_finish_position: actualFinishPosition !== null && actualFinishPosition !== undefined

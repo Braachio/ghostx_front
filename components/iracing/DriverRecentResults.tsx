@@ -58,11 +58,11 @@ const formatNumber = (value?: number | null, digits = 0, sign = false) => {
 }
 
 export default function DriverRecentResults({ races }: DriverRecentResultsProps) {
-  if (!races || races.length === 0) return null
-
   const { language } = useLanguage()
   const t = translations[language as keyof typeof translations] ?? translations.ko
   const locale = language === 'ko' ? 'ko-KR' : 'en-US'
+
+  if (!races || races.length === 0) return null
 
   return (
     <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 backdrop-blur-sm">

@@ -1,0 +1,48 @@
+{
+  "model_type": "ensemble",
+  "timestamp": "20251119_173516",
+  "features": [
+    "i_rating",
+    "safety_rating",
+    "starting_position",
+    "avg_opponent_ir",
+    "max_opponent_ir",
+    "min_opponent_ir",
+    "ir_diff_from_avg",
+    "sof",
+    "ir_advantage",
+    "ir_range",
+    "ir_rank_pct",
+    "starting_rank_pct",
+    "best_lap_time",
+    "average_lap_time",
+    "laps_complete",
+    "lap_time_diff",
+    "total_participants"
+  ],
+  "models": [
+    {
+      "name": "gradient_boosting",
+      "weight": 0.34866563949536794,
+      "r2": 0.8437159931198803,
+      "model_path": "iracing_rank_predictor_gradient_boosting_20251119_000636.pkl"
+    },
+    {
+      "name": "random_forest",
+      "weight": 0.32638809856664,
+      "r2": 0.7898078489271968,
+      "model_path": "iracing_rank_predictor_random_forest_20251119_000555.pkl"
+    },
+    {
+      "name": "gradient_boosting",
+      "weight": 0.32494626193799203,
+      "r2": 0.7863188311254512,
+      "model_path": "iracing_rank_predictor_gradient_boosting_20251119_160127.pkl"
+    }
+  ],
+  "metrics": {
+    "mae": null,
+    "rmse": null,
+    "r2": 0.8066142243908428
+  }
+}

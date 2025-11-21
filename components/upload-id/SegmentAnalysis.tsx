@@ -25,14 +25,6 @@ type Segment = {
 
 // 분석 메인 컴포넌트
 export default function SegmentAnalysis({ result }: { result: ResultType }) {
-  if (!DRIVING_ANALYSIS_ENABLED) {
-    return (
-      <div className="rounded-xl border border-dashed border-purple-300 bg-purple-50/70 p-6 text-center text-purple-600">
-        {DRIVING_ANALYSIS_DISABLED_MESSAGE}
-      </div>
-    )
-  }
-
   const [segments, setSegments] = useState<Segment[]>([])
   const [selectedSegmentIndex, setSelectedSegmentIndex] = useState(0)
   const [xAxisKey, setXAxisKey] = useState<'time' | 'distance'>('time')
@@ -44,6 +36,8 @@ export default function SegmentAnalysis({ result }: { result: ResultType }) {
   const supabase = createClientComponentClient<Database>()
 
   useEffect(() => {
+    if (!DRIVING_ANALYSIS_ENABLED) return
+
     const fetchData = async () => {
       console.log('🧪 SegmentAnalysis props result:', result)
 
@@ -114,6 +108,14 @@ export default function SegmentAnalysis({ result }: { result: ResultType }) {
 
     fetchData()
   }, [result, supabase])
+
+  if (!DRIVING_ANALYSIS_ENABLED) {
+    return (
+      <div className="rounded-xl border border-dashed border-purple-300 bg-purple-50/70 p-6 text-center text-purple-600">
+        {DRIVING_ANALYSIS_DISABLED_MESSAGE}
+      </div>
+    )
+  }
 
 
 

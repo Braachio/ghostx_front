@@ -1,0 +1,324 @@
+{
+  "name": "GPX Design System - Color Palette",
+  "description": "ghostx 프로젝트를 위한 Figma 색상 팔레트",
+  "colors": {
+    "primary": {
+      "cyan": {
+        "400": {
+          "name": "Cyan-400",
+          "hex": "#22D3EE",
+          "rgb": "34, 211, 238",
+          "usage": "텍스트 강조, 호버 상태"
+        },
+        "500": {
+          "name": "Cyan-500",
+          "hex": "#06B6D4",
+          "rgb": "6, 182, 212",
+          "usage": "테두리, 구분선"
+        },
+        "600": {
+          "name": "Cyan-600",
+          "hex": "#0891B2",
+          "rgb": "8, 145, 178",
+          "usage": "버튼 배경, 주요 액션"
+        },
+        "700": {
+          "name": "Cyan-700",
+          "hex": "#0E7490",
+          "rgb": "14, 116, 144",
+          "usage": "버튼 호버 상태"
+        }
+      },
+      "blue": {
+        "400": {
+          "name": "Blue-400",
+          "hex": "#60A5FA",
+          "rgb": "96, 165, 250",
+          "usage": "텍스트 강조"
+        },
+        "500": {
+          "name": "Blue-500",
+          "hex": "#3B82F6",
+          "rgb": "59, 130, 246",
+          "usage": "기본 액션, 링크"
+        },
+        "600": {
+          "name": "Blue-600",
+          "hex": "#2563EB",
+          "rgb": "37, 99, 235",
+          "usage": "버튼 배경, 그라디언트 중간"
+        },
+        "700": {
+          "name": "Blue-700",
+          "hex": "#1D4ED8",
+          "rgb": "29, 78, 216",
+          "usage": "버튼 호버 상태"
+        }
+      },
+      "purple": {
+        "400": {
+          "name": "Purple-400",
+          "hex": "#A78BFA",
+          "rgb": "167, 139, 250",
+          "usage": "텍스트 강조"
+        },
+        "500": {
+          "name": "Purple-500",
+          "hex": "#8B5CF6",
+          "rgb": "139, 92, 246",
+          "usage": "테두리, 구분선"
+        },
+        "600": {
+          "name": "Purple-600",
+          "hex": "#7C3AED",
+          "rgb": "124, 58, 237",
+          "usage": "버튼 배경, 그라디언트 끝"
+        },
+        "700": {
+          "name": "Purple-700",
+          "hex": "#6D28D9",
+          "rgb": "109, 40, 217",
+          "usage": "버튼 호버 상태"
+        }
+      }
+    },
+    "secondary": {
+      "green": {
+        "400": {
+          "name": "Green-400",
+          "hex": "#4ADE80",
+          "rgb": "76, 222, 128",
+          "usage": "상시 서버 텍스트 강조"
+        },
+        "500": {
+          "name": "Green-500",
+          "hex": "#22C55E",
+          "rgb": "34, 197, 94",
+          "usage": "상시 서버 테두리"
+        },
+        "600": {
+          "name": "Green-600",
+          "hex": "#16A34A",
+          "rgb": "22, 163, 74",
+          "usage": "상시 서버 버튼 배경"
+        }
+      },
+      "pink": {
+        "400": {
+          "name": "Pink-400",
+          "hex": "#F472B6",
+          "rgb": "244, 114, 182",
+          "usage": "채팅, 투표 텍스트 강조"
+        },
+        "500": {
+          "name": "Pink-500",
+          "hex": "#EC4899",
+          "rgb": "236, 72, 153",
+          "usage": "채팅, 투표 테두리"
+        },
+        "600": {
+          "name": "Pink-600",
+          "hex": "#DB2777",
+          "rgb": "219, 39, 119",
+          "usage": "채팅, 투표 버튼 배경"
+        }
+      },
+      "red": {
+        "400": {
+          "name": "Red-400",
+          "hex": "#F87171",
+          "rgb": "248, 113, 113",
+          "usage": "경고, 삭제 텍스트"
+        },
+        "500": {
+          "name": "Red-500",
+          "hex": "#EF4444",
+          "rgb": "239, 68, 68",
+          "usage": "경고, 삭제 액션"
+        }
+      }
+    },
+    "neutral": {
+      "background": {
+        "black": {
+          "name": "Black",
+          "hex": "#000000",
+          "rgb": "0, 0, 0",
+          "usage": "메인 배경"
+        },
+        "gray-900": {
+          "name": "Gray-900",
+          "hex": "#111827",
+          "rgb": "17, 24, 39",
+          "usage": "섹션 배경, 카드 배경"
+        },
+        "gray-800": {
+          "name": "Gray-800",
+          "hex": "#1F2937",
+          "rgb": "31, 41, 55",
+          "usage": "카드 배경, 드롭다운, 입력 필드"
+        },
+        "gray-700": {
+          "name": "Gray-700",
+          "hex": "#374151",
+          "rgb": "55, 65, 81",
+          "usage": "테두리, 비활성 요소"
+        },
+        "gray-600": {
+          "name": "Gray-600",
+          "hex": "#4B5563",
+          "rgb": "75, 85, 99",
+          "usage": "테두리, 구분선"
+        }
+      },
+      "text": {
+        "white": {
+          "name": "White",
+          "hex": "#FFFFFF",
+          "rgb": "255, 255, 255",
+          "usage": "주요 텍스트, 버튼 텍스트"
+        },
+        "gray-300": {
+          "name": "Gray-300",
+          "hex": "#D1D5DB",
+          "rgb": "209, 213, 219",
+          "usage": "일반 텍스트"
+        },
+        "gray-400": {
+          "name": "Gray-400",
+          "hex": "#9CA3AF",
+          "rgb": "156, 163, 175",
+          "usage": "보조 텍스트, 플레이스홀더"
+        },
+        "gray-500": {
+          "name": "Gray-500",
+          "hex": "#6B7280",
+          "rgb": "107, 114, 128",
+          "usage": "비활성 텍스트"
+        }
+      }
+    }
+  },
+  "gradients": {
+    "primary": {
+      "name": "Primary Gradient",
+      "type": "linear",
+      "angle": 0,
+      "stops": [
+        {
+          "position": 0,
+          "color": "#0891B2",
+          "name": "Cyan-600"
+        },
+        {
+          "position": 50,
+          "color": "#2563EB",
+          "name": "Blue-600"
+        },
+        {
+          "position": 100,
+          "color": "#7C3AED",
+          "name": "Purple-600"
+        }
+      ],
+      "usage": "주요 버튼, CTA"
+    },
+    "cyan-blue": {
+      "name": "Cyan to Blue",
+      "type": "linear",
+      "angle": 0,
+      "stops": [
+        {
+          "position": 0,
+          "color": "#0891B2",
+          "name": "Cyan-600"
+        },
+        {
+          "position": 100,
+          "color": "#2563EB",
+          "name": "Blue-600"
+        }
+      ],
+      "usage": "카드, 섹션 배경"
+    },
+    "purple-pink": {
+      "name": "Purple to Pink",
+      "type": "linear",
+      "angle": 0,
+      "stops": [
+        {
+          "position": 0,
+          "color": "#7C3AED",
+          "name": "Purple-600"
+        },
+        {
+          "position": 100,
+          "color": "#DB2777",
+          "name": "Pink-600"
+        }
+      ],
+      "usage": "특수 액션, 관리자 메뉴"
+    }
+  },
+  "shadows": {
+    "sm": {
+      "name": "Shadow Small",
+      "x": 0,
+      "y": 1,
+      "blur": 2,
+      "spread": 0,
+      "color": "rgba(0, 0, 0, 0.05)",
+      "usage": "카드, 버튼"
+    },
+    "md": {
+      "name": "Shadow Medium",
+      "x": 0,
+      "y": 4,
+      "blur": 6,
+      "spread": -1,
+      "color": "rgba(0, 0, 0, 0.1)",
+      "usage": "드롭다운, 모달"
+    },
+    "lg": {
+      "name": "Shadow Large",
+      "x": 0,
+      "y": 10,
+      "blur": 15,
+      "spread": -3,
+      "color": "rgba(0, 0, 0, 0.3)",
+      "usage": "카드, 패널"
+    },
+    "xl": {
+      "name": "Shadow XL",
+      "x": 0,
+      "y": 20,
+      "blur": 25,
+      "spread": -5,
+      "color": "rgba(0, 0, 0, 0.3)",
+      "usage": "모달, 오버레이"
+    },
+    "cyan-glow": {
+      "name": "Cyan Glow",
+      "x": 0,
+      "y": 0,
+      "blur": 20,
+      "spread": 0,
+      "color": "rgba(6, 182, 212, 0.3)",
+      "usage": "버튼 호버, 강조"
+    },
+    "purple-glow": {
+      "name": "Purple Glow",
+      "x": 0,
+      "y": 0,
+      "blur": 20,
+      "spread": 0,
+      "color": "rgba(139, 92, 246, 0.3)",
+      "usage": "관리자 메뉴, 특수 액션"
+    }
+  }
+}
+
+
+
+
+

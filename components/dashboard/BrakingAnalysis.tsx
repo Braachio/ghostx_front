@@ -160,19 +160,13 @@ function getDummyBrakingData(): BrakingAnalysis {
 }
 
 export default function BrakingAnalysis({ userId, track, days }: BrakingAnalysisProps) {
-  if (!DRIVING_ANALYSIS_ENABLED) {
-    return (
-      <div className="flex flex-col items-center justify-center h-64 rounded-xl border border-dashed border-gray-300 bg-gray-50 text-gray-500">
-        <span className="text-lg font-medium">{DRIVING_ANALYSIS_DISABLED_MESSAGE}</span>
-      </div>
-    )
-  }
-
   const [data, setData] = useState<BrakingAnalysis | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    if (!DRIVING_ANALYSIS_ENABLED) return
+
     const loadData = async () => {
       if (!userId) return
       
@@ -214,6 +208,14 @@ export default function BrakingAnalysis({ userId, track, days }: BrakingAnalysis
 
     loadData()
   }, [userId, track, days])
+
+  if (!DRIVING_ANALYSIS_ENABLED) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 rounded-xl border border-dashed border-gray-300 bg-gray-50 text-gray-500">
+        <span className="text-lg font-medium">{DRIVING_ANALYSIS_DISABLED_MESSAGE}</span>
+      </div>
+    )
+  }
 
   if (loading) {
     return (

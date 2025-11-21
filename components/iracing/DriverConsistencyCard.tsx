@@ -34,11 +34,11 @@ const formatNumber = (value?: number | null, digits = 1, suffix = '') => {
 }
 
 export default function DriverConsistencyCard({ consistency }: DriverConsistencyCardProps) {
-  if (!consistency) return null
-
   const { language } = useLanguage()
   const t = translations[language as keyof typeof translations] ?? translations.ko
   const locale = language === 'ko' ? 'ko-KR' : 'en-US'
+
+  if (!consistency) return null
 
   const metrics = [
     {

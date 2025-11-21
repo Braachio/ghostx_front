@@ -60,24 +60,24 @@ export async function GET(req: NextRequest) {
             license_level?: string
           }> 
         }>(
-          '/data/member/get',
+      '/data/member/get',
           { cust_ids: custIdNum }
-        )
+    )
         
         console.log('[Driver Search] API response:', JSON.stringify(data, null, 2))
         console.log('[Driver Search] Members count:', data?.members?.length ?? 0)
         
-        const results: IracingDriverSummary[] = (data?.members || []).map(m => ({
-          custId: String(m.cust_id),
-          name: m.display_name,
+    const results: IracingDriverSummary[] = (data?.members || []).map(m => ({
+      custId: String(m.cust_id),
+      name: m.display_name,
           country: m.country || m.flair_name || null,
-          irating: m.i_rating ?? null,
-          licenseClass: m.license_level ?? null,
-        }))
+      irating: m.i_rating ?? null,
+      licenseClass: m.license_level ?? null,
+    }))
         
         console.log('[Driver Search] Mapped results:', JSON.stringify(results, null, 2))
         
-        cache.set(cacheKey, results, 2 * 60_000)
+    cache.set(cacheKey, results, 2 * 60_000)
         return NextResponse.json(results)
       } catch (error) {
         console.error('[Driver Search] Failed to fetch by cust_id:', error)

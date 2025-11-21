@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 import { irGet } from '@/lib/iracingClient'
 import { IpRateLimiter, getClientIp } from '@/lib/rateLimit'
 
-const limiter = new IpRateLimiter(10)
+const limiter = new IpRateLimiter(30) // 데이터 수집을 위해 rate limit 완화
 
 /**
  * GET /api/iracing/ml/get-recent-session-ids

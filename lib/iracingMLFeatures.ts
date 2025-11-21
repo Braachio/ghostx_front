@@ -24,6 +24,36 @@ export interface ParticipantFeatures {
   sof: number | null // Strength of Field
   starting_position: number | null
   total_participants: number
+  starting_rank_pct?: number | null
+  qualifying_position?: number | null
+  qualifying_best_lap_time?: number | null
+  practice_best_lap_time?: number | null
+  fastest_qualifying_lap_time?: number | null
+  fastest_race_lap_time?: number | null
+
+  // 확장 특성 (실시간 예측용)
+  avg_opponent_ir?: number | null
+  max_opponent_ir?: number | null
+  min_opponent_ir?: number | null
+  ir_diff_from_avg?: number | null
+  ir_advantage?: number | null
+  ir_range?: number | null
+  ir_rank_pct?: number | null
+  ir_vs_max?: number | null
+  ir_vs_min?: number | null
+  ir_std_estimate?: number | null
+  ir_relative_to_sof?: number | null
+  best_lap_time?: number | null
+  average_lap_time?: number | null
+  lap_time_diff?: number | null
+  lap_time_consistency?: number | null
+  user_avg_finish_pct_much_lower?: number | null
+  user_avg_finish_pct_lower?: number | null
+  user_avg_finish_pct_similar?: number | null
+  user_avg_finish_pct_higher?: number | null
+  user_avg_finish_pct_much_higher?: number | null
+  user_ir_diff_performance_diff?: number | null
+  user_expected_finish_pct_by_ir_diff?: number | null
 }
 
 export interface RecentRace {
@@ -64,6 +94,7 @@ export function extractFeaturesFromRecentRaces(
       sof,
       starting_position: startingPosition,
       total_participants: totalParticipants,
+    starting_rank_pct: startingPosition !== null && totalParticipants > 0 ? startingPosition / totalParticipants : null,
     }
   }
 
@@ -141,6 +172,7 @@ export function extractFeaturesFromRecentRaces(
     sof,
     starting_position: startingPosition,
     total_participants: totalParticipants,
+    starting_rank_pct: startingPosition !== null && totalParticipants > 0 ? startingPosition / totalParticipants : null,
   }
 }
 
@@ -171,10 +203,35 @@ export function featuresToMLInput(features: ParticipantFeatures): number[] {
  */
 export type StrategyType = 'aggressive' | 'balanced' | 'defensive' | 'survival'
 
+export interface RivalInsightCard {
+  label: string
+  position?: string
+  offset?: string
+  irGap?: string
+  incidents?: string
+  dnf?: string
+  recent?: string
+  advice?: string
+}
+
 export interface StrategyRecommendation {
   strategy: StrategyType
   confidence: number
   reasoning: string[]
+  analyzedFactors?: string[]
+  actionableInsights?: string[]
+  keyFactors?: string[]
+  actionItems?: string[]
+  actions?: string[]
+  detailedStrategy?: {
+    start?: string[]
+    mid?: string[]
+    end?: string[]
+  }
+  rivalInsights?: {
+    front?: RivalInsightCard | null
+    rear?: RivalInsightCard | null
+  }
 }
 
 export function recommendStrategy(

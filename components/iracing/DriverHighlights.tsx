@@ -122,11 +122,11 @@ const formatTimestamp = (value?: string, locale: string = 'ko-KR') => {
 }
 
 export default function DriverHighlights({ highlights }: DriverHighlightsProps) {
-  if (!highlights || highlights.length === 0) return null
-
   const { language } = useLanguage()
   const t = translations[language as keyof typeof translations] ?? translations.ko
   const locale = language === 'ko' ? 'ko-KR' : 'en-US'
+
+  if (!highlights || highlights.length === 0) return null
 
   const getLocalizedHighlight = (highlight: DriverHighlight) => {
     const type = highlight.type as HighlightType | undefined

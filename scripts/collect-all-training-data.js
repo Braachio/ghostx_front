@@ -1,9 +1,14 @@
 /**
  * 여러 cust_id의 모든 학습 데이터 수집 스크립트
  * 브라우저 콘솔에서 실행
+ * 
+ * 대량 cust_id 처리 지원:
+ * - 파일에서 cust_id 목록 로드 가능
+ * - 진행 상황 저장 및 재개 가능
+ * - 에러 처리 강화
  */
 
-// 한국 유저 cust_id 목록
+// 한국 유저 cust_id 목록 (기본값)
 const KOREAN_USER_IDS = [
   '309265', '262743', '581167', '285643', '260023', '549448', '884271', '883055', '650982', '107331',
   '336097', '471469', '107816', '903646', '814119', '590617', '224144', '417925', '947752', '600760',
@@ -51,55 +56,193 @@ const KOREAN_USER_IDS = [
 ]
 
 /**
- * 단일 cust_id의 세션 ID 수집
+ * 단일 cust_id의 세션 ID 수집 (재시도 로직 포함)
  */
-async function getSessionIdsForCustId(custId, limit = 50) {
+async function getSessionIdsForCustId(custId, limit = 50, maxRetries = 5) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const res = await fetch(`/api/iracing/ml/get-recent-session-ids?cust_id=${custId}&limit=${limit}`)
+      
+      // 429 에러 처리
+      if (res.status === 429) {
+        const retryAfter = res.headers.get('Retry-After')
+        // 429 에러는 더 길게 대기: 10초, 20초, 30초, 40초, 50초
+        const waitTime = retryAfter ? parseInt(retryAfter) * 1000 : (attempt + 1) * 10000
+        console.warn(`  ⚠️  Rate limit (429) - ${waitTime/1000}초 대기 후 재시도... (시도 ${attempt + 1}/${maxRetries})`)
+        await new Promise(resolve => setTimeout(resolve, waitTime))
+        continue
+      }
+      
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}: ${res.statusText}`)
+      }
+      
+      const data = await res.json()
+      return data.sessionIds || []
+    } catch (error) {
+      if (attempt === maxRetries - 1) {
+        console.error(`  ❌ cust_id ${custId} 세션 ID 가져오기 실패 (최대 재시도 초과):`, error)
+        return []
+      }
+      // 재시도 전 대기 (더 길게)
+      const waitTime = (attempt + 1) * 5000 // 5초, 10초, 15초, 20초
+      console.warn(`  ⚠️  에러 발생, ${waitTime/1000}초 후 재시도... (시도 ${attempt + 1}/${maxRetries})`)
+      await new Promise(resolve => setTimeout(resolve, waitTime))
+    }
+  }
+  return []
+}
+
+/**
+ * 파일에서 cust_id 목록 로드 (선택적)
+ * 파일 형식: 한 줄에 하나씩 cust_id
+ */
+function loadCustIdsFromText(text) {
+  return text
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line && !line.startsWith('#')) // 빈 줄과 주석 제거
+    .filter(line => /^\d+$/.test(line)) // 숫자만 허용
+}
+
+/**
+ * 진행 상황 저장 (localStorage 사용)
+ */
+function saveProgress(key, data) {
   try {
-    const res = await fetch(`/api/iracing/ml/get-recent-session-ids?cust_id=${custId}&limit=${limit}`)
-    const data = await res.json()
-    return data.sessionIds || []
-  } catch (error) {
-    console.error(`  ❌ cust_id ${custId} 세션 ID 가져오기 실패:`, error)
-    return []
+    localStorage.setItem(key, JSON.stringify({
+      ...data,
+      savedAt: new Date().toISOString()
+    }))
+  } catch (e) {
+    console.warn('진행 상황 저장 실패:', e)
+  }
+}
+
+/**
+ * 진행 상황 로드
+ */
+function loadProgress(key) {
+  try {
+    const data = localStorage.getItem(key)
+    return data ? JSON.parse(data) : null
+  } catch (e) {
+    console.warn('진행 상황 로드 실패:', e)
+    return null
   }
 }
 
 /**
  * 여러 cust_id의 모든 학습 데이터 수집
+ * 
+ * @param {string[]} custIds - cust_id 목록
+ * @param {number} batchSize - 배치 크기 (기본값: 2, 대량 데이터 수집 시 1 권장)
+ * @param {number} sessionLimitPerUser - 유저당 세션 제한 (기본값: 50)
+ * @param {boolean} resume - 이전 진행 상황 재개 (기본값: false)
+ * @param {string} progressKey - 진행 상황 저장 키 (기본값: 'collect_progress')
+ * @param {number} requestDelay - 요청 간 딜레이(ms) (기본값: 1000, 서버 rate limit 완화됨)
  */
-async function collectAllTrainingData(custIds = KOREAN_USER_IDS, batchSize = 5, sessionLimitPerUser = 50) {
+async function collectAllTrainingData(
+  custIds = KOREAN_USER_IDS, 
+  batchSize = 2, 
+  sessionLimitPerUser = 50,
+  resume = false,
+  progressKey = 'collect_progress',
+  requestDelay = 1000
+) {
   console.log(`🚀 [전체 수집 시작]`)
   console.log(`   총 cust_id: ${custIds.length}개`)
   console.log(`   배치 크기: ${batchSize}개`)
   console.log(`   유저당 세션 제한: ${sessionLimitPerUser}개`)
+  console.log(`   요청 간 딜레이: ${requestDelay}ms`)
+  console.log(`   재개 모드: ${resume ? 'ON' : 'OFF'}`)
   
   const allSessionIds = new Set() // 중복 제거를 위해 Set 사용
   const custIdStats = {}
+  let startIndex = 0
+  
+  // 진행 상황 로드
+  if (resume) {
+    const progress = loadProgress(progressKey)
+    if (progress) {
+      console.log(`\n📂 [진행 상황 복원]`)
+      console.log(`   저장 시점: ${progress.savedAt}`)
+      console.log(`   처리된 cust_id: ${progress.processedCustIds || 0}개`)
+      console.log(`   수집된 세션: ${progress.collectedSessions || 0}개`)
+      
+      if (progress.processedCustIds) {
+        startIndex = progress.processedCustIds
+        console.log(`   ${startIndex}번째 cust_id부터 재개합니다.`)
+      }
+      
+      // 이전에 수집한 세션 ID 복원
+      if (progress.sessionIds && Array.isArray(progress.sessionIds)) {
+        progress.sessionIds.forEach(id => allSessionIds.add(id))
+        console.log(`   ${allSessionIds.size}개 세션 ID 복원됨`)
+      }
+    }
+  }
   
   // 1. 모든 cust_id의 세션 ID 수집
   console.log(`\n📥 [1단계] 모든 cust_id의 세션 ID 수집 중...`)
-  for (let i = 0; i < custIds.length; i++) {
+  const progressSaveInterval = 5 // 5명마다 진행 상황 저장 (더 자주 저장)
+  
+  for (let i = startIndex; i < custIds.length; i++) {
     const custId = String(custIds[i]).trim()
     const progress = `[${i + 1}/${custIds.length}]`
     
-    console.log(`${progress} cust_id ${custId} 처리 중...`)
+    // 진행 상황 표시 (50명마다 상세 로그, 처음 10명은 항상 표시)
+    if (i % 50 === 0 || i < startIndex + 10 || i === startIndex) {
+      console.log(`${progress} cust_id ${custId} 처리 중...`)
+    }
     
-    const sessionIds = await getSessionIdsForCustId(custId, sessionLimitPerUser)
+    try {
+      const sessionIds = await getSessionIdsForCustId(custId, sessionLimitPerUser)
+      
+      if (sessionIds.length > 0) {
+        sessionIds.forEach(id => allSessionIds.add(id))
+        custIdStats[custId] = sessionIds.length
+        if (i % 50 === 0 || i < startIndex + 10 || i === startIndex) {
+          console.log(`  ✅ ${sessionIds.length}개 세션 ID 발견 (누적: ${allSessionIds.size}개)`)
+        }
+      } else {
+        custIdStats[custId] = 0
+        if (i % 50 === 0 || i < startIndex + 10 || i === startIndex) {
+          console.log(`  ⚠️  세션 ID 없음`)
+        }
+      }
+    } catch (error) {
+      console.error(`  ❌ cust_id ${custId} 처리 실패:`, error)
+      custIdStats[custId] = -1 // 에러 표시
+    }
     
-    if (sessionIds.length > 0) {
-      sessionIds.forEach(id => allSessionIds.add(id))
-      custIdStats[custId] = sessionIds.length
-      console.log(`  ✅ ${sessionIds.length}개 세션 ID 발견 (누적: ${allSessionIds.size}개)`)
-    } else {
-      custIdStats[custId] = 0
-      console.log(`  ⚠️  세션 ID 없음`)
+    // 진행 상황 저장 (주기적으로)
+    if ((i + 1) % progressSaveInterval === 0) {
+      saveProgress(progressKey, {
+        processedCustIds: i + 1,
+        collectedSessions: allSessionIds.size,
+        sessionIds: Array.from(allSessionIds)
+      })
+      if (i % 50 === 0) {
+        console.log(`  💾 진행 상황 저장됨 (${i + 1}/${custIds.length})`)
+      }
     }
     
     // Rate limit 방지 (유저 간 딜레이)
+    // 연속 429 에러가 많으면 딜레이를 점진적으로 증가
     if (i < custIds.length - 1) {
-      await new Promise(resolve => setTimeout(resolve, 500))
+      const currentDelay = requestDelay
+      await new Promise(resolve => setTimeout(resolve, currentDelay))
     }
   }
+  
+  // 최종 진행 상황 저장
+  saveProgress(progressKey, {
+    processedCustIds: custIds.length,
+    collectedSessions: allSessionIds.size,
+    sessionIds: Array.from(allSessionIds),
+    completed: true
+  })
   
   const uniqueSessionIds = Array.from(allSessionIds)
   console.log(`\n✅ [1단계 완료] 총 ${uniqueSessionIds.length}개의 고유 세션 ID 수집`)
@@ -117,38 +260,70 @@ async function collectAllTrainingData(custIds = KOREAN_USER_IDS, batchSize = 5, 
     
     console.log(`\n📦 [배치 ${batchNum}/${totalBatches}] ${batch.length}개 세션 수집 중...`)
     
-    try {
-      const collectRes = await fetch('/api/iracing/ml/collect-training-data', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subsessionIds: batch })
-      })
-      
-      const result = await collectRes.json()
-      
-      if (result.success) {
-        totalCollected += result.totalCollected || 0
-        totalFailed += result.totalFailed || 0
+    let retryCount = 0
+    const maxRetries = 3
+    let success = false
+    
+    while (retryCount < maxRetries && !success) {
+      try {
+        const collectRes = await fetch('/api/iracing/ml/collect-training-data', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subsessionIds: batch })
+        })
         
-        if (result.errors && result.errors.length > 0) {
-          errors.push(...result.errors)
+        // 429 에러 처리
+        if (collectRes.status === 429) {
+          const retryAfter = collectRes.headers.get('Retry-After')
+          const waitTime = retryAfter ? parseInt(retryAfter) * 1000 : (retryCount + 1) * 10000 // 기본 10초, 20초, 30초
+          console.warn(`   ⚠️  Rate limit (429) - ${waitTime/1000}초 대기 후 재시도... (시도 ${retryCount + 1}/${maxRetries})`)
+          await new Promise(resolve => setTimeout(resolve, waitTime))
+          retryCount++
+          continue
         }
         
-        console.log(`   ✅ 수집 완료: ${result.totalCollected}개 레코드 (실패: ${result.totalFailed})`)
-      } else {
-        console.error(`   ❌ 수집 실패:`, result)
-        totalFailed += batch.length
+        if (!collectRes.ok) {
+          throw new Error(`HTTP ${collectRes.status}: ${collectRes.statusText}`)
+        }
+        
+        const result = await collectRes.json()
+        
+        if (result.success) {
+          totalCollected += result.totalCollected || 0
+          totalFailed += result.totalFailed || 0
+          
+          if (result.errors && result.errors.length > 0) {
+            errors.push(...result.errors)
+          }
+          
+          console.log(`   ✅ 수집 완료: ${result.totalCollected}개 레코드 (실패: ${result.totalFailed})`)
+          success = true
+        } else {
+          console.error(`   ❌ 수집 실패:`, result)
+          totalFailed += batch.length
+          success = true // 실패했지만 재시도하지 않음
+        }
+      } catch (error) {
+        if (retryCount === maxRetries - 1) {
+          console.error(`   ❌ 배치 ${batchNum} 에러 (최대 재시도 초과):`, error)
+          totalFailed += batch.length
+          errors.push(`배치 ${batchNum}: ${error.message}`)
+          success = true // 재시도 포기
+        } else {
+          const waitTime = (retryCount + 1) * 5000 // 5초, 10초, 15초
+          console.warn(`   ⚠️  에러 발생, ${waitTime/1000}초 후 재시도... (시도 ${retryCount + 1}/${maxRetries})`)
+          await new Promise(resolve => setTimeout(resolve, waitTime))
+          retryCount++
+        }
       }
-    } catch (error) {
-      console.error(`   ❌ 배치 ${batchNum} 에러:`, error)
-      totalFailed += batch.length
-      errors.push(`배치 ${batchNum}: ${error.message}`)
     }
     
     // Rate limit 방지 (배치 간 딜레이)
     if (i + batchSize < uniqueSessionIds.length) {
-      console.log(`   ⏳ 2초 대기 중...`)
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // 서버 rate limit이 완화되었으므로 딜레이 감소
+      const delayTime = Math.max(1000, requestDelay) // 최소 1초, 또는 requestDelay와 동일
+      console.log(`   ⏳ ${delayTime/1000}초 대기 중...`)
+      await new Promise(resolve => setTimeout(resolve, delayTime))
     }
   }
   
@@ -177,6 +352,139 @@ async function collectAllTrainingData(custIds = KOREAN_USER_IDS, batchSize = 5, 
 }
 
 // 사용법:
-// collectAllTrainingData()  // 기본값: KOREAN_USER_IDS 전체
-// collectAllTrainingData(['814119', '1060971'], 5, 50)  // 특정 cust_id만, 배치 크기, 유저당 세션 제한
+// 
+// 1. 기본 사용 (한국 유저):
+//    collectAllTrainingData()
+//
+// 2. cust_id를 나눠서 조금씩 처리 (권장):
+//    // 예: 100개씩 나눠서 처리
+//    const batch1 = usCustIds.slice(0, 100)
+//    collectAllTrainingData(batch1, 1, 50, false, 'batch1_progress', 1000)
+//    
+//    // 첫 번째 배치 완료 후
+//    const batch2 = usCustIds.slice(100, 200)
+//    collectAllTrainingData(batch2, 1, 50, false, 'batch2_progress', 1000)
+//
+// 3. 재개 모드 (이전 진행 상황에서 계속):
+//    collectAllTrainingData(custIds, 1, 50, true, 'batch1_progress', 1000)
+//
+// 4. Rate limit 에러가 발생하는 경우:
+//    // 딜레이를 조금 늘리기 (2000ms = 2초)
+//    collectAllTrainingData(custIds, 1, 50, false, 'batch1_progress', 2000)
+//
+// 진행 상황 확인:
+//    const progress = loadProgress('us_collect_progress')
+//    console.log(progress)
+//
+// 진행 상황 초기화:
+//    localStorage.removeItem('us_collect_progress')
+
+/**
+ * ========================================
+ * 🚀 콘솔에서 바로 사용하는 헬퍼 함수
+ * ========================================
+ */
+
+/**
+ * cust_id 텍스트를 배열로 변환하고 데이터 수집 시작
+ * 
+ * @param {string} custIdsText - cust_id 텍스트 (한 줄에 하나씩)
+ * @param {number} batchSize - 한 번에 처리할 cust_id 개수 (기본값: 100)
+ * @param {number} delay - 요청 간 딜레이(ms) (기본값: 1000)
+ * @param {string} progressKey - 진행 상황 저장 키 (기본값: 'collect_progress')
+ */
+function quickCollect(custIdsText, batchSize = 100, delay = 1000, progressKey = 'collect_progress') {
+  // 텍스트를 배열로 변환
+  const custIds = custIdsText
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line && /^\d+$/.test(line))
+  
+  console.log(`✅ ${custIds.length}개 cust_id 로드됨`)
+  console.log(`📦 ${batchSize}개씩 처리, 딜레이: ${delay}ms`)
+  
+  // 첫 번째 배치 시작
+  const batch = custIds.slice(0, batchSize)
+  console.log(`🚀 배치 1 시작 (${batch.length}개)`)
+  
+  return collectAllTrainingData(
+    batch,
+    1,                      // 세션 배치 크기: 1
+    50,                     // 유저당 세션 제한
+    false,                  // 처음 시작
+    progressKey,
+    delay
+  )
+}
+
+/**
+ * 다음 배치 수집 (이전 배치 완료 후 사용)
+ * 
+ * @param {string} custIdsText - 전체 cust_id 텍스트
+ * @param {number} batchNumber - 배치 번호 (1부터 시작)
+ * @param {number} batchSize - 한 번에 처리할 cust_id 개수 (기본값: 100)
+ * @param {number} delay - 요청 간 딜레이(ms) (기본값: 1000)
+ * @param {string} progressKey - 진행 상황 저장 키 (기본값: 'collect_progress')
+ */
+function nextBatch(custIdsText, batchNumber, batchSize = 100, delay = 1000, progressKey = 'collect_progress') {
+  const custIds = custIdsText
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line && /^\d+$/.test(line))
+  
+  const startIndex = (batchNumber - 1) * batchSize
+  const endIndex = startIndex + batchSize
+  const batch = custIds.slice(startIndex, endIndex)
+  
+  if (batch.length === 0) {
+    console.log('✅ 모든 배치 완료!')
+    return
+  }
+  
+  console.log(`🚀 배치 ${batchNumber} 시작 (${batch.length}개, ${startIndex + 1}~${Math.min(endIndex, custIds.length)}번째)`)
+  
+  return collectAllTrainingData(
+    batch,
+    1,
+    50,
+    false,
+    `${progressKey}_batch${batchNumber}`,
+    delay
+  )
+}
+
+/**
+ * ========================================
+ * 📋 사용 예시 (콘솔에 복사해서 사용)
+ * ========================================
+ * 
+ * // 1. cust_id 텍스트 준비 (아래 텍스트를 실제 cust_id로 교체)
+ * const custIdsText = `
+ * 513181
+ * 160282
+ * 410511
+ * 496280
+ * 61454
+ * ...
+ * `
+ * 
+ * // 2. 첫 번째 배치 시작 (100개씩)
+ * quickCollect(custIdsText, 100, 1000, 'us_collect')
+ * 
+ * // 3. 첫 번째 배치 완료 후, 다음 배치 실행
+ * nextBatch(custIdsText, 2, 100, 1000, 'us_collect')
+ * nextBatch(custIdsText, 3, 100, 1000, 'us_collect')
+ * // ... 계속
+ * 
+ * // 4. 더 작은 배치로 시작하고 싶다면
+ * quickCollect(custIdsText, 50, 1000, 'us_collect')
+ * 
+ * // 5. 더 빠르게 하고 싶다면 (딜레이 줄이기)
+ * quickCollect(custIdsText, 100, 500, 'us_collect')
+ * 
+ * // 6. 진행 상황 확인
+ * const progress = loadProgress('us_collect_batch1')
+ * console.log(progress)
+ * 
+ */
 

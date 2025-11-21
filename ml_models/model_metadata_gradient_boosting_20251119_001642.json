@@ -1,0 +1,30 @@
+{
+  "model_type": "gradient_boosting",
+  "timestamp": "20251119_001642",
+  "features": [
+    "i_rating",
+    "safety_rating",
+    "avg_opponent_ir",
+    "max_opponent_ir",
+    "min_opponent_ir",
+    "ir_diff_from_avg",
+    "sof",
+    "ir_advantage",
+    "ir_range",
+    "ir_rank_pct",
+    "ir_vs_max",
+    "ir_vs_min",
+    "ir_std_estimate",
+    "ir_relative_to_sof",
+    "best_lap_time",
+    "average_lap_time",
+    "lap_time_diff",
+    "lap_time_consistency",
+    "total_participants"
+  ],
+  "metrics": {
+    "mae": 3.0423205132687716,
+    "rmse": 4.414381563854168,
+    "r2": 0.6818272354381386
+  }
+}

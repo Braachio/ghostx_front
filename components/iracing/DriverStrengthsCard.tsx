@@ -46,11 +46,11 @@ function formatMetric(value?: number | null, fractionDigits = 1, suffix = '') {
 }
 
 export default function DriverStrengthsCard({ strengths }: DriverStrengthsCardProps) {
-  if (!strengths || strengths.length === 0) return null
-
   const { language } = useLanguage()
   const t = translations[language as keyof typeof translations] ?? translations.ko
   const labels = t.labels
+
+  if (!strengths || strengths.length === 0) return null
 
   const grouped: Record<'series' | 'car' | 'track', DriverStrength[]> = {
     series: [],

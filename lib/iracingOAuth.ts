@@ -84,7 +84,14 @@ function maskSecret(secret: string, id: string): string {
   return hash.toString('base64')
 }
 
-function buildTokenRequest(body: Record<string, string>) {
+type TokenRequestOptions = {
+  basicAuth?: {
+    client_id: string
+    client_secret: string
+  }
+}
+
+function buildTokenRequest(body: Record<string, string>, options?: TokenRequestOptions) {
   // URLSearchParams는 자동으로 인코딩하므로, 이미 인코딩된 값이 있으면 디코딩 후 다시 인코딩
   const decodedBody: Record<string, string> = {}
   for (const [key, value] of Object.entries(body)) {
@@ -102,13 +109,20 @@ function buildTokenRequest(body: Record<string, string>) {
       decodedBody[key] = value
     }
   }
-  
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+  }
+
+  if (options?.basicAuth) {
+    const credentials = `${options.basicAuth.client_id}:${options.basicAuth.client_secret}`
+    const encoded = Buffer.from(credentials, 'utf8').toString('base64')
+    headers.Authorization = `Basic ${encoded}`
+  }
+
   const params = new URLSearchParams(decodedBody)
   return fetch(TOKEN_ENDPOINT, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
+    headers,
     body: params,
   })
 }
@@ -143,12 +157,13 @@ export async function exchangeCodeForTokens(code: string, redirectUri: string): 
 
 export async function refreshAccessToken(refreshToken: string): Promise<OAuthTokenResponse> {
   const { client_id, client_secret } = requireClientConfig()
-  const res = await buildTokenRequest({
-    grant_type: 'refresh_token',
-    refresh_token: refreshToken,
-    client_id,
-    client_secret,
-  })
+  const res = await buildTokenRequest(
+    {
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+    },
+    { basicAuth: { client_id, client_secret } },
+  )
 
   if (!res.ok) {
     const text = await res.text()
