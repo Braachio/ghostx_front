@@ -37,7 +37,8 @@
     "remark": "^15.0.1",
     "remark-gfm": "^4.0.1",
     "remark-html": "^16.0.1",
-    "zustand": "^5.0.5"
+    "zustand": "^5.0.5",
+    "puppeteer": "^23.11.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

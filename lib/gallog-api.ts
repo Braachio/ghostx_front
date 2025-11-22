@@ -197,10 +197,21 @@ export class GallogApi {
   }): Promise<{ success: boolean; error?: string }> {
     let browser;
     try {
-      // Puppeteer 동적 import (오류 처리 포함)
+      // Puppeteer 동적 import (서버 사이드에서만 실행)
+      if (typeof window !== 'undefined') {
+        throw new Error('Puppeteer는 서버 사이드에서만 사용할 수 있습니다.')
+      }
+      
       let puppeteer;
       try {
-        puppeteer = await import('puppeteer')
+        // 서버 사이드에서만 동적 import
+        puppeteer = await import('puppeteer').catch(() => {
+          // fallback for server-side only
+          return null;
+        });
+        if (!puppeteer) {
+          throw new Error('Puppeteer 모듈을 로드할 수 없습니다. 서버 사이드에서만 사용 가능합니다.')
+        }
       } catch (importError) {
         throw new Error(`Puppeteer 모듈을 찾을 수 없습니다: ${importError instanceof Error ? importError.message : '알 수 없는 오류'}`)
       }

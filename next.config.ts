@@ -15,6 +15,18 @@ const nextConfig = {
     // Vercel 빌드 시 타입 체크 오류를 무시 (Supabase 타입 이슈)
     ignoreBuildErrors: true,
   },
+  // Puppeteer를 서버 사이드에서만 사용 (클라이언트 번들에서 제외)
+  serverComponentsExternalPackages: ['puppeteer'],
+  webpack: (config, { isServer }) => {
+    // 서버 사이드가 아닐 때 puppeteer를 external로 처리
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        'puppeteer': false,
+      };
+    }
+    return config;
+  },
   images: {
     remotePatterns: [
       {
