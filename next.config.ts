@@ -7,6 +7,18 @@ const nextConfig = {
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
+  async rewrites() {
+    const apiBase = process.env.NEXT_PUBLIC_API_URL
+    if (!apiBase) {
+      return []
+    }
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${apiBase.replace(/\/$/, '')}/api/:path*`,
+      },
+    ]
+  },
   eslint: {
     // Vercel 빌드 시 ESLint 오류를 경고로 처리
     ignoreDuringBuilds: true,

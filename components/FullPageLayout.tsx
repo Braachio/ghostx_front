@@ -99,7 +99,7 @@ export default function FullPageLayout({
 
   const t = {
     ko: {
-      title: 'GPX',
+      title: 'GPX hub',
       welcome: (name: string) => `${name}님 환영합니다`,
       getStarted: '시작하기',
       logout: '로그아웃',
@@ -114,7 +114,7 @@ export default function FullPageLayout({
       keyboardHint: '키보드 화살표로 네비게이션'
     },
     en: {
-      title: 'GPX',
+      title: 'GPX hub',
       welcome: (name: string) => `Welcome ${name}`,
       getStarted: 'Get Started',
       logout: 'Logout',
