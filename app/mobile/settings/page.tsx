@@ -168,7 +168,7 @@ export default function MobileSettingsPage() {
           {/* 버전 정보 */}
           <div className="mobile-card">
             <div className="text-center">
-              <div className="mobile-text-sm text-slate-400 mobile-mb-1">GPX Mobile</div>
+              <div className="mobile-text-sm text-slate-400 mobile-mb-1">GPX Hub Mobile</div>
               <div className="mobile-text-xs text-slate-500">v1.0.0</div>
             </div>
           </div>

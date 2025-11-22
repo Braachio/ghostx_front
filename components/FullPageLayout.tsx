@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import TopNavigation from './TopNavigation'
 import EventCalendar from './EventCalendar'
-import InterestGameNotificationBanner from './InterestGameNotificationBanner'
+// import InterestGameNotificationBanner from './InterestGameNotificationBanner'
 import EventManagerPanel from './EventManagerPanel'
 import type { Database } from '@/lib/database.types'
 import BrandMark from '@/components/BrandMark'
@@ -99,7 +99,7 @@ export default function FullPageLayout({
 
   const t = {
     ko: {
-      title: 'GPX hub',
+      title: 'GPX Hub',
       welcome: (name: string) => `${name}님 환영합니다`,
       getStarted: '시작하기',
       logout: '로그아웃',
@@ -114,7 +114,7 @@ export default function FullPageLayout({
       keyboardHint: '키보드 화살표로 네비게이션'
     },
     en: {
-      title: 'GPX hub',
+      title: 'GPX Hub',
       welcome: (name: string) => `Welcome ${name}`,
       getStarted: 'Get Started',
       logout: 'Logout',
@@ -396,16 +396,16 @@ export default function FullPageLayout({
         <div className="max-w-7xl mx-auto text-center relative">
           {/* GPX 브랜딩 */}
           <div className="mb-12">
-            <BrandMark size={120} textClassName="text-4xl" className="rounded-3xl mx-auto" />
-            <div className="mt-3 text-sm text-gray-400">Grand Prix eXperience</div>
+            <BrandMark size={120} textClassName="text-4xl" className="rounded-3xl mx-auto shadow-lg" />
+            <div className="mt-4 text-base text-gray-300 font-medium">Grand Prix eXperience</div>
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 text-white">
             {language === 'ko' ? '더 쉽고 빠른 심레이싱' : 'Simplify your sim racing workflow'}
           </h2>
           <p className="text-lg sm:text-xl text-gray-400 mb-10 max-w-3xl mx-auto leading-relaxed">
             {language === 'ko'
-              ? '복잡한 절차는 줄이고 레이스에만 집중하세요. GPX가 필요한 모든 정보를 연결합니다.'
-              : 'Focus on driving while GPX connects schedules, servers, and data for you.'}
+              ? '복잡한 절차는 줄이고 레이스에만 집중하세요. GPX Hub가 필요한 모든 정보를 연결합니다.'
+              : 'Focus on driving while GPX Hub connects schedules, servers, and data for you.'}
           </p>
           <div className="h-px w-80 mx-auto bg-gradient-to-r from-transparent via-cyan-500 to-transparent mb-12"></div>
 
@@ -524,10 +524,10 @@ export default function FullPageLayout({
             
           </div>
           
-          {/* 관심 게임 알림 배너 */}
-          {user && (
+          {/* 관심 게임 알림 배너 - 사용자 피드백에 따라 비활성화 */}
+          {/* {user && (
             <InterestGameNotificationBanner userId={user.id} />
-          )}
+          )} */}
           
           {eventsLoading ? (
             <div className="bg-gray-900 rounded-lg p-8 text-center">

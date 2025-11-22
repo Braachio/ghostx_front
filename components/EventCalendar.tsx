@@ -187,10 +187,10 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
                 <button
                   key={game.id}
                   onClick={() => onGameChange(game.id)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     selectedGame === game.id
-                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
-                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:scale-105'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
                   }`}
                   title={game.name}
                 >
@@ -317,7 +317,7 @@ export default function EventCalendar({ events, selectedGame = 'all', onGameChan
           onClick={() => setExpandedDate(null)}
         >
           <div
-            className="w-full max-w-2xl mx-4 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl overflow-hidden"
+            className="w-full max-w-2xl mx-4 bg-gray-900 border border-gray-700 rounded-lg overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-700">

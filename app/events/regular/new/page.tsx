@@ -25,7 +25,7 @@ export default function RegularEventGameSelection() {
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
               <BrandMark size={32} textClassName="text-[12px]" />
-              <span className="font-bold text-lg text-white">GPX</span>
+              <span className="font-bold text-lg text-white">GPX Hub</span>
             </Link>
             
             <Link 

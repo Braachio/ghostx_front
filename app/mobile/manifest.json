@@ -1,6 +1,6 @@
 {
-  "name": "GPX Mobile",
-  "short_name": "GPX",
+  "name": "GPX Hub Mobile",
+  "short_name": "GPX Hub",
   "description": "심레이싱 갤러리 멀티 일정 관리 시스템",
   "start_url": "/mobile",
   "display": "standalone",

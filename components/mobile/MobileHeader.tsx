@@ -20,7 +20,7 @@ export default function MobileHeader({ user }: MobileHeaderProps) {
           <BrandMark size={28} textClassName="text-[11px]" />
           <div>
             <span className="mobile-font-bold mobile-text-lg text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500">
-              GPX
+              GPX Hub
             </span>
             <div className="text-xs text-gray-500">모바일</div>
           </div>

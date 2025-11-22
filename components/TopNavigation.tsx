@@ -31,7 +31,7 @@ export default function TopNavigation({
 
   const translations = {
     ko: {
-      title: 'GPX',
+      title: 'GPX Hub',
       logout: '로그아웃',
       getStarted: '시작하기',
       toMain: '← 메인으로',
@@ -43,7 +43,7 @@ export default function TopNavigation({
       },
     },
     en: {
-      title: 'GPX',
+      title: 'GPX Hub',
       logout: 'Logout',
       getStarted: 'Get Started',
       toMain: '← To Main',
@@ -59,7 +59,7 @@ export default function TopNavigation({
   const t = translations[language]
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-md border-b border-gray-800">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-md border-b border-gray-800/50 shadow-lg shadow-black/20">
       <div className="w-full px-6 sm:px-8 lg:px-12 xl:px-16">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">

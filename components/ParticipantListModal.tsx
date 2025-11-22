@@ -83,69 +83,63 @@ export default function ParticipantListModal({ isOpen, onClose, eventId, isOwner
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <div className="bg-slate-950/95 border border-slate-900 rounded-3xl max-w-3xl w-full max-h-[80vh] overflow-hidden shadow-[0_24px_60px_-30px_rgba(15,23,42,0.8)]">
-        <div className="flex items-start justify-between px-6 py-5 border-b border-slate-900/80">
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.32em] text-slate-500">Participant</p>
-            <h2 className="mt-2 text-lg font-semibold text-slate-100">참가자 목록</h2>
-          </div>
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+      <div className="bg-gray-900 border border-gray-700 rounded-lg max-w-3xl w-full max-h-[80vh] overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-700">
+          <h2 className="text-lg font-semibold text-white">참가자 목록</h2>
           <button
             onClick={onClose}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-900/80 text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors text-xl"
+            className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-800 rounded transition-colors"
           >
             ×
           </button>
         </div>
 
-        <div className="px-6 md:px-8 py-6 overflow-y-auto max-h-[55vh]">
+        <div className="px-6 py-4 overflow-y-auto max-h-[55vh]">
           {loading ? (
-            <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-slate-900 bg-slate-950/40 px-6 py-12">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-700 border-t-slate-300" />
-              <span className="text-xs font-medium uppercase tracking-wide text-slate-400">로딩 중…</span>
+            <div className="flex flex-col items-center justify-center gap-3 py-12">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-700 border-t-gray-300" />
+              <span className="text-sm text-gray-400">로딩 중…</span>
             </div>
           ) : participants.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-slate-800 bg-slate-950/40 px-4 py-12 text-center text-sm text-slate-500">
+            <div className="border border-dashed border-gray-700 bg-gray-800 px-4 py-12 text-center text-sm text-gray-400 rounded">
               아직 참가자가 없습니다.
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {participants.map((participant) => (
-                <div key={participant.id} className="rounded-2xl border border-slate-900 bg-slate-950/60 p-4">
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 border border-slate-800 text-slate-200 text-base font-semibold">
-                          {participant.nickname.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="text-slate-100 text-sm font-semibold">{participant.nickname}</p>
-                          <p className="text-slate-500 text-xs font-medium">
-                            Steam ID&nbsp;
-                            <span className="text-slate-300">{participant.steam_id || '없음'}</span>
-                          </p>
-                        </div>
+                <div key={participant.id} className="border border-gray-700 bg-gray-800 p-4 rounded">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-700 text-gray-200 text-sm font-semibold">
+                        {participant.nickname.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="text-white text-sm font-medium">{participant.nickname}</p>
+                        <p className="text-gray-400 text-xs">
+                          Steam ID: {participant.steam_id || '없음'}
+                        </p>
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <span
-                        className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${
+                        className={`px-3 py-1 rounded text-xs font-medium ${
                           participant.status === 'confirmed'
-                            ? 'bg-emerald-500/20 text-emerald-300'
-                            : 'bg-amber-500/20 text-amber-200'
+                            ? 'bg-green-600 text-white'
+                            : 'bg-yellow-600 text-white'
                         }`}
                       >
                         {participant.status === 'confirmed' ? '확정' : '대기'}
                       </span>
                       
                       {isOwner && (
-                        <div className="flex gap-2">
+                        <>
                           {participant.status === 'pending' && (
                             <button
                               onClick={() => handleStatusChange(participant.id, 'confirmed')}
                               disabled={actionLoading === participant.id}
-                              className="inline-flex items-center justify-center rounded-lg bg-slate-100/90 px-3 py-1 text-xs font-semibold text-slate-900 hover:bg-white transition-colors disabled:opacity-50"
+                              className="px-3 py-1 bg-white text-gray-900 text-xs font-medium rounded hover:bg-gray-100 transition-colors disabled:opacity-50"
                             >
                               {actionLoading === participant.id ? '처리중…' : '확정'}
                             </button>
@@ -154,12 +148,12 @@ export default function ParticipantListModal({ isOpen, onClose, eventId, isOwner
                             <button
                               onClick={() => handleStatusChange(participant.id, 'pending')}
                               disabled={actionLoading === participant.id}
-                              className="inline-flex items-center justify-center rounded-lg border border-slate-800 bg-transparent px-3 py-1 text-xs font-semibold text-slate-200 hover:bg-slate-900 transition-colors disabled:opacity-50"
+                              className="px-3 py-1 border border-gray-700 bg-transparent text-xs text-gray-200 rounded hover:bg-gray-800 transition-colors disabled:opacity-50"
                             >
                               {actionLoading === participant.id ? '처리중…' : '대기로'}
                             </button>
                           )}
-                        </div>
+                        </>
                       )}
                     </div>
                   </div>
@@ -169,13 +163,13 @@ export default function ParticipantListModal({ isOpen, onClose, eventId, isOwner
           )}
         </div>
 
-        <div className="flex items-center justify-between px-6 py-5 border-t border-slate-900 bg-slate-950">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-700 bg-gray-800">
+          <div className="text-sm text-gray-400">
             총 {participants.length}명 참가
           </div>
           <button
             onClick={onClose}
-            className="inline-flex items-center justify-center rounded-xl border border-slate-800 bg-transparent px-5 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-900 transition-colors"
+            className="px-4 py-2 border border-gray-700 bg-transparent text-sm text-gray-200 rounded hover:bg-gray-800 transition-colors"
           >
             닫기
           </button>

@@ -53,7 +53,7 @@ export default function MainPageLayout({
 
   const t = {
     ko: {
-      title: 'GPX',
+      title: 'GPX Hub',
       welcome: (name: string) => `${name}님 환영합니다`,
       getStarted: '시작하기',
       logout: '로그아웃',
@@ -72,7 +72,7 @@ export default function MainPageLayout({
       mobileMenu: '메뉴'
     },
     en: {
-      title: 'GPX',
+      title: 'GPX Hub',
       welcome: (name: string) => `Welcome ${name}`,
       getStarted: 'Get Started',
       logout: 'Logout',

@@ -24,6 +24,8 @@ const translations = {
       tabDriver: '드라이버 인사이트',
       tabMeta: '메타 리포트',
       tabBop: 'BoP 패치 알림',
+      comingSoon: '준비중',
+      comingSoonMessage: '이 기능은 곧 출시될 예정입니다.',
     },
     hero: {
       subtitle: '전적 검색부터 우승 전략까지',
@@ -98,6 +100,8 @@ const translations = {
       tabDriver: 'Driver Insights',
       tabMeta: 'Meta Report',
       tabBop: 'BoP Patch Alerts',
+      comingSoon: 'Coming Soon',
+      comingSoonMessage: 'This feature will be available soon.',
     },
     hero: {
       subtitle: 'iRacing Driver Analysis & Strategy Suite',
@@ -685,7 +689,7 @@ export default function IracingTestPage() {
 
     return (
       <>
-        <div className="bg-gray-900/70 border border-emerald-700/40 rounded-2xl p-6 backdrop-blur-sm shadow-lg shadow-emerald-500/10">
+        <div className="glass-card glass-card-hover rounded-lg p-6">
           <div className="flex items-center justify-between mb-3">
             <div>
               <div className="text-xs text-emerald-300/80 uppercase tracking-[0.2em]">{t.session.label}</div>
@@ -808,7 +812,7 @@ export default function IracingTestPage() {
                 setSessionLoading(false)
               }
             }}
-            className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-lime-500 hover:from-emerald-500 hover:to-lime-400 transition-colors font-semibold whitespace-nowrap"
+            className="px-6 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 transition-colors font-semibold whitespace-nowrap text-white"
           >
             {t.session.submit}
           </button>
@@ -823,7 +827,7 @@ export default function IracingTestPage() {
     <div className="space-y-4">
       {/* 즐겨찾기 목록 */}
       {user && favorites.length > 0 && (
-        <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 backdrop-blur-sm">
+        <div className="glass-card glass-card-hover rounded-lg p-6">
           <div className="text-xs text-gray-400 uppercase tracking-[0.2em] mb-3">{t.driver.favorites}</div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {favorites.map((fav, favIdx) => (
@@ -850,7 +854,7 @@ export default function IracingTestPage() {
         </div>
       )}
       
-      <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 backdrop-blur-sm">
+      <div className="glass-card glass-card-hover rounded-2xl p-6 border-gray-700/30">
         <div className="text-xs text-gray-400 uppercase tracking-[0.2em] mb-1">{t.driver.sectionLabel}</div>
         <div className="text-xl font-semibold text-white mb-4">{t.driver.title}</div>
         <div className="flex flex-col sm:flex-row gap-3">
@@ -860,7 +864,7 @@ export default function IracingTestPage() {
             placeholder={t.driver.placeholder}
             className="flex-1 bg-gray-800/80 border border-gray-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
           />
-          <button onClick={search} className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 transition-colors font-semibold whitespace-nowrap">
+          <button onClick={search} className="px-6 py-3 rounded-lg bg-cyan-600 hover:bg-cyan-500 transition-colors font-semibold whitespace-nowrap text-white">
             {t.driver.button}
           </button>
         </div>
@@ -912,7 +916,7 @@ export default function IracingTestPage() {
 
       {profile ? (
         <div className="space-y-4">
-          <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 backdrop-blur-sm">
+          <div className="glass-card glass-card-hover rounded-lg p-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
               <div>
                 <div className="text-xs text-gray-400 uppercase tracking-[0.2em]">{t.driver.profileLabel}</div>
@@ -988,7 +992,7 @@ export default function IracingTestPage() {
 
           <DriverSummaryCards profile={profile} />
           {percentile && (
-            <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 backdrop-blur-sm">
+            <div className="glass-card glass-card-hover rounded-lg p-6">
               <h3 className="text-xl font-bold text-white mb-4">{t.driver.percentileTitle}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-4">
@@ -1007,7 +1011,7 @@ export default function IracingTestPage() {
                     </div>
                     <div className="h-3 w-full bg-gray-700 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-cyan-600 to-blue-600 rounded-full transition-all duration-500"
+                        className="h-full bg-cyan-600 rounded-full transition-all duration-500"
                         style={{ width: `${Math.min(100, percentile.global?.percentile ?? 0)}%` }}
                       />
                     </div>
@@ -1034,7 +1038,7 @@ export default function IracingTestPage() {
                     </div>
                     <div className="h-3 w-full bg-gray-700 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-purple-600 to-pink-600 rounded-full transition-all duration-500"
+                        className="h-full bg-purple-600 rounded-full transition-all duration-500"
                         style={{ width: `${Math.min(100, percentile.country?.percentile ?? 0)}%` }}
                       />
                     </div>
@@ -1058,7 +1062,7 @@ export default function IracingTestPage() {
           )}
         </div>
       ) : (
-        <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-12 text-center text-gray-500 text-sm">
+        <div className="glass-card rounded-lg p-12 text-center text-gray-400 text-sm">
           {t.driver.emptyState}
         </div>
       )}
@@ -1074,13 +1078,21 @@ export default function IracingTestPage() {
       case 'meta':
         return (
           <div className="mt-6">
-            <MetaVehicleReport />
+            <div className="glass-card rounded-lg p-12 text-center">
+              <div className="text-2xl font-semibold text-white mb-2">{t.common.tabMeta}</div>
+              <div className="text-lg text-amber-400 mb-4">{t.common.comingSoon}</div>
+              <div className="text-sm text-gray-400">{t.common.comingSoonMessage}</div>
+            </div>
           </div>
         );
       case 'bop':
         return (
           <div className="mt-6">
-            <BopAlertsCard />
+            <div className="glass-card rounded-lg p-12 text-center">
+              <div className="text-2xl font-semibold text-white mb-2">{t.common.tabBop}</div>
+              <div className="text-lg text-amber-400 mb-4">{t.common.comingSoon}</div>
+              <div className="text-sm text-gray-400">{t.common.comingSoonMessage}</div>
+            </div>
           </div>
         );
       default:
@@ -1089,7 +1101,7 @@ export default function IracingTestPage() {
   };
 
   const content = (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 text-white">
+    <div className="min-h-screen bg-gray-950 text-white">
       {/* 상단 네비게이션 */}
       <TopNavigation
         user={user}
@@ -1099,19 +1111,17 @@ export default function IracingTestPage() {
       />
 
       {/* 메인 컨텐츠 */}
-      <div className="pt-24 px-4 sm:px-6 lg:px-8 pb-20">
+      <div className="pt-24 px-4 sm:px-6 lg:px-8 pb-20 relative z-10">
         <div className="max-w-6xl mx-auto space-y-6">
           {/* 상단 설명 섹션 */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
-                Your iRacing Companion
-              </span>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-racing mb-4 text-cyan-400">
+              Your iRacing Companion
             </h1>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6 text-white">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-racing mb-6 text-white">
               {t.hero.subtitle}
             </h2>
-            <p className="text-lg sm:text-xl text-gray-400 mb-8 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg text-gray-400 mb-8 max-w-3xl mx-auto leading-relaxed">
               {t.hero.description.map((line, idx) => (
                 <span key={idx}>
                   {line}
@@ -1123,14 +1133,14 @@ export default function IracingTestPage() {
                 </span>
               ))}
             </p>
-            <div className="h-px w-64 mx-auto bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
+            <div className="h-px w-64 mx-auto bg-gray-700"></div>
           </div>
 
           {/* 탭 네비게이션 */}
-          <div className="flex items-center gap-4 border-b border-gray-800">
+          <div className="flex items-center gap-4 border-b border-gray-800/50 pb-1">
             <button
               onClick={() => setActiveTab('session')}
-              className={`px-4 py-2 text-sm font-medium transition-colors relative ${
+              className={`px-4 py-2 text-sm font-racing transition-all relative ${
                 activeTab === 'session'
                   ? 'text-white'
                   : 'text-gray-400 hover:text-white'
@@ -1138,12 +1148,12 @@ export default function IracingTestPage() {
             >
               {t.common.tabSession}
               {activeTab === 'session' && (
-                <span className="absolute left-0 right-0 -bottom-0.5 h-[2px] bg-gradient-to-r from-cyan-500 to-blue-500"/>
+                <span className="absolute left-0 right-0 -bottom-0.5 h-[2px] bg-cyan-500"/>
               )}
             </button>
             <button
               onClick={() => setActiveTab('driver')}
-              className={`px-4 py-2 text-sm font-medium transition-colors relative ${
+              className={`px-4 py-2 text-sm font-racing transition-all relative ${
                 activeTab === 'driver'
                   ? 'text-white'
                   : 'text-gray-400 hover:text-white'
@@ -1151,33 +1161,35 @@ export default function IracingTestPage() {
             >
               {t.common.tabDriver}
               {activeTab === 'driver' && (
-                <span className="absolute left-0 right-0 -bottom-0.5 h-[2px] bg-gradient-to-r from-cyan-500 to-blue-500"/>
+                <span className="absolute left-0 right-0 -bottom-0.5 h-[2px] bg-cyan-500"/>
               )}
             </button>
             <button
               onClick={() => setActiveTab('meta')}
-              className={`px-4 py-2 text-sm font-medium transition-colors relative ${
+              className={`px-4 py-2 text-sm font-racing transition-all relative ${
                 activeTab === 'meta'
                   ? 'text-white'
                   : 'text-gray-400 hover:text-white'
               }`}
             >
               {t.common.tabMeta}
+              <span className="ml-2 text-xs text-amber-400">({t.common.comingSoon})</span>
               {activeTab === 'meta' && (
-                <span className="absolute left-0 right-0 -bottom-0.5 h-[2px] bg-gradient-to-r from-cyan-500 to-blue-500"/>
+                <span className="absolute left-0 right-0 -bottom-0.5 h-[2px] bg-cyan-500"/>
               )}
             </button>
             <button
               onClick={() => setActiveTab('bop')}
-              className={`px-4 py-2 text-sm font-medium transition-colors relative ${
+              className={`px-4 py-2 text-sm font-racing transition-all relative ${
                 activeTab === 'bop'
                   ? 'text-white'
                   : 'text-gray-400 hover:text-white'
               }`}
             >
               {t.common.tabBop}
+              <span className="ml-2 text-xs text-amber-400">({t.common.comingSoon})</span>
               {activeTab === 'bop' && (
-                <span className="absolute left-0 right-0 -bottom-0.5 h-[2px] bg-gradient-to-r from-cyan-500 to-blue-500"/>
+                <span className="absolute left-0 right-0 -bottom-0.5 h-[2px] bg-cyan-500"/>
               )}
             </button>
           </div>

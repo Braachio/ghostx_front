@@ -32,7 +32,7 @@ export default function CookieConsentBanner() {
           <div className="flex items-center gap-3 text-sm text-gray-300">
             <BrandMark size={36} textClassName="text-[13px]" />
             <p className="text-xs text-gray-400 leading-relaxed">
-              본 웹사이트 사용 시 GPX의 서비스 약관 및 정책에 동의하는 것으로 간주됩니다.
+              본 웹사이트 사용 시 GPX Hub의 서비스 약관 및 정책에 동의하는 것으로 간주됩니다.
             </p>
           </div>
 

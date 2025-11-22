@@ -191,7 +191,7 @@ export default function SegmentAnalysis({ result }: { result: ResultType }) {
       {/* 🔶 브레이크 분석 피드백 출력 */}
       {segment.brake_feedback && (
         <div className="bg-gradient-to-r from-yellow-900/30 to-orange-900/30 border-2 border-yellow-500/30 text-yellow-300 rounded-lg p-4 shadow-lg shadow-yellow-500/10">
-          <p className="text-sm font-semibold">GPX 분석 인사이트: {segment.brake_feedback}</p>
+          <p className="text-sm font-semibold">GPX Hub 분석 인사이트: {segment.brake_feedback}</p>
         </div>
       )}
 

@@ -10,7 +10,7 @@ export default function BrandMark({ size = 32, className = '', textClassName = '
   const style: CSSProperties = { width: size, height: size }
   return (
     <div
-      className={`flex items-center justify-center rounded-xl bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 text-black font-black tracking-wide uppercase ${className}`}
+      className={`flex items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 text-black font-racing tracking-wide uppercase ${className}`}
       style={style}
     >
       <span className={`leading-none ${textClassName}`} style={{ fontSize: size * 0.35 }}>

@@ -4,7 +4,7 @@ export default function CookiesPage() {
       <h1 className="text-2xl font-bold mb-4">쿠키 사용 안내</h1>
 
       <p>
-        GPX는 사용자 경험 개선과 분석 기능 강화를 위해 최소한의 쿠키를 사용합니다. 쿠키는 사용자의 브라우저에 저장되며, 웹사이트 이용을 보다 원활하게 돕습니다.
+        GPX Hub는 사용자 경험 개선과 분석 기능 강화를 위해 최소한의 쿠키를 사용합니다. 쿠키는 사용자의 브라우저에 저장되며, 웹사이트 이용을 보다 원활하게 돕습니다.
       </p>
 
       <p className="font-semibold">📌 사용 중인 쿠키 유형</p>
